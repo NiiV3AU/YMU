@@ -61,7 +61,7 @@ def download_dll():
 
 # starts the download in a thread to keep the gui responsive
 def start_download():
-    Thread(target=download_dll).start()
+    Thread(target = download_dll).start()
 
 # Injects YimMenu into GTA5.exe process
 def inject_dll():
@@ -100,6 +100,11 @@ def inject_dll():
         print ("Failed to inject YimMenu!")
 
     print ("Remote Thread with ID 0x%08x created." %(thread_id.value))
+
+
+def start_injection():
+    Thread(target = inject_dll).start()
+
 
 # YMU Appearance - currently only dark mode
 ctk.set_appearance_mode("dark")
@@ -278,7 +283,7 @@ def reset_progress_prcnt_label():
 
 
 # open more info for sha256
-def open_sha256_info():
+def open_sha256_info(e):
 
     sha256_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
     sha256_info.minsize(280, 220)
@@ -292,12 +297,12 @@ def open_sha256_info():
     sha256_info_label.pack(pady=10, padx=10, expand=True, fill="both")
 
 
-def hover_sha256_mi():
+def hover_sha256_mi(e):
     sha256_more_info_label.configure(cursor = "hand2")
     sha256_more_info_label.configure(text_color = FG_COLOR)
 
 
-def normal_sha256_mi():
+def normal_sha256_mi(e):
     sha256_more_info_label.configure(cursor = "arrow")
     sha256_more_info_label.configure(text_color = "#DCE4EE")
 
@@ -321,12 +326,12 @@ sha256_more_info_label.bind("<Enter>", hover_sha256_mi)
 sha256_more_info_label.bind("<Leave>", normal_sha256_mi)
 
 
-def hover_get_ghsha256_button():
+def hover_get_ghsha256_button(e):
     get_ghsha256_button.configure(text_color = FG_COLOR)
     get_ghsha256_button.configure(fg_color = "#36543F")
 
 
-def nohover_get_ghsha256_button():
+def nohover_get_ghsha256_button(e):
     get_ghsha256_button.configure(text_color = BG_COLOR)
     get_ghsha256_button.configure(fg_color = FG_COLOR)
 
@@ -348,12 +353,12 @@ get_ghsha256_button.bind("<Enter>", hover_get_ghsha256_button)
 get_ghsha256_button.bind("<Leave>", nohover_get_ghsha256_button)
 
 
-def hover_get_local_sha256_button():
+def hover_get_local_sha256_button(e):
     get_local_sha256_button.configure(text_color = FG_COLOR)
     get_local_sha256_button.configure(fg_color = "#36543F")
 
 
-def nohover_get_local_sha256_button():
+def nohover_get_local_sha256_button(e):
     get_local_sha256_button.configure(text_color = BG_COLOR)
     get_local_sha256_button.configure(fg_color = FG_COLOR)
 
@@ -454,7 +459,7 @@ def nohover_inject_button(e):
 
 
 # more info for download/update
-def open_download_info():
+def open_download_info(e):
 
     download_info = ctk.CTkToplevel(root, fg_color = BG_COLOR)
     download_info.minsize(280, 120)
@@ -511,7 +516,7 @@ download_button.bind("<Leave>", nohover_download_button)
 inject_button = ctk.CTkButton(
     master        = tabview.tab("Inject"),
     text          = "Inject YimMenu",
-    command       = inject_dll,
+    command       = start_injection,
     fg_color      = FG_COLOR,
     hover_color   = BHVR_COLOR,
     text_color    = BG_COLOR,
