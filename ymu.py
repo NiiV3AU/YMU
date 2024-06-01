@@ -9,6 +9,7 @@ from   customtkinter import CTkFont
 from   threading     import Thread
 from   time          import sleep as sleep
 from   ctypes        import *
+from   pyinjector    import inject
 
 # Colors
 BG_COLOR   = "#333333"
@@ -69,41 +70,7 @@ def inject_dll():
     for process in psutil.process_iter():
         if process.name() == PROCNAME:
             PID = process.pid
-
-    kernel32 = windll.kernel32
-    dll_path = LOCALDLL
-    dll_len  = len(dll_path)
-
-    # Get handle to process being injected...
-    h_process = kernel32.OpenProcess(PROCESS_ALL_ACCESS, False, int(PID))
-
-    if not h_process:
-        print ("GTA5.exe not found!")
-        sys.exit(0)
-    print(PID)
-
-    # Allocate space for DLL path
-    arg_address = kernel32.VirtualAllocEx(h_process, 0, dll_len, VIRTUAL_MEM, PAGE_READWRITE)
-
-    # Write DLL path to allocated space
-    written = c_int(0)
-    kernel32.WriteProcessMemory(h_process, arg_address, dll_path, dll_len, byref(written))
-
-    # Resolve LoadLibraryA Address
-    h_kernel32 = kernel32.GetModuleHandleA("kernel32.dll")
-    h_loadlib = kernel32.GetProcAddress(h_kernel32, "LoadLibraryA")
-
-    # Now we createRemoteThread with entrypoiny set to LoadLibraryA and pointer to DLL path as param
-    thread_id = c_ulong(0)
-
-    if not kernel32.CreateRemoteThread(h_process, None, 0, h_loadlib, arg_address, 0, byref(thread_id)):
-        print ("Failed to inject YimMenu!")
-
-    print ("Remote Thread with ID 0x%08x created." %(thread_id.value))
-
-
-def start_injection():
-    Thread(target = inject_dll).start()
+    inject(PID, LOCALDLL)
 
 
 # YMU Appearance - currently only dark mode
@@ -516,7 +483,7 @@ download_button.bind("<Leave>", nohover_download_button)
 inject_button = ctk.CTkButton(
     master        = tabview.tab("Inject"),
     text          = "Inject YimMenu",
-    command       = start_injection,
+    command       = inject_dll,
     fg_color      = FG_COLOR,
     hover_color   = BHVR_COLOR,
     text_color    = BG_COLOR,
