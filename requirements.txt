@@ -1,0 +1,10 @@
+os
+psutil
+customtkinter
+requests
+hashlib
+webbrowser
+threading
+time
+ctypes
+pyinjector
