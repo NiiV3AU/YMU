@@ -149,7 +149,7 @@ def find_n_verify_pid():
         )
         injection_progressbar.set(0.5)
         inject_dll(PID)
-        progressbar.set(1.0)
+        injection_progressbar.set(1.0)
         inject_progress_label.configure(
             text=f"YimMenu injected successfully @ GTA.exe [{PID}]!",
             text_color=FG_COLOR,
