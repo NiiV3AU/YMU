@@ -6,6 +6,7 @@
 
 # How it Works
 When you start YMU you are greeted with a modern looking GUI that displays four tabs, Download, Update, SHA256 and Inject. You can download the dll in the Download-Tab or update it in the Update-Tab. In the SHA256-Tab you can view the sha256 of the local file and open the github release page of YimMenu to compare both strings with each other. The new Inject-Tab provides a button which injects the YimMenu.
+> Disclaimer: Use this project for `educational purposes` only and use it at `your own risk`.
 
 # How it looks
 
