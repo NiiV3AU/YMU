@@ -1,12 +1,16 @@
 # YMU
-> A small Python GUI build with customtkinter, which allows you to download or update to the latest version of YimMenu
-
-
-> As of version 1.0.1: Injection is also supported
+>[!NOTE]
+> **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
+>
+> **NEXT** in `v1.0.2` ↦ View the Changelog of YimMenu in a new Changelog-Tab
 
 # How it Works
 When you start YMU you are greeted with a modern looking GUI that displays four tabs, Download, Update, SHA256 and Inject. You can download the dll in the Download-Tab or update it in the Update-Tab. In the SHA256-Tab you can view the sha256 of the local file and open the github release page of YimMenu to compare both strings with each other. The new Inject-Tab provides a button which injects the YimMenu.
-> Disclaimer: Use this project for `educational purposes` only and use it at `your own risk`.
+>[!WARNING]
+> Use this project for educational purposes only and use it at your own risk.
+
+>[!CAUTION]
+> I am not liable or responsible for any direct or indirect consequences that may result from the use of YMU or YimMenu.
 
 # How it looks
 
@@ -80,7 +84,8 @@ The Project teached me new things as using threading for a more responsive gui, 
 # Requirements and Dependencies
 | __Programming Language:__ | [Python](https://python.org) |
 | ------------- | ------------- |
->I used Version 3.12.2 while coding YMU
+>[!TIP]
+>I'm using Python `3.12.2` while coding YMU
 
 ## Libraries
 | __Library__ | __pip command__ |                                                          
