@@ -26,6 +26,7 @@ WHITE = "#DCE4EE"
 # YMU root - title - minsize - launch size - launch in center of sreen
 root = ctk.CTk()
 root.title("YMU - YimMenuUpdater")
+root.iconbitmap("ymu.ico")
 root.minsize(260, 350)
 root.configure(fg_color=DBG_COLOR)
 width_of_window = 400
