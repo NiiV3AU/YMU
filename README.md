@@ -1,4 +1,7 @@
-# YMU
+![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
+> Initial version of Logo, possible change in future
+
+
 >[!NOTE]
 > **NEXT** in `v1.0.3` ↦ **TBA**
 >
