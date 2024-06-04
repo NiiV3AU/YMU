@@ -76,15 +76,9 @@ jobs:
         tag_name: v1.0.2 # and here before running the workflow
         body: | # here you can put whatever you want to display in the release page
             ### Changelog:
-            - GUI changes (Download- and Update-tab now seperated + added Inject-tab)
-            - Added Injection (WORKING - tested by me in story mode)
-
-            > [base function](https://github.com/NiiV3AU/YMU/commit/7cd6d5e7ccd5ca2930d5c5ff0c980df4ef8b90bb) version of injection tested and contributed by @[xesdoog](github.com/xesdoog)).
-
-            > can't guarantee if it's a safe injection method, pls give feedback for further improvement.
-            
-            **Notice:**
-            Binary (YMU.exe) has a small display bug: the injection progress bar only reaches 66% due to a typo. Functionallity not affected and source code already corrected!
+            - GUI changes (Download- and Update-tab now united again and SHA256-Tab completely removed + other small changes)
+            - Added Changelog of YimMenu
+            - fixed [YMU not terminating correctly](https://github.com/NiiV3AU/YMU/issues/3)
 
 
             **This release has been built by Github Actions**
