@@ -142,7 +142,7 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=FG_COLOR
         )
-        Thread(target=refresh_download_button).start()
+        Thread(target=refresh_download_button, daemon=True).start()
     # if download failed
     except requests.exceptions.RequestException as e:
         progress_prcnt_label.configure(
@@ -153,7 +153,7 @@ def download_dll():
 
 # starts the download in a thread to keep the gui responsive
 def start_download():
-    Thread(target=download_dll).start()
+    Thread(target=download_dll, daemon=True).start()
 
 
 def refresh_inject_button():
@@ -173,7 +173,7 @@ def refresh_inject_button():
                 pass
 
 
-refresh_thread_i = Thread(target=refresh_inject_button)
+refresh_thread_i = Thread(target=refresh_inject_button, daemon=True)
 
 
 def refresh_loop_i():
@@ -215,7 +215,7 @@ def find_n_verify_pid():
 
 
 def start_injection():
-    Thread(target=find_n_verify_pid).start()
+    Thread(target=find_n_verify_pid, daemon=True).start()
 
 
 def reset_inject_progress_label():
@@ -285,7 +285,7 @@ def copyright_label_ani_master():
 
 # starts all animations - currently only copyright
 def master_ani_start():
-    Thread(target=copyright_label_ani_master).start()
+    Thread(target=copyright_label_ani_master, daemon=True).start()
 
 
 root.after(1000, master_ani_start)
