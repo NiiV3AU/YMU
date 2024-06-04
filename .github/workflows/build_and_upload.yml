@@ -1,0 +1,99 @@
+# This workflow will install Python dependencies, run tests, build an executable then upload it to github releases
+
+name: YMU Release
+
+on: 
+  workflow_dispatch:
+
+jobs:
+
+  build:
+
+    runs-on: windows-latest
+    name: Build YMU
+    outputs:
+      full_sha: ${{ steps.var.outputs.full_sha }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install flake8 pyinstaller
+        pip install -r requirements.txt
+
+    - name: flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: create binary
+      run: |
+        pyinstaller --noconfirm --onefile --windowed --noconsole --icon=ymu.ico "ymu.py"
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary
+        path: |
+          dist\ymu.exe
+
+    - name: Generate Build Info
+      id: var
+      run: |
+        echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
+        echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
+
+  create_release:
+  
+    runs-on: ubuntu-latest
+    name: Create Release
+    needs: build
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: binary
+
+    - name: Echo build_sha256
+      id: build_sha
+      run: |
+        sha256sum ymu.exe > sha256.checksum
+        echo "build_sha=$(cat sha256.checksum)" >> $GITHUB_OUTPUT
+        cat sha256.checksum
+
+    - name: Upload Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: YMU v1.0.2 # You can modify the version number here
+        tag_name: v1.0.2 # and here before running the workflow
+        body: | # here you can put whatever you want to display in the release page
+            ### Changelog:
+            - GUI changes (Download- and Update-tab now seperated + added Inject-tab)
+            - Added Injection (WORKING - tested by me in story mode)
+
+            > [base function](https://github.com/NiiV3AU/YMU/commit/7cd6d5e7ccd5ca2930d5c5ff0c980df4ef8b90bb) version of injection tested and contributed by @[xesdoog](github.com/xesdoog)).
+
+            > can't guarantee if it's a safe injection method, pls give feedback for further improvement.
+            
+            **Notice:**
+            Binary (YMU.exe) has a small display bug: the injection progress bar only reaches 66% due to a typo. Functionallity not affected and source code already corrected!
+
+
+            **This release has been built by Github Actions**
+
+            [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            Full Commit Hash:
+              ```
+              ${{ needs.build.outputs.full_sha }}
+              ```
+        files: |
+          ymu.exe
