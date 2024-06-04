@@ -2,3 +2,4 @@ psutil
 customtkinter
 requests
 pyinjector
+bs4
