@@ -7,9 +7,13 @@ on:
 
 
 jobs:
+
   build:
 
     runs-on: windows-latest
+    name: Build YMU
+    outputs:
+      full_sha: ${{ steps.var.outputs.full_sha }}
 
     steps:
     - uses: actions/checkout@v4
@@ -17,26 +21,31 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: "3.12"
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install flake8 pyinstaller
         pip install -r requirements.txt
+
     - name: flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
     - name: create binary
       run: |
         pyinstaller --noconfirm --onefile --windowed --noconsole --icon=ymu.ico "ymu.py"
+
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: binary
         path: |
           dist\ymu.exe
+
     - name: Generate Build Info
       id: var
       run: |
@@ -54,12 +63,13 @@ jobs:
       with:
         name: binary
 
-    - name: Echo build sha256
+    - name: Echo build_sha256
       id: build_sha
       run: |
         sha256sum ymu.exe > sha256.checksum
         echo "build_sha=$(cat sha256.checksum)" >> $GITHUB_OUTPUT
         cat sha256.checksum
+
     - name: Upload Release
       uses: softprops/action-gh-release@v2
       with:
@@ -81,5 +91,10 @@ jobs:
             **This release has been built by Github Actions**
 
             [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+
+            Full Commit Hash:
+              ```
+              ${{ needs.build.outputs.full_sha }}
+              ```
         files: |
           ymu.exe
