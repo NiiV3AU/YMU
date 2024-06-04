@@ -132,5 +132,8 @@ The Project teached me new things as using threading for a more responsive gui, 
 | __Menu:__ | [YimMenu](https://yim.gta.menu/) |
 | ------------- | ------------- |
 
+| __Logo:__ | [Made with Canva](https://www.canva.com) |
+| ------------- | ------------- |
+
 | __Fonts:__ | [Manrope](https://fonts.google.com/specimen/Manrope) | [JetBrains Mono](https://www.jetbrains.com/lp/mono/) |
 | ------------- | ------------- | ------------- |
