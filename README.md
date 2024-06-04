@@ -1,11 +1,15 @@
 # YMU
 >[!NOTE]
-> **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
+> **NEXT** in `v1.0.3` ↦ **TBA**
 >
-> **NEXT** in `v1.0.2` ↦ View the Changelog of YimMenu in a new Changelog-Tab
+> **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
+>
+> **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
+
+
 
 # How it Works
-When you start YMU you are greeted with a modern looking GUI that displays four tabs, Download, Update, SHA256 and Inject. You can download the dll in the Download-Tab or update it in the Update-Tab. In the SHA256-Tab you can view the sha256 of the local file and open the github release page of YimMenu to compare both strings with each other. The new Inject-Tab provides a button which injects the YimMenu.
+When you start YMU you are greeted with a modern looking GUI that displays two tabs, Download/Update and Inject. You can download or update the dll in the Download/Update-Tab. The Inject-Tab provides a button which injects the YimMenu. Also you find clickables labels in the Tabs that provides more information or even the Changelog of YimMenu.
 >[!WARNING]
 > Use this project for educational purposes only and use it at your own risk.
 
@@ -13,6 +17,26 @@ When you start YMU you are greeted with a modern looking GUI that displays four 
 > I am not liable or responsible for any direct or indirect consequences that may result from the use of YMU or YimMenu.
 
 # How it looks
+
+<details>
+<summary><b>v1.0.2</b> ↴</summary>
+
+<details>
+<summary><b>Download/Update</b>-Tab ↴</summary>
+
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/2f138a6a-21be-4cde-9a10-4057b186302b)
+
+
+</details>
+<details>
+<summary><b>Inject</b>-Tab ↴</summary>
+  
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/5b4b05f5-90c7-42d4-9c58-791a71b48cdb)
+
+</details>
+
+</details>
+
 
 <details>
 <summary><b>v1.0.1</b> ↴</summary>
@@ -93,7 +117,8 @@ The Project teached me new things as using threading for a more responsive gui, 
 | [requests](https://pypi.org/project/requests/) | `pip install requests` |                  
 | [customtkinter](https://pypi.org/project/customtkinter/) | `pip install customtkinter` |
 | [psutil](https://pypi.org/project/psutil/) | `pip install psutil` |
-| [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector` |  
+| [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector` |
+| [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) | `pip install bs4` |
 
 
 # Credits
