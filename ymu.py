@@ -142,7 +142,7 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=FG_COLOR
         )
-        Thread(target=refresh_download_button, daemon=True).start()
+        Thread(target=refresh_download_button).start()
     # if download failed
     except requests.exceptions.RequestException as e:
         progress_prcnt_label.configure(
@@ -225,13 +225,8 @@ def reset_inject_progress_label():
 
 
 # opens github repo
-def open_github():
+def open_github(e):
     webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU")
-
-
-# opens latest YimMenu Build for sha256 verify
-def open_ghsha256():
-    webbrowser.open_new_tab("https://github.com/YimMenu/YimMenu/releases/latest")
 
 
 # label for github repo - author (NV3) - version
@@ -289,6 +284,7 @@ def master_ani_start():
 
 
 root.after(1000, master_ani_start)
+
 
 # Download and SHA256 tabs
 tabview = ctk.CTkTabview(
