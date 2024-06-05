@@ -142,7 +142,7 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=FG_COLOR
         )
-        Thread(target=refresh_download_button).start()
+        Thread(target=refresh_download_button, daemon=True).start()
     # if download failed
     except requests.exceptions.RequestException as e:
         progress_prcnt_label.configure(
