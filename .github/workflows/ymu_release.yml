@@ -79,23 +79,13 @@ jobs:
                 release_id: release.id,
               });
               console.log(`Deleted release with ID ${release.id}`);
-              }
+            }
 
             // List all tags
             const tags = await github.rest.repos.listTags({
               owner: owner,
               repo: repo,
             });
-
-            // Delete old tags
-            for (const tag of tags.data) {
-              await github.rest.git.deleteRef({
-                owner: owner,
-                repo: repo,
-                tag_id: tag.id,
-              });
-              console.log(`Deleted tag ${tag.id}`);
-              }
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
