@@ -5,15 +5,14 @@ name: YMU Release
 on: 
   workflow_dispatch:
 
+
 jobs:
 
   build:
-
     runs-on: windows-latest
     name: Build YMU
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
-
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.12
@@ -27,17 +26,23 @@ jobs:
         pip install flake8 pyinstaller
         pip install -r requirements.txt
 
-    - name: flake8
+    - name: Verify With Flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: create binary
+    - name: Build Executable
       run: |
-        pyinstaller --noconfirm --onefile --windowed --noconsole --icon=ymu.ico "ymu.py"
+        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --add-data='D:\a\YMU\YMU\icon\ymu.ico':icon --icon='D:\a\YMU\YMU\icon\ymu.ico'
 
+    - name: Generate Build Info
+      id: var
+      run: |
+        echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
+        echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
+    
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
@@ -45,49 +50,99 @@ jobs:
         path: |
           dist\ymu.exe
 
-    - name: Generate Build Info
-      id: var
-      run: |
-        echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
-        echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
-
   create_release:
-
     runs-on: ubuntu-latest
-    name: Create Release
+    name: Delete Old Release
     needs: build
     steps:
-    - name: Download Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: binary
+      - uses: actions/checkout@v4
 
-    - name: Echo build_sha256
-      id: build_sha
-      run: |
-        sha256sum ymu.exe > sha256.checksum
-        echo "build_sha=$(cat sha256.checksum)" >> $GITHUB_OUTPUT
-        cat sha256.checksum
+      - name: Delete Old Release
+        id: delete_ex_release
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+      
+            // List all releases
+            const releases = await github.rest.repos.listReleases({
+              owner: owner,
+              repo: repo,
+            });
 
-    - name: Upload Release
-      uses: softprops/action-gh-release@v2
-      with:
-        name: YMU v1.0.2 # You can modify the version number here
-        tag_name: v1.0.2 # and here before running the workflow
-        body: | # here you can put whatever you want to display in the release page
-            ### Changelog:
-            - GUI changes (Download- and Update-tab now united again and SHA256-Tab completely removed + other small changes)
-            - Added Changelog of YimMenu
-            - fixed [YMU not terminating correctly](https://github.com/NiiV3AU/YMU/issues/3)
+            // Iterate over each release and delete it
+            for (const release of releases.data) {
+              await github.rest.repos.deleteRelease({
+                owner: owner,
+                repo: repo,
+                release_id: release.id,
+              });
+              console.log(`Deleted release with ID ${release.id}`);
+            }
+
+            // List all tags
+            const tags = await github.rest.repos.listTags({
+              owner: owner,
+              repo: repo,
+            });
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: binary
+
+      - name: Increment Version
+        id: increment_version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            // Get the latest tag
+            const tags = await github.rest.repos.listTags({
+              owner: owner,
+              repo: repo,
+            });
+            let newVersion;
+            let oldTag;
+            if (tags.data.length === 0) {
+              // No tags found, start with a default version
+              console.log('No existing tags found. Starting with version v1.0.1');
+              newVersion = 'v1.0.1';
+            } else {
+              // Extract the latest tag name
+              const latestTag = tags.data[0].name;
+              const versionParts = latestTag.substring(1).split('.').map(Number);
+              versionParts[2] += 1; // Increment the patch version
+              newVersion = `v${versionParts.join('.')}`;
+              oldTag = latestTag;
+            }
+            core.setOutput("new_version", newVersion); 
+            core.setOutput("old_tag", oldTag);
+        
+      - name: Echo build_sha256
+        id: build_sha
+        run: |
+          sha256sum ymu.exe > sha256.checksum
+          echo "build_sha=$(cat sha256.checksum)" >> $GITHUB_OUTPUT
+          cat sha256.checksum
+
+      - name: Upload Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: YMU ${{ steps.increment_version.outputs.new_version }}
+          tag_name: ${{ steps.increment_version.outputs.new_version }}
+          body: | # here you can put whatever you want to display in the release page
+              ### Changelog:
+              - GUI changes (Download- and Update-tab now united again and SHA256-Tab completely removed + other small changes)
+              - Added Changelog of YimMenu
+              - fixed [YMU not terminating correctly](https://github.com/NiiV3AU/YMU/issues/3)
 
 
-            **This release has been built by Github Actions**
+              **This release has been built by Github Actions**
 
-            [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
-            Full Commit Hash:
-              ```
-              ${{ needs.build.outputs.full_sha }}
-              ```
-        files: |
-          ymu.exe
+          files: |
+            ymu.exe
