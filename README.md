@@ -88,9 +88,10 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 
 
 # How to Use
-### Install the newest release here: 
-| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest/download/YMU.exe)
-| ------------- | ------------- |
+### Install the newest release here:
+
+| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest/download/YMU.zip) |
+| ------------- |
 
 
 ### Or simply run the Python File if you have all Requirements and Dependecies installed:
@@ -101,9 +102,6 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 # Use Cases
 - You no longer have to worry about missing updates. When you run the program, it checks if there's a new release and notifies you.
 - Download, update and inject all in one place.
-> *'psst*~ it looks cooler :)
-> 
-> *'ahem*~ also your browser can't inject it, right?
 
 
 # Why then, you ask?
