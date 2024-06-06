@@ -79,9 +79,7 @@ jobs:
                 release_id: release.id,
               });
               console.log(`Deleted release with ID ${release.id}`);
-            } catch (error) {
-              console.error(`Error deleting tag: ${error.message}`);
-            }
+              }
 
             // List all tags
             const tags = await github.rest.repos.listTags({
@@ -97,9 +95,7 @@ jobs:
                 tag_id: tag.id,
               });
               console.log(`Deleted tag ${tag.id}`);
-            } catch (error) {
-              console.error(`Error deleting tag: ${error.message}`);
-            }
+              }
 
       - name: Download Artifact
         uses: actions/download-artifact@v4
