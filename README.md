@@ -89,10 +89,9 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 
 # How to Use
 ### Install the newest release here: 
-| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest/download/YMU.exe) | [Download YMU.ico](https://raw.githubusercontent.com/NiiV3AU/YMU/main/ymu.ico) |
+| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest/download/YMU.exe)
 | ------------- | ------------- |
->[!IMPORTANT]
->You can't run `YMU.exe` without `YMU.ico` ↦ Make a folder e.g. "YMU" and drop `YMU.exe` and `YMU.ico` into it ↦ Ready to run 🏁
+
 
 ### Or simply run the Python File if you have all Requirements and Dependecies installed:
 | [Download Source Code](https://github.com/NiiV3AU/YMU/archive/refs/heads/main.zip) | [Check Requirements and Dependencies](https://github.com/NiiV3AU/YMU?tab=readme-ov-file#requirements-and-dependencies) |
@@ -100,7 +99,8 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 
 
 # Use Cases
-Very limited, gets the file as fast as simply visiting [YimMenu](https://yim.gta.menu/) in your Browser and download it manually.
+- You no longer have to worry about missing updates. When you run the program, it checks if there's a new release and notifies you.
+- Download, update and inject all in one place.
 > *'psst*~ it looks cooler :)
 > 
 > *'ahem*~ also your browser can't inject it, right?
