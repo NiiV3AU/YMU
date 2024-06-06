@@ -1,16 +1,24 @@
 # Libraries YMU depends on
+import customtkinter as ctk
+import hashlib
 import os
 import psutil
-import customtkinter as ctk
 import requests
-import hashlib
+import sys
 import webbrowser
-from customtkinter import CTkFont
-from threading import Thread
-from time import sleep as sleep
-from ctypes import *
-from pyinjector import inject
 from bs4 import BeautifulSoup
+from ctypes import *
+from customtkinter import CTkFont
+from pyinjector import inject
+from threading import Thread
+from time import sleep
+
+
+# properly pack the icon so we don't have to include it with the exe each time.
+def resource_path(relative_path):
+        # Since we're using --onefile command, PyInstaller will create a temp folder and store the path in _MEIPASS
+        base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+        return os.path.join(base_path, relative_path)
 
 # YMU Appearance - currently only dark mode
 ctk.set_appearance_mode("dark")
@@ -26,7 +34,7 @@ WHITE = "#DCE4EE"
 # YMU root - title - minsize - launch size - launch in center of sreen
 root = ctk.CTk()
 root.title("YMU - YimMenuUpdater")
-root.iconbitmap("ymu.ico")
+root.iconbitmap(resource_path('icon\\ymu.ico'))
 root.minsize(260, 350)
 root.configure(fg_color=DBG_COLOR)
 width_of_window = 400
@@ -54,23 +62,46 @@ DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.d
 DLLDIR = "./dll"
 LOCALDLL = "./dll/YimMenu.dll"
 
-# Injector
-PROCNAME = "GTA5.exe"
-PID = 0000
-PAGE_READWRITE = 0x04
-PROCESS_ALL_ACCESS = 0x00F0000 | 0x00100000 | 0xFFF
-VIRTUAL_MEM = 0x1000 | 0x2000
-INJECT_MSG = ""
-
-
 # self explanatory
 def check_if_dll_is_downloaded():
     while True:
         if os.path.exists(DLLDIR):
-            return "Update"
+            if os.path.isfile(LOCALDLL):
+                LOCAL_SHA = get_local_sha256()
+                REM_SHA = get_remote_sha256()
+                if LOCAL_SHA == REM_SHA:
+                    return "Latest Version"
+                else:
+                    return "Update"
+            else:
+                return "Download"
         else:
             return "Download"
 
+# Find GTAV's process. Slightly enhanced version of the old function. Much more accurate. NiiV3AU can you please run this in a loop or something? as of right now, it only works on init then stops. We need it to constatnly keep looking for the process.
+def find_gta_process():
+    for p in psutil.process_iter(["name", "exe", "cmdline"]):
+        if "GTA5.exe" == p.info['name'] or \
+            p.info['exe'] and os.path.basename(p.info['exe']) == "GTA5.exe" or \
+            p.info['cmdline'] and p.info['cmdline'][0] == "GTA5.exe":
+            pid = p.pid
+            is_running = True
+            sleep(0.5)
+            break
+
+        else:
+            pid = 0
+            is_running = False
+
+    return pid, is_running
+
+pid, is_running = find_gta_process()
+
+def process_search_thread():
+    Thread(target = find_gta_process, daemon = True).start()
+
+# start searching for the process on init.
+root.after(1000, process_search_thread)
 
 # scrapes the release/build SHA256 of the latest YimMenu release
 def get_remote_sha256():
@@ -79,15 +110,11 @@ def get_remote_sha256():
     list = soup.find(class_="notranslate")
     l = list("code")
     s = str(l)
-    tag = s.replace("[<code>", "")  # remove the first <code> tag from the string.
-    sep = " "  # the build SHA in YimMenu's Github release page has a space between the actual hash and the word 'YimMenu.dll'. We can use this space to split the string.
-    head, sep, _ = tag.partition(
-        sep
-    )  # split the return string into 3 parts: 'head' is the hash we're after, 'sep' is the space separator and the rest is ignored.
+    tag = s.replace("[<code>", "")
+    sep = " "
+    head, sep, _ = tag.partition(sep)
     REM_SHA = head
-    REM_SHA_LENG = len(
-        REM_SHA
-    )  # not sure if this is useful for YMU but I was using it while testing to make sure the hash is exactly 64 characters long.
+    REM_SHA_LENG = len(REM_SHA)
     if REM_SHA_LENG == 64:
         return REM_SHA
 
@@ -107,7 +134,7 @@ def get_local_sha256():
 def refresh_download_button():
     if get_remote_sha256() == get_local_sha256():
         download_button.configure(state="disabled")
-        progress_prcnt_label.configure(text="YimMenu up to date!", text_color=FG_COLOR)
+        progress_prcnt_label.configure(text="YimMenu is up to date.", text_color=FG_COLOR)
         progressbar.set(1.0)
     elif get_remote_sha256() != get_local_sha256():
         download_button.configure(state="normal")
@@ -158,19 +185,16 @@ def start_download():
 
 def refresh_inject_button():
     while True:
-        for process in psutil.process_iter():
-            if process.name() == PROCNAME:
-                inject_button.configure(state="normal")
-                reset_inject_progress_label()
-                return True
-            elif process.name() != PROCNAME:
-                inject_button.configure(state="disabled")
-                inject_progress_label.configure(
-                    text=f"Start {PROCNAME}!", text_color="red"
-                )
-                return False
-            else:
-                pass
+        if is_running:
+            inject_button.configure(state="normal")
+            reset_inject_progress_label()
+            return True
+        else:
+            inject_button.configure(state="disabled")
+            inject_progress_label.configure(
+                text=f"Please start the game first!", text_color="red" # we can add launch options here if we want to. For example we can ask the user to specify which launcher they use then launch the game for them. For Steam we can do "steam://run/271590"
+            )
+            return False
 
 
 refresh_thread_i = Thread(target=refresh_inject_button, daemon=True)
@@ -181,46 +205,58 @@ def refresh_loop_i():
 
 
 # Injects YimMenu into GTA5.exe process
-def inject_dll(PID):
-    if os.path.exists(LOCALDLL):
-        inject(PID, LOCALDLL)
-    else:
-        inject_progress_label.configure(
-            text="YimMenu.dll not Downloaded!", text_color="red"
-        )
-        reset_inject_progress_label()
+def inject_yimmenu():
+    try:
+        if pid != 0:
+            if os.path.isfile(LOCALDLL):
+                inject_progress_label.configure(
+                    text=f"Found process 'GTA.exe' with PID: [{pid}]", text_color=FG_COLOR
+                )
+                injection_progressbar.set(0.5)
+                inject(pid, LOCALDLL)
+                injection_progressbar.set(1.0)
+                inject_progress_label.configure(
+                    text=f"Successfully injected YimMenu.dll into GTA5.exe",
+                    text_color=FG_COLOR,
+                )
+                sleep(3)
+                injection_progressbar.set(0)
+                inject_progress_label.configure(
+                    text="Have fun!",
+                    text_color=FG_COLOR,
+                )
+                # sleep(5)
+                # root.destroy() # exit the app after successful injection?
+                sleep(5)
+                reset_inject_progress_label()
 
+            else:
+                inject_progress_label.configure(
+                    text="YimMenu.dll not found! Download the latest release\nand make sure your anti-virus is not interfering.", 
+                    text_color="red"
+                )
+                sleep(5)
+                reset_inject_progress_label()
 
-def find_n_verify_pid():
-    global PID
-    for process in psutil.process_iter():
-        if process.name() == PROCNAME:
-            PID = process.pid
-    if PID:
+        else:
+            inject_progress_label.configure(text=f"GTA5.exe not found!", text_color="red")
+            reset_inject_progress_label()
+    except Exception:
+        injection_progressbar.set(0)
         inject_progress_label.configure(
-            text=f"GTA.exe [{PID}] found!", text_color=FG_COLOR
-        )
-        injection_progressbar.set(0.5)
-        inject_dll(PID)
-        injection_progressbar.set(1.0)
-        inject_progress_label.configure(
-            text=f"YimMenu injected successfully @ GTA.exe [{PID}]!",
+            text="Failed to inject YimMenu!",
             text_color=FG_COLOR,
         )
+        sleep(3)
         reset_inject_progress_label()
-
-    else:
-        inject_progress_label.configure(text=f"GTA.exe not found!", text_color="red")
-        reset_inject_progress_label()
-
 
 def start_injection():
-    Thread(target=find_n_verify_pid, daemon=True).start()
+    Thread(target=inject_yimmenu, daemon=True).start()
 
 
 def reset_inject_progress_label():
     sleep(3)
-    inject_progress_label.configure(text=f"Currently not Injecting", text_color=WHITE)
+    inject_progress_label.configure(text=f"Ready", text_color=WHITE)
     injection_progressbar.set(0)
 
 
@@ -304,6 +340,8 @@ tabview.pack(pady=10, padx=10, expand=True, fill="both")
 
 if check_if_dll_is_downloaded() == "Download":
     tabview.add("Download")
+elif check_if_dll_is_downloaded() == "Latest Version":
+    tabview.add("Latest Version")
 elif check_if_dll_is_downloaded() == "Update":
     tabview.add("Update")
 
@@ -367,11 +405,12 @@ def nohover_inject_button(e):
 def open_download_info(e):
 
     download_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
+    download_info.title("YMU - Download Info")
     download_info.minsize(280, 120)
 
     download_info_label = ctk.CTkLabel(
         master=download_info,
-        text=f'⭐ {check_if_dll_is_downloaded()} YimMenu.dll ⭐\n\nHow-To:\n↦ CLick on ({check_if_dll_is_downloaded()})\n↪ wait to finish\n↪ file in "YMU/dll"-folder',
+        text=f'⭐ {check_if_dll_is_downloaded()} YimMenu.dll ⭐\n\nHow-To:\n↦ CLick on ({check_if_dll_is_downloaded()})\n↦ CLick on ({check_if_dll_is_downloaded()})\n↪ Wait for the download to finish\n↪ file in "YMU/dll"-folder\n\nIf the file gets deleted,\nadd an exception in\nyour antivirus or\ndisable it.',
         font=CODE_FONT,
         justify="center",
         text_color=FG_COLOR,
@@ -406,6 +445,12 @@ download_more_info_label.bind("<Leave>", normal_download_mi)
 # Changelog
 def open_changelog(e):
     changelog = ctk.CTkToplevel(fg_color=BG_COLOR)
+    changelog.title("YimMenu Changelog")
+    changelog_x_coord = screen_width / 4
+    changelog_y_coord = screen_height * 0.2
+    changelog.geometry(
+        '640x640+' + str(changelog_x_coord) + '+' + str(changelog_y_coord)
+    )
     changelog_frame = ctk.CTkScrollableFrame(
         master=changelog,
         corner_radius=10,
@@ -514,11 +559,12 @@ inject_progress_label.pack(
 def open_inject_info(e):
 
     inject_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
+    inject_info.title("YMU - Injection Info")
     inject_info.minsize(280, 120)
 
     inject_info_label = ctk.CTkLabel(
         master=inject_info,
-        text="⭐ Inject YimMenu.dll ⭐\n\nHow-To:\n↦ CLick on (Inject YimMenu)\n↪ wait to finish\n↪ YimMenu injected ✅",
+        text="⭐ Inject YimMenu.dll ⭐\n\nHow-To:\n↦ Launch the game.\n↦ Load into 'Single Player'.\n↦ Wait for the game to finish loading.\n↦ CLick on (Inject YimMenu).\n↦ Wait for YimMenu to finish loading.\n↦ Done! ✅",
         font=CODE_FONT,
         justify="center",
         text_color=FG_COLOR,
