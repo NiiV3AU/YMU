@@ -14,6 +14,11 @@ from threading import Thread
 from time import sleep
 
 
+# show a splash screen when the executable is loading. Ignore the 'not resolved' error, the module is part of PyInstaller not Python.
+if getattr(sys, 'frozen', False):
+    import pyi_splash
+
+
 # properly pack the icon so we don't have to include it with the exe each time.
 def resource_path(relative_path):
         # Since we're using --onefile command, PyInstaller will create a temp folder and store the path in _MEIPASS
@@ -621,6 +626,8 @@ inject_button.bind("<Leave>", nohover_inject_button)
 
 root.after(0, refresh_loop_i)
 
+if getattr(sys, 'frozen', False):
+    pyi_splash.close()
 
 if __name__ == "__main__":
     root.mainloop()
