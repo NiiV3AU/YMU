@@ -36,9 +36,11 @@ FG_COLOR = "#45e876"
 BHVR_COLOR = "#36543F"
 WHITE = "#DCE4EE"
 
+
 # YMU root - title - minsize - launch size - launch in center of sreen
 root = ctk.CTk()
 root.title("YMU - YimMenuUpdater")
+root.resizable(False, False)
 root.iconbitmap(resource_path('icon\\ymu.ico'))
 root.minsize(260, 350)
 root.configure(fg_color=DBG_COLOR)
@@ -62,51 +64,83 @@ CODE_FONT = CTkFont(family="JetBrains Mono", size=12)
 CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
-# Url and Paths
+# Version, Url and Paths
+LOCAL_VER = "1.0.2"
+SELFDIR = './ymu.exe'
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = "./dll"
 LOCALDLL = "./dll/YimMenu.dll"
 
-# self explanatory
-def check_if_dll_is_downloaded():
-    while True:
-        if os.path.exists(DLLDIR):
-            if os.path.isfile(LOCALDLL):
-                LOCAL_SHA = get_local_sha256()
-                REM_SHA = get_remote_sha256()
-                if LOCAL_SHA == REM_SHA:
-                    return "Latest Version"
-                else:
-                    return "Update"
-            else:
-                return "Download"
-        else:
-            return "Download"
 
-# Find GTAV's process. Slightly enhanced version of the old function. Much more accurate. NiiV3AU can you please run this in a loop or something? as of right now, it only works on init then stops. We need it to constatnly keep looking for the process.
-def find_gta_process():
-    for p in psutil.process_iter(["name", "exe", "cmdline"]):
-        if "GTA5.exe" == p.info['name'] or \
-            p.info['exe'] and os.path.basename(p.info['exe']) == "GTA5.exe" or \
-            p.info['cmdline'] and p.info['cmdline'][0] == "GTA5.exe":
-            pid = p.pid
-            is_running = True
-            sleep(0.5)
-            break
+#get YMU's version for future self update function:
+ymu_update_message = ctk.StringVar()
 
-        else:
-            pid = 0
-            is_running = False
+def get_ymu_ver():
 
-    return pid, is_running
+    try:
 
-pid, is_running = find_gta_process()
+        r = requests.get('https://github.com/NiiV3AU/YMU/tags')
+        soup = BeautifulSoup(r.content, 'html.parser')
+        result = soup.find(class_= 'Link--primary Link')
+        s = str(result)
+        result = s.replace('</a>', '')
+        charLength = len(result)
+        latest_version = result[charLength - 5:]
+        return latest_version
+    
+    except Exception:
+        ymu_update_message.set("❌ Failed to get the latest Github version.\nCheck your Internet connection and try again.")
+        update_response.configure(text_color = 'yellow')
+        sleep(5)
+        ymu_update_message.set("")
+        ymu_update_button.configure(state='normal')
 
-def process_search_thread():
-    Thread(target = find_gta_process, daemon = True).start()
 
-# start searching for the process on init.
-root.after(1000, process_search_thread)
+def check_for_ymu_update():
+    ymu_update_button.configure(state='disabled')
+    YMU_VERSION = get_ymu_ver()
+
+    try:
+
+        if LOCAL_VER < YMU_VERSION:
+            ymu_update_message.set(f'Update v{YMU_VERSION} is available.')
+            update_response.configure(text_color = 'green')
+            ymu_update_button.configure(state='normal', text = "Open Github")
+            sleep(0.2)
+            change_update_button()
+
+        elif LOCAL_VER == YMU_VERSION:
+            ymu_update_message.set("YMU is up-to-date ✅")
+            update_response.configure(text_color = WHITE)
+            sleep(3)
+            ymu_update_message.set("")
+            ymu_update_button.configure(state='normal')
+
+        elif LOCAL_VER > YMU_VERSION:
+            ymu_update_message.set("⚠️ Invalid version detected ⚠️\nPlease download YMU from the official Github repository.")
+            update_response.configure(text_color = 'red')
+            ymu_update_button.configure(state='normal', text = "Open Github")
+            sleep(0.2)
+            change_update_button()
+
+    except Exception:
+        pass
+
+
+def open_github_release():
+    # for now, just open the browser and let the user manually download and apply the update.
+    # we will implement an automated update system later.
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases")
+
+
+def change_update_button():
+    ymu_update_button.configure(command = open_github_release)
+    
+
+def ymu_update_thread():
+    ymu_update_message.set("Please wait...")
+    Thread(target=check_for_ymu_update, daemon=True).start()
+
 
 # scrapes the release/build SHA256 of the latest YimMenu release
 def get_remote_sha256():
@@ -124,6 +158,46 @@ def get_remote_sha256():
         return REM_SHA
 
 
+# self explanatory
+def check_if_dll_is_downloaded():
+    while True:
+        if os.path.exists(DLLDIR):
+            if os.path.isfile(LOCALDLL):
+                LOCAL_SHA = get_local_sha256()
+                REM_SHA = get_remote_sha256()
+                if LOCAL_SHA == REM_SHA:
+                    return "Update"
+                else:
+                    return "Update"
+            else:
+                return "Download"
+        else:
+            return "Download"
+
+
+# Find GTAV's process and update the 'inject' tab
+def find_gta_process():
+    global pid # <- I know it's a bad habit but if it works why fix it? 😂
+    global is_running
+    global injBtnState
+    for p in psutil.process_iter(["name", "exe", "cmdline"]):    
+        if "GTA5.exe" == p.info['name'] or \
+            p.info['exe'] and os.path.basename(p.info['exe']) == "GTA5.exe" or \
+            p.info['cmdline'] and p.info['cmdline'][0] == "GTA5.exe":
+            pid = p.pid
+            is_running = True
+            sleep(0.5)
+            break
+        else:
+            pid = 0
+            is_running = False
+
+def process_search_thread():
+    Thread(target = find_gta_process, daemon = True).start()
+
+# run it once to initialize 'pid' and 'is_running'
+process_search_thread()
+
 # reads/calculates the SHA256 of local (downloaded) version of YimMenu
 def get_local_sha256():
     if os.path.exists(LOCALDLL):
@@ -137,14 +211,16 @@ def get_local_sha256():
 
 
 def refresh_download_button():
+
     if get_remote_sha256() == get_local_sha256():
         download_button.configure(state="disabled")
-        progress_prcnt_label.configure(text="YimMenu is up to date.", text_color=FG_COLOR)
+        progress_prcnt_label.configure(text="YimMenu is up to date.", text_color=BG_COLOR)
         progressbar.set(1.0)
-    elif get_remote_sha256() != get_local_sha256():
+
+    else:
         download_button.configure(state="normal")
         progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} available!", text_color="red"
+            text=f"{check_if_dll_is_downloaded()} available!", text_color="green"
         )
         progressbar.set(0)
 
@@ -174,7 +250,16 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=FG_COLOR
         )
+        sleep(5)
+        check_if_dll_is_downloaded()
+        if not os.path.exists(LOCALDLL):
+            progress_prcnt_label.configure(
+            text="File was removed!\nMake sure to either turn off your antivirus or add YMU folder to exceptions.", text_color = 'red'
+            )
+            sleep(5)
         Thread(target=refresh_download_button, daemon=True).start()
+
+
     # if download failed
     except requests.exceptions.RequestException as e:
         progress_prcnt_label.configure(
@@ -185,54 +270,57 @@ def download_dll():
 
 # starts the download in a thread to keep the gui responsive
 def start_download():
+    download_button.configure(state = 'disabled')
     Thread(target=download_dll, daemon=True).start()
-
-
-def refresh_inject_button():
-    while True:
-        if is_running:
-            inject_button.configure(state="normal")
-            reset_inject_progress_label()
-            return True
-        else:
-            inject_button.configure(state="disabled")
-            inject_progress_label.configure(
-                text=f"Please start the game first!", text_color="red" # we can add launch options here if we want to. For example we can ask the user to specify which launcher they use then launch the game for them. For Steam we can do "steam://run/271590"
-            )
-            return False
-
-
-refresh_thread_i = Thread(target=refresh_inject_button, daemon=True)
-
-
-def refresh_loop_i():
-    refresh_thread_i.start()
 
 
 # Injects YimMenu into GTA5.exe process
 def inject_yimmenu():
     try:
+        inject_button.configure(state = 'disabled')
+        inject_progress_label.configure(
+            text=f"🔍 Searching for GTA5 process...",
+            text_color='white',
+        )
+        dummy_progress(injection_progressbar)
+        process_search_thread()
+        sleep(1) # give it time to update the values
+        injection_progressbar.set(0)
         if pid != 0:
             if os.path.isfile(LOCALDLL):
                 inject_progress_label.configure(
-                    text=f"Found process 'GTA.exe' with PID: [{pid}]", text_color=FG_COLOR
+                    text=f"Found process 'GTA5.exe' with PID: [{pid}]", 
+                    text_color=FG_COLOR
                 )
-                injection_progressbar.set(0.5)
+                sleep(2)
+                inject_progress_label.configure(
+                    text=f"💉Injecting...", 
+                    text_color=FG_COLOR
+                )
+                dummy_progress(injection_progressbar)
                 inject(pid, LOCALDLL)
-                injection_progressbar.set(1.0)
+                sleep(2)
                 inject_progress_label.configure(
                     text=f"Successfully injected YimMenu.dll into GTA5.exe",
                     text_color=FG_COLOR,
                 )
                 sleep(3)
                 injection_progressbar.set(0)
-                inject_progress_label.configure(
-                    text="Have fun!",
-                    text_color=FG_COLOR,
-                )
-                # sleep(5)
-                # root.destroy() # exit the app after successful injection?
-                sleep(5)
+                process_search_thread()
+                sleep(5) # Wait for 5 seconds and check if the game crashes on injection.
+                if is_running:
+                    inject_progress_label.configure(
+                        text="Have fun!",
+                        text_color=FG_COLOR,
+                    )
+                    sleep(5) # exit the app after successful injection. If the game crashes, the program continues to run
+                    root.destroy() # if you don't want this behavior feel free to remove it. I just thought it would be nice to free some resources for people with potato PCs.
+                else:
+                        inject_progress_label.configure(
+                        text="Uh Oh! Did your game crash?",
+                        text_color="red",
+                    )
+                sleep(10)
                 reset_inject_progress_label()
 
             else:
@@ -244,19 +332,32 @@ def inject_yimmenu():
                 reset_inject_progress_label()
 
         else:
-            inject_progress_label.configure(text=f"GTA5.exe not found!", text_color="red")
+            inject_progress_label.configure(
+                text=f"GTA5.exe not found! Please start the game.", 
+                text_color="red")
+            sleep(5)
             reset_inject_progress_label()
+
+        inject_button.configure(state = 'normal')
+
     except Exception:
         injection_progressbar.set(0)
         inject_progress_label.configure(
             text="Failed to inject YimMenu!",
-            text_color=FG_COLOR,
+            text_color="red",
         )
-        sleep(3)
+        sleep(5)
         reset_inject_progress_label()
+        inject_button.configure(state = 'normal')
 
 def start_injection():
     Thread(target=inject_yimmenu, daemon=True).start()
+
+def dummy_progress(widget):
+    for i in range (0, 11):
+        i += 0.01
+        widget.set(i/10)
+        sleep(0.05)
 
 
 def reset_inject_progress_label():
@@ -275,7 +376,7 @@ copyright_label = ctk.CTkLabel(
     master=root,
     font=CODE_FONT_SMALL,
     text_color=BG_COLOR,
-    text="↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\n{ v1.0.2 }",
+    text=f"↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\nf{LOCAL_VER}",
     bg_color="transparent",
     fg_color=DBG_COLOR,
     justify="center",
@@ -342,22 +443,23 @@ tabview = ctk.CTkTabview(
 )
 tabview.pack(pady=10, padx=10, expand=True, fill="both")
 
+def refresh_download_tab():
+    if check_if_dll_is_downloaded() == "Download":
+        tabview.add("Download")
+    else:
+        tabview.add("Update")
 
-if check_if_dll_is_downloaded() == "Download":
-    tabview.add("Download")
-elif check_if_dll_is_downloaded() == "Latest Version":
-    tabview.add("Latest Version")
-elif check_if_dll_is_downloaded() == "Update":
-    tabview.add("Update")
+refresh_download_tab()
 
 
 tabview.add("Inject")
+tabview.add("⚙️ Settings")
 
 
 # reset progress label
 def reset_progress_prcnt_label():
     sleep(3)
-    progress_prcnt_label.configure(text="Progress: N/A", text_color=WHITE)
+    progress_prcnt_label.configure(text="", text_color=WHITE)
     progressbar.set(0)
 
 
@@ -376,7 +478,7 @@ progressbar.set(0)
 
 progress_prcnt_label = ctk.CTkLabel(
     master=tabview.tab(check_if_dll_is_downloaded()),
-    text="Progress: N/A",
+    text="",
     font=CODE_FONT_SMALL,
     height=10,
     text_color=WHITE,
@@ -412,6 +514,7 @@ def open_download_info(e):
     download_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
     download_info.title("YMU - Download Info")
     download_info.minsize(280, 120)
+    download_info.resizable(False, False)
 
     download_info_label = ctk.CTkLabel(
         master=download_info,
@@ -566,6 +669,7 @@ def open_inject_info(e):
     inject_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
     inject_info.title("YMU - Injection Info")
     inject_info.minsize(280, 120)
+    inject_info.resizable(False, False)
 
     inject_info_label = ctk.CTkLabel(
         master=inject_info,
@@ -620,11 +724,79 @@ inject_button.pack(
     fill=None,
 )
 
-
 inject_button.bind("<Enter>", hover_inject_button)
 inject_button.bind("<Leave>", nohover_inject_button)
 
-root.after(0, refresh_loop_i)
+
+# settings tab
+
+version_label = ctk.CTkLabel(
+    master=tabview.tab("⚙️ Settings"),
+    text=f'v{LOCAL_VER}',
+    text_color="#D3D3D3",
+    justify="right",
+    anchor= "nw",
+    font=SMALL_FONT,
+)
+version_label.pack(pady=10, padx=10, expand=False, fill=None)
+
+
+def hover_ymu_update_button(e):
+    ymu_update_button.configure(text_color=FG_COLOR)
+    ymu_update_button.configure(fg_color="#36543F")
+
+
+def nohover_ymu_update_button(e):
+    ymu_update_button.configure(text_color=BG_COLOR)
+    ymu_update_button.configure(fg_color=FG_COLOR)
+
+def change_theme(theme: str):
+    ctk.set_appearance_mode(theme)
+
+ymu_update_button = ctk.CTkButton(
+    master=tabview.tab("⚙️ Settings"),
+    text="Check For Update",
+    command=ymu_update_thread,
+    fg_color=FG_COLOR,
+    hover_color=BHVR_COLOR,
+    text_color=BG_COLOR,
+    font=SMALL_BOLD_FONT,
+    corner_radius=8,
+)
+ymu_update_button.pack(
+    pady=10,
+    padx=5,
+    expand=True,
+    fill=None,
+)
+
+ymu_update_button.bind("<Enter>", hover_ymu_update_button)
+ymu_update_button.bind("<Leave>", nohover_ymu_update_button)
+
+update_response = ctk.CTkLabel(
+    master=tabview.tab("⚙️ Settings"),
+    textvariable = ymu_update_message,
+    text_color = WHITE,
+)
+update_response.pack(
+    pady=5, padx=5, expand=False, fill=None, anchor="s"
+)
+
+# appearance_mode_label = ctk.CTkLabel(master = tabview.tab("⚙️ Settings"), 
+#                                      text = "Theme:")
+# appearance_mode_label.pack(
+#     pady=5, padx=5, expand=False, fill=None, anchor="s"
+# )
+
+# appearance_mode_optionemenu = ctk.CTkOptionMenu(master = tabview.tab("⚙️ Settings"), 
+#                                                 values = ["Light", "Dark", "System"],
+#                                                 command = change_theme
+#                                                 )
+# appearance_mode_optionemenu.pack(
+#     pady=5, padx=5, expand=False, fill=None, anchor="s", side="bottom"
+# )
+# appearance_mode_optionemenu.set("Dark")
+
 
 if getattr(sys, 'frozen', False):
     pyi_splash.close()
