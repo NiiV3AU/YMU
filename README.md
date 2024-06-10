@@ -90,7 +90,7 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 # How to Use
 ### Install the newest release here:
 
-| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest/download/YMU.zip) |
+| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest) |
 | ------------- |
 
 
