@@ -145,6 +145,7 @@ def download_self_updater():
         return "Error"
 
 def launch_ymu_update():
+    global start_self_update
     try:
         ymu_update_message.set("Downloading self updater...")
         update_response.configure(text_color = WHITE)
@@ -152,6 +153,7 @@ def launch_ymu_update():
         if download_self_updater() == "OK":
             ymu_update_message.set("YMU will now close to apply the updates")
             sleep(3)
+            start_self_update = True
             root.destroy()
         else:
             ymu_update_message.set("❌ Failed to download self updater!")
@@ -850,7 +852,7 @@ if getattr(sys, 'frozen', False):
 if __name__ == "__main__":
     root.mainloop()
     try:
-        if update_available:
+        if start_self_update:
             os.execvp('./ymu_self_updater.exe', ['ymu_self_updater'])
     except NameError:
         pass
