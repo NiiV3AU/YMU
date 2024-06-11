@@ -53,9 +53,8 @@ WHITE = "#DCE4EE"
 RED = "#e84555"
 YELLOW = "#e8c745"
 
-folder_white = ctk.CTkImage(dark_image=Image.open("icon/fo_white.png"), size=(24, 24))
-folder_bg = ctk.CTkImage(dark_image=Image.open("icon/fo_bg.png"), size=(24, 24))
-folder_hvr = ctk.CTkImage(dark_image=Image.open("icon/fo_hover.png"), size=(24, 24))
+folder_white = ctk.CTkImage(dark_image=Image.open(resource_path("icon/fo_white.png")), size=(24, 24))
+folder_hvr = ctk.CTkImage(dark_image=Image.open(resource_path("icon/fo_hover.png")), size=(24, 24))
 
 
 # YMU root - title - minsize - launch size - launch in center of sreen
