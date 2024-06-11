@@ -3,7 +3,9 @@
 
 
 >[!NOTE]
-> **NEXT** in `v1.0.3` ↦ Self-Updater in new Settings-Tab
+> **NEXT** in `v1.0.4` ↦ **TBA**
+>
+> **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab (not fully implemented) + small GUI changes and code improvements
 >
 > **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
 >
