@@ -19,6 +19,13 @@ from PIL import Image
 # properly pack the icon so we don't have to include it with the exe each time.
 def resource_path(relative_path):
     # Since we're using --onefile command, PyInstaller will create a temp folder and store the path in _MEIPASS
+
+    # alternate version
+    # if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    #     base_path = sys._MEIPASS
+    # else:
+    #     base_path = os.path.abspath(".")
+
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
@@ -53,15 +60,19 @@ WHITE = "#DCE4EE"
 RED = "#e84555"
 YELLOW = "#e8c745"
 
-folder_white = ctk.CTkImage(dark_image=Image.open(resource_path("icon/fo_white.png")), size=(24, 24))
-folder_hvr = ctk.CTkImage(dark_image=Image.open(resource_path("icon/fo_hover.png")), size=(24, 24))
+folder_white = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\fo_white.png")), size=(24, 24)
+)
+folder_hvr = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\fo_hover.png")), size=(24, 24)
+)
 
 
 # YMU root - title - minsize - launch size - launch in center of sreen
 root = ctk.CTk()
 root.title("YMU - YimMenuUpdater")
 root.resizable(False, False)
-root.iconbitmap(resource_path("icon\\ymu.ico"))
+root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.minsize(260, 350)
 root.configure(fg_color=DBG_COLOR)
 width_of_window = 400
@@ -202,7 +213,7 @@ def start_update_thread():
 
 
 def open_github_release():
-    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases")
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases/latest")
 
 
 def change_update_button():
@@ -868,7 +879,7 @@ inject_button.bind("<Leave>", nohover_inject_button)
 # settings tab
 
 
-def lll():
+def open_dlldir():
     # base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     if not os.path.exists(DLLDIR):
         os.makedirs(DLLDIR)
@@ -889,9 +900,9 @@ def folder_button_normal(e):
 
 folder_button = ctk.CTkButton(
     master=tabview.tab("⚙️ Settings"),
-    text="Open Directory",
+    text='Open "dll"-Folder',
     image=folder_white,
-    command=lll,
+    command=open_dlldir,
     fg_color=BG_COLOR,
     hover_color=BG_COLOR,
     text_color=WHITE,
@@ -899,7 +910,7 @@ folder_button = ctk.CTkButton(
     corner_radius=10,
 )
 folder_button.pack(
-    pady=10,
+    pady=20,
     padx=5,
     expand=False,
     fill=None,
@@ -909,11 +920,11 @@ folder_button.bind("<Leave>", folder_button_normal)
 
 version_label = ctk.CTkLabel(
     master=tabview.tab("⚙️ Settings"),
-    text=f"{LOCAL_VER}",
+    text=f"Installed YMU Version: {LOCAL_VER}",
     text_color="#D3D3D3",
     justify="right",
     anchor="nw",
-    font=SMALL_FONT,
+    font=SMALL_BOLD_FONT,
 )
 version_label.pack(pady=10, padx=10, expand=False, fill=None)
 
