@@ -3,3 +3,4 @@ customtkinter
 requests
 pyinjector
 bs4
+pillow
