@@ -65,14 +65,19 @@ CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
 # Version, Url and Paths
-LOCAL_VER = "1.0.2"
-SELFDIR = './ymu.exe'
+LOCAL_VER = "v1.0.2"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = "./dll"
 LOCALDLL = "./dll/YimMenu.dll"
 
 
-#get YMU's version for future self update function:
+# self update stuff
+
+# delete the updater on init
+if os.path.isfile('./ymu_self_updater.exe'):
+    os.remove('./ymu_self_updater.exe')
+
+#get YMU's remote version:
 ymu_update_message = ctk.StringVar()
 
 def get_ymu_ver():
@@ -85,7 +90,7 @@ def get_ymu_ver():
         s = str(result)
         result = s.replace('</a>', '')
         charLength = len(result)
-        latest_version = result[charLength - 5:]
+        latest_version = result[charLength - 6:]
         return latest_version
     
     except Exception:
@@ -99,19 +104,22 @@ def get_ymu_ver():
 def check_for_ymu_update():
     ymu_update_button.configure(state='disabled')
     YMU_VERSION = get_ymu_ver()
+    global update_available
 
     try:
 
         if LOCAL_VER < YMU_VERSION:
-            ymu_update_message.set(f'Update v{YMU_VERSION} is available.')
+            ymu_update_message.set(f'Update {YMU_VERSION} is available.')
             update_response.configure(text_color = 'green')
-            ymu_update_button.configure(state='normal', text = "Open Github")
+            ymu_update_button.configure(state='normal', text = "Update YMU")
+            update_available = True
             sleep(0.2)
             change_update_button()
 
         elif LOCAL_VER == YMU_VERSION:
             ymu_update_message.set("YMU is up-to-date ✅")
             update_response.configure(text_color = WHITE)
+            update_available = False
             sleep(3)
             ymu_update_message.set("")
             ymu_update_button.configure(state='normal')
@@ -127,14 +135,50 @@ def check_for_ymu_update():
         pass
 
 
+def download_self_updater():
+    response = requests.get('https://github.com/xesdoog/YMU-Updater/releases/download/latest/ymu_self_updater.exe')
+    if response.status_code == 200:
+        with open("ymu_self_updater.exe", "wb") as file:
+            file.write(response.content)
+            return "OK"
+    else:
+        return "Error"
+
+def launch_ymu_update():
+    try:
+        ymu_update_message.set("Downloading self updater...")
+        update_response.configure(text_color = WHITE)
+        ymu_update_button.configure(state = 'disabled')
+        if download_self_updater() == "OK":
+            ymu_update_message.set("YMU will now close to apply the updates")
+            sleep(3)
+            root.destroy()
+        else:
+            ymu_update_message.set("❌ Failed to download self updater!")
+            update_response.configure(text_color = 'red')
+            sleep(5)
+            ymu_update_message.set("")
+            update_response.configure(text_color = WHITE)
+            ymu_update_button.configure(state = 'normal', text = "Update YMU")
+
+    except Exception:
+        pass
+
+
+
+def start_update_thread():
+    Thread(target = launch_ymu_update, daemon = True).start()
+
+
 def open_github_release():
-    # for now, just open the browser and let the user manually download and apply the update.
-    # we will implement an automated update system later.
     webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases")
 
 
 def change_update_button():
-    ymu_update_button.configure(command = open_github_release)
+    if update_available:
+        ymu_update_button.configure(command = start_update_thread)
+    else:
+        ymu_update_button.configure(command = open_github_release)
     
 
 def ymu_update_thread():
@@ -376,7 +420,7 @@ copyright_label = ctk.CTkLabel(
     master=root,
     font=CODE_FONT_SMALL,
     text_color=BG_COLOR,
-    text=f"↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\nv{LOCAL_VER}",
+    text=f"↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\n{LOCAL_VER}",
     bg_color="transparent",
     fg_color=DBG_COLOR,
     justify="center",
@@ -388,36 +432,38 @@ copyright_label.bind("<ButtonRelease>", open_github)
 
 # basic ahh animation for copyright_label
 def copyright_label_ani_master():
-
-    while True:
-        copyright_label.configure(text_color="#4D4D4D")
-        sleep(0.1)
-        copyright_label.configure(text_color="#666666")
-        sleep(0.1)
-        copyright_label.configure(text_color="#808080")
-        sleep(0.1)
-        copyright_label.configure(text_color="#999999")
-        sleep(0.1)
-        copyright_label.configure(text_color="#B3B3B3")
-        sleep(0.1)
-        copyright_label.configure(text_color="#CCCCCC")
-        sleep(0.2)
-        copyright_label.configure(text_color="#E6E6E6")
-        sleep(0.3)
-        copyright_label.configure(text_color="#FFFFFF")
-        sleep(0.4)
-        copyright_label.configure(text_color="#E6E6E6")
-        sleep(0.3)
-        copyright_label.configure(text_color="#CCCCCC")
-        sleep(0.2)
-        copyright_label.configure(text_color="#B3B3B3")
-        sleep(0.1)
-        copyright_label.configure(text_color="#999999")
-        sleep(0.1)
-        copyright_label.configure(text_color="#808080")
-        sleep(0.1)
-        copyright_label.configure(text_color="#666666")
-        sleep(0.1)
+    try:
+        while True:
+            copyright_label.configure(text_color="#4D4D4D")
+            sleep(0.1)
+            copyright_label.configure(text_color="#666666")
+            sleep(0.1)
+            copyright_label.configure(text_color="#808080")
+            sleep(0.1)
+            copyright_label.configure(text_color="#999999")
+            sleep(0.1)
+            copyright_label.configure(text_color="#B3B3B3")
+            sleep(0.1)
+            copyright_label.configure(text_color="#CCCCCC")
+            sleep(0.2)
+            copyright_label.configure(text_color="#E6E6E6")
+            sleep(0.3)
+            copyright_label.configure(text_color="#FFFFFF")
+            sleep(0.4)
+            copyright_label.configure(text_color="#E6E6E6")
+            sleep(0.3)
+            copyright_label.configure(text_color="#CCCCCC")
+            sleep(0.2)
+            copyright_label.configure(text_color="#B3B3B3")
+            sleep(0.1)
+            copyright_label.configure(text_color="#999999")
+            sleep(0.1)
+            copyright_label.configure(text_color="#808080")
+            sleep(0.1)
+            copyright_label.configure(text_color="#666666")
+            sleep(0.1)
+    except Exception:
+        pass
 
 
 # starts all animations - currently only copyright
@@ -732,7 +778,7 @@ inject_button.bind("<Leave>", nohover_inject_button)
 
 version_label = ctk.CTkLabel(
     master=tabview.tab("⚙️ Settings"),
-    text=f'v{LOCAL_VER}',
+    text=f'{LOCAL_VER}',
     text_color="#D3D3D3",
     justify="right",
     anchor= "nw",
@@ -803,3 +849,8 @@ if getattr(sys, 'frozen', False):
 
 if __name__ == "__main__":
     root.mainloop()
+    try:
+        if update_available:
+            os.execvp('./ymu_self_updater.exe', ['ymu_self_updater'])
+    except NameError:
+        pass
