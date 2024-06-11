@@ -88,7 +88,7 @@ CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
 # Version, Url and Paths
-LOCAL_VER = "v1.0.2"
+LOCAL_VER = "v1.0.3"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\dll"
 LOCALDLL = ".\\dll\\YimMenu.dll"
