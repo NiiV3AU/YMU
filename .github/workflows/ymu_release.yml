@@ -135,9 +135,11 @@ jobs:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           body: | # here you can put whatever you want to display in the release page
               ### Changelog:
-              - GUI changes (Download- and Update-tab now united again and SHA256-Tab completely removed + other small changes)
-              - Added Changelog of YimMenu
-              - fixed [YMU not terminating correctly](https://github.com/NiiV3AU/YMU/issues/3)
+              * [self updater and better inject button behavior](https://github.com/NiiV3AU/YMU/pull/9) by @xesdoog
+              * new hover effect of clickable labels (more info/changelog)
+              * new "Open Directory"-Button in Settings-Tab
+              * color refinements: Red & yellow now follow the theme
+              * CTkTopLevel's (info/changelog) now centered and instantly on top
 
 
               **This release has been built by Github Actions**
