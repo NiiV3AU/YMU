@@ -24,6 +24,35 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 # How it looks
 
 <details>
+<summary><b>v1.0.3</b> ↴</summary>
+
+<details>
+<summary><b>Download/Update</b>-Tab ↴</summary>
+
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/5cf46352-0bdb-442f-b1fa-951d3ba1d35b)
+
+
+</details>
+
+<details>
+<summary><b>Inject</b>-Tab ↴</summary>
+
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/f717a2b8-b9c6-4225-ad05-b9d3ff1204e3)
+
+</details>
+
+<details>
+<summary><b>Settings</b>-Tab ↴</summary>
+
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/07c4c61d-41a2-47f7-9256-f81337b8512d)
+
+</details>
+
+</details>
+
+
+
+<details>
 <summary><b>v1.0.2</b> ↴</summary>
 
 <details>
