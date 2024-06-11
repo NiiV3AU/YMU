@@ -153,7 +153,7 @@ The Project teached me new things as using threading for a more responsive gui, 
 | [psutil](https://pypi.org/project/psutil/) | `pip install psutil` |
 | [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector` |
 | [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) | `pip install bs4` |
-
+| [Pillow](https://pypi.org/project/pillow/) | `pip install pillow` |
 
 # Credits
 
