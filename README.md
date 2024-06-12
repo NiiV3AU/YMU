@@ -3,7 +3,7 @@
 
 
 >[!NOTE]
-> **NEXT** in `v1.0.4` ↦ **TBA**
+> **NEXT** in `v1.0.4` ↦ LUA Script Library + GUI Changes: Theme selection (light, dark, system)
 >
 > **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
 >
