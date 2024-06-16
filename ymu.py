@@ -14,6 +14,9 @@ from threading import Thread
 from time import sleep
 import importlib
 from PIL import Image
+import json
+from configparser import ConfigParser
+
 
 
 # properly pack the icon so we don't have to include it with the exe each time.
@@ -31,40 +34,56 @@ def resource_path(relative_path):
 
 
 # show a splash screen when the executable is loading. Ignore the 'not resolved' error, the module is part of PyInstaller not Python.
-def splash():
-    if (
-        "_PYIBoot_SPLASH" in os.environ
-        and importlib.util.find_spec("pyi_splash")
-        and getattr(sys, "frozen", False)
-    ):
-        import pyi_splash
+if getattr(sys, 'frozen', False):
+    import pyi_splash
 
-        pyi_splash.close()
+
+# YMU Appearance
+CONFIGPATH = "ymu\\config.ini"
+def create_or_read_config():
+    config = ConfigParser()
+    if os.path.exists(CONFIGPATH):
+        config.read(CONFIGPATH)
+        theme = config["ymu"]["theme"]
+        ctk.set_appearance_mode(theme)
     else:
-        pass
+        os.makedirs("ymu")
+        with open(CONFIGPATH, 'w') as configfile:
+            config.add_section("ymu")
+            config.set("ymu", "theme", "dark")            
+            config.write(configfile)
+create_or_read_config()
 
-
-Thread(target=splash, daemon=True).start()
-
-
-# YMU Appearance - currently only dark mode
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("green")
+# def set_appearance():
+#     config= ConfigParser()
+#     config.read(CONFIGPATH)
+#     theme = config["ymu"]["theme"]
+#     ctk.set_appearance_mode(f'"{theme}"')
+# set_appearance()
 
 # Colors
-BG_COLOR = "#333333"
-DBG_COLOR = "#2b2b2b"
-FG_COLOR = "#45e876"
-BHVR_COLOR = "#36543F"
-WHITE = "#DCE4EE"
-RED = "#e84555"
-YELLOW = "#e8c745"
+BG_COLOR = ("#cccccc", "#333333")
+BG_COLOR_D = ("#e4e4e4","#272727") # BG_COLOR_D = "#2b2b2b"
+GREEN = ("#16b145","#45e876")
+GREEN_D = ("#7dcb95","#3c8e55")  # GREEN_D = "#36543F"
+GREEN_B ="#36543F"
+WHITE = ("#272727","#DCE4EE")
+RED = ("#b11625","#e84555")
+RED_D = ("#cb7d85","#8e3c44")
+YELLOW = ("#b19216","#e8c745")
+# BLUE = "#4596e8"
+
+
 
 folder_white = ctk.CTkImage(
-    dark_image=Image.open(resource_path("assets\\img\\fo_white.png")), size=(24, 24)
+    dark_image=Image.open(resource_path("assets\\img\\fo_normal.png")),
+    light_image=Image.open(resource_path("assets\\img\\fo_normal_l.png")),
+    size=(24, 24)
 )
 folder_hvr = ctk.CTkImage(
-    dark_image=Image.open(resource_path("assets\\img\\fo_hover.png")), size=(24, 24)
+    dark_image=Image.open(resource_path("assets\\img\\fo_hover.png")),
+    light_image=Image.open(resource_path("assets\\img\\fo_hover_l.png")),
+    size=(24, 24)
 )
 
 
@@ -74,7 +93,7 @@ root.title("YMU - YimMenuUpdater")
 root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.minsize(260, 350)
-root.configure(fg_color=DBG_COLOR)
+root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
 height_of_window = 400
 screen_width = root.winfo_screenwidth()
@@ -98,7 +117,7 @@ CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
 # Version, Url and Paths
-LOCAL_VER = "v1.0.3"
+LOCAL_VER = "v1.0.4"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\dll"
 LOCALDLL = ".\\dll\\YimMenu.dll"
@@ -146,7 +165,7 @@ def check_for_ymu_update():
 
         if LOCAL_VER < YMU_VERSION:
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
-            update_response.configure(text_color=FG_COLOR)
+            update_response.configure(text_color=GREEN)
             ymu_update_button.configure(state="normal", text="Update YMU")
             update_available = True
             sleep(0.2)
@@ -162,7 +181,7 @@ def check_for_ymu_update():
 
         elif LOCAL_VER > YMU_VERSION:
             ymu_update_message.set(
-                "⚠️ Invalid version detected ⚠️\nPlease download YMU from the official Github repository."
+                "⚠️ Invalid version detected ⚠️\nPlease download YMU from\nthe official Github repository."
             )
             update_response.configure(text_color=RED)
             ymu_update_button.configure(state="normal", text="Open Github")
@@ -308,14 +327,14 @@ def refresh_download_button():
     if get_remote_sha256() == get_local_sha256():
         download_button.configure(state="disabled")
         progress_prcnt_label.configure(
-            text="YimMenu is up to date.", text_color=BG_COLOR
+            text="YimMenu is up to date.", text_color=WHITE
         )
         progressbar.set(1.0)
 
     else:
         download_button.configure(state="normal")
         progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} available!", text_color=FG_COLOR
+            text=f"{check_if_dll_is_downloaded()} available!", text_color=GREEN
         )
         progressbar.set(0)
 
@@ -343,7 +362,7 @@ def download_dll():
                     progress_prcnt_label.update_idletasks()  # refresh widget
         # if download successful
         progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} successful", text_color=FG_COLOR
+            text=f"{check_if_dll_is_downloaded()} successful", text_color=GREEN
         )
         sleep(5)
         check_if_dll_is_downloaded()
@@ -385,18 +404,18 @@ def inject_yimmenu():
             if os.path.isfile(LOCALDLL):
                 inject_progress_label.configure(
                     text=f"Found process 'GTA5.exe' with PID: [{pid}]",
-                    text_color=FG_COLOR,
+                    text_color=GREEN,
                 )
                 sleep(2)
                 inject_progress_label.configure(
-                    text=f"💉 Injecting...", text_color=FG_COLOR
+                    text=f"💉 Injecting...", text_color=GREEN
                 )
                 dummy_progress(injection_progressbar)
                 inject(pid, LOCALDLL)
                 sleep(2)
                 inject_progress_label.configure(
                     text=f"Successfully injected YimMenu.dll into GTA5.exe",
-                    text_color=FG_COLOR,
+                    text_color=GREEN,
                 )
                 sleep(3)
                 injection_progressbar.set(0)
@@ -407,7 +426,7 @@ def inject_yimmenu():
                 if is_running:
                     inject_progress_label.configure(
                         text="Have fun!",
-                        text_color=FG_COLOR,
+                        text_color=GREEN,
                     )
                     sleep(
                         5
@@ -471,10 +490,10 @@ def open_github(e):
 copyright_label = ctk.CTkLabel(
     master=root,
     font=CODE_FONT_SMALL,
-    text_color=BG_COLOR,
-    text="↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\n{".__add__(f"{LOCAL_VER}").__add__('}'),
+    text_color=BG_COLOR_D,
+    text="↣ Click Here for GitHub Repo ↢\n⋉ © NV3 ⋊\n{" +f"{LOCAL_VER}" + "}",
     bg_color="transparent",
-    fg_color=DBG_COLOR,
+    fg_color=BG_COLOR_D,
     justify="center",
 )
 copyright_label.pack(pady=10, fill=None, expand=False, anchor="n", side="top")
@@ -486,34 +505,64 @@ copyright_label.bind("<ButtonRelease>", open_github)
 def copyright_label_ani_master():
     try:
         while True:
-            copyright_label.configure(text_color="#4D4D4D")
-            sleep(0.1)
-            copyright_label.configure(text_color="#666666")
-            sleep(0.1)
-            copyright_label.configure(text_color="#808080")
-            sleep(0.1)
-            copyright_label.configure(text_color="#999999")
-            sleep(0.1)
-            copyright_label.configure(text_color="#B3B3B3")
-            sleep(0.1)
-            copyright_label.configure(text_color="#CCCCCC")
-            sleep(0.2)
-            copyright_label.configure(text_color="#E6E6E6")
-            sleep(0.3)
-            copyright_label.configure(text_color="#FFFFFF")
-            sleep(0.4)
-            copyright_label.configure(text_color="#E6E6E6")
-            sleep(0.3)
-            copyright_label.configure(text_color="#CCCCCC")
-            sleep(0.2)
-            copyright_label.configure(text_color="#B3B3B3")
-            sleep(0.1)
-            copyright_label.configure(text_color="#999999")
-            sleep(0.1)
-            copyright_label.configure(text_color="#808080")
-            sleep(0.1)
-            copyright_label.configure(text_color="#666666")
-            sleep(0.1)
+            if appearance_mode_optionemenu.get() == "Dark":
+                copyright_label.configure(text_color="#4D4D4D")
+                sleep(0.1)
+                copyright_label.configure(text_color="#666666")
+                sleep(0.1)
+                copyright_label.configure(text_color="#808080")
+                sleep(0.1)
+                copyright_label.configure(text_color="#999999")
+                sleep(0.1)
+                copyright_label.configure(text_color="#B3B3B3")
+                sleep(0.1)
+                copyright_label.configure(text_color="#CCCCCC")
+                sleep(0.2)
+                copyright_label.configure(text_color="#E6E6E6")
+                sleep(0.3)
+                copyright_label.configure(text_color="#FFFFFF")
+                sleep(0.4)
+                copyright_label.configure(text_color="#E6E6E6")
+                sleep(0.3)
+                copyright_label.configure(text_color="#CCCCCC")
+                sleep(0.2)
+                copyright_label.configure(text_color="#B3B3B3")
+                sleep(0.1)
+                copyright_label.configure(text_color="#999999")
+                sleep(0.1)
+                copyright_label.configure(text_color="#808080")
+                sleep(0.1)
+                copyright_label.configure(text_color="#666666")
+                sleep(0.1)
+            
+            elif appearance_mode_optionemenu.get() == "Light":
+                # copyright_label.configure(text_color="#4D4D4D")
+                # sleep(0.1)
+                # copyright_label.configure(text_color="#ffffff")
+                # sleep(0.1)
+                # copyright_label.configure(text_color="#dbdbdb")
+                sleep(0.1)
+                copyright_label.configure(text_color="#b7b7b7")
+                sleep(0.1)
+                copyright_label.configure(text_color="#939393")
+                sleep(0.2)
+                copyright_label.configure(text_color="#6f6f6f")
+                sleep(0.2)
+                copyright_label.configure(text_color="#4b4b4b")
+                sleep(0.3)
+                copyright_label.configure(text_color="#272727")
+                sleep(0.4)
+                copyright_label.configure(text_color="#4b4b4b")
+                sleep(0.3)
+                copyright_label.configure(text_color="#6f6f6f")
+                sleep(0.2)
+                copyright_label.configure(text_color="#939393")
+                sleep(0.2)
+                copyright_label.configure(text_color="#b7b7b7")
+                sleep(0.1)
+                copyright_label.configure(text_color="#dbdbdb")
+                
+            
     except Exception:
         pass
 
@@ -525,6 +574,25 @@ def master_ani_start():
 
 root.after(1000, master_ani_start)
 
+# def tabview_border_ani():
+#     while True:
+#         sleep(0.2)
+#         tabview.configure(border_color=GREEN_D)
+#         sleep(0.2)
+#         tabview.configure(border_color="#3ea55d")
+#         sleep(0.2)        
+#         tabview.configure(border_color="#41bb66")
+#         sleep(0.2)
+#         tabview.configure(border_color="#43d26e")
+#         sleep(0.2)
+#         tabview.configure(border_color=GREEN)
+#         sleep(0.2)
+#         tabview.configure(border_color="#43d26e")
+#         sleep(0.2)
+#         tabview.configure(border_color="#41bb66")
+#         sleep(0.2)
+#         tabview.configure(border_color="#3ea55d")
+
 
 # Download and SHA256 tabs
 tabview = ctk.CTkTabview(
@@ -532,15 +600,16 @@ tabview = ctk.CTkTabview(
     fg_color=BG_COLOR,
     bg_color="transparent",
     corner_radius=12,
-    segmented_button_fg_color=DBG_COLOR,
-    segmented_button_selected_color=BHVR_COLOR,
-    segmented_button_selected_hover_color=BHVR_COLOR,
+    segmented_button_fg_color=BG_COLOR,
+    segmented_button_selected_color=BG_COLOR_D,
+    segmented_button_selected_hover_color=BG_COLOR,
     segmented_button_unselected_color=BG_COLOR,
-    segmented_button_unselected_hover_color=BHVR_COLOR,
-    text_color=FG_COLOR,
+    segmented_button_unselected_hover_color=BG_COLOR_D,
+    text_color=GREEN, border_color=GREEN_D, border_width=2
 )
 tabview.pack(pady=10, padx=10, expand=True, fill="both")
 
+# Thread(target=tabview_border_ani, daemon=True).start()
 
 def refresh_download_tab():
     if check_if_dll_is_downloaded() == "Download":
@@ -553,7 +622,30 @@ refresh_download_tab()
 
 
 tabview.add("Inject")
-tabview.add("⚙️ Settings")
+tabview.add("Settings Ξ")
+
+
+# def test_animation():
+#     while True:
+#         sleep(0.1)
+#         test_label.configure(text="◝", text_color=WHITE)
+#         sleep(0.1)
+#         test_label.configure(text="◞")
+#         sleep(0.1)
+#         test_label.configure(text="◟")
+#         sleep(0.1)
+#         test_label.configure(text="◜ ")
+#         sleep(0.1)
+#         test_label.configure(text="◯", text_color=GREEN)
+#         # sleep(0.3)
+#         # test_label.configure(text="◔")
+    
+# test=ctk.CTkToplevel()
+# test.configure(text="test")
+# test_label=ctk.CTkLabel(master=test,text="◜", font=CODE_FONT_BIG, text_color=WHITE)
+# test_label.pack(pady=20)
+
+# Thread(target=test_animation,daemon=True).start()
 
 
 # reset progress label
@@ -568,8 +660,8 @@ progressbar = ctk.CTkProgressBar(
     orientation="horizontal",
     height=8,
     corner_radius=14,
-    fg_color=DBG_COLOR,
-    progress_color=FG_COLOR,
+    fg_color=BG_COLOR_D,
+    progress_color=GREEN,
     width=140,
 )
 progressbar.pack(pady=5, padx=5, expand=False, fill="x", side="bottom", anchor="s")
@@ -589,29 +681,33 @@ progress_prcnt_label.pack(
 
 
 def hover_download_button(e):
-    download_button.configure(text_color=FG_COLOR, fg_color="#36543F")
+    download_button.configure(text_color=GREEN, fg_color=GREEN_B)
+    tabview.configure(border_color=GREEN)
 
 
 def nohover_download_button(e):
-    download_button.configure(text_color=BG_COLOR, fg_color=FG_COLOR)
+    download_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+    tabview.configure(border_color=GREEN_D)
 
 
 def hover_inject_button(e):
-    inject_button.configure(text_color=FG_COLOR, fg_color="#36543F")
+    inject_button.configure(text_color=GREEN, fg_color=GREEN_B)
+    tabview.configure(border_color=GREEN)
 
 
 def nohover_inject_button(e):
-    inject_button.configure(text_color=BG_COLOR, fg_color=FG_COLOR)
+    inject_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+    tabview.configure(border_color=GREEN_D)
 
 
 # more info for Download
 def open_download_info(e):
-    download_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
+    download_info = ctk.CTkToplevel(fg_color=BG_COLOR_D)
     download_info.title("Download Info")
-    download_info.minsize(280, 200)
+    download_info.minsize(300, 220)
     download_info.resizable(False, False)
-    width_of_window = 280
-    height_of_window = 200
+    width_of_window = 300
+    height_of_window = 220
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -619,14 +715,23 @@ def open_download_info(e):
     download_info.geometry(
         "%dx%d+%d+%d" % (width_of_window, height_of_window, x_coordinate, y_coordinate)
     )
+    def di_frame_hover(e):
+        download_info_frame.configure(border_color=GREEN)
+    def di_frame_normal(e):
+        download_info_frame.configure(border_color=GREEN_D)        
+    
+    download_info_frame = ctk.CTkFrame(master=download_info, fg_color=BG_COLOR, border_width=1, border_color=GREEN_D)
+    download_info_frame.pack(pady=10,padx=10, expand=True, fill="both")
     download_info_label = ctk.CTkLabel(
-        master=download_info,
+        master=download_info_frame,
         text=f'⭐ {check_if_dll_is_downloaded()} YimMenu.dll ⭐\n\nHow-To:\n↦ CLick on ({check_if_dll_is_downloaded()})\n↪ Wait for the download to finish\n↪ file in "YMU/dll"-folder\n\nIf the file gets deleted,\nadd an exception in\nyour antivirus or\ndisable it.',
         font=CODE_FONT,
         justify="center",
-        text_color=FG_COLOR,
+        text_color=GREEN,
     )
     download_info_label.pack(pady=10, padx=10, expand=True, fill="both")
+    download_info.bind("<Enter>",di_frame_hover)
+    download_info.bind("<Leave>",di_frame_normal)
     download_info.attributes("-topmost", "true")
 
 
@@ -634,9 +739,10 @@ def hover_download_mi(e):
     download_more_info_label.configure(
         text="Click here for more info",
         cursor="hand2",
-        text_color=FG_COLOR,
+        text_color=GREEN,
         font=CODE_FONT_U,
     )
+    tabview.configure(border_color=GREEN)
 
 
 def normal_download_mi(e):
@@ -646,7 +752,7 @@ def normal_download_mi(e):
         text_color=WHITE,
         font=CODE_FONT,
     )
-
+    tabview.configure(border_color=GREEN_D)
 
 download_more_info_label = ctk.CTkLabel(
     master=tabview.tab(check_if_dll_is_downloaded()),
@@ -664,10 +770,11 @@ download_more_info_label.bind("<Leave>", normal_download_mi)
 
 # Changelog
 def open_changelog(e):
-    changelog = ctk.CTkToplevel(fg_color=BG_COLOR)
+    changelog = ctk.CTkToplevel(fg_color=BG_COLOR_D)
     changelog.title("YimMenu Changelog")
     width_of_window = 640
     height_of_window = 640
+    changelog.minsize(400,400)
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -680,20 +787,34 @@ def open_changelog(e):
     # changelog.geometry(
     #     "640x640+" + str(changelog_x_coord) + "+" + str(changelog_y_coord)
     # )
+    def border_frame_hover(e):
+        border_frame.configure(border_color=GREEN)
+        changelog_frame.configure(label_text_color=GREEN)
+    def border_frame_normal(e):
+        border_frame.configure(border_color=GREEN_D)
+        changelog_frame.configure(label_text_color=GREEN_D)
+        
+    border_frame = ctk.CTkFrame(master=changelog, fg_color=BG_COLOR, border_width=1, border_color=GREEN_D, corner_radius=10)
+    border_frame.pack(pady=10,padx=10, expand=True, fill="both")
+    
 
+    
     changelog_frame = ctk.CTkScrollableFrame(
-        master=changelog,
-        corner_radius=10,
-        scrollbar_button_color=BHVR_COLOR,
-        scrollbar_button_hover_color=FG_COLOR,
-        scrollbar_fg_color=DBG_COLOR,
+        master=border_frame,
+        corner_radius=0,
+        scrollbar_button_color=GREEN_D,
+        scrollbar_button_hover_color=GREEN,
+        scrollbar_fg_color=BG_COLOR_D,
         label_font=BOLD_FONT,
         label_text="YimMenu - Changelog:",
-        label_text_color=FG_COLOR,
-        label_fg_color=DBG_COLOR,
+        label_text_color=GREEN,
+        label_fg_color=BG_COLOR,
         fg_color=BG_COLOR,
     )
     changelog_frame.pack(pady=10, padx=10, expand=True, fill="both")
+    changelog.bind("<Enter>",border_frame_hover)
+    changelog.bind("<Leave>",border_frame_normal)
+      
     r = requests.get("https://yim.gta.menu/changelog.html")
     soup = BeautifulSoup(r.content, "html.parser")
     changelog_hmtl = soup.find(class_="card").get_text()
@@ -714,9 +835,10 @@ def hover_changelog_l(e):
     changelog_l.configure(
         text="Click here for Changelog",
         cursor="hand2",
-        text_color=FG_COLOR,
+        text_color=GREEN,
         font=CODE_FONT_U,
     )
+    tabview.configure(border_color=GREEN)
 
 
 def normal_changelog_l(e):
@@ -726,13 +848,14 @@ def normal_changelog_l(e):
         text_color=WHITE,
         font=CODE_FONT,
     )
+    tabview.configure(border_color=GREEN_D)
 
 
 changelog_l = ctk.CTkLabel(
     master=tabview.tab(check_if_dll_is_downloaded()),
     text="↣ Click here for Changelog ↢",
     justify="center",
-    font=CODE_FONT,
+    font=CODE_FONT, text_color=WHITE
 )
 changelog_l.pack(pady=10, padx=10, expand=False, fill=None)
 
@@ -746,9 +869,9 @@ download_button = ctk.CTkButton(
     master=tabview.tab(check_if_dll_is_downloaded()),
     text=f"{check_if_dll_is_downloaded()}",
     command=start_download,
-    fg_color=FG_COLOR,
-    hover_color=BHVR_COLOR,
-    text_color=BG_COLOR,
+    fg_color=GREEN,
+    hover_color=GREEN_D,
+    text_color=BG_COLOR_D,
     font=SMALL_BOLD_FONT,
     corner_radius=8,
 )
@@ -772,8 +895,8 @@ injection_progressbar = ctk.CTkProgressBar(
     orientation="horizontal",
     height=8,
     corner_radius=14,
-    fg_color=DBG_COLOR,
-    progress_color=FG_COLOR,
+    fg_color=BG_COLOR_D,
+    progress_color=GREEN,
     width=140,
 )
 injection_progressbar.pack(
@@ -796,11 +919,11 @@ inject_progress_label.pack(
 
 # more info for injection
 def open_inject_info(e):
-    inject_info = ctk.CTkToplevel(root, fg_color=BG_COLOR)
+    inject_info = ctk.CTkToplevel(fg_color=BG_COLOR_D)
     inject_info.title("Injection Info")
-    inject_info.minsize(280, 200)
+    inject_info.minsize(320, 200)
     inject_info.resizable(False, False)
-    width_of_window = 280
+    width_of_window = 320
     height_of_window = 200
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
@@ -809,15 +932,25 @@ def open_inject_info(e):
     inject_info.geometry(
         "%dx%d+%d+%d" % (width_of_window, height_of_window, x_coordinate, y_coordinate)
     )
-
+    
+    def border_frame_hover(e):
+        border_frame.configure(border_color=GREEN)
+    
+    def border_frame_normal(e):
+        border_frame.configure(border_color=GREEN_D)
+        
+    border_frame= ctk.CTkFrame(master=inject_info, fg_color=BG_COLOR, corner_radius=10, border_color=GREEN_D, border_width=1)
+    border_frame.pack(pady=10,padx=10,fill="both",expand=True)
     inject_info_label = ctk.CTkLabel(
-        master=inject_info,
-        text="⭐ Inject YimMenu.dll ⭐\n\nHow-To:\n↦ Launch the game.\n↦ Load into 'Single Player'.\n↦ Wait for the game to finish loading.\n↦ CLick on (Inject YimMenu).\n↦ Wait for YimMenu to finish loading.\n↦ Done! ✅",
+        master=border_frame,
+        text="⭐ Inject YimMenu.dll ⭐\n\nHow-To:\n↦ Launch the game.\n↦ Load into 'Single Player'\n↦ Wait for the game to finish loading\n↦ CLick on (Inject YimMenu)\n↦ Wait for YimMenu to finish loading\n↦ Done! ✅",
         font=CODE_FONT,
         justify="center",
-        text_color=FG_COLOR,
+        text_color=GREEN,
     )
     inject_info_label.pack(pady=10, padx=10, expand=True, fill="both")
+    inject_info.bind("<Enter>", border_frame_hover)
+    inject_info.bind("<Leave>", border_frame_normal)
     inject_info.attributes("-topmost", "true")
 
 
@@ -825,9 +958,10 @@ def hover_inject_mi(e):
     inject_more_info_label.configure(
         text="Click here for more info",
         cursor="hand2",
-        text_color=FG_COLOR,
+        text_color=GREEN,
         font=CODE_FONT_U,
     )
+    tabview.configure(border_color=GREEN)
 
 
 def normal_inject_mi(e):
@@ -837,6 +971,7 @@ def normal_inject_mi(e):
         text_color=WHITE,
         font=CODE_FONT,
     )
+    tabview.configure(border_color=GREEN_D)
 
 
 inject_more_info_label = ctk.CTkLabel(
@@ -857,9 +992,9 @@ inject_button = ctk.CTkButton(
     master=tabview.tab("Inject"),
     text="Inject YimMenu",
     command=start_injection,
-    fg_color=FG_COLOR,
-    hover_color=BHVR_COLOR,
-    text_color=BG_COLOR,
+    fg_color=GREEN,
+    hover_color=GREEN_B,
+    text_color=BG_COLOR_D,
     font=SMALL_BOLD_FONT,
     corner_radius=8,
 )
@@ -878,31 +1013,221 @@ inject_button.bind("<Leave>", nohover_inject_button)
 
 # settings tab
 
+settings_frame = ctk.CTkScrollableFrame(
+        master=tabview.tab("Settings Ξ"),
+        corner_radius=8,
+        scrollbar_button_color=GREEN_B,
+        scrollbar_button_hover_color=GREEN_D,
+        scrollbar_fg_color=BG_COLOR,
+        fg_color=BG_COLOR,
+    )
+settings_frame.pack(pady=0,padx=0, expand=True, fill="both")
 
-def open_dlldir():
-    # base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    if not os.path.exists(DLLDIR):
-        os.makedirs(DLLDIR)
-        os.system(f"explorer.exe {DLLDIR}")
+def change_theme(e):
+    config = ConfigParser()
+    config.read(CONFIGPATH)
+    theme = appearance_mode_optionemenu.get()
+    if theme == "Dark":
+        appearance_mode_optionemenu.set("Dark")
+        ctk.set_appearance_mode("dark")
+        config.set("ymu","theme","dark")
+    elif theme == "Light":
+        appearance_mode_optionemenu.set("Light")
+        ctk.set_appearance_mode("light")
+        config.set("ymu","theme","light")
     else:
-        os.system(f"explorer.exe {DLLDIR}")
+        appearance_mode_optionemenu.set("Dark")
+        ctk.set_appearance_mode("dark")
+        config.set("ymu","theme","dark")
+    with open(CONFIGPATH,"w") as configfile:
+        config.write(configfile)
+
+appearance_mode_label = ctk.CTkLabel(
+    master=settings_frame,
+    text="▸ Set YMU Theme ◂",
+    font=BIG_FONT,
+    text_color=WHITE,
+)
+
+appearance_mode_label.pack(pady=0, padx=0, expand=False, fill=None)
+
+appearance_mode_optionemenu = ctk.CTkOptionMenu(
+    master=settings_frame,
+    values=["Light", "Dark"],
+    command=change_theme,
+    fg_color=BG_COLOR_D,
+    text_color=WHITE,
+    bg_color="transparent",
+    button_color=BG_COLOR_D,
+    button_hover_color=GREEN_D,
+    font=SMALL_BOLD_FONT,
+    dynamic_resizing=False,
+    dropdown_fg_color=BG_COLOR_D,
+    dropdown_font=SMALL_FONT,
+    dropdown_hover_color=BG_COLOR,
+    dropdown_text_color=WHITE,
+    corner_radius=8,
+    width=80,
+)
+
+appearance_mode_optionemenu.pack(pady=5, padx=0, expand=False, fill=None)
+
+
+def set_optionmenu():
+    config=ConfigParser()
+    config.read(CONFIGPATH)
+    if config["ymu"]["theme"] == "dark":
+        appearance_mode_optionemenu.set("Dark")
+    elif config["ymu"]["theme"] == "light":
+        appearance_mode_optionemenu.set("Light")
+    else:
+        appearance_mode_optionemenu.set("Dark")
+set_optionmenu()
+
+def check_lua_setting_on_startup():
+    yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
+    yimSettings = f'{yimPath}\\settings.json'    
+    if os.path.exists(yimPath) and os.path.isfile(yimSettings):
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["lua"]
+            key = "enable_auto_reload_changed_scripts"
+            if key in setting:
+                if setting[key] == True:
+                    lua_ar_switch.select()
+                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )", border_color=GREEN)
+                elif setting[key] == False:
+                    lua_ar_switch.deselect()
+                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )", border_color=RED)
+
+# Enable auto-reload for Lua scripts
+def lua_auto_reload():
+    yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
+    yimSettings = f'{yimPath}\\settings.json'    
+    if os.path.exists(yimPath) and os.path.isfile(yimSettings) and lua_ar_switch.get()=="ON":
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["lua"]
+            key = "enable_auto_reload_changed_scripts"
+            if key in setting:
+                if setting[key] == False:
+                    setting[key] = True
+                    with open(yimSettings, 'w') as newFile:
+                        json.dump(data, newFile)
+        lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )")
+        lua_ar_switch.configure(button_color=GREEN, button_hover_color=GREEN_D,border_color=GREEN_D)
+        
+    elif os.path.exists(yimPath) and os.path.isfile(yimSettings) and lua_ar_switch.get()=="OFF":
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["lua"]
+            key = "enable_auto_reload_changed_scripts"
+            if key in setting:
+                if setting[key] == True:
+                    setting[key] = False
+                    with open(yimSettings, 'w') as newFile:
+                        json.dump(data, newFile)
+        lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()})")
+        lua_ar_switch.configure(button_color=RED, button_hover_color=RED_D, border_color=RED_D)
+        
+    else:
+        lua_ar_switch.configure(text="❌ YimMenu isn't installed!\nOr has never been injected.", text_color=RED)
+        sleep(5)
+        lua_ar_switch.configure(text="Enable Auto Reload for Lua-Scripts?", text_color=RED)
+
+luas_header = ctk.CTkLabel(master=settings_frame,text="— — — — — — — — — — — — — — — — — — — — — —\n▸ Lua Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
+luas_header.pack(pady=10,padx=0)
+
+def lua_ar_switch_hover(e):
+    tabview.configure(border_color=GREEN)
+    if lua_ar_switch.get() == "ON":
+        lua_ar_switch.configure(button_color=GREEN_D, border_color=GREEN_D, font=SMALL_BOLD_FONT_U)
+    elif lua_ar_switch.get() == "OFF":
+        lua_ar_switch.configure(button_color=RED_D, border_color=RED_D, font=SMALL_BOLD_FONT_U)
+
+def lua_ar_switch_normal(e):
+    tabview.configure(border_color=GREEN_D)   
+    if lua_ar_switch.get() == "ON":
+        lua_ar_switch.configure(button_color=GREEN, border_color=GREEN, font=SMALL_BOLD_FONT)
+    elif lua_ar_switch.get() == "OFF":
+        lua_ar_switch.configure(button_color=RED, border_color=RED, font=SMALL_BOLD_FONT)
+
+
+lua_ar_switch = ctk.CTkSwitch(
+    master=settings_frame,
+    onvalue="ON",
+    offvalue="OFF",
+    text="Enable Auto Reload for Lua-Scripts? (OFF)",
+    fg_color=BG_COLOR_D,
+    button_color=RED_D,
+    button_hover_color=RED,
+    border_width=1,
+    border_color=RED_D,
+    corner_radius=10,
+    font=SMALL_BOLD_FONT,
+    progress_color=BG_COLOR_D,
+    text_color=WHITE,
+    bg_color="transparent", command=lua_auto_reload
+)
+lua_ar_switch.pack(pady=0, padx=0, fill=None, expand=False)
+
+lua_ar_switch.bind("<Enter>",lua_ar_switch_hover)
+lua_ar_switch.bind("<Leave>",lua_ar_switch_normal)
+
+luas_label = ctk.CTkLabel(master=settings_frame,text="Don't have any Luas?", text_color=WHITE, font=SMALL_BOLD_FONT, bg_color="transparent", fg_color="transparent")
+luas_label.pack(pady=5,padx=0)
+
+def open_luas():
+    webbrowser.open_new_tab("https://github.com/orgs/YimMenu-Lua/repositories")
+
+def explore_luas_hover(e):
+    explore_luas_button.configure(text_color=GREEN, fg_color=GREEN_B)
+    luas_label.configure(font=SMALL_BOLD_FONT_U)
+    tabview.configure(border_color=GREEN)
+
+
+def explore_luas_normal(e):
+    explore_luas_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+    luas_label.configure(font=SMALL_BOLD_FONT)
+    tabview.configure(border_color=GREEN_D)
+
+explore_luas_button = ctk.CTkButton(master=settings_frame, fg_color=GREEN, text="Explore Luas ↗", font=SMALL_BOLD_FONT, text_color=BG_COLOR_D, bg_color="transparent", corner_radius=8, hover_color=GREEN_B, command=open_luas)
+
+explore_luas_button.pack(pady=0,padx=0, expand=False, fill = None)
+
+explore_luas_button.bind("<Enter>",explore_luas_hover)
+explore_luas_button.bind("<Leave>",explore_luas_normal)
+
+others_header = ctk.CTkLabel(master=settings_frame,text="— — — — — — — — — — — — — — — — — — — — — —\n▸ Other Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
+others_header.pack(pady=10,padx=0)
+
+
+
+def open_yimdir():
+    yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
+    if not os.path.exists(yimPath):
+        pass
+    else:
+        os.system(f"explorer.exe {yimPath}")
 
 
 def folder_button_hover(e):
     folder_button.configure(
-        image=folder_hvr, text_color=FG_COLOR, font=SMALL_BOLD_FONT_U
+        image=folder_hvr, text_color=GREEN, font=SMALL_BOLD_FONT_U
     )
+    tabview.configure(border_color=GREEN)
 
 
 def folder_button_normal(e):
     folder_button.configure(image=folder_white, text_color=WHITE, font=SMALL_BOLD_FONT)
+    tabview.configure(border_color=GREEN_D)
 
 
 folder_button = ctk.CTkButton(
-    master=tabview.tab("⚙️ Settings"),
-    text='Open "dll"-Folder',
+    master=settings_frame,
+    text='Open "YimMenu"-Folder',
     image=folder_white,
-    command=open_dlldir,
+    command=open_yimdir,
     fg_color=BG_COLOR,
     hover_color=BG_COLOR,
     text_color=WHITE,
@@ -910,50 +1235,38 @@ folder_button = ctk.CTkButton(
     corner_radius=10,
 )
 folder_button.pack(
-    pady=20,
-    padx=5,
+    pady=0,
+    padx=0,
     expand=False,
     fill=None,
 )
 folder_button.bind("<Enter>", folder_button_hover)
 folder_button.bind("<Leave>", folder_button_normal)
 
-version_label = ctk.CTkLabel(
-    master=tabview.tab("⚙️ Settings"),
-    text=f"Installed YMU Version: {LOCAL_VER}",
-    text_color="#D3D3D3",
-    justify="right",
-    anchor="nw",
-    font=SMALL_BOLD_FONT,
-)
-version_label.pack(pady=10, padx=10, expand=False, fill=None)
-
 
 def hover_ymu_update_button(e):
-    ymu_update_button.configure(text_color=FG_COLOR, fg_color="#36543F")
+    ymu_update_button.configure(text_color=GREEN, fg_color=GREEN_B)
+    tabview.configure(border_color=GREEN)
 
 
 def nohover_ymu_update_button(e):
-    ymu_update_button.configure(text_color=BG_COLOR, fg_color=FG_COLOR)
-
-
-def change_theme(theme: str):
-    ctk.set_appearance_mode(theme)
+    ymu_update_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+    tabview.configure(border_color=GREEN_D)
 
 
 ymu_update_button = ctk.CTkButton(
-    master=tabview.tab("⚙️ Settings"),
+    master=settings_frame,
     text="Check For Update",
     command=ymu_update_thread,
-    fg_color=FG_COLOR,
-    hover_color=BHVR_COLOR,
-    text_color=BG_COLOR,
+    fg_color=GREEN,
+    hover_color=GREEN_D,
+    text_color=BG_COLOR_D,
     font=SMALL_BOLD_FONT,
     corner_radius=8,
 )
 ymu_update_button.pack(
-    pady=10,
-    padx=5,
+    pady=15,
+    padx=0,
     expand=True,
     fill=None,
 )
@@ -962,28 +1275,18 @@ ymu_update_button.bind("<Enter>", hover_ymu_update_button)
 ymu_update_button.bind("<Leave>", nohover_ymu_update_button)
 
 update_response = ctk.CTkLabel(
-    master=tabview.tab("⚙️ Settings"),
+    master=settings_frame,
     textvariable=ymu_update_message,
-    text_color=WHITE,
+    text_color=WHITE, font=CODE_FONT_SMALL
 )
-update_response.pack(pady=5, padx=5, expand=False, fill=None, anchor="s")
+update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
 
-# appearance_mode_label = ctk.CTkLabel(master = tabview.tab("⚙️ Settings"),
-#                                      text = "Theme:")
-# appearance_mode_label.pack(
-#     pady=5, padx=5, expand=False, fill=None, anchor="s"
-# )
 
-# appearance_mode_optionemenu = ctk.CTkOptionMenu(master = tabview.tab("⚙️ Settings"),
-#                                                 values = ["Light", "Dark", "System"],
-#                                                 command = change_theme
-#                                                 )
-# appearance_mode_optionemenu.pack(
-#     pady=5, padx=5, expand=False, fill=None, anchor="s", side="bottom"
-# )
-# appearance_mode_optionemenu.set("Dark")
 
 if __name__ == "__main__":
+    Thread(target=check_lua_setting_on_startup, daemon=True).start()
+    if getattr(sys, 'frozen', False):
+        pyi_splash.close()
     root.mainloop()
     try:
         if start_self_update:
