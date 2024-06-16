@@ -3,7 +3,9 @@
 
 
 >[!NOTE]
-> **NEXT** in `v1.0.4` ↦ LUA Script Library + GUI Changes: Theme selection (light, dark, system)
+>**NEXT** in `v1.0.5` ↦ **TBA**
+>
+> **NEW** in `v1.0.4` ↦ 	GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
 >
 > **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
 >
