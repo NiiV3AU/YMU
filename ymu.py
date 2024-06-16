@@ -1180,23 +1180,23 @@ luas_label.pack(pady=5,padx=0)
 def open_luas():
     webbrowser.open_new_tab("https://github.com/orgs/YimMenu-Lua/repositories")
 
-def explore_luas_hover(e):
-    explore_luas_button.configure(text_color=GREEN, fg_color=GREEN_B)
+def discover_luas_hover(e):
+    discover_luas_button.configure(text_color=GREEN, fg_color=GREEN_B)
     luas_label.configure(font=SMALL_BOLD_FONT_U)
     tabview.configure(border_color=GREEN)
 
 
-def explore_luas_normal(e):
-    explore_luas_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+def discover_luas_normal(e):
+    discover_luas_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
     luas_label.configure(font=SMALL_BOLD_FONT)
     tabview.configure(border_color=GREEN_D)
 
-explore_luas_button = ctk.CTkButton(master=settings_frame, fg_color=GREEN, text="Explore Luas ↗", font=SMALL_BOLD_FONT, text_color=BG_COLOR_D, bg_color="transparent", corner_radius=8, hover_color=GREEN_B, command=open_luas)
+discover_luas_button = ctk.CTkButton(master=settings_frame, fg_color=GREEN, text="Discover Luas ↗", font=SMALL_BOLD_FONT, text_color=BG_COLOR_D, bg_color="transparent", corner_radius=8, hover_color=GREEN_B, command=open_luas)
 
-explore_luas_button.pack(pady=0,padx=0, expand=False, fill = None)
+discover_luas_button.pack(pady=0,padx=0, expand=False, fill = None)
 
-explore_luas_button.bind("<Enter>",explore_luas_hover)
-explore_luas_button.bind("<Leave>",explore_luas_normal)
+discover_luas_button.bind("<Enter>",discover_luas_hover)
+discover_luas_button.bind("<Leave>",discover_luas_normal)
 
 others_header = ctk.CTkLabel(master=settings_frame,text="— — — — — — — — — — — — — — — — — — — — — —\n▸ Other Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
 others_header.pack(pady=10,padx=0)
