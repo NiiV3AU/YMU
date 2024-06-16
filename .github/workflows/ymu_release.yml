@@ -35,7 +35,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --add-data='D:\a\YMU\YMU\assets\icon\ymu.ico':assets\icon --add-data='D:\a\YMU\YMU\assets\splash.png':assets\splash --add-data='D:\a\YMU\YMU\assets\img\fo_white.png:assets\img' --add-data='D:\a\YMU\YMU\assets\img\fo_hover.png:assets\img' --icon='D:\a\YMU\YMU\assets\icon\ymu.ico' --splash "D:\a\YMU\YMU\assets\splash.png"
+        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --add-data='D:\a\YMU\YMU\assets\icon\ymu.ico':assets\icon --add-data='D:\a\YMU\YMU\assets\splash.png':assets\splash --add-data='assets\img\fo_hover_l.png:assets\img' --add-data='assets\img\fo_hover.png:assets\img' --add-data='assets\img\fo_normal.png:assets\img' --add-data='assets\img\fo_normal_l.png:assets\img' --icon='D:\a\YMU\YMU\assets\icon\ymu.ico' --splash "D:\a\YMU\YMU\assets\splash.png"
 
     - name: Generate Build Info
       id: var
@@ -135,11 +135,12 @@ jobs:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           body: | # here you can put whatever you want to display in the release page
               ### Changelog:
-              * [self updater and better inject button behavior](https://github.com/NiiV3AU/YMU/pull/9) by @xesdoog
-              * new hover effect of clickable labels (more info/changelog)
-              * new "Open Directory"-Button in Settings-Tab
-              * color refinements: Red & yellow now follow the theme
-              * CTkTopLevel's (info/changelog) now centered and instantly on top
+              * Themes: choose between dark or light (light still needs some adjustments)
+              * new interactive borderlines when hovering over clickable elements
+              * new "enable auto reload luas"-Switch in Settings-Tab
+              * new "Discover Luas"-Button in Settings-Tab
+              * color refinements
+              * fixed splashscreen (reverted back to [PR#8](https://github.com/NiiV3AU/YMU/pull/8))
 
 
               **This release has been built by Github Actions**
