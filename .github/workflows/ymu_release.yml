@@ -135,13 +135,10 @@ jobs:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           body: | # here you can put whatever you want to display in the release page
               ### Changelog:
-              * Themes: choose between dark or light (light still needs some adjustments)
-              * new interactive borderlines when hovering over clickable elements
-              * new "enable auto reload luas"-Switch in Settings-Tab
-              * new "Discover Luas"-Button in Settings-Tab
-              * color refinements
-              * fixed splashscreen (reverted back to [PR#8](https://github.com/NiiV3AU/YMU/pull/8))
-
+              * new "Open in Browser"-Button in Changelog Window
+              * new "Debug Console"-Switch in Settings-Tab
+              * fixed toggle color (wrong color after launch)
+              
 
               **This release has been built by Github Actions**
 
