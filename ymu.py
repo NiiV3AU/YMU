@@ -92,7 +92,6 @@ root = ctk.CTk()
 root.title("YMU - YimMenuUpdater")
 root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
-root.minsize(260, 350)
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
 height_of_window = 400
@@ -117,7 +116,7 @@ CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
 # Version, Url and Paths
-LOCAL_VER = "v1.0.4"
+LOCAL_VER = "v1.0.5"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\dll"
 LOCALDLL = ".\\dll\\YimMenu.dll"
@@ -134,9 +133,7 @@ ymu_update_message = ctk.StringVar()
 
 
 def get_ymu_ver():
-
     try:
-
         r = requests.get("https://github.com/NiiV3AU/YMU/tags")
         soup = BeautifulSoup(r.content, "html.parser")
         result = soup.find(class_="Link--primary Link")
@@ -160,9 +157,7 @@ def check_for_ymu_update():
     ymu_update_button.configure(state="disabled")
     YMU_VERSION = get_ymu_ver()
     global update_available
-
     try:
-
         if LOCAL_VER < YMU_VERSION:
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
             update_response.configure(text_color=GREEN)
@@ -812,8 +807,8 @@ def open_changelog(e):
         fg_color=BG_COLOR,
     )
     changelog_frame.pack(pady=10, padx=10, expand=True, fill="both")
-    changelog.bind("<Enter>",border_frame_hover)
-    changelog.bind("<Leave>",border_frame_normal)
+    changelog_frame.bind("<Enter>",border_frame_hover)
+    changelog_frame.bind("<Leave>",border_frame_normal)
       
     r = requests.get("https://yim.gta.menu/changelog.html")
     soup = BeautifulSoup(r.content, "html.parser")
@@ -828,6 +823,21 @@ def open_changelog(e):
     )
     changelog_label.configure(text=changelog_hmtl)
     changelog_label.pack(expand=True, fill="both", pady=0, padx=0)
+    def open_changelog_ib():
+        webbrowser.open_new_tab("https://yim.gta.menu/changelog.html")
+    def oib_hover(e):
+        open_in_browser_button.configure(text="Open in Browser ↗",font=CODE_FONT_U, text_color=GREEN)
+    
+    def oib_normal(e):
+        open_in_browser_button.configure(text="↣ Open in Browser ↢",font=CODE_FONT, text_color=WHITE)
+    
+    open_in_browser_button = ctk.CTkButton(master=changelog,text="↣ Open in Browser ↢",fg_color=BG_COLOR_D,
+    hover_color=BG_COLOR_D,
+    text_color=WHITE,
+    font=CODE_FONT, command=open_changelog_ib)
+    open_in_browser_button.pack(pady=0,padx=0,expand=False, fill=None)
+    open_in_browser_button.bind("<Enter>",oib_hover)
+    open_in_browser_button.bind("<Leave>",oib_normal)
     changelog.attributes("-topmost", "true")
 
 
@@ -1095,10 +1105,10 @@ def check_lua_setting_on_startup():
             if key in setting:
                 if setting[key] == True:
                     lua_ar_switch.select()
-                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )", border_color=GREEN)
+                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()})", button_color=GREEN, button_hover_color=GREEN_D, border_color=GREEN_D)
                 elif setting[key] == False:
                     lua_ar_switch.deselect()
-                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )", border_color=RED)
+                    lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()})", button_color=RED, button_hover_color=RED_D, border_color=RED_D)
 
 # Enable auto-reload for Lua scripts
 def lua_auto_reload():
@@ -1114,7 +1124,7 @@ def lua_auto_reload():
                     setting[key] = True
                     with open(yimSettings, 'w') as newFile:
                         json.dump(data, newFile)
-        lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()} )")
+        lua_ar_switch.configure(text=f"Enable Auto Reload for Lua-Scripts? ({lua_ar_switch.get()})")
         lua_ar_switch.configure(button_color=GREEN, button_hover_color=GREEN_D,border_color=GREEN_D)
         
     elif os.path.exists(yimPath) and os.path.isfile(yimSettings) and lua_ar_switch.get()=="OFF":
@@ -1136,7 +1146,7 @@ def lua_auto_reload():
         lua_ar_switch.configure(text="Enable Auto Reload for Lua-Scripts?", text_color=RED)
 
 luas_header = ctk.CTkLabel(master=settings_frame,text="— — — — — — — — — — — — — — — — — — — — — —\n▸ Lua Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
-luas_header.pack(pady=10,padx=0)
+luas_header.pack(pady=15,padx=0)
 
 def lua_ar_switch_hover(e):
     tabview.configure(border_color=GREEN)
@@ -1199,8 +1209,92 @@ discover_luas_button.bind("<Enter>",discover_luas_hover)
 discover_luas_button.bind("<Leave>",discover_luas_normal)
 
 others_header = ctk.CTkLabel(master=settings_frame,text="— — — — — — — — — — — — — — — — — — — — — —\n▸ Other Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
-others_header.pack(pady=10,padx=0)
+others_header.pack(pady=15,padx=0)
 
+def check_console_setting_on_startup():
+    yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
+    yimSettings = f'{yimPath}\\settings.json'    
+    if os.path.exists(yimPath) and os.path.isfile(yimSettings):
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["debug"]
+            key = "external_console"
+            if key in setting:
+                if setting[key] == True:
+                    e_console_switch.select()
+                    e_console_switch.configure(text=f"Enable External Debug Console? ({e_console_switch.get()})", button_color=GREEN, button_hover_color=GREEN_D, border_color=GREEN_D)
+                elif setting[key] == False:
+                    e_console_switch.deselect()
+                    e_console_switch.configure(text=f"Enable External Debug Console? ({e_console_switch.get()})", button_color=RED, button_hover_color=RED_D, border_color=RED_D)
+
+def external_console():
+    yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
+    yimSettings = f'{yimPath}\\settings.json'    
+    if os.path.exists(yimPath) and os.path.isfile(yimSettings) and e_console_switch.get()=="ON":
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["debug"]
+            key = "external_console"
+            if key in setting:
+                if setting[key] == False:
+                    setting[key] = True
+                    with open(yimSettings, 'w') as newFile:
+                        json.dump(data, newFile)
+        e_console_switch.configure(text=f"Enable External Debug Console? ({e_console_switch.get()})")
+        e_console_switch.configure(button_color=GREEN, button_hover_color=GREEN_D,border_color=GREEN_D)
+        
+    elif os.path.exists(yimPath) and os.path.isfile(yimSettings) and e_console_switch.get()=="OFF":
+        with open(yimSettings, "r") as jsonfile:
+            data = json.load(jsonfile)
+            setting = data["debug"]
+            key = "external_console"
+            if key in setting:
+                if setting[key] == True:
+                    setting[key] = False
+                    with open(yimSettings, 'w') as newFile:
+                        json.dump(data, newFile)
+        e_console_switch.configure(text=f"Enable External Debug Console? ({e_console_switch.get()})")
+        e_console_switch.configure(button_color=RED, button_hover_color=RED_D, border_color=RED_D)
+        
+    else:
+        e_console_switch.configure(text="❌ YimMenu isn't installed!\nOr has never been injected.", text_color=RED)
+        sleep(5)
+        e_console_switch.configure(text=f"Enable External Debug Console? ({e_console_switch.get()})", text_color=RED)
+
+def e_console_switch_hover(e):
+    tabview.configure(border_color=GREEN)
+    if e_console_switch.get() == "ON":
+        e_console_switch.configure(button_color=GREEN_D, border_color=GREEN_D, font=SMALL_BOLD_FONT_U)
+    elif e_console_switch.get() == "OFF":
+        e_console_switch.configure(button_color=RED_D, border_color=RED_D, font=SMALL_BOLD_FONT_U)
+
+def e_console_switch_normal(e):
+    tabview.configure(border_color=GREEN_D)   
+    if e_console_switch.get() == "ON":
+        e_console_switch.configure(button_color=GREEN, border_color=GREEN, font=SMALL_BOLD_FONT)
+    elif e_console_switch.get() == "OFF":
+        e_console_switch.configure(button_color=RED, border_color=RED, font=SMALL_BOLD_FONT)
+
+e_console_switch = ctk.CTkSwitch(
+    master=settings_frame,
+    onvalue="ON",
+    offvalue="OFF",
+    text="Enable External Debug Console? (OFF)",
+    fg_color=BG_COLOR_D,
+    button_color=RED_D,
+    button_hover_color=RED,
+    border_width=1,
+    border_color=RED_D,
+    corner_radius=10,
+    font=SMALL_BOLD_FONT,
+    progress_color=BG_COLOR_D,
+    text_color=WHITE,
+    bg_color="transparent", command=external_console
+)
+e_console_switch.pack(pady=0, padx=0, fill=None, expand=False)
+
+e_console_switch.bind("<Enter>",e_console_switch_hover)
+e_console_switch.bind("<Leave>",e_console_switch_normal)
 
 
 def open_yimdir():
@@ -1235,7 +1329,7 @@ folder_button = ctk.CTkButton(
     corner_radius=10,
 )
 folder_button.pack(
-    pady=0,
+    pady=10,
     padx=0,
     expand=False,
     fill=None,
@@ -1265,7 +1359,7 @@ ymu_update_button = ctk.CTkButton(
     corner_radius=8,
 )
 ymu_update_button.pack(
-    pady=15,
+    pady=10,
     padx=0,
     expand=True,
     fill=None,
@@ -1285,6 +1379,7 @@ update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
 
 if __name__ == "__main__":
     Thread(target=check_lua_setting_on_startup, daemon=True).start()
+    Thread(target=check_console_setting_on_startup, daemon=True).start()
     if getattr(sys, 'frozen', False):
         pyi_splash.close()
     root.mainloop()
