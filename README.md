@@ -5,7 +5,7 @@
 >[!NOTE]
 >**NEXT** in `v1.0.6` ↦ **TBA** 
 >
->**NEW** in `v1.0.5` ↦ New Debug Console toggle in Settings-Tab + "Open in Browser"-Button in Changelog Window
+>**NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
 >
 > **NEW** in `v1.0.4` ↦ 	GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
 >
