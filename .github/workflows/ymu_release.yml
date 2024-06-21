@@ -137,7 +137,7 @@ jobs:
               ### Changelog:
               * new "Open in Browser"-Button in Changelog Window
               * new "Debug Console"-Switch in Settings-Tab
-              * fixed toggle color (wrong color after launch)
+              * fixed Lua-Switch color (wrong color after launch)
               
 
               **This release has been built by Github Actions**
