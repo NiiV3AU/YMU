@@ -3,7 +3,9 @@
 
 
 >[!NOTE]
->**NEXT** in `v1.0.6` ↦ **Release will be later this day - stay tuned** 
+>**NEXT** in `v1.0.7` ↦ **TBA** 
+>
+>**NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
 >
 >**NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
 >
@@ -18,7 +20,7 @@
 
 
 # How it Works
-When you start YMU you are greeted with a modern looking GUI that displays two tabs, Download/Update and Inject. You can download or update the dll in the Download/Update-Tab. The Inject-Tab provides a button which injects the YimMenu. Also you find clickables labels in the Tabs that provides more information or even the Changelog of YimMenu.
+When you start YMU you are greeted with a modern looking GUI that displays two tabs, Download/Update and Inject. You can download or update the dll in the Download/Update-Tab. The Inject-Tab provides a button to start GTA5 and one which injects the YimMenu. Also you find clickables labels in the Tabs that provides more information or even the Changelog of YimMenu.
 >[!WARNING]
 > Use this project for educational purposes only and use it at your own risk.
 
