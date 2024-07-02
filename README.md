@@ -3,7 +3,7 @@
 
 
 >[!NOTE]
->**NEXT** in `v1.0.6` ↦ **TBA** 
+>**NEXT** in `v1.0.6` ↦ **Release will be later this day - stay tuned** 
 >
 >**NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
 >
