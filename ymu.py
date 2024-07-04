@@ -4,16 +4,23 @@ import sys
 
 notif = ToastNotifier()
 
-# check if YMU is already running. If it is, bring it to foreground and exit (moving this above the rest of the imports makes it much faster).
-ymu_window = win32gui.FindWindow(None, 'YMU - YimMenuUpdater')
-if ymu_window != 0:
-    win32gui.SetForegroundWindow(ymu_window)
-    try:
-        notif.show_toast('YMU', 'The program is already running!', duration = 10)
-    except TypeError: #win10Toast has a bug and will always raise a TypeError. It's not a big deal so it's safe to just simply ignore it.
-        pass
-    sys.exit(0)
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
+if getattr(sys, 'frozen', False):
+    # check if YMU is already running. If it is, bring it to foreground and exit (moving this above the rest of the imports makes it much faster).
+    ymu_window = win32gui.FindWindow(None, 'YMU - YimMenuUpdater')
+    if ymu_window is not None and ymu_window != 0:
+        win32gui.SetForegroundWindow(ymu_window)
+        # try:
+        #     notif.show_toast('YMU', 'The program is already running!', duration = 10, icon_path = (resource_path("assets\\icon\\ymu.ico")))
+        # except TypeError: #win10Toast has a bug and will always raise a TypeError. It's not a big deal so it's safe to just simply ignore it.
+        #     pass
+        sys.exit(0)
+    else:
+        # if YMU is not already running, show a splash screen during the loading time.
+        import pyi_splash
 
 # Libraries YMU depends on
 import customtkinter as ctk
@@ -32,16 +39,6 @@ from PIL import Image
 from time import sleep
 import json
 from configparser import ConfigParser
-
-
-# show a splash screen when the executable is loading.
-if getattr(sys, 'frozen', False):
-    import pyi_splash
-
-def resource_path(relative_path):
-    # Since we're using --onefile command, PyInstaller will create a temp folder and store the path in _MEIPASS
-    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
 
 # YMU Appearance
 CONFIGPATH = "ymu\\config.ini"
@@ -359,7 +356,7 @@ def refresh_download_button():
         )
         progressbar.set(0)
         try:
-            notif.show_toast('YMU', 'A new YimMenu release is out! Get the latest version from the "Update" tab.', duration = 15)
+            notif.show_toast('YMU', f'A new YimMenu release is out! Get the latest version from the {check_if_dll_is_downloaded()} tab.', duration = 15, icon_path = (resource_path("assets\\icon\\ymu.ico")))
         except TypeError:
             pass
 
