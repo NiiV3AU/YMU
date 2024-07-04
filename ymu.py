@@ -22,6 +22,7 @@ import os
 import psutil
 import re
 import requests
+import subprocess
 import webbrowser
 import win32api
 from bs4 import BeautifulSoup
@@ -127,6 +128,16 @@ DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.d
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
 
+LAUNCHERS = ["Launcher", # placeholder
+             "Steam", 
+             "Epic Games",
+             "Rockstar Games",
+            ]
+
+launcherVar = ctk.StringVar()
+
+def set_launcher(launcher:str):
+    launcherVar.set(launcher)
 
 # self update stuff
 
@@ -876,32 +887,45 @@ download_button.bind("<Enter>", hover_download_button)
 download_button.bind("<Leave>", nohover_download_button)
 
 
-# Inject-Tab
-def ff(rf, rx):
-    global gamePath # 🙈
-    for root, _, files in os.walk(rf):
-        for f in files:
-            result = rx.search(f)
-            if result:
-                gamePath = (os.path.join(root, f))
-                break
+# # Inject-Tab
+# def ff(rf, rx):
+#     global gamePath # 🙈
+#     for root, _, files in os.walk(rf):
+#         for f in files:
+#             result = rx.search(f)
+#             if result:
+#                 gamePath = (os.path.join(root, f))
+#                 break
 
-def findall(file_name) -> str:
-    regex = re.compile(file_name)
-    for drive in win32api.GetLogicalDriveStrings().split('\000')[:-1]:
-        ff(drive, regex)
+# def findall(file_name) -> str:
+#     regex = re.compile(file_name)
+#     for drive in win32api.GetLogicalDriveStrings().split('\000')[:-1]:
+#         ff(drive, regex)
+
+def get_launcher() -> str:
+    user_launcher = launcherVar.get()
+    if user_launcher == "Steam":
+        return 'cmd /c start steam://run/271590' # works perfectly
+    elif user_launcher == "Rockstar Games":
+        print("It seems there is no command for rockstar games launcher so we will have to figure out something else")
+    elif user_launcher == "Epic Games":
+        return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true' ## needs double checking. the command is correct but the way it will be executed is what I'm not sure about
+    else:
+        print("Not Provided") ## probably open a filedialog and grab the path?
 
 def start_gta():
     find_gta_process()
     if not is_running:
         try:
-            inject_progress_label.configure(text="Please wait while YMU attempts to find your game...")
+            inject_progress_label.configure(text="Please wait while YMU attempts to start your game...")
             dummy_progress(injection_progressbar)
             start_gta_button.configure(state = 'disabled')
-            findall('PlayGTAV.exe')
-            inject_progress_label.configure(text=f'Found GTA5 under\n{gamePath}.\nYour game will start in a few seconds...')
+            run_cmd = get_launcher() # run dmc's cousin
+            # findall('PlayGTAV.exe')
+            # inject_progress_label.configure(text=f'Found GTA5 under\n{gamePath}.\nYour game will start in a few seconds...')
             reset_inject_progress_label(3)
-            os.startfile(gamePath)
+            # os.startfile(gamePath)
+            subprocess.run(run_cmd)
             start_gta_button.configure(state = 'normal')
 
         except Exception as e:
@@ -1039,6 +1063,25 @@ buttons_frame = ctk.CTkFrame(
 buttons_frame.pack(pady=0, padx=0, expand=True, fill=None)
 buttons_frame.bind("<Enter>", hover_buttons_frame)
 
+
+launchers_menu = ctk.CTkOptionMenu(
+                    master=buttons_frame,
+                    values=LAUNCHERS,
+                    command=set_launcher,
+                    fg_color=BG_COLOR_D,
+                    text_color=WHITE,
+                    bg_color="transparent",
+                    button_color=BG_COLOR_D,
+                    button_hover_color=GREEN_D,
+                    font=SMALL_BOLD_FONT,
+                    dynamic_resizing=False,
+                    dropdown_fg_color=BG_COLOR_D,
+                    dropdown_font=SMALL_FONT,
+                    dropdown_hover_color=BG_COLOR,
+                    dropdown_text_color=WHITE,
+                    corner_radius=8,
+                    width=120,
+                    ).pack(pady=0, padx=0, expand=False, fill=None)
 
 def hover_start_gta_button(e):
     start_gta_button.configure(text_color=GREEN, fg_color=GREEN_B)
