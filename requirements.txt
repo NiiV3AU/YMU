@@ -4,3 +4,4 @@ requests
 pyinjector
 bs4
 pillow
+win10toast

@@ -1,35 +1,44 @@
+import win32gui
+from win10toast import ToastNotifier
+import sys
+
+notif = ToastNotifier()
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
+
+if getattr(sys, 'frozen', False):
+    # check if YMU is already running. If it is, bring it to foreground and exit (moving this above the rest of the imports makes it much faster).
+    ymu_window = win32gui.FindWindow(None, 'YMU - YimMenuUpdater')
+    if ymu_window is not None and ymu_window != 0:
+        win32gui.SetForegroundWindow(ymu_window)
+        # try:
+        #     notif.show_toast('YMU', 'The program is already running!', duration = 10, icon_path = (resource_path("assets\\icon\\ymu.ico")))
+        # except TypeError: #win10Toast has a bug and will always raise a TypeError. It's not a big deal so it's safe to just simply ignore it.
+        #     pass
+        sys.exit(0)
+    else:
+        # if YMU is not already running, show a splash screen during the loading time.
+        import pyi_splash
+
 # Libraries YMU depends on
 import customtkinter as ctk
 import hashlib
 import os
 import psutil
 import requests
-import sys
+import subprocess
 import webbrowser
+import winreg
 from bs4 import BeautifulSoup
 from customtkinter import CTkFont
 from pyinjector import inject
 from threading import Thread
-from time import sleep
 from PIL import Image
+from time import sleep
 import json
 from configparser import ConfigParser
-
-# properly pack the icon so we don't have to include it with the exe each time.
-
-
-def resource_path(relative_path):
-    # Since we're using --onefile command, PyInstaller will create a temp folder and store the path in _MEIPASS
-    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
-
-
-# show a splash screen when the executable is loading.
-# Ignore the 'not resolved' error, the module is part of PyInstaller not Python.
-
-if getattr(sys, 'frozen', False):
-    import pyi_splash
-
 
 # YMU Appearance
 CONFIGPATH = "ymu\\config.ini"
@@ -88,7 +97,7 @@ root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
-height_of_window = 400
+height_of_window = 420
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -115,6 +124,16 @@ DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.d
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
 
+LAUNCHERS = ["Select Launcher", # placeholder
+             "Steam", 
+             "Epic Games",
+             "Rockstar Games",
+            ]
+
+launcherVar = ctk.StringVar()
+
+def set_launcher(launcher:str):
+    launcherVar.set(launcher)
 
 # self update stuff
 
@@ -124,7 +143,6 @@ if os.path.isfile("./ymu_self_updater.exe"):
 
 # get YMU's remote version:
 ymu_update_message = ctk.StringVar()
-
 
 def get_ymu_ver():
     try:
@@ -285,7 +303,6 @@ def check_if_dll_is_downloaded():
 def find_gta_process():
     global pid  # <- I know it's a bad habit but if it works why fix it? 😂 (true 🤙 - "never change a running system")
     global is_running
-    global injBtnState
     for p in psutil.process_iter(["name", "exe", "cmdline"]):
         if (
             "GTA5.exe" == p.info["name"]
@@ -338,6 +355,10 @@ def refresh_download_button():
             text=f"{check_if_dll_is_downloaded()} available!", text_color=GREEN
         )
         progressbar.set(0)
+        try:
+            notif.show_toast('YMU', f'A new YimMenu release is out! Get the latest version from the {check_if_dll_is_downloaded()} tab.', duration = 15, icon_path = (resource_path("assets\\icon\\ymu.ico")))
+        except TypeError:
+            pass
 
 
 # downloads the dll from github and displays progress in a progressbar
@@ -863,39 +884,58 @@ download_button.bind("<Leave>", nohover_download_button)
 
 
 # Inject-Tab
-def start_gta():
+def get_launcher() -> str:
+    global user_launcher
+    user_launcher = launcherVar.get()
+    if user_launcher == "Steam":
+        return 'cmd /c start steam://run/271590' # works perfectly
+    elif user_launcher == "Rockstar Games":
+        return "rgs"
+    elif user_launcher == "Epic Games":
+        return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true'
+    else:
+        return '_none'
+    
+def get_rgl_path() -> str:
+    regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
     try:
-        def read_url_from_shortcut(url_file_path):
-            with open(url_file_path, 'r') as file:
-                for line in file:
-                    if line.startswith("URL="):
-                        return line[4:].strip()
-            return None
-        desktopPATH = os.path.join(os.path.join(os.environ['USERPROFILE']), 'Desktop')
-        valid_urls = ['\\Grand Theft Auto V.url', '\\GTA5.url', '\\GTAV.url']
+        subkey = winreg.OpenKey(regkey, r"Grand Theft Auto V")
+        keyValue = winreg.QueryValueEx(subkey, r"InstallFolder")
+        return (keyValue[0])
+    except OSError:
+        pass
 
-        def get_valid_url():
-            if os.path.exists(desktopPATH + valid_urls[0]):
-                valid_url = valid_urls[0]
-                return valid_url
-            elif os.path.exists(desktopPATH + valid_urls[1]):
-                valid_url = valid_urls[1]
-                return valid_url
-            elif os.path.exists(desktopPATH + valid_urls[2]):
-                valid_url = valid_urls[2]
-                return valid_url
+def start_gta():
+    find_gta_process()
+    if not is_running:
+        try:
+            run_cmd = get_launcher() # run dmc's cousin
+            if run_cmd == "rgs":
+                inject_progress_label.configure(text="Please wait while YMU attempts to launch your game through\nRockstar Games Launcher...")
+                dummy_progress(injection_progressbar)
+                start_gta_button.configure(state = 'disabled')
+                rgl_path = get_rgl_path()
+                os.startfile(rgl_path + 'PlayGTAV.exe')
+                sleep(3)
+            elif run_cmd == '_none':
+                inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
+                start_gta_button.configure(state = 'disabled')
+            else:
+                inject_progress_label.configure(text=f"Please wait while YMU attempts to launch your game through\n{user_launcher}...")
+                dummy_progress(injection_progressbar)
+                start_gta_button.configure(state = 'disabled')
+                subprocess.run(run_cmd)
+                sleep(3)
 
-        url = get_valid_url()
-        url_file_path = os.path.join(desktopPATH + url)
-        launchURL = read_url_from_shortcut(url_file_path)
+            reset_inject_progress_label(5)
+            start_gta_button.configure(state = 'normal')
 
-        inject_progress_label.configure(text="Starting GTA 5...")
-        dummy_progress(injection_progressbar)
-        webbrowser.open_new_tab(launchURL)
-        reset_inject_progress_label(10)
-
-    except Exception as e:
-        inject_progress_label.configure(text=f"Error finding a GTA 5 shortcut\non your desktop!\nERROR: {e}", text_color=RED)
+        except Exception as e:
+            inject_progress_label.configure(text=f"Error finding a GTA 5 executable\nERROR: {e}", text_color=RED)
+            reset_inject_progress_label(10)
+            start_gta_button.configure(state = 'normal')
+    else:
+        inject_progress_label.configure(text="GTA 5 is already running!", text_color=RED)
         reset_inject_progress_label(10)
 
 
@@ -959,7 +999,7 @@ def open_inject_info(e):
 
     startgta5_info_label = ctk.CTkLabel(
         master=s_i_tabview.tab("⭐ Start GTA5 ⭐"),
-        text='How-To:\nIf you have a GTA5 shortcut on your desktop:\nValid: "GTA5.url", "GTAV.url"\nor "Grand Theft Auto V.url"\n↦ Done! ✅\nIf you have no shortcut:\n↦ Go to the store with your GTA5 license\n↦ Create desktop shortcut\n↦ If shortcut is in "Valid" ↑\n↦ Done! ✅',
+        text='How-To: Select your launcher then press "Start GTA 5".',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
@@ -1011,6 +1051,24 @@ inject_more_info_label.bind("<ButtonRelease>", open_inject_info)
 inject_more_info_label.bind("<Enter>", hover_inject_mi)
 inject_more_info_label.bind("<Leave>", normal_inject_mi)
 
+launchers_menu = ctk.CTkOptionMenu(
+                    master=tabview.tab("Inject"),
+                    values=LAUNCHERS,
+                    command=set_launcher,
+                    fg_color=BG_COLOR_D,
+                    text_color=WHITE,
+                    bg_color="transparent",
+                    button_color=BG_COLOR_D,
+                    button_hover_color=GREEN_D,
+                    font=SMALL_BOLD_FONT,
+                    dynamic_resizing=False,
+                    dropdown_fg_color=BG_COLOR_D,
+                    dropdown_font=SMALL_FONT,
+                    dropdown_hover_color=BG_COLOR,
+                    dropdown_text_color=WHITE,
+                    corner_radius=8,
+                    width=160,
+                    ).pack(pady=5, padx=0, expand=False, fill=None)
 
 def hover_buttons_frame(e):
     step_indicator_label.configure(text=s_i_str)
@@ -1024,7 +1082,6 @@ buttons_frame = ctk.CTkFrame(
     )
 buttons_frame.pack(pady=0, padx=0, expand=True, fill=None)
 buttons_frame.bind("<Enter>", hover_buttons_frame)
-
 
 def hover_start_gta_button(e):
     start_gta_button.configure(text_color=GREEN, fg_color=GREEN_B)
@@ -1551,7 +1608,7 @@ def nohover_ymu_update_button(e):
 
 ymu_update_button = ctk.CTkButton(
     master=other_settings_frame,
-    text="Check For Update",
+    text="Check For YMU Updates",
     command=ymu_update_thread,
     fg_color=GREEN,
     hover_color=GREEN_D,
