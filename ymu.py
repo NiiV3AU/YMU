@@ -277,7 +277,7 @@ def get_remote_sha256():
 
 # self explanatory
 def check_if_dll_is_downloaded():
-    # while True:
+    while True:
         if os.path.exists(DLLDIR):
             if os.path.isfile(LOCALDLL):
                 LOCAL_SHA = get_local_sha256()
