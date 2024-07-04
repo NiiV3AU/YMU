@@ -883,22 +883,9 @@ download_button.bind("<Enter>", hover_download_button)
 download_button.bind("<Leave>", nohover_download_button)
 
 
-# # Inject-Tab
-# def ff(rf, rx):
-#     global gamePath # 🙈
-#     for root, _, files in os.walk(rf):
-#         for f in files:
-#             result = rx.search(f)
-#             if result:
-#                 gamePath = (os.path.join(root, f))
-#                 break
-
-# def findall(file_name) -> str:
-#     regex = re.compile(file_name)
-#     for drive in win32api.GetLogicalDriveStrings().split('\000')[:-1]:
-#         ff(drive, regex)
-
+# Inject-Tab
 def get_launcher() -> str:
+    global user_launcher
     user_launcher = launcherVar.get()
     if user_launcher == "Steam":
         return 'cmd /c start steam://run/271590' # works perfectly
@@ -907,7 +894,7 @@ def get_launcher() -> str:
     elif user_launcher == "Epic Games":
         return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true'
     else:
-        return 'shitstick'
+        return '_none'
     
 def get_rgl_path() -> str:
     regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
@@ -922,18 +909,25 @@ def start_gta():
     find_gta_process()
     if not is_running:
         try:
-            inject_progress_label.configure(text="Please wait while YMU attempts to launch your game...")
-            dummy_progress(injection_progressbar)
-            start_gta_button.configure(state = 'disabled')
             run_cmd = get_launcher() # run dmc's cousin
             if run_cmd == "rgs":
+                inject_progress_label.configure(text="Please wait while YMU attempts to launch your game through\nRockstar Games Launcher...")
+                dummy_progress(injection_progressbar)
+                start_gta_button.configure(state = 'disabled')
                 rgl_path = get_rgl_path()
                 os.startfile(rgl_path + 'PlayGTAV.exe')
-            elif run_cmd == 'shitstick':
-                print('wenn das leben dir zitronen gibt 🍋')
+                sleep(3)
+            elif run_cmd == '_none':
+                inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
+                start_gta_button.configure(state = 'disabled')
             else:
+                inject_progress_label.configure(text=f"Please wait while YMU attempts to launch your game through\n{user_launcher}...")
+                dummy_progress(injection_progressbar)
+                start_gta_button.configure(state = 'disabled')
                 subprocess.run(run_cmd)
-            reset_inject_progress_label(3)
+                sleep(3)
+
+            reset_inject_progress_label(5)
             start_gta_button.configure(state = 'normal')
 
         except Exception as e:
