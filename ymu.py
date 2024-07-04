@@ -20,11 +20,10 @@ import customtkinter as ctk
 import hashlib
 import os
 import psutil
-import re
 import requests
 import subprocess
 import webbrowser
-import win32api
+import winreg
 from bs4 import BeautifulSoup
 from customtkinter import CTkFont
 from pyinjector import inject
@@ -101,7 +100,7 @@ root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
-height_of_window = 400
+height_of_window = 420
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -128,7 +127,7 @@ DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.d
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
 
-LAUNCHERS = ["Launcher", # placeholder
+LAUNCHERS = ["Select Launcher", # placeholder
              "Steam", 
              "Epic Games",
              "Rockstar Games",
@@ -907,25 +906,37 @@ def get_launcher() -> str:
     if user_launcher == "Steam":
         return 'cmd /c start steam://run/271590' # works perfectly
     elif user_launcher == "Rockstar Games":
-        print("It seems there is no command for rockstar games launcher so we will have to figure out something else")
+        return "rgs"
     elif user_launcher == "Epic Games":
-        return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true' ## needs double checking. the command is correct but the way it will be executed is what I'm not sure about
+        return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true'
     else:
-        print("Not Provided") ## probably open a filedialog and grab the path?
+        return 'shitstick'
+    
+def get_rgl_path() -> str:
+    regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
+    try:
+        subkey = winreg.OpenKey(regkey, r"Grand Theft Auto V")
+        keyValue = winreg.QueryValueEx(subkey, r"InstallFolder")
+        return (keyValue[0])
+    except OSError:
+        pass
 
 def start_gta():
     find_gta_process()
     if not is_running:
         try:
-            inject_progress_label.configure(text="Please wait while YMU attempts to start your game...")
+            inject_progress_label.configure(text="Please wait while YMU attempts to launch your game...")
             dummy_progress(injection_progressbar)
             start_gta_button.configure(state = 'disabled')
             run_cmd = get_launcher() # run dmc's cousin
-            # findall('PlayGTAV.exe')
-            # inject_progress_label.configure(text=f'Found GTA5 under\n{gamePath}.\nYour game will start in a few seconds...')
+            if run_cmd == "rgs":
+                rgl_path = get_rgl_path()
+                os.startfile(rgl_path + 'PlayGTAV.exe')
+            elif run_cmd == 'shitstick':
+                print('wenn das leben dir zitronen gibt 🍋')
+            else:
+                subprocess.run(run_cmd)
             reset_inject_progress_label(3)
-            # os.startfile(gamePath)
-            subprocess.run(run_cmd)
             start_gta_button.configure(state = 'normal')
 
         except Exception as e:
@@ -997,7 +1008,7 @@ def open_inject_info(e):
 
     startgta5_info_label = ctk.CTkLabel(
         master=s_i_tabview.tab("⭐ Start GTA5 ⭐"),
-        text='How-To:\nIf you have a GTA5 shortcut on your desktop:\nValid: "GTA5.url", "GTAV.url"\nor "Grand Theft Auto V.url"\n↦ Done! ✅\nIf you have no shortcut:\n↦ Go to the store with your GTA5 license\n↦ Create desktop shortcut\n↦ If shortcut is in "Valid" ↑\n↦ Done! ✅',
+        text='How-To: Select your launcher then press "Start GTA 5".',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
@@ -1049,23 +1060,8 @@ inject_more_info_label.bind("<ButtonRelease>", open_inject_info)
 inject_more_info_label.bind("<Enter>", hover_inject_mi)
 inject_more_info_label.bind("<Leave>", normal_inject_mi)
 
-
-def hover_buttons_frame(e):
-    step_indicator_label.configure(text=s_i_str)
-
-
-buttons_frame = ctk.CTkFrame(
-        master=tabview.tab("Inject"),
-        corner_radius=14,
-        fg_color=BG_COLOR_D,
-        border_width=0, border_color=GREEN_B
-    )
-buttons_frame.pack(pady=0, padx=0, expand=True, fill=None)
-buttons_frame.bind("<Enter>", hover_buttons_frame)
-
-
 launchers_menu = ctk.CTkOptionMenu(
-                    master=buttons_frame,
+                    master=tabview.tab("Inject"),
                     values=LAUNCHERS,
                     command=set_launcher,
                     fg_color=BG_COLOR_D,
@@ -1080,8 +1076,21 @@ launchers_menu = ctk.CTkOptionMenu(
                     dropdown_hover_color=BG_COLOR,
                     dropdown_text_color=WHITE,
                     corner_radius=8,
-                    width=120,
-                    ).pack(pady=0, padx=0, expand=False, fill=None)
+                    width=160,
+                    ).pack(pady=5, padx=0, expand=False, fill=None)
+
+def hover_buttons_frame(e):
+    step_indicator_label.configure(text=s_i_str)
+
+
+buttons_frame = ctk.CTkFrame(
+        master=tabview.tab("Inject"),
+        corner_radius=14,
+        fg_color=BG_COLOR_D,
+        border_width=0, border_color=GREEN_B
+    )
+buttons_frame.pack(pady=0, padx=0, expand=True, fill=None)
+buttons_frame.bind("<Enter>", hover_buttons_frame)
 
 def hover_start_gta_button(e):
     start_gta_button.configure(text_color=GREEN, fg_color=GREEN_B)
@@ -1608,7 +1617,7 @@ def nohover_ymu_update_button(e):
 
 ymu_update_button = ctk.CTkButton(
     master=other_settings_frame,
-    text="Check For Update",
+    text="Check For YMU Updates",
     command=ymu_update_thread,
     fg_color=GREEN,
     hover_color=GREEN_D,
