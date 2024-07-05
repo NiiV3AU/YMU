@@ -165,31 +165,25 @@ def get_ymu_ver():
         ymu_update_button.configure(state="normal")
         update_response.pack_forget()
 
-
 def check_for_ymu_update():
     ymu_update_button.configure(state="disabled")
     YMU_VERSION = get_ymu_ver()
-    global update_available
     try:
         if LOCAL_VER < YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
             update_response.configure(text_color=GREEN)
             ymu_update_button.configure(state="normal", text="Update YMU")
-            update_available = True
-            change_update_button()
+            ymu_update_button.configure(command=start_update_thread)
             sleep(3)
-            update_response.pack_forget()
 
         elif LOCAL_VER == YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set("YMU is up-to-date ✅")
             update_response.configure(text_color=WHITE)
-            update_available = False
             sleep(3)
             ymu_update_message.set("")
             ymu_update_button.configure(state="normal")
-            update_response.pack_forget()
 
         elif LOCAL_VER > YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
@@ -198,9 +192,8 @@ def check_for_ymu_update():
             )
             update_response.configure(text_color=RED)
             ymu_update_button.configure(state="normal", text="Open Github")
-            change_update_button()
+            ymu_update_button.configure(command=open_github_release)
             sleep(5)
-            update_response.pack_forget()
 
     except Exception:
         pass
@@ -221,7 +214,7 @@ def download_self_updater():
 def launch_ymu_update():
     global start_self_update
     try:
-        ymu_update_message.set("Downloading self updater...")
+        ymu_update_message.set("Downloading self updater, please wait...")
         update_response.configure(text_color=WHITE)
         ymu_update_button.configure(state="disabled")
         if download_self_updater() == "OK":
@@ -247,13 +240,6 @@ def start_update_thread():
 
 def open_github_release():
     webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases/latest")
-
-
-def change_update_button():
-    if update_available:
-        ymu_update_button.configure(command=start_update_thread)
-    else:
-        ymu_update_button.configure(command=open_github_release)
 
 
 def ymu_update_thread():
