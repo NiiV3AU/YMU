@@ -97,7 +97,7 @@ root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
-height_of_window = 440
+height_of_window = 420
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -118,11 +118,12 @@ CODE_FONT_U = CTkFont(family="JetBrains Mono", size=12, underline=True)
 CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
-# Version, Url, Paths and Launchers
-LOCAL_VER = "v1.0.7"
+# Version, Url and Paths
+LOCAL_VER = "v1.0.6"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
+
 LAUNCHERS = ["Select Launcher", # placeholder
              "Steam", 
              "Epic Games",
@@ -914,10 +915,7 @@ def start_gta():
                 dummy_progress(injection_progressbar)
                 start_gta_button.configure(state = 'disabled')
                 rgl_path = get_rgl_path()
-                if rgl_path is not None:
-                    os.startfile(rgl_path + 'PlayGTAV.exe')
-                else:
-                    inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry choosing a different option instead.", text_color=YELLOW)
+                os.startfile(rgl_path + 'PlayGTAV.exe')
                 sleep(3)
             elif run_cmd == '_none':
                 inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
