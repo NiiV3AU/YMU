@@ -1,4 +1,4 @@
-# This workflow will install Python dependencies, run tests, build an executable then upload it to github releases
+# This workflow will install Python dependencies, run tests, build an executable then upload it to github releases.
 
 name: YMU Manual Release
 
