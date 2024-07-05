@@ -136,11 +136,10 @@ jobs:
           name: YMU ${{ steps.increment_version.outputs.new_version }}
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           body: |
-              
-
-              **This automatic release was built by Github Actions**
-
-              [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              >[!NOTE]
+              >**This automatic release was built by Github Actions**
+              >| [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
+              >| ------------- |
 
           files: |
             ymu.exe
