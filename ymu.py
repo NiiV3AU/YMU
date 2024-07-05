@@ -143,6 +143,7 @@ if os.path.isfile("./ymu_self_updater.exe"):
 # get YMU's remote version:
 ymu_update_message = ctk.StringVar()
 
+
 def get_ymu_ver():
     try:
         r = requests.get("https://github.com/NiiV3AU/YMU/tags")
