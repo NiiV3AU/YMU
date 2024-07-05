@@ -135,16 +135,13 @@ jobs:
           tag_name: ${{ steps.increment_version.outputs.new_version }}
           body: | # here you can put whatever you want to display in the release page
               ### Changelog:
-              * New "Start GTA5"-Button in Inject-Tab
-              * expanded the "More Info"-Window in Inject-Tab (How-To for Start GTA5)
-              * new visual style for Inject and Settings-Tab
-              ### small stuff:
-              * code optimizations
+              * blah blah
               
-
-              **This release was built by Github Actions**
-
-              [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
+              >[!NOTE]
+              >**This release was built by Github Actions**
+              >| [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
+              >| ------------- |
+              
 
           files: |
             ymu.exe
