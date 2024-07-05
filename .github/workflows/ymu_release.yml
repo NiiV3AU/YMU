@@ -6,10 +6,6 @@ on:
   push:
     paths:
       - "ymu.py"
-    paths-ignore:
-        - "assets/**"
-        - ".github/**"
-        - "*.md"
 
 
 jobs:
