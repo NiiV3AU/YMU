@@ -1,11 +1,9 @@
 # This workflow will install Python dependencies, run tests, build an executable then upload it to github releases
 
-name: YMU Release
+name: YMU Manual Release
 
 on: 
-  push:
-    paths:
-      - "ymu.py"
+  workflow_dispatch:
 
 
 jobs:
@@ -37,7 +35,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --icon "./assets/icon/ymu.ico" --splash "./assets/splash.png" --add-data "./assets/;assets/"
+        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --add-data='D:\a\YMU\YMU\assets\icon\ymu.ico':assets\icon --add-data='D:\a\YMU\YMU\assets\splash.png':assets\splash --add-data='assets\img\fo_hover_l.png:assets\img' --add-data='assets\img\fo_hover.png:assets\img' --add-data='assets\img\fo_normal.png:assets\img' --add-data='assets\img\fo_normal_l.png:assets\img' --icon='D:\a\YMU\YMU\assets\icon\ymu.ico' --splash "D:\a\YMU\YMU\assets\splash.png"
 
     - name: Generate Build Info
       id: var
@@ -135,10 +133,16 @@ jobs:
         with:
           name: YMU ${{ steps.increment_version.outputs.new_version }}
           tag_name: ${{ steps.increment_version.outputs.new_version }}
-          body: |
+          body: | # here you can put whatever you want to display in the release page
+              ### Changelog:
+              * New "Start GTA5"-Button in Inject-Tab
+              * expanded the "More Info"-Window in Inject-Tab (How-To for Start GTA5)
+              * new visual style for Inject and Settings-Tab
+              ### small stuff:
+              * code optimizations
               
 
-              **This automatic release was built by Github Actions**
+              **This release was built by Github Actions**
 
               [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 
