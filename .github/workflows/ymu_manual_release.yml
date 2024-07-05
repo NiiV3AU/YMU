@@ -1,6 +1,6 @@
 # This workflow will install Python dependencies, run tests, build an executable then upload it to github releases
 
-name: YMU Release
+name: YMU Manual Release
 
 on: 
   workflow_dispatch:
@@ -142,7 +142,7 @@ jobs:
               * code optimizations
               
 
-              **This release has been built by Github Actions**
+              **This release was built by Github Actions**
 
               [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
 

@@ -97,7 +97,7 @@ root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
-height_of_window = 420
+height_of_window = 440
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -118,12 +118,11 @@ CODE_FONT_U = CTkFont(family="JetBrains Mono", size=12, underline=True)
 CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
-# Version, Url and Paths
-LOCAL_VER = "v1.0.6"
+# Version, Url, Paths and Launchers
+LOCAL_VER = "v1.0.7"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
-
 LAUNCHERS = ["Select Launcher", # placeholder
              "Steam", 
              "Epic Games",
@@ -166,31 +165,25 @@ def get_ymu_ver():
         ymu_update_button.configure(state="normal")
         update_response.pack_forget()
 
-
 def check_for_ymu_update():
     ymu_update_button.configure(state="disabled")
     YMU_VERSION = get_ymu_ver()
-    global update_available
     try:
         if LOCAL_VER < YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
             update_response.configure(text_color=GREEN)
             ymu_update_button.configure(state="normal", text="Update YMU")
-            update_available = True
-            change_update_button()
+            ymu_update_button.configure(command=start_update_thread)
             sleep(3)
-            update_response.pack_forget()
 
         elif LOCAL_VER == YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set("YMU is up-to-date ✅")
             update_response.configure(text_color=WHITE)
-            update_available = False
             sleep(3)
             ymu_update_message.set("")
             ymu_update_button.configure(state="normal")
-            update_response.pack_forget()
 
         elif LOCAL_VER > YMU_VERSION:
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
@@ -199,9 +192,8 @@ def check_for_ymu_update():
             )
             update_response.configure(text_color=RED)
             ymu_update_button.configure(state="normal", text="Open Github")
-            change_update_button()
+            ymu_update_button.configure(command=open_github_release)
             sleep(5)
-            update_response.pack_forget()
 
     except Exception:
         pass
@@ -222,7 +214,7 @@ def download_self_updater():
 def launch_ymu_update():
     global start_self_update
     try:
-        ymu_update_message.set("Downloading self updater...")
+        ymu_update_message.set("Downloading self updater, please wait...")
         update_response.configure(text_color=WHITE)
         ymu_update_button.configure(state="disabled")
         if download_self_updater() == "OK":
@@ -248,13 +240,6 @@ def start_update_thread():
 
 def open_github_release():
     webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/releases/latest")
-
-
-def change_update_button():
-    if update_available:
-        ymu_update_button.configure(command=start_update_thread)
-    else:
-        ymu_update_button.configure(command=open_github_release)
 
 
 def ymu_update_thread():
@@ -915,7 +900,10 @@ def start_gta():
                 dummy_progress(injection_progressbar)
                 start_gta_button.configure(state = 'disabled')
                 rgl_path = get_rgl_path()
-                os.startfile(rgl_path + 'PlayGTAV.exe')
+                if rgl_path is not None:
+                    os.startfile(rgl_path + 'PlayGTAV.exe')
+                else:
+                    inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry choosing a different option instead.", text_color=YELLOW)
                 sleep(3)
             elif run_cmd == '_none':
                 inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
