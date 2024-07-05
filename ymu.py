@@ -97,7 +97,7 @@ root.resizable(False, False)
 root.iconbitmap(resource_path("assets\\icon\\ymu.ico"))
 root.configure(fg_color=BG_COLOR_D)
 width_of_window = 400
-height_of_window = 420
+height_of_window = 440
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
 x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -917,7 +917,7 @@ def start_gta():
                 if rgl_path is not None:
                     os.startfile(rgl_path + 'PlayGTAV.exe')
                 else:
-                    inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry using a different option instead.", text_color=YELLOW)
+                    inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry choosing a different option instead.", text_color=YELLOW)
                 sleep(3)
             elif run_cmd == '_none':
                 inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
