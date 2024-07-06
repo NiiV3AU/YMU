@@ -3,9 +3,11 @@
 
 
 >[!NOTE]
->**NEXT** in `v1.0.8` ↦ **TBA**
+>**NEXT** in `v1.0.9` ↦ **TBA**
 >
->**NEXT** in `v1.0.7` ↦ Reworked code for Starting GTA5 
+>**NEW** in `v1.0.8` ↦ Fixed Rockstar Games Launcher option + new Buttons in Settings-Tab for Troubleshooting
+>
+>**NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
 >
 >**NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
 >
