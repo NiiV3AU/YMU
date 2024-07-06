@@ -89,6 +89,42 @@ folder_hvr = ctk.CTkImage(
     size=(24, 24)
 )
 
+report_bug_white = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\bug_report_normal.png")),
+    light_image=Image.open(resource_path("assets\\img\\bug_report_normal_l.png")),
+    size=(24, 24)
+)
+
+report_bug_hvr = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\bug_report_hover.png")),
+    light_image=Image.open(resource_path("assets\\img\\bug_report_hover_l.png")),
+    size=(24, 24)
+)
+
+request_feature_white = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\request_feature_normal.png")),
+    light_image=Image.open(resource_path("assets\\img\\request_feature_normal_l.png")),
+    size=(24, 24)
+)
+
+request_feature_hvr = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\request_feature_hover.png")),
+    light_image=Image.open(resource_path("assets\\img\\request_feature_hover_l.png")),
+    size=(24, 24)
+)
+
+discord_white = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\discord_white.png")),
+    light_image=Image.open(resource_path("assets\\img\\discord_dark.png")),
+    size=(25, 19)
+)
+
+discord_hvr = ctk.CTkImage(
+    dark_image=Image.open(resource_path("assets\\img\\discord_hover.png")),
+    light_image=Image.open(resource_path("assets\\img\\discord_hover.png")),
+    size=(25, 19)
+)
+
 
 # YMU root - title - minsize - launch size - launch in center of sreen
 root = ctk.CTk()
@@ -119,20 +155,22 @@ CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
 # Version, Url, Paths and Launchers
-LOCAL_VER = "v1.0.7"
+LOCAL_VER = "v1.0.8"
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
-LAUNCHERS = ["Select Launcher", # placeholder
-             "Steam", 
+LAUNCHERS = ["Select Launcher",  # placeholder
+             "Steam",
              "Epic Games",
              "Rockstar Games",
             ]
 
 launcherVar = ctk.StringVar()
 
-def set_launcher(launcher:str):
+
+def set_launcher(launcher: str):
     launcherVar.set(launcher)
+
 
 # self update stuff
 
@@ -165,6 +203,7 @@ def get_ymu_ver():
         ymu_update_message.set("")
         ymu_update_button.configure(state="normal")
         update_response.pack_forget()
+
 
 def check_for_ymu_update():
     ymu_update_button.configure(state="disabled")
@@ -891,6 +930,7 @@ def get_rgl_path() -> str:
     except OSError:
         pass
 
+
 def start_gta():
     find_gta_process()
     if not is_running:
@@ -899,25 +939,25 @@ def start_gta():
             if run_cmd == "rgs":
                 inject_progress_label.configure(text="Please wait while YMU attempts to launch your game through\nRockstar Games Launcher...")
                 dummy_progress(injection_progressbar)
-                start_gta_button.configure(state = 'disabled')
+                start_gta_button.configure(state='disabled')
                 rgl_path = get_rgl_path()
                 if rgl_path is not None:
-                    os.startfile(rgl_path + 'PlayGTAV.exe')
+                    os.startfile(rgl_path + 'GTAVLauncher.exe')
                 else:
                     inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry choosing a different option instead.", text_color=YELLOW)
                 sleep(3)
             elif run_cmd == '_none':
                 inject_progress_label.configure(text="Please select your lancher from the dropdown list!", text_color=RED)
-                start_gta_button.configure(state = 'disabled')
+                start_gta_button.configure(state='disabled')
             else:
                 inject_progress_label.configure(text=f"Please wait while YMU attempts to launch your game through\n{user_launcher}...")
                 dummy_progress(injection_progressbar)
-                start_gta_button.configure(state = 'disabled')
+                start_gta_button.configure(state='disabled')
                 subprocess.run(run_cmd)
                 sleep(3)
 
             reset_inject_progress_label(5)
-            start_gta_button.configure(state = 'normal')
+            start_gta_button.configure(state='normal')
 
         except Exception as e:
             inject_progress_label.configure(text=f"Error finding a GTA 5 executable\nERROR: {e}", text_color=RED)
@@ -1581,6 +1621,121 @@ folder_button.pack(
 )
 folder_button.bind("<Enter>", folder_button_hover)
 folder_button.bind("<Leave>", folder_button_normal)
+
+
+def open_github_issues():
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.md")
+
+
+def report_bug_btn_hover(e):
+    report_bug_btn.configure(
+        image=report_bug_hvr, text_color=GREEN, font=SMALL_BOLD_FONT_U)
+    tabview.configure(border_color=GREEN)
+    other_settings_frame.configure(border_width=1)
+
+
+def report_bug_btn_normal(e):
+    report_bug_btn.configure(image=report_bug_white, text_color=WHITE, font=SMALL_BOLD_FONT)
+    tabview.configure(border_color=GREEN_D)
+    other_settings_frame.configure(border_width=0)
+
+
+report_bug_btn = ctk.CTkButton(
+    master=other_settings_frame,
+    text="Report a Bug",
+    image=report_bug_white,
+    command=open_github_issues,
+    fg_color=BG_COLOR_D,
+    hover_color=BG_COLOR_D,
+    text_color=WHITE,
+    font=SMALL_BOLD_FONT,
+    corner_radius=10,
+)
+report_bug_btn.pack(
+    pady=5,
+    padx=0,
+    expand=False,
+    fill=None,
+)
+report_bug_btn.bind("<Enter>", report_bug_btn_hover)
+report_bug_btn.bind("<Leave>", report_bug_btn_normal)
+
+
+def open_github_issues():
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.md")
+
+
+def request_feature_btn_hover(e):
+    request_feature_btn.configure(
+        image=request_feature_hvr, text_color=GREEN, font=SMALL_BOLD_FONT_U)
+    tabview.configure(border_color=GREEN)
+    other_settings_frame.configure(border_width=1)
+
+
+def request_feature_btn_normal(e):
+    request_feature_btn.configure(image=request_feature_white, text_color=WHITE, font=SMALL_BOLD_FONT)
+    tabview.configure(border_color=GREEN_D)
+    other_settings_frame.configure(border_width=0)
+
+
+request_feature_btn = ctk.CTkButton(
+    master=other_settings_frame,
+    text="Request a Feature",
+    image=request_feature_white,
+    command=open_github_issues,
+    fg_color=BG_COLOR_D,
+    hover_color=BG_COLOR_D,
+    text_color=WHITE,
+    font=SMALL_BOLD_FONT,
+    corner_radius=10,
+)
+request_feature_btn.pack(
+    pady=5,
+    padx=0,
+    expand=False,
+    fill=None,
+)
+request_feature_btn.bind("<Enter>", request_feature_btn_hover)
+request_feature_btn.bind("<Leave>", request_feature_btn_normal)
+
+
+def open_discord_link():
+    webbrowser.open_new_tab("https://discord.gg/S4PKmKr22k")
+
+
+def discord_btn_hover(e):
+    discord_btn.configure(
+        image=discord_hvr, text_color=GREEN, font=SMALL_BOLD_FONT_U)
+    tabview.configure(border_color=GREEN)
+    other_settings_frame.configure(border_width=1)
+
+
+def discord_btn_normal(e):
+    discord_btn.configure(image=discord_white, text_color=WHITE, font=SMALL_BOLD_FONT)
+    tabview.configure(border_color=GREEN_D)
+    other_settings_frame.configure(border_width=0)
+
+
+discord_btn = ctk.CTkButton(
+    master=other_settings_frame,
+    text="Join YMU's Discord",
+    image=discord_white,
+    command=open_discord_link,
+    fg_color=BG_COLOR_D,
+    hover_color=BG_COLOR_D,
+    text_color=WHITE,
+    font=SMALL_BOLD_FONT,
+    corner_radius=10,
+)
+discord_btn.pack(
+    pady=5,
+    padx=0,
+    expand=False,
+    fill=None,
+)
+discord_btn.bind("<Enter>", discord_btn_hover)
+discord_btn.bind("<Leave>", discord_btn_normal)
+
 
 
 def hover_ymu_update_button(e):
