@@ -5,7 +5,7 @@
 >[!NOTE]
 >**NEXT** in `v1.0.9` ↦ **TBA**
 >
->**NEW** in `v1.0.8` ↦ Fixed Rockstar Games Launcher option + new Buttons in Settings-Tab for Troubleshooting
+>**NEW** in `v1.0.8` ↦ ~~Fixed Rockstar Games Launcher option~~ (still not working 😠) + new Buttons in Settings-Tab for Troubleshooting
 >
 >**NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
 >
