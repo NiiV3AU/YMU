@@ -155,17 +155,6 @@ request_feature_hvr = ctk.CTkImage(
     size=(24, 24)
 )
 
-discord_white = ctk.CTkImage(
-    dark_image=Image.open(resource_path("assets\\img\\discord_white.png")),
-    light_image=Image.open(resource_path("assets\\img\\discord_dark.png")),
-    size=(25, 19)
-)
-
-discord_hvr = ctk.CTkImage(
-    dark_image=Image.open(resource_path("assets\\img\\discord_hover.png")),
-    light_image=Image.open(resource_path("assets\\img\\discord_hover.png")),
-    size=(25, 19)
-)
 
 
 # YMU root - title - minsize - launch size - launch in center of sreen
@@ -1787,45 +1776,6 @@ request_feature_btn.pack(
 )
 request_feature_btn.bind("<Enter>", request_feature_btn_hover)
 request_feature_btn.bind("<Leave>", request_feature_btn_normal)
-
-
-def open_discord_link():
-    webbrowser.open_new_tab("https://discord.gg/S4PKmKr22k")
-
-
-def discord_btn_hover(e):
-    discord_btn.configure(
-        image=discord_hvr, text_color=GREEN, font=SMALL_BOLD_FONT_U)
-    tabview.configure(border_color=GREEN)
-    other_settings_frame.configure(border_width=1)
-
-
-def discord_btn_normal(e):
-    discord_btn.configure(image=discord_white, text_color=WHITE, font=SMALL_BOLD_FONT)
-    tabview.configure(border_color=GREEN_D)
-    other_settings_frame.configure(border_width=0)
-
-
-discord_btn = ctk.CTkButton(
-    master=other_settings_frame,
-    text="Join YMU's Discord",
-    image=discord_white,
-    command=open_discord_link,
-    fg_color=BG_COLOR_D,
-    hover_color=BG_COLOR_D,
-    text_color=WHITE,
-    font=SMALL_BOLD_FONT,
-    corner_radius=10,
-)
-discord_btn.pack(
-    pady=5,
-    padx=0,
-    expand=False,
-    fill=None,
-)
-discord_btn.bind("<Enter>", discord_btn_hover)
-discord_btn.bind("<Leave>", discord_btn_normal)
-
 
 
 def hover_ymu_update_button(e):
