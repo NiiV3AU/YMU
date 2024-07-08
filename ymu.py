@@ -467,7 +467,10 @@ def download_dll():
             total_size = int(r.headers.get("content-length", 0))
             progressbar.set(0)
             downloaded_size = 0
+            logger.info(f'Requesting file from {DLLURL}')
+            logger.info(f'Total size: {"{:.2f}".format(total_size/1048576)}MB')
             with open(LOCALDLL, "wb") as f:
+                logger.info('Downloading YimMenu Nightly...')
                 for chunk in r.iter_content(chunk_size=131072):  # 128 KB chunks (in binary)
                     f.write(chunk)
                     downloaded_size += len(chunk)
@@ -481,6 +484,7 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=GREEN
         )
+        logger.info(f'Download finished. DLL location: {exeDir}{DLLDIR}')
         sleep(5)
         check_if_dll_is_downloaded()
         if not os.path.exists(LOCALDLL):
@@ -488,13 +492,15 @@ def download_dll():
                 text="File was removed!\nMake sure to either turn off your antivirus or add YMU folder to exceptions.",
                 text_color=RED,
             )
+            logger.error('The dll was removed by antivirus. https://youtu.be/g8IwtDOgca0')
             sleep(5)
         Thread(target=refresh_download_button, daemon=True).start()
 
     # if download failed
     except requests.exceptions.RequestException as e:
+        logger.exception(f'An exception occured while trying to download YimMenu. Traceback: {e}')
         progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} error: {e}", text_color=RED
+            text=f"{check_if_dll_is_downloaded()} error.\nCheck the logs for the exact error message", text_color=RED
         )
         reset_progress_prcnt_label(3)
 
@@ -513,6 +519,7 @@ def inject_yimmenu():
             text="🔍 Searching for GTA5 process...",
             text_color=WHITE,
         )
+        logger.info('Searching for GTA5 process...')
         dummy_progress(injection_progressbar)
         process_search_thread()
         sleep(1)  # give it time to update the values
