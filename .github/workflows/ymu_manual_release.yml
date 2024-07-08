@@ -35,7 +35,7 @@ jobs:
 
     - name: Build Executable
       run: |
-        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --add-data='D:\a\YMU\YMU\assets\icon\ymu.ico':assets\icon --add-data='D:\a\YMU\YMU\assets\splash.png':assets\splash --add-data='assets\img\fo_hover_l.png:assets\img' --add-data='assets\img\fo_hover.png:assets\img' --add-data='assets\img\fo_normal.png:assets\img' --add-data='assets\img\fo_normal_l.png:assets\img' --icon='D:\a\YMU\YMU\assets\icon\ymu.ico' --splash "D:\a\YMU\YMU\assets\splash.png"
+        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --icon "./assets/icon/ymu.ico" --splash "./assets/splash.png" --add-data "./assets/;assets/" --version-file "./version.txt"
 
     - name: Generate Build Info
       id: var

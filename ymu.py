@@ -1,44 +1,81 @@
-import win32gui
-from win10toast import ToastNotifier
+import logging
+import logging.handlers
+import os
+import platform
 import sys
+import win32gui
 
-notif = ToastNotifier()
+
+def executable_path():
+    return os.path.dirname(os.path.abspath(sys.argv[0]))
+
 
 def resource_path(relative_path):
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
+
+LOCAL_VER  = "v1.0.9"
+userOS     = platform.system()
+userOSarch = platform.architecture()
+userOSrel  = platform.release()
+userOSver  = platform.version()
+workDir    = resource_path('')
+exeDir     = executable_path() + '\\'
+
+
+logfile = open("./ymu.log", "a")
+logfile.write("---Initializing YMU...\n\n")
+logfile.write(f"    ¤ YMU Version: {LOCAL_VER}\n")
+logfile.write(f"    ¤ Operating System: {userOS} {userOSrel} x{userOSarch[0][:2]} v{userOSver}\n")
+logfile.write(f"    ¤ Working Directory: {workDir}\n")
+logfile.write(f"    ¤ Executable Directory: {exeDir}\n\n\n")
+logfile.close()
+
+logger      = logging.getLogger("YMU")
+log_handler = logging.handlers.RotatingFileHandler('ymu.log',
+                                                   maxBytes = 524288, # 0.5MB max file size
+                                                   backupCount = 0
+                                                   )
+logging.basicConfig(encoding = 'utf-8',
+                    level    = logging.DEBUG,
+                    format   = '%(asctime)s %(levelname)s %(name)s %(message)s',
+                    datefmt  = '%H:%M:%S',
+                    handlers = [log_handler]
+                    )
+
+
+# check if YMU is already running. If it is, bring it to foreground and exit (moving this above the rest of the imports makes it much faster).
+ymu_window = win32gui.FindWindow(None, 'YMU - YimMenuUpdater')
+if ymu_window != 0:
+    logger.warning("\nYMU is aleady running! Only one instance can be launched at once.\n")
+    win32gui.SetForegroundWindow(ymu_window)
+    sys.exit(0)
+
 if getattr(sys, 'frozen', False):
-    # check if YMU is already running. If it is, bring it to foreground and exit (moving this above the rest of the imports makes it much faster).
-    ymu_window = win32gui.FindWindow(None, 'YMU - YimMenuUpdater')
-    if ymu_window is not None and ymu_window != 0:
-        win32gui.SetForegroundWindow(ymu_window)
-        # try:
-        #     notif.show_toast('YMU', 'The program is already running!', duration = 10, icon_path = (resource_path("assets\\icon\\ymu.ico")))
-        # except TypeError: #win10Toast has a bug and will always raise a TypeError. It's not a big deal so it's safe to just simply ignore it.
-        #     pass
-        sys.exit(0)
-    else:
-        # if YMU is not already running, show a splash screen during the loading time.
-        import pyi_splash
+    import pyi_splash
+
 
 # Libraries YMU depends on
+import atexit
 import customtkinter as ctk
 import hashlib
-import os
+import json
 import psutil
 import requests
 import subprocess
 import webbrowser
 import winreg
-from bs4 import BeautifulSoup
+from bs4           import BeautifulSoup
+from configparser  import ConfigParser
 from customtkinter import CTkFont
-from pyinjector import inject
-from threading import Thread
-from PIL import Image
-from time import sleep
-import json
-from configparser import ConfigParser
+from pyinjector    import inject
+from threading     import Thread
+from PIL           import Image
+from time          import sleep
+from win10toast    import ToastNotifier
+
+notif = ToastNotifier()
 
 # YMU Appearance
 CONFIGPATH = "ymu\\config.ini"
@@ -47,10 +84,14 @@ CONFIGPATH = "ymu\\config.ini"
 def create_or_read_config():
     config = ConfigParser()
     if os.path.isfile(CONFIGPATH):
+        logger.info(f'Found YMU config under {exeDir}{CONFIGPATH}')
         config.read(CONFIGPATH)
+        logger.info('Reading YMU config...')
         theme = config["ymu"]["theme"]
         ctk.set_appearance_mode(theme)
+        logger.info('Setting YMU theme...')
     else:
+        logger.info('Config file not found! Creating a new one...')
         if os.path.exists("ymu"):
             pass
         else:
@@ -59,6 +100,7 @@ def create_or_read_config():
             config.add_section("ymu")
             config.set("ymu", "theme", "dark")
             config.write(configfile)
+            logger.info(f'Config created under {exeDir}{CONFIGPATH}')
 
 
 create_or_read_config()
@@ -154,15 +196,14 @@ CODE_FONT_U = CTkFont(family="JetBrains Mono", size=12, underline=True)
 CODE_FONT_BIG = CTkFont(family="JetBrains Mono", size=16)
 CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 
-# Version, Url, Paths and Launchers
-LOCAL_VER = "v1.0.8"
+# Url, Paths and Launchers
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
-LAUNCHERS = ["Select Launcher",  # placeholder
-             "Steam",
+LAUNCHERS = ["- Select Launcher -",  # placeholder
              "Epic Games",
              "Rockstar Games",
+             "Steam",
             ]
 
 launcherVar = ctk.StringVar()
@@ -176,12 +217,11 @@ def set_launcher(launcher: str):
 
 # delete the updater on init
 if os.path.isfile("./ymu_self_updater.exe"):
+    logger.info('YMU self updater no longer needed. Deleting the file...')
     os.remove("./ymu_self_updater.exe")
 
 # get YMU's remote version:
 ymu_update_message = ctk.StringVar()
-
-
 def get_ymu_ver():
     try:
         r = requests.get("https://github.com/NiiV3AU/YMU/tags")
@@ -191,12 +231,14 @@ def get_ymu_ver():
         result = s.replace("</a>", "")
         charLength = len(result)
         latest_version = result[charLength - 6:]
+        logger.info(f'Latest YMU version on GitHub: {latest_version}')
         return latest_version
 
-    except Exception:
+    except Exception as e:
+        logger.error(f'Failed to get the latest GitHub version! Traceback: {e}')
         update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
         ymu_update_message.set(
-            "❌ Failed to get the latest Github version.\nCheck your Internet connection and try again."
+            "❌ Failed to get the latest GitHub version.\nCheck your Internet connection and try again."
         )
         update_response.configure(text_color=YELLOW)
         sleep(5)
@@ -208,8 +250,10 @@ def get_ymu_ver():
 def check_for_ymu_update():
     ymu_update_button.configure(state="disabled")
     YMU_VERSION = get_ymu_ver()
+    logger.info('Checking for YMU updates...')
     try:
         if LOCAL_VER < YMU_VERSION:
+            logger.info('Update available!')
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
             update_response.configure(text_color=GREEN)
@@ -218,6 +262,7 @@ def check_for_ymu_update():
             sleep(3)
 
         elif LOCAL_VER == YMU_VERSION:
+            logger.info(f'No updates found! YMU {LOCAL_VER} is the latest version.')
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set("YMU is up-to-date ✅")
             update_response.configure(text_color=WHITE)
@@ -226,6 +271,7 @@ def check_for_ymu_update():
             ymu_update_button.configure(state="normal")
 
         elif LOCAL_VER > YMU_VERSION:
+            logger.error(f'Local YMU version is {LOCAL_VER}. This is not a valid version! Are you a dev or a skid?')
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set(
                 "⚠️ Invalid version detected ⚠️\nPlease download YMU from\nthe official Github repository."
@@ -235,20 +281,26 @@ def check_for_ymu_update():
             ymu_update_button.configure(command=open_github_release)
             sleep(5)
 
-    except Exception:
+    except Exception as e:
+        logger.exception(f'An error occured! Traceback: {e}')
         pass
 
 
 def download_self_updater():
-    response = requests.get(
-        "https://github.com/xesdoog/YMU-Updater/releases/download/latest/ymu_self_updater.exe"
-    )
-    if response.status_code == 200:
-        with open("ymu_self_updater.exe", "wb") as file:
-            file.write(response.content)
-            return "OK"
-    else:
-        return "Error"
+    try:
+        response = requests.get(
+            "https://github.com/xesdoog/YMU-Updater/releases/download/latest/ymu_self_updater.exe"
+        )
+        if response.status_code == 200:
+            logger.info('Downloading self updater from https://github.com/xesdoog/YMU-Updater/releases/download/latest/ymu_self_updater.exe')
+            with open("ymu_self_updater.exe", "wb") as file:
+                file.write(response.content)
+                return "OK"
+        else:
+            logger.error(f'an HTTP error occured while trying to access the self updater repository. Status Code: {response.status_code}')
+            return "Error"
+    except Exception as e:
+        logger.exception(f'An error occured! Traceback: {e}')
 
 
 def launch_ymu_update():
@@ -258,11 +310,13 @@ def launch_ymu_update():
         update_response.configure(text_color=WHITE)
         ymu_update_button.configure(state="disabled")
         if download_self_updater() == "OK":
+            logger.info('Closing YMU to apply updates...')
             ymu_update_message.set("YMU will now close to apply the updates")
             sleep(3)
             start_self_update = True
             root.destroy()
         else:
+            logger.error('Failed to apply updates!')
             ymu_update_message.set("❌ Failed to download self updater!")
             update_response.configure(text_color=RED)
             sleep(5)
@@ -270,7 +324,8 @@ def launch_ymu_update():
             update_response.configure(text_color=WHITE)
             ymu_update_button.configure(state="normal", text="Update YMU")
 
-    except Exception:
+    except Exception as e:
+        logger.exception(f'An error occured! Traceback: {e}')
         pass
 
 
@@ -287,9 +342,25 @@ def ymu_update_thread():
     Thread(target=check_for_ymu_update, daemon=True).start()
 
 
+# reads/calculates the SHA256 of local (downloaded) version of YimMenu
+def get_local_sha256():
+    if os.path.exists(LOCALDLL):
+        logger.info(f'Found local DLL under {exeDir}{LOCALDLL}')
+        sha256_hash = hashlib.sha256()
+        with open(LOCALDLL, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        logger.info(f'Local DLL checksum {sha256_hash.hexdigest()}')
+        return sha256_hash.hexdigest()
+    else:
+        logger.warning('Local DLL not found!')
+        return None
+
+
 # scrapes the release/build SHA256 of the latest YimMenu release
 def get_remote_sha256():
     try:
+        logger.info('Checking the latest YimMenu release on "https://github.com/YimMenu/YimMenu/releases/latest"')
         r = requests.get("https://github.com/YimMenu/YimMenu/releases/latest")
         soup = BeautifulSoup(r.content, "html.parser")
         list = soup.find(class_="notranslate")
@@ -301,8 +372,10 @@ def get_remote_sha256():
         REM_SHA = head
         REM_SHA_LENG = len(REM_SHA)
         if REM_SHA_LENG == 64:
+            logger.info(f'Latest YimMenu release checksum: {REM_SHA}')
             return REM_SHA
     except requests.exceptions.ConnectionError as e:
+        logger.exception(f'An error occured! Traceback: {e}')
         progress_prcnt_label.configure(text=f'Error while trying to\nconnect to "GitHub.com"\nERROR: {e}',text_color=RED)
         reset_progress_prcnt_label(5)
 
@@ -326,43 +399,40 @@ def check_if_dll_is_downloaded():
 
 # Find GTAV's process and update the 'inject' tab
 def find_gta_process():
-    global pid  # <- I know it's a bad habit but if it works why fix it? 😂 (true 🤙 - "never change a running system")
+    global PID  # <- I know it's a bad habit but if it works why fix it? 😂 (true 🤙 - "never change a running system")
     global is_running
-    for p in psutil.process_iter(["name", "exe", "cmdline"]):
-        if (
-            "GTA5.exe" == p.info["name"]
-            or p.info["exe"]
-            and os.path.basename(p.info["exe"]) == "GTA5.exe"
-            or p.info["cmdline"]
-            and p.info["cmdline"][0] == "GTA5.exe"
-        ):
-            pid = p.pid
+    try:
+        for p in psutil.process_iter(["name", "exe", "cmdline"]):
+            if (
+                "GTA5.exe" == p.info["name"]
+                or p.info["exe"]
+                and os.path.basename(p.info["exe"]) == "GTA5.exe"
+                or p.info["cmdline"]
+                and p.info["cmdline"][0] == "GTA5.exe"
+            ):
+                pid = p.pid
+                break
+            else:
+                pid = 0
+        # move this outside of the for loop
+        if pid is not None and pid != 0:
+            # logger.info(f'Found GTA 5 process with PID: {pid}')
+            PID = pid
             is_running = True
-            sleep(0.5)
-            break
         else:
-            pid = 0
+            # logger.warning('Process not found!')
+            PID = 0
             is_running = False
+    except Exception as e:
+        logger.exception(f'An error has occured while trying to find the game\'s process. Traceback: {e}')
 
 
 def process_search_thread():
     Thread(target=find_gta_process, daemon=True).start()
 
 
-# run it once to initialize 'pid' and 'is_running'
-process_search_thread()
-
-
-# reads/calculates the SHA256 of local (downloaded) version of YimMenu
-def get_local_sha256():
-    if os.path.exists(LOCALDLL):
-        sha256_hash = hashlib.sha256()
-        with open(LOCALDLL, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    else:
-        return None
+# run it once to initialize 'PID' and 'is_running'
+# process_search_thread() <- disabled for now as there is no need for initializing them anymore.
 
 
 def refresh_download_button():
@@ -397,7 +467,10 @@ def download_dll():
             total_size = int(r.headers.get("content-length", 0))
             progressbar.set(0)
             downloaded_size = 0
+            logger.info(f'Requesting file from {DLLURL}')
+            logger.info(f'Total size: {"{:.2f}".format(total_size/1048576)}MB')
             with open(LOCALDLL, "wb") as f:
+                logger.info('Downloading YimMenu Nightly...')
                 for chunk in r.iter_content(chunk_size=131072):  # 128 KB chunks (in binary)
                     f.write(chunk)
                     downloaded_size += len(chunk)
@@ -411,6 +484,7 @@ def download_dll():
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=GREEN
         )
+        logger.info(f'Download finished. DLL location: {exeDir}{DLLDIR}')
         sleep(5)
         check_if_dll_is_downloaded()
         if not os.path.exists(LOCALDLL):
@@ -418,13 +492,15 @@ def download_dll():
                 text="File was removed!\nMake sure to either turn off your antivirus or add YMU folder to exceptions.",
                 text_color=RED,
             )
+            logger.error('The dll was removed by antivirus. https://youtu.be/g8IwtDOgca0')
             sleep(5)
         Thread(target=refresh_download_button, daemon=True).start()
 
     # if download failed
     except requests.exceptions.RequestException as e:
+        logger.exception(f'An exception occured while trying to download YimMenu. Traceback: {e}')
         progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} error: {e}", text_color=RED
+            text=f"{check_if_dll_is_downloaded()} error.\nCheck the logs for the exact error message", text_color=RED
         )
         reset_progress_prcnt_label(3)
 
@@ -443,14 +519,16 @@ def inject_yimmenu():
             text="🔍 Searching for GTA5 process...",
             text_color=WHITE,
         )
+        logger.info('Searching for GTA5 process...')
         dummy_progress(injection_progressbar)
         process_search_thread()
         sleep(1)  # give it time to update the values
         injection_progressbar.set(0)
-        if pid != 0:
+        if PID != 0:
+            logger.info(f'Found process "GTA5.exe" with PID: "{PID}"')
             if os.path.isfile(LOCALDLL):
                 inject_progress_label.configure(
-                    text=f"Found process 'GTA5.exe' with PID: [{pid}]",
+                    text=f"Found process 'GTA5.exe' with PID: [{PID}]",
                     text_color=GREEN,
                 )
                 sleep(2)
@@ -458,7 +536,9 @@ def inject_yimmenu():
                     text="💉 Injecting...", text_color=GREEN
                 )
                 dummy_progress(injection_progressbar)
-                inject(pid, LOCALDLL)
+                libHanlde = inject(PID, LOCALDLL)
+                logger.info(f'Injecting {exeDir}{LOCALDLL} into GTA5.exe...')
+                logger.debug(f'Injected library handle: {libHanlde}')
                 sleep(2)
                 inject_progress_label.configure(
                     text=f"Successfully injected YimMenu.dll into GTA5.exe",
@@ -467,19 +547,19 @@ def inject_yimmenu():
                 sleep(3)
                 injection_progressbar.set(0)
                 process_search_thread()
-                sleep(
-                    5
-                )  # Wait for 5 seconds and check if the game crashes on injection.
+                logger.debug('Checking if the game is still running after injection...')
+                sleep(5)
                 if is_running:
                     inject_progress_label.configure(
                         text="Have fun!",
                         text_color=GREEN,
                     )
-                    sleep(
-                        5
-                    )  # exit the app after successful injection. If the game crashes, the program continues to run
-                    root.destroy()  # if you don't want this behavior feel free to remove it. I just thought it would be nice to free some resources for people with potato PCs.
+                    logger.debug('Everything seems fine. YMU will automatically exit after 3 seconds to free up resources')
+                    sleep(3)
+                    logger.info('\nFarewell!\n')
+                    root.destroy()
                 else:
+                    logger.warning('The game seems to have crashed after injection!')
                     inject_progress_label.configure(
                         text="Uh Oh! Did your game crash?",
                         text_color=RED,
@@ -487,6 +567,7 @@ def inject_yimmenu():
                 reset_inject_progress_label(10)
 
             else:
+                logger.error('YimMenu.dll not found! Did the antivirus delete it?')
                 inject_progress_label.configure(
                     text="YimMenu.dll not found! Download the latest release\nand make sure your anti-virus is not interfering.",
                     text_color=RED,
@@ -494,12 +575,14 @@ def inject_yimmenu():
                 reset_inject_progress_label(5)
 
         else:
+            logger.warning('Process not found! Is the game running?')
             inject_progress_label.configure(text="GTA5.exe not found! Please start the game.", text_color=RED)
             reset_inject_progress_label(5)
 
         inject_button.configure(state="normal")
 
-    except Exception:
+    except Exception as e:
+        logger.exception(f'An exception has occured! Traceback: {e}')
         injection_progressbar.set(0)
         inject_progress_label.configure(
             text="Failed to inject YimMenu!",
@@ -924,10 +1007,12 @@ def get_launcher() -> str:
 def get_rgl_path() -> str:
     regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
     try:
-        subkey = winreg.OpenKey(regkey, r"Grand Theft Auto V")
-        keyValue = winreg.QueryValueEx(subkey, r"InstallFolder")
-        return (keyValue[0])
-    except OSError:
+        subkey = winreg.OpenKey(regkey, r'Grand Theft Auto V')
+        subkeyValue = winreg.QueryValueEx(subkey, r'InstallFolder')
+        logger.debug(f'Rockstar Games Launcher version path: {subkeyValue[0]}')
+        return (subkeyValue[0])
+    except OSError as err:
+        logger.error(f'An error has occured while trying to read RGL path! Traceback: {err}', exc_info = 1)
         pass
 
 
@@ -942,7 +1027,12 @@ def start_gta():
                 start_gta_button.configure(state='disabled')
                 rgl_path = get_rgl_path()
                 if rgl_path is not None:
-                    os.startfile(rgl_path + 'GTAVLauncher.exe')
+                    try:
+                        os.startfile(rgl_path + r'PlayGTAV.exe')
+                    except OSError as err:
+                        logger.error(f'Failed to run GTA5. Traceback: {err}', exc_info = 1)
+                        inject_progress_label.configure(text="Failed to run GTAV using Rockstar Games Launcher!", text_color=RED)
+                        pass
                 else:
                     inject_progress_label.configure(text="Could not find Rockstar Games version of GTA!\nAre you sure your game uses Rockstar Launcher?\nTry choosing a different option instead.", text_color=YELLOW)
                 sleep(3)
@@ -1775,6 +1865,11 @@ update_response = ctk.CTkLabel(
     textvariable=ymu_update_message,
     text_color=WHITE, font=CODE_FONT_SMALL
 )
+
+
+@atexit.register
+def on_exit():
+    logger.info('Closing YMU...\n\nFarewell!\n')
 
 if __name__ == "__main__":
 
