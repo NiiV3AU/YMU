@@ -1,6 +1,7 @@
 psutil
 customtkinter
 requests
+requests_cache
 pyinjector
 bs4
 pillow
