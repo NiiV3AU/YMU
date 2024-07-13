@@ -1,0 +1,75 @@
+name: Bug report
+description: Create a bug report to help us improve YMU
+title: "[Bug]: "
+labels: bug
+body:
+- type: textarea
+  attributes:
+    label: Describe the bug
+    description: A clear description of what the bug is.
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Steps To Reproduce
+    description: Steps to reproduce the behavior.
+    placeholder: |
+      1. Go to '...'
+      2. Click on '...'
+      3. Scroll down to '...'
+      4. See error
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Log
+    description: |
+      For a bug report to be valid, you need to include the log for YMU.
+      The log can be found under ymu\ymu.log in the same place where **ymu.exe** is.
+
+      Tip: To easily upload your log file you can rename ymu.log to ymu.txt or zip it then drag and drop it here or alternatively you can open it and copy/paste its contents here.
+    value: |
+      <!-- Place your logs here -->
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Screenshots / Video
+    description: |
+      If you think the issue can be better explained with screenshots or a video then consider adding these here.
+
+      Tip: You can attach images by clicking this area to highlight it and then dragging files in.
+    value: |
+      <!-- drag and drop your images or video(s) here -->
+  validations:
+    required: false
+
+- type: dropdown
+  attributes:
+    label: Store
+    description: Which launcher/store do you use to launch your game? Cracked versions are not supported.
+    multiple: false
+    options:
+      - Steam
+      - Epic Games
+      - Rockstar Games
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Additional context
+    description: Add any other context about the problem here.
+  validations:
+    required: false
+
+- type: checkboxes
+  attributes:
+    label: Build
+    description: We want to confirm that this issue exists on the latest version of YMU, not a fork or your own version.
+    options:
+      - label: I've confirmed the issue exists on the latest version of YMU.
+        required: true
