@@ -3,13 +3,26 @@ import logging.handlers
 import os
 import platform
 import sys
+import requests_cache
 import win32gui
+from functools import cache
+from requests_cache import  install_cache
+
+install_cache('./ymu/cache', backend='sqlite',
+    cache_control=True,
+    urls_expire_after={
+        '*.github.com': 60,
+        'yim.gta.menu': 60
+    },
+)
 
 
+
+@cache
 def executable_path():
     return os.path.dirname(os.path.abspath(sys.argv[0]))
 
-
+@cache
 def resource_path(relative_path):
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
@@ -23,8 +36,13 @@ userOSver  = platform.version()
 workDir    = resource_path('')
 exeDir     = executable_path() + '\\'
 
+if os.path.exists("./ymu"):
+    pass
+else:
+    os.makedirs("./ymu")
 
-logfile = open("./ymu.log", "a")
+
+logfile = open("./ymu/ymu.log", "a")
 logfile.write("---Initializing YMU...\n\n")
 logfile.write(f"    ¤ YMU Version: {LOCAL_VER}\n")
 logfile.write(f"    ¤ Operating System: {userOS} {userOSrel} x{userOSarch[0][:2]} v{userOSver}\n")
@@ -33,7 +51,7 @@ logfile.write(f"    ¤ Executable Directory: {exeDir}\n\n\n")
 logfile.close()
 
 logger      = logging.getLogger("YMU")
-log_handler = logging.handlers.RotatingFileHandler('ymu.log',
+log_handler = logging.handlers.RotatingFileHandler('./ymu/ymu.log',
                                                    maxBytes = 524288, # 0.5MB max file size
                                                    backupCount = 0
                                                    )
@@ -189,7 +207,7 @@ CODE_FONT_SMALL = CTkFont(family="JetBrains Mono", size=10)
 DLLURL = "https://github.com/YimMenu/YimMenu/releases/download/nightly/YimMenu.dll"
 DLLDIR = ".\\ymu\\dll"
 LOCALDLL = ".\\ymu\\dll\\YimMenu.dll"
-LAUNCHERS = ["- Select Launcher -",  # placeholder
+LAUNCHERS = ["▾ Select Launcher ▾",  # placeholder
              "Epic Games",
              "Rockstar Games",
              "Steam",
@@ -211,6 +229,7 @@ if os.path.isfile("./ymu_self_updater.exe"):
 
 # get YMU's remote version:
 ymu_update_message = ctk.StringVar()
+
 def get_ymu_ver():
     try:
         r = requests.get("https://github.com/NiiV3AU/YMU/tags")
@@ -371,19 +390,18 @@ def get_remote_sha256():
 
 # self explanatory
 def check_if_dll_is_downloaded():
-    while True:
-        if os.path.exists(DLLDIR):
-            if os.path.isfile(LOCALDLL):
-                LOCAL_SHA = get_local_sha256()
-                REM_SHA = get_remote_sha256()
-                if LOCAL_SHA == REM_SHA:
-                    return "Update"
-                else:
-                    return "Update"
+    if os.path.exists(DLLDIR):
+        if os.path.isfile(LOCALDLL):
+            LOCAL_SHA = get_local_sha256()
+            REM_SHA = get_remote_sha256()
+            if LOCAL_SHA == REM_SHA:
+                return "Update"
             else:
-                return "Download"
+                return "Update"
         else:
             return "Download"
+    else:
+        return "Download"
 
 
 # Find GTAV's process and update the 'inject' tab
@@ -981,6 +999,7 @@ download_button.bind("<Leave>", nohover_download_button)
 
 
 # Inject-Tab
+@cache
 def get_launcher() -> str:
     global user_launcher
     user_launcher = launcherVar.get()
@@ -993,6 +1012,7 @@ def get_launcher() -> str:
     else:
         return '_none'
     
+@cache
 def get_rgl_path() -> str:
     regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
     try:
@@ -1012,6 +1032,7 @@ def start_gta():
             run_cmd = get_launcher() # run dmc's cousin
             if run_cmd == "rgs":
                 inject_progress_label.configure(text="Please wait while YMU attempts to launch your game through\nRockstar Games Launcher...")
+                logger.warning("Rockstar Games Launcher-Option may not work for some users. If thats the case please start manually!")
                 dummy_progress(injection_progressbar)
                 start_gta_button.configure(state='disabled')
                 rgl_path = get_rgl_path()
@@ -1082,10 +1103,10 @@ inject_progress_label.pack(
 def open_inject_info(e):
     inject_info = ctk.CTkToplevel(fg_color=BG_COLOR_D)
     inject_info.title("Start GTA5 & Injection Info")
-    inject_info.minsize(400, 250)
+    inject_info.minsize(320, 200)
     inject_info.resizable(False, False)
-    width_of_window = 400
-    height_of_window = 250
+    width_of_window = 320
+    height_of_window = 200
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -1102,20 +1123,20 @@ def open_inject_info(e):
 
     s_i_tabview = ctk.CTkTabview(master=inject_info, fg_color=BG_COLOR, corner_radius=12, segmented_button_fg_color=BG_COLOR, segmented_button_selected_color=BG_COLOR_D, segmented_button_selected_hover_color=BG_COLOR, segmented_button_unselected_color=BG_COLOR, segmented_button_unselected_hover_color=BG_COLOR_D, text_color=GREEN, border_color=GREEN_D, border_width=2)
     s_i_tabview.pack(pady=10, padx=10, expand=True, fill="both")
-    s_i_tabview.add("⭐ Start GTA5 ⭐")
-    s_i_tabview.add("⭐ Inject YimMenu.dll ⭐")
+    s_i_tabview.add("⭐ Start GTA 5")
+    s_i_tabview.add("Inject YimMenu.dll ⭐")
 
     startgta5_info_label = ctk.CTkLabel(
-        master=s_i_tabview.tab("⭐ Start GTA5 ⭐"),
-        text='How-To: Select your launcher then press "Start GTA 5".',
+        master=s_i_tabview.tab("⭐ Start GTA 5"),
+        text='How-To:\n↦ Select your launcher\n↦ Press "Start GTA 5"',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
     )
     startgta5_info_label.pack(pady=0, padx=0, expand=True, fill="both")    
     inject_info_label = ctk.CTkLabel(
-        master=s_i_tabview.tab("⭐ Inject YimMenu.dll ⭐"),
-        text="How-To:\n↦ Launch the game.\n↦ Load into 'Single Player'\n↦ Wait for the game to finish loading\n↦ CLick on (Inject YimMenu)\n↦ Wait for YimMenu to finish loading\n↦ Done! ✅",
+        master=s_i_tabview.tab("Inject YimMenu.dll ⭐"),
+        text='How-To:\n↦ Launch the game.\n↦ Load into "Single Player"\n↦ Wait for the game to finish loading\n↦ CLick on "Inject YimMenu"\n↦ Wait for YimMenu to finish loading\n↦ Done! ✅',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
@@ -1378,7 +1399,7 @@ def change_theme(e):
 
 appearance_mode_label = ctk.CTkLabel(
     master=settings_frame,
-    text="▸ Set YMU Theme ◂",
+    text="▾ Set YMU Theme ▾",
     font=BIG_FONT,
     text_color=WHITE,
 )
@@ -1474,7 +1495,7 @@ def lua_auto_reload():
         lua_ar_switch.configure(text="Enable Auto Reload for Lua-Scripts?", text_color=RED)
 
 
-luas_header = ctk.CTkLabel(master=settings_frame, text="▸ Lua Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
+luas_header = ctk.CTkLabel(master=settings_frame, text="▾ Lua Settings ▾", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
 luas_header.pack(pady=10, padx=0)
 
 
@@ -1555,7 +1576,7 @@ discover_luas_button.pack(pady=15, padx=0, expand=False, fill = None)
 discover_luas_button.bind("<Enter>", discover_luas_hover)
 discover_luas_button.bind("<Leave>", discover_luas_normal)
 
-others_header = ctk.CTkLabel(master=settings_frame, text="▸ Other Settings ◂", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
+others_header = ctk.CTkLabel(master=settings_frame, text="▾ Other Settings ▾", text_color=WHITE, font=BIG_FONT, bg_color="transparent", fg_color="transparent")
 others_header.pack(pady=10, padx=0)
 
 other_settings_frame = ctk.CTkFrame(
@@ -1702,8 +1723,8 @@ folder_button.bind("<Enter>", folder_button_hover)
 folder_button.bind("<Leave>", folder_button_normal)
 
 
-def open_github_issues():
-    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.md")
+def open_github_bug():
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.yml")
 
 
 def report_bug_btn_hover(e):
@@ -1723,7 +1744,7 @@ report_bug_btn = ctk.CTkButton(
     master=other_settings_frame,
     text="Report a Bug",
     image=report_bug_white,
-    command=open_github_issues,
+    command=open_github_bug,
     fg_color=BG_COLOR_D,
     hover_color=BG_COLOR_D,
     text_color=WHITE,
@@ -1740,8 +1761,8 @@ report_bug_btn.bind("<Enter>", report_bug_btn_hover)
 report_bug_btn.bind("<Leave>", report_bug_btn_normal)
 
 
-def open_github_issues():
-    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.md")
+def open_github_feature():
+    webbrowser.open_new_tab("https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.yml")
 
 
 def request_feature_btn_hover(e):
@@ -1761,7 +1782,7 @@ request_feature_btn = ctk.CTkButton(
     master=other_settings_frame,
     text="Request a Feature",
     image=request_feature_white,
-    command=open_github_issues,
+    command=open_github_feature,
     fg_color=BG_COLOR_D,
     hover_color=BG_COLOR_D,
     text_color=WHITE,
@@ -1819,21 +1840,15 @@ update_response = ctk.CTkLabel(
 
 @atexit.register
 def on_exit():
+    os.remove("./ymu/cache.sqlite")  # remove cache - to prevent it getting larger (file size) over time
+    if os.path.isfile("./ymu/cache.sqlite"):
+        logger.error("Failed to delete temporary cache!\nThis should have no impact on YMU's usability though.")
+    else:
+        logger.info('Successfully deleted the temporary cache.')
     logger.info('Closing YMU...\n\nFarewell!\n')
 
+
 if __name__ == "__main__":
-
-    # v1.0.6 only - moving old dll-Folder and dll-File to ymu directory
-    if os.path.exists("dll"):
-        os.rename("dll", "ymu/dll")
-        if os.path.isfile("dll/YimMenu.dll"):
-            os.rename("dll/YimMenu.dll", "ymu/dll/YimMenu.dll")
-        else:
-            pass
-    else:
-        pass
-    # will be removed in v1.0.7 ↑
-
     Thread(target=check_lua_setting_on_startup, daemon=True).start()
     Thread(target=check_console_setting_on_startup, daemon=True).start()
     Thread(target=refresh_download_button, daemon=True).start()
