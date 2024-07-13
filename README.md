@@ -3,15 +3,17 @@
 
 
 >[!NOTE]
->**NEXT** in `v1.0.9` ↦ **TBA**
+> **NEXT** in `v1.10.0` ↦ **TBA**
 >
->**NEW** in `v1.0.8` ↦ ~~Fixed Rockstar Games Launcher option~~ (still not working 😠) + new Buttons in Settings-Tab for Troubleshooting
+> **NEW** in `v1.0.9` ↦ Log-System (Debugger) for better troubleshooting (PATH:ymu/ymu.log) + Caching for better performance added
 >
->**NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
+> **NEW** in `v1.0.8` ↦ ~~Fixed Rockstar Games Launcher option~~ (still not working 😠) + new Buttons in Settings-Tab for Troubleshooting
 >
->**NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
+> **NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
 >
->**NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
+> **NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
+>
+> **NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
 >
 > **NEW** in `v1.0.4` ↦ 	GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
 >
@@ -32,6 +34,8 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 > I am not liable or responsible for any direct or indirect consequences that may result from the use of YMU or YimMenu.
 
 # How it looks
+
+> Looks different(better) now but Im to lazy to add more Screenshots...
 
 <details>
 <summary><b>v1.0.3</b> ↴</summary>
