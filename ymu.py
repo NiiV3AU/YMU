@@ -3,7 +3,6 @@ import logging.handlers
 import os
 import platform
 import sys
-import requests_cache
 import win32gui
 from functools import cache
 from requests_cache import  install_cache
@@ -28,7 +27,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-LOCAL_VER  = "v1.0.9"
+LOCAL_VER  = "v1.1.0"
 userOS     = platform.system()
 userOSarch = platform.architecture()
 userOSrel  = platform.release()
@@ -708,25 +707,6 @@ def master_ani_start():
 
 root.after(1000, master_ani_start)
 
-# def tabview_border_ani():
-#     while True:
-#         sleep(0.2)
-#         tabview.configure(border_color=GREEN_D)
-#         sleep(0.2)
-#         tabview.configure(border_color="#3ea55d")
-#         sleep(0.2)        
-#         tabview.configure(border_color="#41bb66")
-#         sleep(0.2)
-#         tabview.configure(border_color="#43d26e")
-#         sleep(0.2)
-#         tabview.configure(border_color=GREEN)
-#         sleep(0.2)
-#         tabview.configure(border_color="#43d26e")
-#         sleep(0.2)
-#         tabview.configure(border_color="#41bb66")
-#         sleep(0.2)
-#         tabview.configure(border_color="#3ea55d")
-
 
 # Download and SHA256 tabs
 tabview = ctk.CTkTabview(
@@ -743,8 +723,6 @@ tabview = ctk.CTkTabview(
 )
 tabview.pack(pady=10, padx=10, expand=True, fill="both")
 
-
-# Thread(target=tabview_border_ani, daemon=True).start()
 def refresh_download_tab():
     if check_if_dll_is_downloaded() == "Download":
         tabview.add("Download")
@@ -1004,11 +982,11 @@ def get_launcher() -> str:
     global user_launcher
     user_launcher = launcherVar.get()
     if user_launcher == "Steam":
-        return 'cmd /c start steam://run/271590' # works perfectly
+        return 'steam://run/271590'
     elif user_launcher == "Rockstar Games":
         return "rgs"
     elif user_launcher == "Epic Games":
-        return 'cmd /c start com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true'
+        return 'com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true'
     else:
         return '_none'
     
@@ -1053,7 +1031,7 @@ def start_gta():
                 inject_progress_label.configure(text=f"Please wait while YMU attempts to launch your game through\n{user_launcher}...")
                 dummy_progress(injection_progressbar)
                 start_gta_button.configure(state='disabled')
-                subprocess.run(run_cmd)
+                webbrowser.open_new_tab(run_cmd)
                 sleep(3)
 
             reset_inject_progress_label(5)
@@ -1441,7 +1419,7 @@ def set_optionmenu():
 
 set_optionmenu()
 
-
+# lua stuff
 def check_lua_setting_on_startup():
     yimPath = f'{os.getenv('APPDATA')}\\yimmenu'
     yimSettings = f'{yimPath}\\settings.json'
@@ -1550,6 +1528,28 @@ lua_ar_switch.bind("<Leave>", lua_ar_switch_normal)
 luas_label = ctk.CTkLabel(master=lua_settings_frame, text="↘ Don't have any Luas? ↙", text_color=WHITE, font=SMALL_BOLD_FONT, bg_color="transparent", fg_color="transparent",)
 luas_label.pack(pady=0, padx=0, fill=None, expand=False)
 
+########################################## 
+##########################################
+# First thoughts on a lua toggle system in settings page
+
+# installed luas
+
+# def get_luas():
+#     lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scripts'
+#     if os.path.exists(lua_path):
+#         pass
+#     else:
+#         pass
+
+
+# def get_disabled_luas():
+#     disabled_lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scrtips\\disabled'
+#     if os.path.exists(disabled_lua_path):
+#         pass
+#     else:
+#         pass
+##########################################
+##########################################
 
 def open_luas():
     webbrowser.open_new_tab("https://github.com/orgs/YimMenu-Lua/repositories")
