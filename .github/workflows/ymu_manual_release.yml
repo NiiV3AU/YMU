@@ -108,17 +108,31 @@ jobs:
             let oldTag;
             if (tags.data.length === 0) {
               // No tags found, start with a default version
-              console.log('No existing tags found. Starting with version v1.0.1');
-              newVersion = 'v1.0.1';
+              console.log('No existing tags found. Starting with version v1.1.0');
+              newVersion = 'v1.1.0';
             } else {
               // Extract the latest tag name
               const latestTag = tags.data[0].name;
               const versionParts = latestTag.substring(1).split('.').map(Number);
-              versionParts[2] += 1; // Increment the patch version
+
+              if (versionParts[1] === 9 && versionParts[2] === 9) {
+                // If the version is at 1.9.9, reset to 2.0.0
+                versionParts[0] += 1;
+                versionParts[1] = 0;
+                versionParts[2] = 0;
+              } else if (versionParts[2] === 9) {
+                // If the patch version is 9, increment the minor version
+                versionParts[1] += 1;
+                versionParts[2] = 0;
+              } else {
+                // Increment the patch version
+                versionParts[2] += 1;
+              }
+
               newVersion = `v${versionParts.join('.')}`;
               oldTag = latestTag;
             }
-            core.setOutput("new_version", newVersion); 
+            core.setOutput("new_version", newVersion);
             core.setOutput("old_tag", oldTag);
         
       - name: Echo build_sha256
