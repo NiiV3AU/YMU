@@ -3,7 +3,7 @@
 
 
 >[!NOTE]
-> **NEXT** in `v1.2.0` ↦ **TBA**
+> **NEXT** in `v1.1.1` ↦ **TBA**
 >
 > **NEW** in `v1.1.0` ↦ A small bug fix
 >
