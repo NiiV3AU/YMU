@@ -3,9 +3,9 @@
 
 
 >[!NOTE]
-> **NEXT** in `v1.1.1` ↦ **TBA**
+> **NEXT** in `v1.1.2` ↦ **TBA**
 >
-> **NEW** in `v1.1.0` ↦ A small bug fix
+> **NEW** in `v1.1.0` & `v1.1.1` ↦ Small bug fixes
 >
 > **NEW** in `v1.0.9` ↦ Log-System (Debugger) for better troubleshooting (PATH:ymu/ymu.log) + Caching for better performance added
 >
