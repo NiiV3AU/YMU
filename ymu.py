@@ -977,7 +977,6 @@ download_button.bind("<Leave>", nohover_download_button)
 
 
 # Inject-Tab
-@cache
 def get_launcher() -> str:
     global user_launcher
     user_launcher = launcherVar.get()
@@ -990,7 +989,7 @@ def get_launcher() -> str:
     else:
         return '_none'
     
-@cache
+
 def get_rgl_path() -> str:
     regkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'SOFTWARE\\WOW6432Node\\Rockstar Games\\', 0, winreg.KEY_READ)
     try:
