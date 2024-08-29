@@ -1,9 +1,10 @@
 ![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
 > Initial version of Logo, possible change in future
 
-
 >[!NOTE]
-> **NEXT** in `v1.1.2` ↦ **TBA**
+> **NEXT** in `v1.1.3` ↦ **TBA**
+>
+> **NEW** in `v1.1.2` ↦ fixed progressbar freezing
 >
 > **NEW** in `v1.1.0` & `v1.1.1` ↦ Small bug fixes
 >
@@ -24,8 +25,6 @@
 > **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
 >
 > **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
-
-
 
 # How it Works
 When you start YMU you are greeted with a modern looking GUI that displays two tabs, Download/Update and Inject. You can download or update the dll in the Download/Update-Tab. The Inject-Tab provides a button to start GTA5 and one which injects the YimMenu. Also you find clickables labels in the Tabs that provides more information or even the Changelog of YimMenu.
