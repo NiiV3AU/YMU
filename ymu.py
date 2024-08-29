@@ -27,7 +27,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-LOCAL_VER  = "v1.1.1"
+LOCAL_VER  = "v1.1.2"
 userOS     = platform.system()
 userOSarch = platform.architecture()
 userOSrel  = platform.release()
@@ -485,7 +485,6 @@ def download_dll():
                     progress_prcnt_label.configure(
                         text=f"Progress: {int(progress*100)}%"
                     )
-                    progress_prcnt_label.update_idletasks()  # refresh widget
         # if download successful
         progress_prcnt_label.configure(
             text=f"{check_if_dll_is_downloaded()} successful", text_color=GREEN
