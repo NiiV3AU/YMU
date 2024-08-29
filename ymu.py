@@ -27,7 +27,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-LOCAL_VER  = "v1.1.0"
+LOCAL_VER  = "v1.1.1"
 userOS     = platform.system()
 userOSarch = platform.architecture()
 userOSrel  = platform.release()
