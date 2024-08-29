@@ -37,7 +37,13 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 
 # How it looks
 
-> Looks different(better) now but Im to lazy to add more Screenshots...
+<details>
+<summary><b>v1.0.9 - now</b> ↴</summary>
+  
+![grafik](https://github.com/user-attachments/assets/a8298b7d-ee3b-4314-a1f8-4a005c23f2f6)
+
+</details>
+
 
 <details>
 <summary><b>v1.0.3</b> ↴</summary>
@@ -164,7 +170,9 @@ The Project teached me new things as using threading for a more responsive gui, 
 ## Libraries
 | __Library__ | __pip command__ |                                                          
 | ------------- | ------------- |                                                          
-| [requests](https://pypi.org/project/requests/) | `pip install requests` |                  
+| [requests](https://pypi.org/project/requests/) | `pip install requests` |
+| [requests-cache](https://pypi.org/project/requests-cache/) | `pip install requests-cache` |
+| [win10toast](https://pypi.org/project/win10toast/) | `pip install win10toast` |
 | [customtkinter](https://pypi.org/project/customtkinter/) | `pip install customtkinter` |
 | [psutil](https://pypi.org/project/psutil/) | `pip install psutil` |
 | [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector` |
