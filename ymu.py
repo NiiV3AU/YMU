@@ -27,7 +27,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-LOCAL_VER  = "v1.1.2"
+LOCAL_VER  = "v1.1.3"
 userOS     = platform.system()
 userOSarch = platform.architecture()
 userOSrel  = platform.release()
@@ -80,7 +80,6 @@ import hashlib
 import json
 import psutil
 import requests
-import subprocess
 import webbrowser
 import winreg
 from bs4           import BeautifulSoup
@@ -251,7 +250,6 @@ def get_ymu_ver():
         sleep(5)
         ymu_update_message.set("")
         ymu_update_button.configure(state="normal")
-        update_response.pack_forget()
 
 
 def check_for_ymu_update():
@@ -264,8 +262,7 @@ def check_for_ymu_update():
             update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
             ymu_update_message.set(f"Update {YMU_VERSION} is available.")
             update_response.configure(text_color=GREEN)
-            ymu_update_button.configure(state="normal", text="Update YMU")
-            ymu_update_button.configure(command=start_update_thread)
+            ymu_update_button.configure(state="normal", text="Update YMU", command=start_update_thread)
             sleep(3)
 
         elif LOCAL_VER == YMU_VERSION:
@@ -284,8 +281,7 @@ def check_for_ymu_update():
                 "⚠️ Invalid version detected ⚠️\nPlease download YMU from\nthe official Github repository."
             )
             update_response.configure(text_color=RED)
-            ymu_update_button.configure(state="normal", text="Open Github")
-            ymu_update_button.configure(command=open_github_release)
+            ymu_update_button.configure(state="normal", text="Open Github", command=open_github_release)
             sleep(5)
 
     except Exception as e:
@@ -468,6 +464,7 @@ def download_dll():
     if not os.path.exists(DLLDIR):
         os.makedirs(DLLDIR)
     try:
+        temporary_file_status = check_if_dll_is_downloaded()
         with requests.get(DLLURL, stream=True) as r:
             r.raise_for_status()
             total_size = int(r.headers.get("content-length", 0))
@@ -486,8 +483,13 @@ def download_dll():
                         text=f"Progress: {int(progress*100)}%"
                     )
         # if download successful
-        progress_prcnt_label.configure(
-            text=f"{check_if_dll_is_downloaded()} successful", text_color=GREEN
+        if temporary_file_status == "Update":
+            progress_prcnt_label.configure(
+            text="Update successful", text_color=GREEN
+        )
+        elif temporary_file_status == "Download":
+            progress_prcnt_label.configure(
+            text="Download successful", text_color=GREEN
         )
         logger.info(f'Download finished. DLL location: {exeDir}{DLLDIR}')
         sleep(5)
@@ -855,7 +857,7 @@ def open_changelog(e):
     changelog.title("YimMenu Changelog")
     width_of_window = 640
     height_of_window = 640
-    changelog.minsize(400, 400)
+    changelog.minsize(640, 400)
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     x_coordinate = (screen_width / 2) - (width_of_window / 2)
@@ -897,8 +899,7 @@ def open_changelog(e):
         font=CODE_FONT,
         fg_color=BG_COLOR,
         text_color=WHITE,
-        justify="center",
-        wraplength=600,
+        justify="center"
     )
     changelog_label.configure(text=changelog_hmtl)
     changelog_label.pack(expand=True, fill="both", pady=0, padx=0)
@@ -1104,7 +1105,7 @@ def open_inject_info(e):
 
     startgta5_info_label = ctk.CTkLabel(
         master=s_i_tabview.tab("⭐ Start GTA 5"),
-        text='How-To:\n↦ Select your launcher\n↦ Press "Start GTA 5"',
+        text='How-To:\n↦ Select your launcher\n↦ Press "Start GTA 5"\n↪ Read next step ↗',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
@@ -1112,7 +1113,7 @@ def open_inject_info(e):
     startgta5_info_label.pack(pady=0, padx=0, expand=True, fill="both")    
     inject_info_label = ctk.CTkLabel(
         master=s_i_tabview.tab("Inject YimMenu.dll ⭐"),
-        text='How-To:\n↦ Launch the game.\n↦ Load into "Single Player"\n↦ Wait for the game to finish loading\n↦ CLick on "Inject YimMenu"\n↦ Wait for YimMenu to finish loading\n↦ Done! ✅',
+        text='How-To:\n\n↦ Load into "Single Player"\n↪ Wait for the game to finish loading\n↦ CLick on "Inject YimMenu"\n↪ Wait for YimMenu to finish loading\n↪ Done! ✅',
         font=CODE_FONT,
         justify="center",
         text_color=GREEN,
@@ -1523,8 +1524,7 @@ lua_ar_switch.pack(pady=15, padx=15, fill=None, expand=False)
 lua_ar_switch.bind("<Enter>", lua_ar_switch_hover)
 lua_ar_switch.bind("<Leave>", lua_ar_switch_normal)
 
-luas_label = ctk.CTkLabel(master=lua_settings_frame, text="↘ Don't have any Luas? ↙", text_color=WHITE, font=SMALL_BOLD_FONT, bg_color="transparent", fg_color="transparent",)
-luas_label.pack(pady=0, padx=0, fill=None, expand=False)
+
 
 ########################################## 
 ##########################################
@@ -1532,44 +1532,206 @@ luas_label.pack(pady=0, padx=0, fill=None, expand=False)
 
 # installed luas
 
-# def get_luas():
-#     lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scripts'
-#     if os.path.exists(lua_path):
-#         pass
-#     else:
-#         pass
+def get_luas():
+    lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scripts'
+    disabled_lua_path = f'{lua_path}\\disabled'
+    if not os.path.exists(lua_path):
+        pass
+    else:
+        # enabled
+        files = os.listdir(lua_path)
+        lua_files = [file for file in files if file.endswith('.lua')]
+        stripped_lua_files = [os.path.splitext(file)[0] for file in lua_files]
+        lua_count = len(lua_files)
+
+        # disabled
+        dfiles = os.listdir(disabled_lua_path)
+        dlua_files = [file for file in dfiles if file.endswith('.lua')]
+        stripped_dlua_files = [os.path.splitext(file)[0] for file in dlua_files]
+        dlua_count = len(dlua_files)
+
+        # list → string    
+        lua_files_string = "\n".join(stripped_lua_files)
+        dlua_files_string = "\n".join(stripped_dlua_files)
+        return lua_count, lua_files_string, dlua_count, dlua_files_string
 
 
-# def get_disabled_luas():
-#     disabled_lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scrtips\\disabled'
-#     if os.path.exists(disabled_lua_path):
-#         pass
-#     else:
-#         pass
-##########################################
-##########################################
+def lm_enter(e):
+    lua_manage_frame.configure(border_width=1)
+    lua_info_label.configure(font=SMALL_BOLD_FONT_U)
+    lua_list.configure(text_color=GREEN)
+    dlua_list.configure(text_color=YELLOW)
+
+def lm_leave(e):
+    lua_manage_frame.configure(border_width=0)
+    lua_info_label.configure(font=SMALL_BOLD_FONT)
+    lua_list.configure(text_color=WHITE)
+    dlua_list.configure(text_color=WHITE)
+
+def open_lua_folder(e):
+    lua_path = f'{os.getenv('APPDATA')}\\yimmenu\\scripts'
+    if not os.path.exists(lua_path):
+        pass
+    else:
+        os.system(f"explorer.exe {lua_path}")
+
+lua_manage_frame = ctk.CTkFrame(
+        master=lua_settings_frame,
+        corner_radius=10,
+        fg_color=BG_COLOR,
+        border_width=0, border_color=GREEN_B
+    )
+lua_manage_frame.pack(pady=0, padx=25, expand=True, fill="x")
+lua_manage_frame.bind("<Enter>",lm_enter)
+lua_manage_frame.bind("<Leave>",lm_leave)
+
+lua_info_label = ctk.CTkLabel(master=lua_manage_frame, text="You have x Luas installed:", font=SMALL_BOLD_FONT, text_color=WHITE)
+lua_info_label.pack(pady=2.5, padx=5, expand=False,fill=None)
+lua_info_label.bind("<Enter>",lm_enter)
+lua_info_label.bind("<Leave>",lm_leave)
+
+lua_list = ctk.CTkLabel(master=lua_manage_frame, text="",font=CODE_FONT_SMALL, text_color=WHITE, cursor="hand2")
+lua_list.pack(pady=2.5,padx=10, expand=False, fill=None)
+lua_list.bind("<Enter>",lm_enter)
+lua_list.bind("<Leave>",lm_leave)
+lua_list.bind("<ButtonRelease>", open_lua_folder)
+
+dlua_list = ctk.CTkLabel(master=lua_manage_frame, text="",font=CODE_FONT_SMALL, text_color=WHITE, cursor="hand2")
+dlua_list.pack(pady=0,padx=10, expand=False, fill=None)
+dlua_list.bind("<Enter>",lm_enter)
+dlua_list.bind("<Leave>",lm_leave)
+dlua_list.bind("<ButtonRelease>", open_lua_folder)
+
+def refresh_luas():
+    active_count, active_names,inactive_count,inactive_names = get_luas()
+    all_count = active_count + inactive_count
+    lua_info_label.configure(text=f"You have {all_count} Luas installed:")
+    lua_list.configure(text=f"{active_names}")
+    if len(inactive_names) > 0:
+        dlua_list.configure(text=f"{inactive_names}")
+    else:
+        dlua_list.configure(text="No Luas are disabled,\nhave fun!")
+
+
+def refresh_luas_thread():
+    Thread(target=refresh_luas,daemon=True).start()
+
+
+def rll_enter(e):
+    refresh_lua_list_button.configure(text_color=GREEN, fg_color=GREEN_B)
+    lua_manage_frame.configure(border_color=GREEN_D, border_width=1)
+    tabview.configure(border_color=GREEN)
+
+def rll_leave(e):
+    refresh_lua_list_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
+    lua_manage_frame.configure(border_color=GREEN_B,border_width=1)
+    tabview.configure(border_color=GREEN_D)
+
+refresh_lua_list_button = ctk.CTkButton(master=lua_manage_frame, fg_color=GREEN, text="Refresh ↻", font=SMALL_BOLD_FONT, text_color=BG_COLOR_D, bg_color="transparent", corner_radius=8, hover_color=GREEN_B, width=80, command=refresh_luas_thread)
+refresh_lua_list_button.pack(pady=10,padx=5,expand=False, fill=None)
+refresh_lua_list_button.bind("<Enter>",rll_enter)
+refresh_lua_list_button.bind("<Leave>",rll_leave)
+refresh_lua_list_button.bind("<Enter>",lm_enter)
+refresh_lua_list_button.bind("<Leave>",lm_leave)
+
+
+def open_lua_info(e):
+    lua_info = ctk.CTkToplevel(fg_color=BG_COLOR_D)
+    lua_info.title("Lua Settings Info")
+    lua_info.minsize(300, 220)
+    lua_info.resizable(False, False)
+    width_of_window = 300
+    height_of_window = 220
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    x_coordinate = (screen_width / 2) - (width_of_window / 2)
+    y_coordinate = (screen_height / 2) - (height_of_window / 2)
+    lua_info.geometry(
+        "%dx%d+%d+%d" % (width_of_window, height_of_window, x_coordinate, y_coordinate)
+    )
+
+    def di_frame_hover(e):
+        lua_info_frame.configure(border_color=GREEN)
+
+    def di_frame_normal(e):
+        lua_info_frame.configure(border_color=GREEN_D)
+
+    lua_info_frame = ctk.CTkFrame(master=lua_info, fg_color=BG_COLOR, border_width=1, border_color=GREEN_D)
+    lua_info_frame.pack(pady=10,padx=10, expand=True, fill="both")
+    lua_info_label = ctk.CTkLabel(
+        master=lua_info_frame,
+        text=f'⭐ Lua Scripts ⭐\n\n↦ Click any Lua in the list\nto open the directory!\n\n↦ Enabled Luas are green\nand disabled are yellow.\n\n↦ If you dont have any you can\nclick on "Discover Luas ↗" below!',
+        font=CODE_FONT,
+        justify="center",
+        text_color=GREEN,
+    )
+    lua_info_label.pack(pady=10, padx=10, expand=True, fill="both")
+    lua_info.bind("<Enter>", di_frame_hover)
+    lua_info.bind("<Leave>", di_frame_normal)
+    lua_info.attributes("-topmost", "true")
+
+
+def hover_lua_mi(e):
+    lua_more_info_label.configure(
+        text="Click here for more info",
+        cursor="hand2",
+        text_color=GREEN,
+        font=CODE_FONT_U,
+    )
+    tabview.configure(border_color=GREEN)
+
+
+def normal_lua_mi(e):
+    lua_more_info_label.configure(
+        text="↣ Click here for more info ↢",
+        cursor="arrow",
+        text_color=WHITE,
+        font=CODE_FONT,
+    )
+    tabview.configure(border_color=GREEN_D)
+
+
+lua_more_info_label = ctk.CTkLabel(
+    master=lua_manage_frame,
+    text="↣ Click here for more info ↢",
+    justify="center",
+    font=CODE_FONT,
+)
+lua_more_info_label.pack(pady=10, padx=10, expand=False, fill=None)
+
+
+lua_more_info_label.bind("<ButtonRelease>", open_lua_info)
+lua_more_info_label.bind("<Enter>", hover_lua_mi)
+lua_more_info_label.bind("<Leave>", normal_lua_mi)
+lua_more_info_label.bind("<Enter>",lm_enter)
+lua_more_info_label.bind("<Leave>",lm_leave)
+
+
 
 def open_luas():
     webbrowser.open_new_tab("https://github.com/orgs/YimMenu-Lua/repositories")
 
 
+luas_label = ctk.CTkLabel(master=lua_settings_frame, text="\n↘ Don't have any Luas or want more? ↙", text_color=WHITE, font=SMALL_BOLD_FONT, bg_color="transparent", fg_color="transparent",)    
+luas_label.pack(pady=0, padx=0, fill=None, expand=False)
+
 def discover_luas_hover(e):
     discover_luas_button.configure(text_color=GREEN, fg_color=GREEN_B)
-    luas_label.configure(font=SMALL_BOLD_FONT_U, text="Don't have any Luas?")
+    luas_label.configure(font=SMALL_BOLD_FONT_U, text="\nDon't have any Luas or want more?")
     lua_settings_frame.configure(border_width=1)
     tabview.configure(border_color=GREEN)
 
 
 def discover_luas_normal(e):
     discover_luas_button.configure(text_color=BG_COLOR_D, fg_color=GREEN)
-    luas_label.configure(font=SMALL_BOLD_FONT, text="↘ Don't have any Luas? ↙")
+    luas_label.configure(font=SMALL_BOLD_FONT, text="\n↘ Don't have any Luas or want more? ↙")
     lua_settings_frame.configure(border_width=0)
     tabview.configure(border_color=GREEN_D)
 
 
 discover_luas_button = ctk.CTkButton(master=lua_settings_frame, fg_color=GREEN, text="Discover Luas ↗", font=SMALL_BOLD_FONT, text_color=BG_COLOR_D, bg_color="transparent", corner_radius=8, hover_color=GREEN_B, command=open_luas)
 
-discover_luas_button.pack(pady=15, padx=0, expand=False, fill = None)
+discover_luas_button.pack(pady=15, padx=0, expand=False, fill = None, side="bottom")
 
 discover_luas_button.bind("<Enter>", discover_luas_hover)
 discover_luas_button.bind("<Leave>", discover_luas_normal)
@@ -1820,7 +1982,7 @@ ymu_update_button = ctk.CTkButton(
     corner_radius=8,
 )
 ymu_update_button.pack(
-    pady=15,
+    pady=10,
     padx=0,
     expand=False,
     fill=None,
@@ -1834,6 +1996,7 @@ update_response = ctk.CTkLabel(
     textvariable=ymu_update_message,
     text_color=WHITE, font=CODE_FONT_SMALL
 )
+update_response.pack(pady=5, padx=0, expand=False, fill=None, anchor="s")
 
 
 @atexit.register
@@ -1850,6 +2013,7 @@ if __name__ == "__main__":
     Thread(target=check_lua_setting_on_startup, daemon=True).start()
     Thread(target=check_console_setting_on_startup, daemon=True).start()
     Thread(target=refresh_download_button, daemon=True).start()
+    refresh_luas_thread()
     if getattr(sys, 'frozen', False):
         pyi_splash.close()
     root.mainloop()
