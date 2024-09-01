@@ -2,7 +2,9 @@
 > Initial version of Logo, possible change in future
 
 >[!NOTE]
-> **NEXT** in `v1.1.3` ↦ **TBA**
+> **NEXT** in `v1.1.4` ↦ **TBA**
+>
+> **NEXT** in `v1.1.3` ↦ New Lua list in Settings-Tab
 >
 > **NEW** in `v1.1.2` ↦ fixed progressbar freezing
 >
