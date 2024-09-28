@@ -27,7 +27,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-LOCAL_VER  = "v1.1.3"
+LOCAL_VER  = "v1.1.4"
 userOS     = platform.system()
 userOSarch = platform.architecture()
 userOSrel  = platform.release()
@@ -366,9 +366,8 @@ def get_remote_sha256():
         logger.info('Checking the latest YimMenu release on "https://github.com/YimMenu/YimMenu/releases/latest"')
         r = requests.get("https://github.com/YimMenu/YimMenu/releases/latest")
         soup = BeautifulSoup(r.content, "html.parser")
-        list = soup.find(class_="notranslate")
-        l = list("code")
-        s = str(l)
+        lst = soup.find(class_="notranslate")
+        s = str(lst)
         tag = s.replace("[<code>", "")
         sep = " "
         head, sep, _ = tag.partition(sep)
