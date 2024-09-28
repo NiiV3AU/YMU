@@ -1,6 +1,12 @@
 ![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
 > Initial version of Logo, possible change in future
 
+>[!IMPORTANT]
+>**YimMenu** got **DMCA** striked as it seems. Since YMU depends on the GitHub Repo you **can't download/update anymore** aswell as opening the Changelog. But you can still use the Inject-feature if the `.dll` is called `YimMenu.dll`.
+>
+> `Sorry for the confusion I noticed it too late (I thought YMU was the problem so I updated it 💀)`
+
+
 >[!NOTE]
 > **NEXT** in `v1.1.5` ↦ **TBA**
 >
