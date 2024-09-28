@@ -2,7 +2,7 @@
 > Initial version of Logo, possible change in future
 
 >[!IMPORTANT]
->**YimMenu** got **DMCA** striked as it seems. Since YMU depends on the GitHub Repo you **can't download/update anymore** aswell as opening the Changelog. But you can still use the Inject-feature if the `.dll` is called `YimMenu.dll`.
+>**YimMenu** got **DMCA** striked as it seems. Since YMU depends on the GitHub Repo the project will be on hold.
 >
 > `Sorry for the confusion I noticed it too late (I thought YMU was the problem so I updated it 💀)`
 
