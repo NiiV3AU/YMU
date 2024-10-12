@@ -1,16 +1,10 @@
 ![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
 > Initial version of Logo, possible change in future
 
->[!IMPORTANT]
->**YimMenu** got **DMCA** striked as it seems. Since YMU depends on the GitHub Repo the project will be on hold.
->
-> `Sorry for the confusion I noticed it too late (I thought YMU was the problem so I updated it 💀)`
-
-
 >[!NOTE]
 > **NEXT** in `v1.1.5` ↦ **TBA**
 >
-> **NEW** in `v1.1.4` ↦ small bug fix
+> **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
 >
 > **NEW** in `v1.1.3` ↦ New Lua list in Settings-Tab
 >
