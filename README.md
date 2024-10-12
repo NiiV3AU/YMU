@@ -1,6 +1,10 @@
 ![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
 > Initial version of Logo, possible change in future
 
+
+>[!IMPORTANT]
+> **Show your support by clicking the ⭐ in the top right corner. Thanks <3!**
+
 >[!NOTE]
 > **NEXT** in `v1.1.5` ↦ **TBA**
 >
