@@ -6,6 +6,8 @@
 > **Show your support by clicking the ⭐ in the top right corner. Thanks <3!**
 
 >[!NOTE]
+>![](https://badgen.net/github/assets-dl/NiiV3AU/YMU?label=Download%20Count%20(latest%20release)%3A&labelColor=black&color=black&cache=300)
+>
 > **NEXT** in `v1.1.5` ↦ **TBA**
 >
 > **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
@@ -164,7 +166,7 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 - Download, update and inject all in one place.
 
 
-# Why then, you ask?
+# Why, you ask?
 The Project teached me new things as using threading for a more responsive gui, downloading files in python and improved my overall python skills. I also uploaded the project on GitHub to get some feedback on my code, so I would appreciate it if you would take your time reviewing my code on flaws etc.
 
 
