@@ -6,9 +6,7 @@
 > **Show your support by clicking the ⭐ in the top right corner. Thanks <3!**
 
 >[!NOTE]
->![](https://badgen.net/github/assets-dl/NiiV3AU/YMU?label=Download%20Count%20(latest%20release)%3A&labelColor=black&color=black&cache=300)
->
-> **NEXT** in `v1.1.5` ↦ **TBA**
+>![](https://badgen.net/github/assets-dl/NiiV3AU/YMU?label=Download%20Count%3A&labelColor=black&color=black&cache=300)
 >
 > **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
 >
