@@ -1,61 +1,55 @@
-![Design ohne Titel](https://github.com/NiiV3AU/YMU/assets/86131759/8ac8a59c-3ac4-4417-b0ee-164293c97e16)
-> Initial version of Logo, possible change in future
-
-
 >[!IMPORTANT]
 > **Show your support by clicking the ⭐ in the top right corner. Thanks <3!**
 
->[!NOTE]
->
-> **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
->
-> **NEW** in `v1.1.3` ↦ New Lua list in Settings-Tab
->
-> **NEW** in `v1.1.2` ↦ fixed progressbar freezing
->
-> **NEW** in `v1.1.0` & `v1.1.1` ↦ Small bug fixes
->
-> **NEW** in `v1.0.9` ↦ Log-System (Debugger) for better troubleshooting (PATH:ymu/ymu.log) + Caching for better performance added
->
-> **NEW** in `v1.0.8` ↦ ~~Fixed Rockstar Games Launcher option~~ (still not working 😠) + new Buttons in Settings-Tab for Troubleshooting
->
-> **NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
->
-> **NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
->
-> **NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
->
-> **NEW** in `v1.0.4` ↦ 	GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
->
-> **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
->
-> **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
->
-> **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
+# YimMenuUpdater (YMU)
 
-# How it Works
-When you start YMU you are greeted with a modern looking GUI that displays two tabs, Download/Update and Inject. You can download or update the dll in the Download/Update-Tab. The Inject-Tab provides a button to start GTA5 and one which injects the YimMenu. Also you find clickables labels in the Tabs that provides more information or even the Changelog of YimMenu.
->[!WARNING]
-> Use this project for educational purposes only and use it at your own risk.
 
->[!CAUTION]
-> I am not liable or responsible for any direct or indirect consequences that may result from the use of YMU or YimMenu.
+[YMU](https://ymu.pages.dev) is a modern, all-in-one launchpad for YimMenu. It handles downloading, updating, and injecting the latest DLLs with a clean and intuitive user interface. Built from the ground up with a professional architecture, YMU ensures a stable and responsive experience.
 
-# How it looks
+---
+
+## Features
+* **Automated DLL Management:** Download and update the latest versions of YimMenu (Legacy & Enhanced) with a single click.
+* **Smart Updates:** The app automatically checks for new DLL versions on startup and informs you with a notification.
+* **Lua Script Manager:** Easily enable and disable your favorite Lua scripts through a simple drag-and-drop-style interface.
+* **Integrated Game Launcher:** Start GTA V directly from the app via your preferred launcher (Steam, Epic, Rockstar) and inject the menu post-launch.
+* **Modern UI/UX:** A sleek, responsive interface with both light and dark themes, built with PySide6.
+
+---
+## Installation
+Get the latest release directly from the downloads page:
+
+| [Download YMU.exe (Latest Release)](https://github.com/NiiV3AU/YMU/releases/latest) |
+| :-: |
+
+---
+## Screenshots & Changelog
+<details>
+<summary><b>Screenshots</b></summary>
 
 <details>
-<summary><b>v1.0.9 - now</b> ↴</summary>
-  
+<summary><b>v1.1.5</b> ↴</summary>
+View on Website: https://ymu.pages.dev/
+</details>
+
+<details>
+
+<summary><b>v1.0.9</b> ↴</summary>
+
+
 ![grafik](https://github.com/user-attachments/assets/a8298b7d-ee3b-4314-a1f8-4a005c23f2f6)
+
 
 </details>
 
-
 <details>
+
 <summary><b>v1.0.3</b> ↴</summary>
 
 <details>
+
 <summary><b>Download/Update</b>-Tab ↴</summary>
+
 
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/5cf46352-0bdb-442f-b1fa-951d3ba1d35b)
 
@@ -63,138 +57,197 @@ When you start YMU you are greeted with a modern looking GUI that displays two t
 </details>
 
 <details>
+
 <summary><b>Inject</b>-Tab ↴</summary>
+
 
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/f717a2b8-b9c6-4225-ad05-b9d3ff1204e3)
 
+
 </details>
 
 <details>
+
 <summary><b>Settings</b>-Tab ↴</summary>
+
 
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/07c4c61d-41a2-47f7-9256-f81337b8512d)
 
+
 </details>
 
 </details>
+
 
 
 
 <details>
+
 <summary><b>v1.0.2</b> ↴</summary>
 
+
 <details>
+
 <summary><b>Download/Update</b>-Tab ↴</summary>
+
 
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/2f138a6a-21be-4cde-9a10-4057b186302b)
 
 
+
 </details>
+
 <details>
+
 <summary><b>Inject</b>-Tab ↴</summary>
+
   
+
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/5b4b05f5-90c7-42d4-9c58-791a71b48cdb)
 
-</details>
 
 </details>
+
+
+</details>
+
 
 
 <details>
+
 <summary><b>v1.0.1</b> ↴</summary>
 
+
 <details>
+
 <summary><b>Download</b>-Tab ↴</summary>
 
+
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/b14342a3-af81-4da0-b863-df2e264bce5f)
+
 </details>
+
 <details>
+
 <summary><b>Update</b>-Tab ↴</summary>
 
+
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/86a307f0-8b8f-4b8a-931d-fa855a70c365)
+
 </details>
+
 <details>
+
 <summary><b>SHA256</b>-Tab ↴</summary>
+
 
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/60834c8d-1c4e-42e6-90a5-062c0e8f9546)
+
 </details>
+
 <details>
+
 <summary><b>Inject</b>-Tab ↴</summary>
 
+
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/b16bedc6-ca12-4d0e-9c96-ec9e73f1c978)
-</details>
 
 </details>
+
+
+</details>
+
 
 <details>
+
 <summary><b>v1.0.0</b> ↴</summary>
 
+
 <details>
+
 <summary><b>Download/Update</b>-Tab ↴</summary>
 
+
 ![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/6d1635a2-0596-445d-bcad-752cf6c0f904)
+
+</details>
+
+
+<details>
+
+<summary><b>SHA256</b>-Tab ↴</summary>
+
+
+![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/e98c1a92-0bff-45d2-a2a2-218fa32fa416)
+
+</details>
+
+
+</details> 
+
 </details>
 
 <details>
-<summary><b>SHA256</b>-Tab ↴</summary>
+<summary><b>Full Changelog</b></summary>
 
-![grafik](https://github.com/NiiV3AU/YMU/assets/86131759/e98c1a92-0bff-45d2-a2a2-218fa32fa416)
+- **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
+- **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
+- **NEW** in `v1.1.3` ↦ New Lua list in Settings-Tab
+- **NEW** in `v1.1.2` ↦ fixed progressbar freezing
+- **NEW** in `v1.1.0` & `v1.1.1` ↦ Small bug fixes
+- **NEW** in `v1.0.9` ↦ Log-System (Debugger) for better troubleshooting (PATH:ymu/ymu.log) + Caching for better performance added
+- **NEW** in `v1.0.8` ↦ New Buttons in Settings-Tab for Troubleshooting
+- **NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5 
+- **NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
+- **NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
+- **NEW** in `v1.0.4` ↦ GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
+- **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
+- **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
+- **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab 
+
 </details>
 
-</details>
+---
+## Building from Source
 
->What you can't see here is the animation of the top text (link to rep, author, version).
+<details>
+<summary><b>Click to expand instructions for developers</b></summary>
+  
+### First things first - get the source.
 
-
-# How to Use
-### Install the newest release here:
-
-| [Download YMU.exe](https://github.com/NiiV3AU/YMU/releases/latest) |
-| ------------- |
-
-
-### Or simply run the Python File if you have all Requirements and Dependecies installed:
-| [Download Source Code](https://github.com/NiiV3AU/YMU/archive/refs/heads/main.zip) | [Check Requirements and Dependencies](https://github.com/NiiV3AU/YMU?tab=readme-ov-file#requirements-and-dependencies) |
-| ------------- | ------------- |
+| [Download Source Code](https://github.com/NiiV3AU/YMU/archive/refs/heads/main.zip) |
+| :---: |
 
 
-# Use Cases
-- You no longer have to worry about missing updates. When you run the program, it checks if there's a new release and notifies you.
-- Download, update and inject all in one place.
+### Requirements and Dependencies
+| Programming Language: | [Python](https://python.org) |
+| :--- | :--- |
+>I'm using Python `3.12.10` while coding YMU
 
-
-# Why, you ask?
-The Project teached me new things as using threading for a more responsive gui, downloading files in python and improved my overall python skills. I also uploaded the project on GitHub to get some feedback on my code, so I would appreciate it if you would take your time reviewing my code on flaws etc.
-
-
-# Requirements and Dependencies
-| __Programming Language:__ | [Python](https://python.org) |
-| ------------- | ------------- |
->[!TIP]
->I'm using Python `3.12.2` while coding YMU
-
-## Libraries
-| __Library__ | __pip command__ |                                                          
-| ------------- | ------------- |                                                          
+#### Libraries
+| Library | pip command |
+| :--- | :--- |
+| Install all Libraries | `pip install -r requirements.txt` |
+| [PySide6](https://pypi.org/project/PySide6/) | `pip install pyside6` |
 | [requests](https://pypi.org/project/requests/) | `pip install requests` |
-| [requests-cache](https://pypi.org/project/requests-cache/) | `pip install requests-cache` |
-| [win10toast](https://pypi.org/project/win10toast/) | `pip install win10toast` |
-| [customtkinter](https://pypi.org/project/customtkinter/) | `pip install customtkinter` |
 | [psutil](https://pypi.org/project/psutil/) | `pip install psutil` |
 | [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector` |
-| [BeautifulSoup4](https://pypi.org/project/beautifulsoup4/) | `pip install bs4` |
-| [Pillow](https://pypi.org/project/pillow/) | `pip install pillow` |
+| [pywin32](https://pypi.org/project/pywin32/) | `pip install pywin32` |
+| [packaging](https://pypi.org/project/packaging/) | `pip install packaging` |
+</details>
 
-# Credits
+---
+## Disclaimer
+>[!WARNING]
+> Use this project for educational purposes only and use it at your own risk.
 
-| __Contributers:__ | [__@xesdoog__](https://github.com/xesdoog) |
-| ------------- | ------------- |
+>[!CAUTION]
+> I am not liable or responsible for any direct or indirect consequences that may result from the use of YMU or YimMenu.
 
-| __Menu:__ | [YimMenu](https://yim.gta.menu/) |
-| ------------- | ------------- |
-
-| __Logo:__ | [Made with Canva](https://www.canva.com) |
-| ------------- | ------------- |
-
-| __Fonts:__ | [Manrope](https://fonts.google.com/specimen/Manrope) | [JetBrains Mono](https://www.jetbrains.com/lp/mono/) |
-| ------------- | ------------- | ------------- |
+---
+## Credits
+| **Contributers** | [__@xesdoog__](https://github.com/xesdoog) |
+| :--- | :--- |
+| **Menu** | [YimMenu](https://yim.gta.menu/) |
+| **Logo** | [Made with Figma](https://figma.com) |
+| **Fonts** | [Manrope](https://fonts.google.com/specimen/Manrope) & [JetBrains Mono](https://www.jetbrains.com/lp/mono/) |
