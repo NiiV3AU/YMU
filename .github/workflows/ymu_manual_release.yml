@@ -1,4 +1,5 @@
-# This workflow will install Python dependencies, run tests, build an executable then upload it to github releases.
+# This workflow will install Python dependencies, build an executable,
+# generate a checksum, and then create a new GitHub Release with the artifacts.
 
 name: YMU Manual Release
 
@@ -8,15 +9,17 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    name: Build YMU
+    name: Build YMU on Windows
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python 3.12
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12.10
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.12.10"
 
       - name: Install dependencies
         run: |
@@ -26,134 +29,103 @@ jobs:
 
       - name: Verify With Flake8
         run: |
-          # stop the build if there are Python syntax errors or undefined names
+          # Stop the build if there are critical Python syntax errors
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          # Check for other issues but don't stop the build
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Build Executable
         run: |
           pyinstaller "gui.py" --noconfirm --onefile --windowed --noconsole --name "YMU" --icon "./assets/icons/ymu.ico" --add-data "./assets;assets" --collect-submodules "theme_manager" --version-file "./version.txt"
 
+      - name: Generate Checksum for Executable
+        run: |
+          # Use the native Windows command to generate the SHA256 checksum
+          certutil -hashfile dist\YMU.exe SHA256 > dist\YMU.exe.sha256
+          # Optional: Display the checksum in the logs
+          cat dist\YMU.exe.sha256
+      
       - name: Generate Build Info
         id: var
         run: |
           echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
           echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
 
-      - name: Upload Artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: binary
+          name: ymu-build-artifacts
           path: |
-            dist\ymu.exe
+            dist/YMU.exe
+            dist/YMU.exe.sha256
 
-  create_release:
+  publish_release:
     runs-on: ubuntu-latest
-    name: Delete Old Release
+    name: Create GitHub Release
     needs: build
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Delete Old Release
-        id: delete_ex_release
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-
-            // List all releases
-            const releases = await github.rest.repos.listReleases({
-              owner: owner,
-              repo: repo,
-            });
-
-            // Iterate over each release and delete it
-            for (const release of releases.data) {
-              await github.rest.repos.deleteRelease({
-                owner: owner,
-                repo: repo,
-                release_id: release.id,
-              });
-              console.log(`Deleted release with ID ${release.id}`);
-            }
-
-            // List all tags
-            const tags = await github.rest.repos.listTags({
-              owner: owner,
-              repo: repo,
-            });
-
-      - name: Download Artifact
+      - name: Download Artifacts
         uses: actions/download-artifact@v4
         with:
-          name: binary
+          name: ymu-build-artifacts
 
       - name: Increment Version
         id: increment_version
         uses: actions/github-script@v7
         with:
           script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            // Get the latest tag
-            const tags = await github.rest.repos.listTags({
-              owner: owner,
-              repo: repo,
-            });
+            const { owner, repo } = context.repo;
+            const tags = await github.rest.repos.listTags({ owner, repo });
             let newVersion;
-            let oldTag;
             if (tags.data.length === 0) {
-              // No tags found, start with a default version
-              console.log('No existing tags found. Starting with version v1.1.0');
-              newVersion = 'v1.1.0';
+              console.log('No existing tags found. Starting with version v1.1.5');
+              newVersion = 'v1.1.5';
             } else {
-              // Extract the latest tag name
               const latestTag = tags.data[0].name;
               const versionParts = latestTag.substring(1).split('.').map(Number);
-
               if (versionParts[1] === 9 && versionParts[2] === 9) {
-                // If the version is at 1.9.9, reset to 2.0.0
                 versionParts[0] += 1;
                 versionParts[1] = 0;
                 versionParts[2] = 0;
               } else if (versionParts[2] === 9) {
-                // If the patch version is 9, increment the minor version
                 versionParts[1] += 1;
                 versionParts[2] = 0;
               } else {
-                // Increment the patch version
                 versionParts[2] += 1;
               }
-
               newVersion = `v${versionParts.join('.')}`;
-              oldTag = latestTag;
             }
             core.setOutput("new_version", newVersion);
-            core.setOutput("old_tag", oldTag);
 
-      - name: Echo build_sha256
-        id: build_sha
+      - name: Read Checksum File
+        id: read_sha
         run: |
-          sha256sum ymu.exe > sha256.checksum
-          echo "build_sha=$(cat sha256.checksum)" >> $GITHUB_OUTPUT
-          cat sha256.checksum
-
-      - name: Upload Release
+          # Read the checksum content and remove extra lines/text from certutil's output
+          sha_content=$(grep -v "SHA256" YMU.exe.sha256 | grep -v "CertUtil")
+          echo "build_sha=${sha_content}" >> $GITHUB_OUTPUT
+          echo "Checksum content: ${sha_content}"
+          
+      - name: Create and Upload Release
         uses: softprops/action-gh-release@v2
         with:
           name: YMU ${{ steps.increment_version.outputs.new_version }}
           tag_name: ${{ steps.increment_version.outputs.new_version }}
-          body:
-            | # here you can put whatever you want to display in the release page
+          body: |
             ### Changelog:
-            * blah blah
+            * ...
 
+            ---
+            ### SHA256 Checksum:
+            `${{ steps.read_sha.outputs.build_sha }}`
+
+            ---
             >[!NOTE]
             >**This release was built by Github Actions**
             >| [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
-            >| ------------- |
-
+            >| --- |
           files: |
-            ymu.exe
+            YMU.exe
+            YMU.exe.sha256
