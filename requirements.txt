@@ -1,8 +1,6 @@
+PySide6
+pywin32
 psutil
-customtkinter
-requests
-requests_cache
 pyinjector
-bs4
-pillow
-win10toast
+requests
+packaging

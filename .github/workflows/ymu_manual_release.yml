@@ -2,53 +2,51 @@
 
 name: YMU Manual Release
 
-on: 
+on:
   workflow_dispatch:
 
-
 jobs:
-
   build:
     runs-on: windows-latest
     name: Build YMU
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python 3.12
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.12"
+      - uses: actions/checkout@v4
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pyinstaller
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 pyinstaller
+          pip install -r requirements.txt
 
-    - name: Verify With Flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Verify With Flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
-    - name: Build Executable
-      run: |
-        pyinstaller "ymu.py" --noconfirm --onefile --windowed --noconsole --icon "./assets/icon/ymu.ico" --splash "./assets/splash.png" --add-data "./assets/;assets/" --version-file "./version.txt"
+      - name: Build Executable
+        run: |
+          pyinstaller "gui.py" --noconfirm --onefile --windowed --noconsole --name "YMU" --icon "./assets/icons/ymu.ico" --add-data "./assets;assets" --collect-submodules "theme_manager" --version-file "./version.txt"
 
-    - name: Generate Build Info
-      id: var
-      run: |
-        echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
-        echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
-    
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: binary
-        path: |
-          dist\ymu.exe
+      - name: Generate Build Info
+        id: var
+        run: |
+          echo "full_sha=$(git rev-parse HEAD)" >> $env:GITHUB_OUTPUT
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary
+          path: |
+            dist\ymu.exe
 
   create_release:
     runs-on: ubuntu-latest
@@ -64,7 +62,7 @@ jobs:
           script: |
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-      
+
             // List all releases
             const releases = await github.rest.repos.listReleases({
               owner: owner,
@@ -134,7 +132,7 @@ jobs:
             }
             core.setOutput("new_version", newVersion);
             core.setOutput("old_tag", oldTag);
-        
+
       - name: Echo build_sha256
         id: build_sha
         run: |
@@ -147,15 +145,15 @@ jobs:
         with:
           name: YMU ${{ steps.increment_version.outputs.new_version }}
           tag_name: ${{ steps.increment_version.outputs.new_version }}
-          body: | # here you can put whatever you want to display in the release page
-              ### Changelog:
-              * blah blah
-              
-              >[!NOTE]
-              >**This release was built by Github Actions**
-              >| [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
-              >| ------------- |
-              
+          body:
+            | # here you can put whatever you want to display in the release page
+            ### Changelog:
+            * blah blah
+
+            >[!NOTE]
+            >**This release was built by Github Actions**
+            >| [Link to build](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) |
+            >| ------------- |
 
           files: |
             ymu.exe
