@@ -27,13 +27,12 @@ body:
       label: Log
       description: |
         For a bug report to be valid, you need to include the log for YMU.
-        The log can be found in your AppData folder at **%APDATA%/YMU/ymu.log**.
+        The log can be found in your AppData folder at **%APPDATA%/YMU/ymu.log**.
 
-        You can paste `%APDATA%/YMU` into your File Explorer address bar to get there quickly.
+        You can paste `%APPDATA%/YMU` into your File Explorer address bar to get there quickly.
 
         Tip: To easily upload your log file, you can rename ymu.log to ymu.txt or zip it, then drag and drop it here. Alternatively, you can open it and copy/paste its contents.
-      value: |
-        validations:
+    validations:
       required: true
 
   - type: textarea
@@ -43,8 +42,7 @@ body:
         If you think the issue can be better explained with screenshots or a video, then consider adding these here.
 
         Tip: You can attach images by clicking this area to highlight it and then dragging files in.
-      value: |
-        validations:
+    validations:
       required: false
 
   - type: dropdown
