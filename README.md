@@ -20,7 +20,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 Your security is the top priority.
 * **Clean Scan Results:** The application is regularly checked with VirusTotal to ensure it's free from threats.
 * **Microsoft SmartScreen:** YMU is recognized as a safe application, so you won't get any annoying warnings.
-* **Fully Open Source:** Don't just trust it, verify it. The entire source code is available right here on GitHub for you to review.
+* **Full Source Code Available:** Don't just trust it, verify it. The entire source code is available right here on GitHub for you to review.
 
 ---
 
