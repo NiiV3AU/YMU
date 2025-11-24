@@ -1,16 +1,18 @@
 # YimMenuUpdater (YMU)
 The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
-![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
-
 <div align="center">
 
-[![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github)](https://github.com/NiiV3AU/YMU/releases/latest)
-[![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github)](https://github.com/NiiV3AU/YMU/releases)
-[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-blue?style=for-the-badge&logo=virustotal)](https://www.virustotal.com/gui/file/143422bcd6a7f51c9ead4ab489e3bb8887e573e8cc84644d12b503cb659f4a45)
+[![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
+[![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
+[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/143422bcd6a7f51c9ead4ab489e3bb8887e573e8cc84644d12b503cb659f4a45)
+
+![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
+
 </div>
 
-YMU is a sleek and powerful launcher for YimMenu that handles everything for you. From downloading the latest DLLs to injecting them into the game, YMU ensures a stable and seamless experience with a clean and intuitive user interface.
+[YMU](https://ymu.pages.dev/) is a sleek and powerful launcher for YimMenu that handles everything for you. From downloading the latest DLLs to injecting them into the game, YMU ensures a stable and seamless experience with a clean and intuitive user interface.
 
 ---
 
@@ -42,19 +44,19 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ## 🖼️ Screenshots
 
-<p align="center">
-  <h3>Dark Theme</h3>
-  <img src="https://github.com/user-attachments/assets/cbd458c8-5aec-4db6-9b4e-41a842000042?raw=true" alt="YMU Dark Theme: Settings" width="300"/>
-  <img src="https://github.com/user-attachments/assets/c799c4dd-a6f5-4a53-a2ff-4b6d49d2be2f?raw=true" alt="YMU Dark Theme: Inject" width="300"/>
-  <img src="https://github.com/user-attachments/assets/76409d2b-ebf8-4919-80c1-74a4ac77b094?raw=true" alt="YMU Dark Theme: Download" width="300"/>
-</p>
+### Dark Theme
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/cbd458c8-5aec-4db6-9b4e-41a842000042?raw=true" alt="YMU Dark Theme: Settings" width="280"/>
+  <img src="https://github.com/user-attachments/assets/c799c4dd-a6f5-4a53-a2ff-4b6d49d2be2f?raw=true" alt="YMU Dark Theme: Inject" width="280"/>
+  <img src="https://github.com/user-attachments/assets/76409d2b-ebf8-4919-80c1-74a4ac77b094?raw=true" alt="YMU Dark Theme: Download" width="280"/>
+</div>
 
-<p align="center">
-  <h3>Light Theme</h3>
-  <img src="https://github.com/user-attachments/assets/bffd8f4d-7317-4eb8-bdca-cfdc1717817a?raw=true" alt="YMU Light Theme: Settings" width="300"/>
-  <img src="https://github.com/user-attachments/assets/7002a77c-9707-4ef4-a6da-b33290ea49cf?raw=true" alt="YMU Light Theme: Inject" width="300"/>
-  <img src="https://github.com/user-attachments/assets/d0cb13f4-9eb7-4075-b325-2b6372adc058?raw=true" alt="YMU Light Theme: Download" width="300"/>
-</p>
+### Light Theme
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/bffd8f4d-7317-4eb8-bdca-cfdc1717817a?raw=true" alt="YMU Light Theme: Settings" width="280"/>
+  <img src="https://github.com/user-attachments/assets/7002a77c-9707-4ef4-a6da-b33290ea49cf?raw=true" alt="YMU Light Theme: Inject" width="280"/>
+  <img src="https://github.com/user-attachments/assets/d0cb13f4-9eb7-4075-b325-2b6372adc058?raw=true" alt="YMU Light Theme: Download" width="280"/>
+</div>
 
 ---
 
@@ -65,20 +67,20 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### v1.0.9
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/a8298b7d-ee3b-4314-a1f8-4a005c23f2f6" alt="YMU v1.0.9" width="450"/>
+  <img src="https://github.com/user-attachments/assets/a8298b7d-ee3b-4314-a1f8-4a005c23f2f6" alt="YMU v1.0.9" width="280"/>
 </p>
 
 ### v1.0.3
 <p align="center">
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/5cf46352-0bdb-442f-b1fa-951d3ba1d35b" alt="YMU v1.0.3 Download/Update Tab" width="300"/>
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/f717a2b8-b9c6-4225-ad05-b9d3ff1204e3" alt="YMU v1.0.3 Inject Tab" width="300"/>
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/07c4c61d-41a2-47f7-9256-f81337b8512d" alt="YMU v1.0.3 Settings Tab" width="300"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/5cf46352-0bdb-442f-b1fa-951d3ba1d35b" alt="YMU v1.0.3 Download/Update Tab" width="280"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/f717a2b8-b9c6-4225-ad05-b9d3ff1204e3" alt="YMU v1.0.3 Inject Tab" width="280"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/07c4c61d-41a2-47f7-9256-f81337b8512d" alt="YMU v1.0.3 Settings Tab" width="280"/>
 </p>
 
 ### v1.0.2
 <p align="center">
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/2f138a6a-21be-4cde-9a10-4057b186302b" alt="YMU v1.0.2 Download/Update Tab" width="300"/>
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/5b4b05f5-90c7-42d4-9c58-791a71b48cdb" alt="YMU v1.0.2 Inject Tab" width="300"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/2f138a6a-21be-4cde-9a10-4057b186302b" alt="YMU v1.0.2 Download/Update Tab" width="280"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/5b4b05f5-90c7-42d4-9c58-791a71b48cdb" alt="YMU v1.0.2 Inject Tab" width="280"/>
 </p>
 
 ### v1.0.1
@@ -91,8 +93,8 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### v1.0.0
 <p align="center">
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/6d1635a2-0596-445d-bcad-752cf6c0f904" alt="YMU v1.0.0 Download/Update Tab" width="300"/>
-  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/e98c1a92-0bff-45d2-a2a2-218fa32fa416" alt="YMU v1.0.0 SHA256 Tab" width="300"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/6d1635a2-0596-445d-bcad-752cf6c0f904" alt="YMU v1.0.0 Download/Update Tab" width="280"/>
+  <img src="https://github.com/NiiV3AU/YMU/assets/86131759/e98c1a92-0bff-45d2-a2a2-218fa32fa416" alt="YMU v1.0.0 SHA256 Tab" width="280"/>
 </p>
 
 ---
