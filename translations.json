@@ -1,0 +1,554 @@
+{
+    "en_US": {
+        "meta": { "name": "English (US)" },
+        "Sidebar": { "Risks": "Risks", "Download": "Download", "Inject": "Inject", "Settings": "Settings" },
+        "Common": { "Error": "Error", "Info": "Information", "UnexpectedError": "An unexpected error occurred" },
+        "Risk": {
+            "Title": "ATTENTION",
+            "Info": "Always use YMU and YimMenu with BattlEye DISABLED.\nUsing mods online carries a risk of being banned.",
+            "Btn": { "YimOfficial": "Official YimMenu GitHub Repo", "YimLegacy": "YimMenu (legacy) GitHub Repo", "YimV2": "YimMenuV2 (enhanced) GitHub Repo", "FSL": "FSL's UC-Thread" },
+            "Tooltip": { "YimOfficial": "Open the official YimMenu GitHub repository", "YimLegacy": "Open the YimMenu (legacy) GitHub repository", "YimV2": "Open the YimMenuV2 (enhanced) GitHub repository", "FSL": "Open the FSL thread on UnknownCheats for download & support" }
+        },
+        "Download": {
+            "Status": { "Initial": "Select a channel to check for updates.", "Checking": "Checking for updates...", "UpToDate": "YimMenu is up-to-date.", "NewVersion": "A new version is available!", "Error": "An error occurred. Please try again.", "Downloading": "Downloading", "Success": "Download successful and verified!", "Failed": "Download failed. Check logs." },
+            "Btn": { "Check": "Check for Updates", "Checking": "Checking...", "UpToDate": "Up-to-date", "Update": "Update", "Download": "Download", "Retry": "Retry Check", "Downloading": "Downloading..." },
+            "Notify": { "NewVersion": "A new version is ready to be downloaded.", "CheckFailed": "Failed to check for updates", "SuccessTitle": "Download Complete", "SuccessMsg": "DLL successfully downloaded and verified!", "FailedTitle": "Download Failed", "FailedMsg": "Verification failed. Please check the logs." },
+            "Help": { "Title": "DLL & FSL Info", "DllSteps": "1. Click on (Download)\n2. Wait for the download to finish\n3. The file is in the 'YMU/dll' folder\n\nIf the file gets deleted, add an exception\nin your antivirus or disable it temporarily.", "FslSteps": "1. Download FSL (Link provided in the Risks Page)\n2. Open your GTAV Directory\n3. Drop the WINMM.dll in the folder\n   (filename MUST be exactly 'WINMM.dll')\n4. Disable BattlEye in Rockstar's Game Launcher\n5. Done! ✅" },
+            "Tooltip": { "Help": "Show help for DLL and FSL installation", "Channel": "Select the YimMenu version to download" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Select Launcher" },
+            "Btn": { "StartGta": "Start GTA 5", "InjectBase": "Inject YimMenu", "NoDll": "No DLL found", "InjectFile": "Inject {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 is already running!", "SelectLauncher": "Please select a launcher first.", "SuccessTitle": "Injection Successful", "SuccessMsg": "Successfully injected DLL!" },
+            "Help": { "Title": "Injection Info", "StartGtaSteps": "1. Select your launcher\n2. Press 'Start GTA 5'\n3. Read the next step ↗", "TabInject": "Inject DLL", "InjectSteps": "1. Start GTA 5 (↖ Previous Step)\n2. Wait for the game's start screen/menu\n3. Click on 'Inject YimMenu'\n4. Wait for YimMenu to finish loading\n5. Done! ✅" },
+            "Tooltip": { "Help": "Show help for the injection process", "Launcher": "Select the launcher you use to start GTA V", "Dll": "Select the DLL to inject" },
+            "Error": { "NoDllSelected": "Error: No DLL selected or found for injection.", "ProcessLost": "GTA 5 process disappeared before injection.", "InjectionFailed": "Injection failed. See logs for details.", "NoRockstarPath": "Could not find Rockstar Games installation path.", "NoExeFound": "Executable not found at '{0}'", "LaunchFailed": "Error launching game. See logs for details." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Appearance", "Lua": "Lua Settings", "Other": "Other" },
+            "Label": { "Language": "Language" },
+            "Theme": { "Dark": "Dark", "Light": "Light" },
+            "Lua": { "AutoReload": "Auto-reload changed scripts", "ListDisabled": "Disabled", "ListEnabled": "Enabled", "Tooltip": { "AutoReload": "Automatically re-apply changes when Lua script files are saved", "Enable": "Enable selected script(s)", "Disable": "Disable selected script(s)", "Refresh": "Refresh script lists" } },
+            "Other": { "DebugConsole": "Enable External Debug Console", "Tooltip": { "Debug": "Show YimMenu's external console window for detailed logs and debugging" } },
+            "Btn": { "OpenScripts": "Open Scripts Folder", "DiscoverLua": "Discover Luas", "OpenYimFolder": "Open YimMenu Folder", "OpenYmuFolder": "Open YMU Folder", "ReportBug": "Report a Bug", "RequestFeature": "Request a Feature", "CheckUpdates": "Check for YMU Updates", "UpToDate": "YMU is up-to-date", "Downloading": "Downloading Updater..." },
+            "Tooltip": { "OpenScripts": "Open the folder where your Lua scripts are located", "DiscoverLua": "Open the official YimMenu-Lua GitHub organization to find new scripts", "OpenYimFolder": "Open YimMenu folder (%APPDATA%/YimMenu)", "OpenYmuFolder": "Open YMU folder (%APPDATA%/YMU)", "ReportBug": "Open the bug report page on GitHub in your browser", "RequestFeature": "Open the feature request page on GitHub in your browser", "Language": "Select application language (requires restart)" },
+            "Update": { 
+                "Title": "YMU Updater", 
+                "UpToDate": "Your YMU is already up-to-date.", 
+                "AvailableTitle": "Update Available", 
+                "AvailableMsg": "Update {0} is available!", 
+                "Prompt": "Do you want to download and install it now?", 
+                "CheckTitle": "YMU Update Check", 
+                "ErrorTitle": "Update Error",
+                "Ahead": "You are running a newer version than the latest release." 
+            },
+            "Notify": { "RestartRequired": "Please restart YMU to apply the new language." }
+        }
+    },
+    "de_DE": {
+        "meta": { "name": "Deutsch" },
+        "Sidebar": { "Risks": "Risiken", "Download": "Download", "Inject": "Injezieren", "Settings": "Einstellungen" },
+        "Common": { "Error": "Fehler", "Info": "Information", "UnexpectedError": "Ein unerwarteter Fehler ist aufgetreten" },
+        "Risk": {
+            "Title": "ACHTUNG",
+            "Info": "Verwende YMU und YimMenu immer mit DEAKTIVIERTEM BattlEye.\nDas Nutzen von Mods im Online-Modus birgt immer ein Bann-Risiko.",
+            "Btn": { "YimOfficial": "Offizielles YimMenu GitHub Repo", "YimLegacy": "YimMenu (legacy) GitHub Repo", "YimV2": "YimMenuV2 (enhanced) GitHub Repo", "FSL": "FSL's UC-Thread" },
+            "Tooltip": { "YimOfficial": "Öffne das offizielle YimMenu GitHub Repository", "YimLegacy": "Öffne das YimMenu (legacy) GitHub Repository", "YimV2": "Öffne das YimMenuV2 (enhanced) GitHub Repository", "FSL": "Öffne den FSL Thread auf UnknownCheats für Download & Support" }
+        },
+        "Download": {
+            "Status": { "Initial": "Wähle einen Kanal um nach Updates zu suchen.", "Checking": "Suche nach Updates...", "UpToDate": "YimMenu ist aktuell.", "NewVersion": "Eine neue Version ist verfügbar!", "Error": "Ein Fehler ist aufgetreten.", "Downloading": "Lade herunter", "Success": "Download erfolgreich und verifiziert!", "Failed": "Download fehlgeschlagen." },
+            "Btn": { "Check": "Nach Updates suchen", "Checking": "Prüfe...", "UpToDate": "Aktuell", "Update": "Aktualisieren", "Download": "Herunterladen", "Retry": "Erneut versuchen", "Downloading": "Lade herunter..." },
+            "Notify": { "NewVersion": "Eine neue Version steht zum Download bereit.", "CheckFailed": "Suche nach Updates fehlgeschlagen", "SuccessTitle": "Download Abgeschlossen", "SuccessMsg": "DLL erfolgreich heruntergeladen!", "FailedTitle": "Download Fehlgeschlagen", "FailedMsg": "Verifizierung fehlgeschlagen." },
+            "Help": { "Title": "DLL & FSL Info", "DllSteps": "1. Klicke auf (Herunterladen)\n2. Warte bis der Download fertig ist\n3. Die Datei ist im Ordner 'YMU/dll'\n\nFalls die Datei gelöscht wird, füge eine Ausnahme im Antivirus hinzu.", "FslSteps": "1. Lade FSL herunter (Link auf der Risiken Seite)\n2. Öffne dein GTAV Verzeichnis\n3. Lege die WINMM.dll in den Ordner\n   (Dateiname MUSS exakt 'WINMM.dll' sein)\n4. Deaktiviere BattlEye im Launcher\n5. Fertig! ✅" },
+            "Tooltip": { "Help": "Hilfe zur DLL und FSL Installation anzeigen", "Channel": "Wähle die YimMenu Version" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Launcher wählen" },
+            "Btn": { "StartGta": "GTA 5 Starten", "InjectBase": "YimMenu Injezieren", "NoDll": "Keine DLL gefunden", "InjectFile": "{0} Injezieren" },
+            "Notify": { "AlreadyRunning": "GTA 5 läuft bereits!", "SelectLauncher": "Bitte wähle zuerst einen Launcher aus.", "SuccessTitle": "Injektion Erfolgreich", "SuccessMsg": "DLL erfolgreich injeziert!" },
+            "Help": { "Title": "Injektions Info", "StartGtaSteps": "1. Wähle deinen Launcher\n2. Drücke 'GTA 5 Starten'\n3. Lies den nächsten Schritt ↗", "TabInject": "DLL Injezieren", "InjectSteps": "1. Starte GTA 5 (↖ Vorheriger Schritt)\n2. Warte auf das Spiel-Menü\n3. Klicke auf 'Injezieren'\n4. Warte bis YimMenu geladen ist\n5. Fertig! ✅" },
+            "Tooltip": { "Help": "Hilfe zum Injektions-Prozess", "Launcher": "Wähle den Launcher", "Dll": "Wähle die DLL" },
+            "Error": { "NoDllSelected": "Fehler: Keine DLL zum Injezieren ausgewählt.", "ProcessLost": "GTA 5 Prozess verschwunden.", "InjectionFailed": "Injektion fehlgeschlagen.", "NoRockstarPath": "Rockstar Games Pfad nicht gefunden.", "NoExeFound": "Datei nicht gefunden: '{0}'", "LaunchFailed": "Fehler beim Starten." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Erscheinungsbild", "Lua": "Lua Einstellungen", "Other": "Sonstiges" },
+            "Label": { "Language": "Sprache" },
+            "Theme": { "Dark": "Dunkel", "Light": "Hell" },
+            "Lua": { "AutoReload": "Skripte auto-neu-laden", "ListDisabled": "Deaktiviert", "ListEnabled": "Aktiviert", "Tooltip": { "AutoReload": "Änderungen automatisch anwenden", "Enable": "Aktivieren", "Disable": "Deaktivieren", "Refresh": "Aktualisieren" } },
+            "Other": { "DebugConsole": "Externe Debug Konsole", "Tooltip": { "Debug": "Zeigt YimMenu's externes Konsolen-Fenster" } },
+            "Btn": { "OpenScripts": "Skript Ordner öffnen", "DiscoverLua": "Luas entdecken", "OpenYimFolder": "YimMenu Ordner", "OpenYmuFolder": "YMU Ordner", "ReportBug": "Fehler melden", "RequestFeature": "Feature vorschlagen", "CheckUpdates": "Auf YMU Updates prüfen", "UpToDate": "YMU ist aktuell", "Downloading": "Lade Updater..." },
+            "Tooltip": { "OpenScripts": "Öffnet den Lua Ordner", "DiscoverLua": "Öffnet YimMenu-Lua GitHub", "OpenYimFolder": "Öffne YimMenu Ordner", "OpenYmuFolder": "Öffne YMU Ordner", "ReportBug": "Bug-Report auf GitHub", "RequestFeature": "Feature-Request auf GitHub", "Language": "Sprache wählen (Benötigt Neustart)" },
+            "Update": { 
+                "Title": "YMU Updater", 
+                "UpToDate": "YMU ist aktuell.", 
+                "AvailableTitle": "Update Verfügbar", 
+                "AvailableMsg": "Update {0} ist verfügbar!", 
+                "Prompt": "Jetzt installieren?", 
+                "CheckTitle": "Update Suche", 
+                "ErrorTitle": "Update Fehler",
+                "Ahead": "Du nutzt eine neuere Version als das letzte Release (Dev-Build)." 
+            },
+            "Notify": { "RestartRequired": "Bitte starte YMU neu." }
+        }
+    },
+    "nl_NL": {
+        "meta": { "name": "Nederlands" },
+        "Sidebar": { "Risks": "Risico's", "Download": "Downloaden", "Inject": "Injecteren", "Settings": "Instellingen" },
+        "Common": { "Error": "Fout", "Info": "Informatie", "UnexpectedError": "Er is een onverwachte fout opgetreden" },
+        "Risk": {
+            "Title": "AANDACHT",
+            "Info": "Gebruik YMU en YimMenu altijd met BattlEye UITGESCHAKELD.\nHet gebruik van mods online brengt altijd een risico op een ban met zich mee.",
+            "Btn": { "YimOfficial": "Officieel YimMenu GitHub Repo", "YimLegacy": "YimMenu (legacy) GitHub Repo", "YimV2": "YimMenuV2 (enhanced) GitHub Repo", "FSL": "FSL UC-Thread" },
+            "Tooltip": { "YimOfficial": "Open de officiële YimMenu GitHub repository", "YimLegacy": "Open de YimMenu (legacy) GitHub repository", "YimV2": "Open de YimMenuV2 (enhanced) GitHub repository", "FSL": "Open de FSL thread op UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Selecteer een kanaal om op updates te controleren.", "Checking": "Controleren op updates...", "UpToDate": "YimMenu is up-to-date.", "NewVersion": "Een nieuwe versie is beschikbaar!", "Error": "Er is een fout opgetreden.", "Downloading": "Downloaden", "Success": "Download succesvol!", "Failed": "Download mislukt." },
+            "Btn": { "Check": "Controleren op updates", "Checking": "Bezig...", "UpToDate": "Up-to-date", "Update": "Updaten", "Download": "Downloaden", "Retry": "Opnieuw proberen", "Downloading": "Downloaden..." },
+            "Notify": { "NewVersion": "Nieuwe versie beschikbaar.", "CheckFailed": "Update-controle mislukt", "SuccessTitle": "Download Voltooid", "SuccessMsg": "DLL succesvol gedownload!", "FailedTitle": "Download Mislukt", "FailedMsg": "Verificatie mislukt." },
+            "Help": { "Title": "DLL & FSL Info", "DllSteps": "1. Klik op (Downloaden)\n2. Wacht tot de download klaar is\n3. Bestand staat in 'YMU/dll'\n\nVoeg een uitzondering toe in je antivirus als het bestand wordt verwijderd.", "FslSteps": "1. Download FSL (Link op Risico's pagina)\n2. Open je GTAV map\n3. Plaats WINMM.dll in de map\n   (naam MOET 'WINMM.dll' zijn)\n4. Schakel BattlEye uit in de launcher\n5. Klaar! ✅" },
+            "Tooltip": { "Help": "Hulp bij installatie", "Channel": "Selecteer YimMenu versie" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Selecteer Launcher" },
+            "Btn": { "StartGta": "Start GTA 5", "InjectBase": "Injecteer YimMenu", "NoDll": "Geen DLL gevonden", "InjectFile": "Injecteer {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 draait al!", "SelectLauncher": "Selecteer eerst een launcher.", "SuccessTitle": "Injectie Geslaagd", "SuccessMsg": "DLL succesvol geïnjecteerd!" },
+            "Help": { "Title": "Injectie Info", "StartGtaSteps": "1. Selecteer je launcher\n2. Druk op 'Start GTA 5'\n3. Lees de volgende stap ↗", "TabInject": "DLL Injecteren", "InjectSteps": "1. Start GTA 5 (↖ Vorige stap)\n2. Wacht op het spelmenu\n3. Klik op 'Injecteren'\n4. Wacht tot YimMenu geladen is\n5. Klaar! ✅" },
+            "Tooltip": { "Help": "Hulp bij injectie", "Launcher": "Kies je launcher", "Dll": "Kies de DLL" },
+            "Error": { "NoDllSelected": "Fout: Geen DLL geselecteerd.", "ProcessLost": "GTA 5 proces verdwenen.", "InjectionFailed": "Injectie mislukt.", "NoRockstarPath": "Rockstar Games pad niet gevonden.", "NoExeFound": "Bestand niet gevonden: '{0}'", "LaunchFailed": "Fout bij starten." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Uiterlijk", "Lua": "Lua Instellingen", "Other": "Overige" },
+            "Label": { "Language": "Taal" },
+            "Theme": { "Dark": "Donker", "Light": "Licht" },
+            "Lua": { "AutoReload": "Scripts auto-herladen", "ListDisabled": "Uitgeschakeld", "ListEnabled": "Ingeschakeld", "Tooltip": { "AutoReload": "Wijzigingen automatisch toepassen", "Enable": "Inschakelen", "Disable": "Uitschakelen", "Refresh": "Verversen" } },
+            "Other": { "DebugConsole": "Externe Debug Console", "Tooltip": { "Debug": "Toon YimMenu's console venster" } },
+            "Btn": { "OpenScripts": "Open Script Map", "DiscoverLua": "Ontdek Luas", "OpenYimFolder": "Open YimMenu Map", "OpenYmuFolder": "Open YMU Map", "ReportBug": "Meld een fout", "RequestFeature": "Functie aanvragen", "CheckUpdates": "Check YMU Updates", "UpToDate": "YMU is up-to-date", "Downloading": "Updater downloaden..." },
+            "Tooltip": { "OpenScripts": "Open map met scripts", "DiscoverLua": "Open YimMenu-Lua GitHub", "OpenYimFolder": "Map openen", "OpenYmuFolder": "Map openen", "ReportBug": "GitHub Bug Report", "RequestFeature": "GitHub Feature Request", "Language": "Taal wijzigen (Vereist herstart)" },
+            "Update": { 
+                "Title": "YMU Updater", 
+                "UpToDate": "YMU is up-to-date.", 
+                "AvailableTitle": "Update Beschikbaar", 
+                "AvailableMsg": "Update {0} is beschikbaar!", 
+                "Prompt": "Nu installeren?", 
+                "CheckTitle": "Update Check", 
+                "ErrorTitle": "Update Fout",
+                "Ahead": "Je gebruikt een nieuwere versie dan de laatste release." 
+            },
+            "Notify": { "RestartRequired": "Herstart YMU om taal te wijzigen." }
+        }
+    },
+    "fr_FR": {
+        "meta": { "name": "Français" },
+        "Sidebar": { "Risks": "Risques", "Download": "Télécharger", "Inject": "Injecter", "Settings": "Paramètres" },
+        "Common": { "Error": "Erreur", "Info": "Information", "UnexpectedError": "Une erreur inattendue est survenue" },
+        "Risk": {
+            "Title": "ATTENTION",
+            "Info": "Utilisez toujours YMU et YimMenu avec BattlEye DÉSACTIVÉ.\nL'utilisation de mods en ligne comporte toujours un risque de bannissement.",
+            "Btn": { "YimOfficial": "Repo GitHub YimMenu Officiel", "YimLegacy": "Repo YimMenu (legacy)", "YimV2": "Repo YimMenuV2 (enhanced)", "FSL": "Thread FSL sur UC" },
+            "Tooltip": { "YimOfficial": "Ouvrir le dépôt GitHub officiel", "YimLegacy": "Ouvrir le dépôt GitHub legacy", "YimV2": "Ouvrir le dépôt GitHub enhanced", "FSL": "Ouvrir le thread FSL sur UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Sélectionnez un canal pour vérifier les mises à jour.", "Checking": "Recherche de mises à jour...", "UpToDate": "YimMenu est à jour.", "NewVersion": "Une nouvelle version est disponible !", "Error": "Une erreur est survenue.", "Downloading": "Téléchargement", "Success": "Téléchargement réussi !", "Failed": "Échec du téléchargement." },
+            "Btn": { "Check": "Vérifier mises à jour", "Checking": "Vérification...", "UpToDate": "À jour", "Update": "Mettre à jour", "Download": "Télécharger", "Retry": "Réessayer", "Downloading": "Téléchargement..." },
+            "Notify": { "NewVersion": "Nouvelle version disponible.", "CheckFailed": "Échec de la vérification", "SuccessTitle": "Téléchargement Terminé", "SuccessMsg": "DLL téléchargée avec succès !", "FailedTitle": "Échec", "FailedMsg": "Vérification échouée." },
+            "Help": { "Title": "Info DLL & FSL", "DllSteps": "1. Cliquez sur (Télécharger)\n2. Attendez la fin du téléchargement\n3. Le fichier est dans 'YMU/dll'\n\nSi le fichier est supprimé, ajoutez une exception dans votre antivirus.", "FslSteps": "1. Téléchargez FSL (Lien page Risques)\n2. Ouvrez le dossier GTAV\n3. Déposez WINMM.dll dans le dossier\n   (le nom DOIT être 'WINMM.dll')\n4. Désactivez BattlEye dans le launcher\n5. Terminé ! ✅" },
+            "Tooltip": { "Help": "Aide installation", "Channel": "Choisir version YimMenu" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Choisir Launcher" },
+            "Btn": { "StartGta": "Lancer GTA 5", "InjectBase": "Injecter YimMenu", "NoDll": "Aucune DLL", "InjectFile": "Injecter {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 est déjà lancé !", "SelectLauncher": "Veuillez choisir un launcher.", "SuccessTitle": "Injection Réussie", "SuccessMsg": "DLL injectée avec succès !" },
+            "Help": { "Title": "Info Injection", "StartGtaSteps": "1. Choisissez votre launcher\n2. Appuyez sur 'Lancer GTA 5'\n3. Lisez l'étape suivante ↗", "TabInject": "Injecter DLL", "InjectSteps": "1. Lancez GTA 5 (↖ Étape précédente)\n2. Attendez le menu du jeu\n3. Cliquez sur 'Injecter'\n4. Attendez le chargement de YimMenu\n5. Terminé ! ✅" },
+            "Tooltip": { "Help": "Aide injection", "Launcher": "Votre launcher GTA V", "Dll": "DLL à injecter" },
+            "Error": { "NoDllSelected": "Erreur: Aucune DLL sélectionnée.", "ProcessLost": "Processus GTA 5 perdu.", "InjectionFailed": "Injection échouée.", "NoRockstarPath": "Chemin Rockstar introuvable.", "NoExeFound": "Exécutable introuvable: '{0}'", "LaunchFailed": "Échec du lancement." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Apparence", "Lua": "Paramètres Lua", "Other": "Autre" },
+            "Label": { "Language": "Langue" },
+            "Theme": { "Dark": "Sombre", "Light": "Clair" },
+            "Lua": { "AutoReload": "Recharger auto. scripts", "ListDisabled": "Désactivé", "ListEnabled": "Activé", "Tooltip": { "AutoReload": "Appliquer changements automatiquement", "Enable": "Activer", "Disable": "Désactiver", "Refresh": "Rafraîchir" } },
+            "Other": { "DebugConsole": "Console Debug Externe", "Tooltip": { "Debug": "Afficher la console YimMenu" } },
+            "Btn": { "OpenScripts": "Dossier Scripts", "DiscoverLua": "Découvrir Luas", "OpenYimFolder": "Dossier YimMenu", "OpenYmuFolder": "Dossier YMU", "ReportBug": "Signaler un bug", "RequestFeature": "Suggérer fonction", "CheckUpdates": "Vérifier MàJ YMU", "UpToDate": "YMU est à jour", "Downloading": "Téléchargement..." },
+            "Tooltip": { "OpenScripts": "Ouvrir dossier scripts", "DiscoverLua": "Ouvrir YimMenu-Lua GitHub", "OpenYimFolder": "Ouvrir dossier", "OpenYmuFolder": "Ouvrir dossier", "ReportBug": "GitHub Bug Report", "RequestFeature": "GitHub Feature Request", "Language": "Changer langue (Redémarrage requis)" },
+            "Update": { 
+                "Title": "YMU Updater", 
+                "UpToDate": "YMU est à jour.", 
+                "AvailableTitle": "Mise à jour dispo", 
+                "AvailableMsg": "Mise à jour {0} disponible !", 
+                "Prompt": "Installer maintenant ?", 
+                "CheckTitle": "Vérification MàJ", 
+                "ErrorTitle": "Erreur MàJ",
+                "Ahead": "Vous utilisez une version plus récente que la dernière version." 
+            },
+            "Notify": { "RestartRequired": "Redémarrez YMU pour changer la langue." }
+        }
+    },
+    "es_ES": {
+        "meta": { "name": "Español" },
+        "Sidebar": { "Risks": "Riesgos", "Download": "Descargar", "Inject": "Inyectar", "Settings": "Ajustes" },
+        "Common": { "Error": "Error", "Info": "Información", "UnexpectedError": "Ocurrió un error inesperado" },
+        "Risk": {
+            "Title": "ATENCIÓN",
+            "Info": "Usa siempre YMU y YimMenu con BattlEye DESACTIVADO.\nUsar mods online conlleva riesgo de baneo.",
+            "Btn": { "YimOfficial": "Repo Oficial YimMenu", "YimLegacy": "Repo YimMenu (legacy)", "YimV2": "Repo YimMenuV2 (enhanced)", "FSL": "Hilo FSL en UC" },
+            "Tooltip": { "YimOfficial": "Abrir repositorio oficial", "YimLegacy": "Abrir repositorio legacy", "YimV2": "Abrir repositorio enhanced", "FSL": "Abrir hilo FSL en UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Selecciona un canal para buscar actualizaciones.", "Checking": "Buscando actualizaciones...", "UpToDate": "YimMenu está actualizado.", "NewVersion": "¡Nueva versión disponible!", "Error": "Ocurrió un error.", "Downloading": "Descargando", "Success": "¡Descarga exitosa!", "Failed": "Descarga fallida." },
+            "Btn": { "Check": "Buscar actualizaciones", "Checking": "Buscando...", "UpToDate": "Actualizado", "Update": "Actualizar", "Download": "Descargar", "Retry": "Reintentar", "Downloading": "Descargando..." },
+            "Notify": { "NewVersion": "Nueva versión lista.", "CheckFailed": "Fallo al buscar", "SuccessTitle": "Descarga Completa", "SuccessMsg": "¡DLL descargada exitosamente!", "FailedTitle": "Fallo Descarga", "FailedMsg": "Verificación fallida." },
+            "Help": { "Title": "Info DLL y FSL", "DllSteps": "1. Clic en (Descargar)\n2. Espera a que termine\n3. Archivo en carpeta 'YMU/dll'\n\nSi se borra el archivo, añade una excepción en tu antivirus.", "FslSteps": "1. Descarga FSL (Link en Riesgos)\n2. Abre carpeta GTAV\n3. Pon WINMM.dll ahí\n   (nombre EXACTO 'WINMM.dll')\n4. Desactiva BattlEye en el launcher\n5. ¡Listo! ✅" },
+            "Tooltip": { "Help": "Ayuda instalación", "Channel": "Elegir versión" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Elegir Launcher" },
+            "Btn": { "StartGta": "Iniciar GTA 5", "InjectBase": "Inyectar YimMenu", "NoDll": "Sin DLL", "InjectFile": "Inyectar {0}" },
+            "Notify": { "AlreadyRunning": "¡GTA 5 ya está corriendo!", "SelectLauncher": "Elige un launcher.", "SuccessTitle": "Inyección Exitosa", "SuccessMsg": "¡DLL inyectada!" },
+            "Help": { "Title": "Info Inyección", "StartGtaSteps": "1. Elige launcher\n2. Pulsa 'Iniciar GTA 5'\n3. Lee siguiente paso ↗", "TabInject": "Inyectar DLL", "InjectSteps": "1. Inicia GTA 5 (↖ Paso previo)\n2. Espera al menú\n3. Clic 'Inyectar'\n4. Espera a que cargue\n5. ¡Listo! ✅" },
+            "Tooltip": { "Help": "Ayuda inyección", "Launcher": "Tu launcher de GTA", "Dll": "DLL a inyectar" },
+            "Error": { "NoDllSelected": "Error: Sin DLL seleccionada.", "ProcessLost": "Proceso GTA 5 perdido.", "InjectionFailed": "Inyección fallida.", "NoRockstarPath": "Ruta Rockstar no encontrada.", "NoExeFound": "Ejecutable no encontrado: '{0}'", "LaunchFailed": "Fallo al iniciar." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Apariencia", "Lua": "Ajustes Lua", "Other": "Otros" },
+            "Label": { "Language": "Idioma" },
+            "Theme": { "Dark": "Oscuro", "Light": "Claro" },
+            "Lua": { "AutoReload": "Recargar scripts auto.", "ListDisabled": "Desactivado", "ListEnabled": "Activado", "Tooltip": { "AutoReload": "Aplicar cambios automáticamente", "Enable": "Activar", "Disable": "Desactivar", "Refresh": "Refrescar" } },
+            "Other": { "DebugConsole": "Consola Debug Externa", "Tooltip": { "Debug": "Mostrar ventana de consola" } },
+            "Btn": { "OpenScripts": "Carpeta Scripts", "DiscoverLua": "Descubrir Luas", "OpenYimFolder": "Carpeta YimMenu", "OpenYmuFolder": "Carpeta YMU", "ReportBug": "Reportar Bug", "RequestFeature": "Pedir Función", "CheckUpdates": "Buscar Updates YMU", "UpToDate": "YMU actualizado", "Downloading": "Descargando..." },
+            "Tooltip": { "OpenScripts": "Abrir carpeta scripts", "DiscoverLua": "Abrir GitHub YimMenu-Lua", "OpenYimFolder": "Abrir carpeta", "OpenYmuFolder": "Abrir carpeta", "ReportBug": "Reportar en GitHub", "RequestFeature": "Pedir en GitHub", "Language": "Cambiar idioma (Requiere reinicio)" },
+            "Update": { 
+                "Title": "Actualizador YMU", 
+                "UpToDate": "YMU está actualizado.", 
+                "AvailableTitle": "Update Disponible", 
+                "AvailableMsg": "¡Update {0} disponible!", 
+                "Prompt": "¿Instalar ahora?", 
+                "CheckTitle": "Busqueda Update", 
+                "ErrorTitle": "Error Update",
+                "Ahead": "Estás usando una versión más nueva que la última versión." 
+            },
+            "Notify": { "RestartRequired": "Reinicia YMU para cambiar idioma." }
+        }
+    },
+    "pt_BR": {
+        "meta": { "name": "Português (BR)" },
+        "Sidebar": { "Risks": "Riscos", "Download": "Baixar", "Inject": "Injetar", "Settings": "Configurações" },
+        "Common": { "Error": "Erro", "Info": "Informação", "UnexpectedError": "Erro inesperado ocorreu" },
+        "Risk": {
+            "Title": "ATENÇÃO",
+            "Info": "Sempre use YMU e YimMenu com BattlEye DESATIVADO.\nUsar mods online traz risco de banimento.",
+            "Btn": { "YimOfficial": "Repo Oficial YimMenu", "YimLegacy": "Repo YimMenu (legacy)", "YimV2": "Repo YimMenuV2 (enhanced)", "FSL": "Tópico FSL na UC" },
+            "Tooltip": { "YimOfficial": "Abrir repositório oficial", "YimLegacy": "Abrir repositório legacy", "YimV2": "Abrir repositório enhanced", "FSL": "Abrir tópico FSL na UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Selecione um canal para verificar.", "Checking": "Verificando...", "UpToDate": "YimMenu atualizado.", "NewVersion": "Nova versão disponível!", "Error": "Ocorreu um erro.", "Downloading": "Baixando", "Success": "Sucesso!", "Failed": "Falha no download." },
+            "Btn": { "Check": "Verificar atualizações", "Checking": "Verificando...", "UpToDate": "Atualizado", "Update": "Atualizar", "Download": "Baixar", "Retry": "Tentar novamente", "Downloading": "Baixando..." },
+            "Notify": { "NewVersion": "Nova versão pronta.", "CheckFailed": "Falha na verificação", "SuccessTitle": "Download Completo", "SuccessMsg": "DLL baixada com sucesso!", "FailedTitle": "Falha", "FailedMsg": "Verificação falhou." },
+            "Help": { "Title": "Info DLL e FSL", "DllSteps": "1. Clique em (Baixar)\n2. Aguarde o download\n3. Arquivo na pasta 'YMU/dll'\n\nSe o arquivo sumir, adicione exceção no antivírus.", "FslSteps": "1. Baixe FSL (Link em Riscos)\n2. Abra pasta do GTAV\n3. Coloque WINMM.dll nela\n   (nome DEVE ser 'WINMM.dll')\n4. Desative BattlEye no launcher\n5. Pronto! ✅" },
+            "Tooltip": { "Help": "Ajuda instalação", "Channel": "Escolher versão" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Escolher Launcher" },
+            "Btn": { "StartGta": "Iniciar GTA 5", "InjectBase": "Injetar YimMenu", "NoDll": "Sem DLL", "InjectFile": "Injetar {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 já está rodando!", "SelectLauncher": "Selecione um launcher.", "SuccessTitle": "Injeção Sucesso", "SuccessMsg": "DLL injetada!" },
+            "Help": { "Title": "Info Injeção", "StartGtaSteps": "1. Escolha launcher\n2. Aperte 'Iniciar GTA 5'\n3. Leia próximo passo ↗", "TabInject": "Injetar DLL", "InjectSteps": "1. Inicie GTA 5 (↖ Passo anterior)\n2. Aguarde o menu\n3. Clique em 'Injetar'\n4. Aguarde carregar\n5. Pronto! ✅" },
+            "Tooltip": { "Help": "Ajuda injeção", "Launcher": "Seu launcher GTA", "Dll": "DLL para injetar" },
+            "Error": { "NoDllSelected": "Erro: Nenhuma DLL selecionada.", "ProcessLost": "Processo GTA 5 perdido.", "InjectionFailed": "Falha na injeção.", "NoRockstarPath": "Caminho Rockstar não encontrado.", "NoExeFound": "Executável não encontrado: '{0}'", "LaunchFailed": "Falha ao iniciar." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Aparência", "Lua": "Config. Lua", "Other": "Outros" },
+            "Label": { "Language": "Idioma" },
+            "Theme": { "Dark": "Escuro", "Light": "Claro" },
+            "Lua": { "AutoReload": "Recarregar scripts auto.", "ListDisabled": "Desativado", "ListEnabled": "Ativado", "Tooltip": { "AutoReload": "Aplicar mudanças automaticamente", "Enable": "Ativar", "Disable": "Desativar", "Refresh": "Atualizar" } },
+            "Other": { "DebugConsole": "Console Debug Externo", "Tooltip": { "Debug": "Mostrar janela de console" } },
+            "Btn": { "OpenScripts": "Pasta Scripts", "DiscoverLua": "Descobrir Luas", "OpenYimFolder": "Pasta YimMenu", "OpenYmuFolder": "Pasta YMU", "ReportBug": "Reportar Bug", "RequestFeature": "Pedir Recurso", "CheckUpdates": "Buscar Updates YMU", "UpToDate": "YMU atualizado", "Downloading": "Baixando..." },
+            "Tooltip": { "OpenScripts": "Abrir pasta scripts", "DiscoverLua": "Abrir GitHub YimMenu-Lua", "OpenYimFolder": "Abrir pasta", "OpenYmuFolder": "Abrir pasta", "ReportBug": "Reportar no GitHub", "RequestFeature": "Pedir no GitHub", "Language": "Mudar idioma (Requer reinício)" },
+            "Update": { 
+                "Title": "Atualizador YMU", 
+                "UpToDate": "YMU está atualizado.", 
+                "AvailableTitle": "Update Disponível", 
+                "AvailableMsg": "Update {0} disponível!", 
+                "Prompt": "Instalar agora?", 
+                "CheckTitle": "Busca Update", 
+                "ErrorTitle": "Erro Update",
+                "Ahead": "Você está usando uma versão mais recente que o último lançamento." 
+            },
+            "Notify": { "RestartRequired": "Reinicie o YMU para mudar o idioma." }
+        }
+    },
+    "pl_PL": {
+        "meta": { "name": "Polski" },
+        "Sidebar": { "Risks": "Ryzyko", "Download": "Pobierz", "Inject": "Wstrzyknij", "Settings": "Ustawienia" },
+        "Common": { "Error": "Błąd", "Info": "Informacja", "UnexpectedError": "Wystąpił nieoczekiwany błąd" },
+        "Risk": {
+            "Title": "UWAGA",
+            "Info": "Zawsze używaj YMU i YimMenu z WYŁĄCZONYM BattlEye.\nUżywanie modów online grozi banem.",
+            "Btn": { "YimOfficial": "Oficjalne Repo YimMenu", "YimLegacy": "Repo YimMenu (legacy)", "YimV2": "Repo YimMenuV2 (enhanced)", "FSL": "Wątek FSL na UC" },
+            "Tooltip": { "YimOfficial": "Otwórz oficjalne repozytorium", "YimLegacy": "Otwórz repozytorium legacy", "YimV2": "Otwórz repozytorium enhanced", "FSL": "Otwórz wątek FSL na UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Wybierz kanał aktualizacji.", "Checking": "Sprawdzanie...", "UpToDate": "YimMenu jest aktualne.", "NewVersion": "Nowa wersja dostępna!", "Error": "Wystąpił błąd.", "Downloading": "Pobieranie", "Success": "Pobrano pomyślnie!", "Failed": "Pobieranie nieudane." },
+            "Btn": { "Check": "Sprawdź aktualizacje", "Checking": "Sprawdzanie...", "UpToDate": "Aktualne", "Update": "Aktualizuj", "Download": "Pobierz", "Retry": "Ponów", "Downloading": "Pobieranie..." },
+            "Notify": { "NewVersion": "Nowa wersja gotowa.", "CheckFailed": "Błąd sprawdzania", "SuccessTitle": "Pobieranie Zakończone", "SuccessMsg": "DLL pobrano pomyślnie!", "FailedTitle": "Błąd", "FailedMsg": "Weryfikacja nieudana." },
+            "Help": { "Title": "Info DLL i FSL", "DllSteps": "1. Kliknij (Pobierz)\n2. Poczekaj na koniec\n3. Plik w folderze 'YMU/dll'\n\nJeśli plik zniknie, dodaj wyjątek w antywirusie.", "FslSteps": "1. Pobierz FSL (Link w Ryzyko)\n2. Otwórz folder GTAV\n3. Wrzuć tam WINMM.dll\n   (nazwa MUSI być 'WINMM.dll')\n4. Wyłącz BattlEye w launcherze\n5. Gotowe! ✅" },
+            "Tooltip": { "Help": "Pomoc instalacji", "Channel": "Wybierz wersję" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Wybierz Launcher" },
+            "Btn": { "StartGta": "Uruchom GTA 5", "InjectBase": "Wstrzyknij YimMenu", "NoDll": "Brak DLL", "InjectFile": "Wstrzyknij {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 już działa!", "SelectLauncher": "Wybierz launcher.", "SuccessTitle": "Wstrzyknięcie Udane", "SuccessMsg": "DLL wstrzyknięta!" },
+            "Help": { "Title": "Info Wstrzykiwania", "StartGtaSteps": "1. Wybierz launcher\n2. Kliknij 'Uruchom GTA 5'\n3. Czytaj dalej ↗", "TabInject": "Wstrzyknij DLL", "InjectSteps": "1. Uruchom GTA 5 (↖ Krok wstecz)\n2. Poczekaj na menu\n3. Kliknij 'Wstrzyknij'\n4. Poczekaj na załadowanie\n5. Gotowe! ✅" },
+            "Tooltip": { "Help": "Pomoc wstrzykiwania", "Launcher": "Twój launcher GTA", "Dll": "DLL do wstrzyknięcia" },
+            "Error": { "NoDllSelected": "Błąd: Nie wybrano DLL.", "ProcessLost": "Proces GTA 5 zniknął.", "InjectionFailed": "Wstrzyknięcie nieudane.", "NoRockstarPath": "Nie znaleziono ścieżki Rockstar.", "NoExeFound": "Nie znaleziono pliku: '{0}'", "LaunchFailed": "Błąd uruchamiania." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Wygląd", "Lua": "Ustawienia Lua", "Other": "Inne" },
+            "Label": { "Language": "Język" },
+            "Theme": { "Dark": "Ciemny", "Light": "Jasny" },
+            "Lua": { "AutoReload": "Auto-przeładuj skrypty", "ListDisabled": "Wyłączone", "ListEnabled": "Włączone", "Tooltip": { "AutoReload": "Zastosuj zmiany automatycznie", "Enable": "Włącz", "Disable": "Wyłącz", "Refresh": "Odśwież" } },
+            "Other": { "DebugConsole": "Zewnętrzna Konsola Debug", "Tooltip": { "Debug": "Pokaż okno konsoli YimMenu" } },
+            "Btn": { "OpenScripts": "Folder Skryptów", "DiscoverLua": "Odkryj Lua", "OpenYimFolder": "Folder YimMenu", "OpenYmuFolder": "Folder YMU", "ReportBug": "Zgłoś Błąd", "RequestFeature": "Zaproponuj Funkcję", "CheckUpdates": "Sprawdź Update YMU", "UpToDate": "YMU aktualne", "Downloading": "Pobieranie..." },
+            "Tooltip": { "OpenScripts": "Otwórz folder skryptów", "DiscoverLua": "Otwórz GitHub YimMenu-Lua", "OpenYimFolder": "Otwórz folder", "OpenYmuFolder": "Otwórz folder", "ReportBug": "Zgłoś na GitHub", "RequestFeature": "Zgłoś na GitHub", "Language": "Zmień język (Wymaga restartu)" },
+            "Update": { 
+                "Title": "Aktualizator YMU", 
+                "UpToDate": "YMU jest aktualne.", 
+                "AvailableTitle": "Aktualizacja Dostępna", 
+                "AvailableMsg": "Aktualizacja {0} dostępna!", 
+                "Prompt": "Zainstalować teraz?", 
+                "CheckTitle": "Sprawdzanie Update", 
+                "ErrorTitle": "Błąd Update",
+                "Ahead": "Używasz nowszej wersji niż najnowsze wydanie." 
+            },
+            "Notify": { "RestartRequired": "Zrestartuj YMU aby zmienić język." }
+        }
+    },
+    "ru_RU": {
+        "meta": { "name": "Русский" },
+        "Sidebar": { "Risks": "Риски", "Download": "Скачать", "Inject": "Инжект", "Settings": "Настройки" },
+        "Common": { "Error": "Ошибка", "Info": "Инфо", "UnexpectedError": "Произошла неожиданная ошибка" },
+        "Risk": {
+            "Title": "ВНИМАНИЕ",
+            "Info": "Всегда используйте YMU и YimMenu с ОТКЛЮЧЕННЫМ BattlEye.\nИспользование модов онлайн несет риск бана.",
+            "Btn": { "YimOfficial": "Официальный YimMenu Repo", "YimLegacy": "YimMenu (legacy) Repo", "YimV2": "YimMenuV2 (enhanced) Repo", "FSL": "Тред FSL на UC" },
+            "Tooltip": { "YimOfficial": "Открыть официальный репозиторий", "YimLegacy": "Открыть legacy репозиторий", "YimV2": "Открыть enhanced репозиторий", "FSL": "Открыть тред FSL на UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Выберите канал для проверки обновлений.", "Checking": "Проверка обновлений...", "UpToDate": "YimMenu обновлен.", "NewVersion": "Доступна новая версия!", "Error": "Произошла ошибка.", "Downloading": "Скачивание", "Success": "Успешно скачано!", "Failed": "Ошибка скачивания." },
+            "Btn": { "Check": "Проверить обновления", "Checking": "Проверка...", "UpToDate": "Актуально", "Update": "Обновить", "Download": "Скачать", "Retry": "Повторить", "Downloading": "Скачивание..." },
+            "Notify": { "NewVersion": "Новая версия доступна.", "CheckFailed": "Ошибка проверки", "SuccessTitle": "Скачивание Завершено", "SuccessMsg": "DLL успешно скачана!", "FailedTitle": "Ошибка", "FailedMsg": "Проверка не удалась." },
+            "Help": { "Title": "Инфо о DLL и FSL", "DllSteps": "1. Нажмите (Скачать)\n2. Дождитесь завершения\n3. Файл в папке 'YMU/dll'\n\nЕсли файл удален, добавьте исключение в антивирус.", "FslSteps": "1. Скачайте FSL (Ссылка в Рисках)\n2. Откройте папку GTAV\n3. Поместите туда WINMM.dll\n   (имя должно быть 'WINMM.dll')\n4. Отключите BattlEye в лаунчере\n5. Готово! ✅" },
+            "Tooltip": { "Help": "Помощь по установке", "Channel": "Выбрать версию" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Выбрать Лаунчер" },
+            "Btn": { "StartGta": "Запустить GTA 5", "InjectBase": "Инжект YimMenu", "NoDll": "Нет DLL", "InjectFile": "Инжект {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 уже запущена!", "SelectLauncher": "Выберите лаунчер.", "SuccessTitle": "Инжект Успешен", "SuccessMsg": "DLL успешно внедрена!" },
+            "Help": { "Title": "Инфо об Инжекте", "StartGtaSteps": "1. Выберите лаунчер\n2. Нажмите 'Запустить GTA 5'\n3. Читайте далее ↗", "TabInject": "Инжект DLL", "InjectSteps": "1. Запустите GTA 5 (↖ Шаг назад)\n2. Ждите меню игры\n3. Нажмите 'Инжект'\n4. Ждите загрузки YimMenu\n5. Готово! ✅" },
+            "Tooltip": { "Help": "Помощь по инжекту", "Launcher": "Ваш лаунчер GTA", "Dll": "DLL для инжекта" },
+            "Error": { "NoDllSelected": "Ошибка: DLL не выбрана.", "ProcessLost": "Процесс GTA 5 исчез.", "InjectionFailed": "Инжект не удался.", "NoRockstarPath": "Путь Rockstar не найден.", "NoExeFound": "Файл не найден: '{0}'", "LaunchFailed": "Ошибка запуска." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Внешний вид", "Lua": "Настройки Lua", "Other": "Прочее" },
+            "Label": { "Language": "Язык" },
+            "Theme": { "Dark": "Тёмная", "Light": "Светлая" },
+            "Lua": { "AutoReload": "Авто-перезагрузка скриптов", "ListDisabled": "Отключено", "ListEnabled": "Включено", "Tooltip": { "AutoReload": "Применять изменения автоматически", "Enable": "Включить", "Disable": "Отключить", "Refresh": "Обновить" } },
+            "Other": { "DebugConsole": "Внешняя Консоль Отладки", "Tooltip": { "Debug": "Показать окно консоли" } },
+            "Btn": { "OpenScripts": "Папка Скриптов", "DiscoverLua": "Найти Lua", "OpenYimFolder": "Папка YimMenu", "OpenYmuFolder": "Папка YMU", "ReportBug": "Сообщить о баге", "RequestFeature": "Предложить функцию", "CheckUpdates": "Проверить YMU", "UpToDate": "YMU обновлен", "Downloading": "Скачивание..." },
+            "Tooltip": { "OpenScripts": "Открыть папку скриптов", "DiscoverLua": "Открыть GitHub YimMenu-Lua", "OpenYimFolder": "Открыть папку", "OpenYmuFolder": "Открыть папку", "ReportBug": "Открыть GitHub", "RequestFeature": "Открыть GitHub", "Language": "Сменить язык (Нужен перезапуск)" },
+            "Update": { 
+                "Title": "Обновление YMU", 
+                "UpToDate": "YMU уже обновлен.", 
+                "AvailableTitle": "Обновление Доступно", 
+                "AvailableMsg": "Обновление {0} доступно!", 
+                "Prompt": "Установить сейчас?", 
+                "CheckTitle": "Проверка Обновлений", 
+                "ErrorTitle": "Ошибка Обновления",
+                "Ahead": "Вы используете версию новее, чем последний релиз." 
+            },
+            "Notify": { "RestartRequired": "Перезапустите YMU для смены языка." }
+        }
+    },
+    "uk_UA": {
+        "meta": { "name": "Українська" },
+        "Sidebar": { "Risks": "Ризики", "Download": "Завантажити", "Inject": "Інжект", "Settings": "Налаштування" },
+        "Common": { "Error": "Помилка", "Info": "Інфо", "UnexpectedError": "Сталася несподівана помилка" },
+        "Risk": {
+            "Title": "УВАГА",
+            "Info": "Завжди використовуйте YMU та YimMenu з ВІДКЛЮЧЕНИМ BattlEye.\nВикористання модів онлайн несе ризик бану.",
+            "Btn": { "YimOfficial": "Офіційний YimMenu Repo", "YimLegacy": "YimMenu (legacy) Repo", "YimV2": "YimMenuV2 (enhanced) Repo", "FSL": "Тред FSL на UC" },
+            "Tooltip": { "YimOfficial": "Відкрити офіційний репозиторій", "YimLegacy": "Відкрити legacy репозиторій", "YimV2": "Відкрити enhanced репозиторий", "FSL": "Відкрити тред FSL на UnknownCheats" }
+        },
+        "Download": {
+            "Status": { "Initial": "Виберіть канал для перевірки оновлень.", "Checking": "Перевірка оновлень...", "UpToDate": "YimMenu оновлено.", "NewVersion": "Доступна нова версія!", "Error": "Сталася помилка.", "Downloading": "Завантаження", "Success": "Успішно завантажено!", "Failed": "Помилка завантаження." },
+            "Btn": { "Check": "Перевірити оновлення", "Checking": "Перевірка...", "UpToDate": "Актуально", "Update": "Оновити", "Download": "Завантажити", "Retry": "Повторити", "Downloading": "Завантаження..." },
+            "Notify": { "NewVersion": "Нова версія доступна.", "CheckFailed": "Помилка перевірки", "SuccessTitle": "Завантаження Завершено", "SuccessMsg": "DLL успішно завантажено!", "FailedTitle": "Помилка", "FailedMsg": "Перевірка не вдалася." },
+            "Help": { "Title": "Інфо про DLL та FSL", "DllSteps": "1. Натисніть (Завантажити)\n2. Дочекайтеся завершення\n3. Файл у папці 'YMU/dll'\n\nЯкщо файл видалено, додайте виняток в антивірус.", "FslSteps": "1. Завантажте FSL (Посилання в Ризиках)\n2. Відкрийте папку GTAV\n3. Покладіть туди WINMM.dll\n   (ім'я має бути 'WINMM.dll')\n4. Вимкніть BattlEye у лаунчері\n5. Готово! ✅" },
+            "Tooltip": { "Help": "Допомога з установки", "Channel": "Обрати версію" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Обрати Лаунчер" },
+            "Btn": { "StartGta": "Запустити GTA 5", "InjectBase": "Інжект YimMenu", "NoDll": "Немає DLL", "InjectFile": "Інжект {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 вже запущено!", "SelectLauncher": "Оберіть лаунчер.", "SuccessTitle": "Інжект Успішний", "SuccessMsg": "DLL успішно впроваджено!" },
+            "Help": { "Title": "Інфо про Інжект", "StartGtaSteps": "1. Оберіть лаунчер\n2. Натисніть 'Запустити GTA 5'\n3. Читайте далі ↗", "TabInject": "Інжект DLL", "InjectSteps": "1. Запустіть GTA 5 (↖ Крок назад)\n2. Чекайте меню гри\n3. Натисніть 'Інжект'\n4. Чекайте завантаження YimMenu\n5. Готово! ✅" },
+            "Tooltip": { "Help": "Допомога з інжекту", "Launcher": "Ваш лаунчер GTA", "Dll": "DLL для інжекту" },
+            "Error": { "NoDllSelected": "Помилка: DLL не обрано.", "ProcessLost": "Процес GTA 5 зник.", "InjectionFailed": "Інжект не вдався.", "NoRockstarPath": "Шлях Rockstar не знайдено.", "NoExeFound": "Файл не знайдено: '{0}'", "LaunchFailed": "Помилка запуску." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Зовнішній вигляд", "Lua": "Налаштування Lua", "Other": "Інше" },
+            "Label": { "Language": "Мова" },
+            "Theme": { "Dark": "Темна", "Light": "Світла" },
+            "Lua": { "AutoReload": "Авто-перезавантаження скриптів", "ListDisabled": "Вимкнено", "ListEnabled": "Увімкнено", "Tooltip": { "AutoReload": "Застосовувати зміни автоматично", "Enable": "Увімкнути", "Disable": "Вимкнути", "Refresh": "Оновити" } },
+            "Other": { "DebugConsole": "Зовнішня Консоль Налагодження", "Tooltip": { "Debug": "Показати вікно консолі" } },
+            "Btn": { "OpenScripts": "Папка Скриптів", "DiscoverLua": "Знайти Lua", "OpenYimFolder": "Папка YimMenu", "OpenYmuFolder": "Папка YMU", "ReportBug": "Повідомити про баг", "RequestFeature": "Запропонувати функцію", "CheckUpdates": "Перевірити YMU", "UpToDate": "YMU оновлено", "Downloading": "Завантаження..." },
+            "Tooltip": { "OpenScripts": "Відкрити папку скриптів", "DiscoverLua": "Відкрити GitHub YimMenu-Lua", "OpenYimFolder": "Відкрити папку", "OpenYmuFolder": "Відкрити папку", "ReportBug": "Відкрити GitHub", "RequestFeature": "Відкрити GitHub", "Language": "Змінити мову (Потрібен перезапуск)" },
+            "Update": { 
+                "Title": "Оновлення YMU", 
+                "UpToDate": "YMU вже оновлено.", 
+                "AvailableTitle": "Оновлення Доступне", 
+                "AvailableMsg": "Оновлення {0} доступне!", 
+                "Prompt": "Встановити зараз?", 
+                "CheckTitle": "Перевірка Оновлень", 
+                "ErrorTitle": "Помилка Оновлення",
+                "Ahead": "Ви використовуєте новішу версію, ніж останній реліз." 
+            },
+            "Notify": { "RestartRequired": "Перезапустіть YMU для зміни мови." }
+        }
+    },
+    "tr_TR": {
+        "meta": { "name": "Türkçe" },
+        "Sidebar": { "Risks": "Riskler", "Download": "İndir", "Inject": "Enjekte Et", "Settings": "Ayarlar" },
+        "Common": { "Error": "Hata", "Info": "Bilgi", "UnexpectedError": "Beklenmeyen bir hata oluştu" },
+        "Risk": {
+            "Title": "DİKKAT",
+            "Info": "YMU ve YimMenu'yu her zaman BattlEye DEVRE DIŞI iken kullanın.\nOnline modda mod kullanmak ban riski taşır.",
+            "Btn": { "YimOfficial": "Resmi YimMenu Reposu", "YimLegacy": "YimMenu (legacy) Reposu", "YimV2": "YimMenuV2 (enhanced) Reposu", "FSL": "FSL UC-Konusu" },
+            "Tooltip": { "YimOfficial": "Resmi depoyu aç", "YimLegacy": "Legacy deposunu aç", "YimV2": "Enhanced deposunu aç", "FSL": "UnknownCheats FSL konusunu aç" }
+        },
+        "Download": {
+            "Status": { "Initial": "Güncellemeleri kontrol etmek için kanal seçin.", "Checking": "Kontrol ediliyor...", "UpToDate": "YimMenu güncel.", "NewVersion": "Yeni sürüm mevcut!", "Error": "Bir hata oluştu.", "Downloading": "İndiriliyor", "Success": "İndirme başarılı!", "Failed": "İndirme başarısız." },
+            "Btn": { "Check": "Güncelleme Kontrol", "Checking": "Bakılıyor...", "UpToDate": "Güncel", "Update": "Güncelle", "Download": "İndir", "Retry": "Tekrar Dene", "Downloading": "İndiriliyor..." },
+            "Notify": { "NewVersion": "Yeni sürüm hazır.", "CheckFailed": "Kontrol başarısız", "SuccessTitle": "İndirme Tamamlandı", "SuccessMsg": "DLL başarıyla indirildi!", "FailedTitle": "Hata", "FailedMsg": "Doğrulama başarısız." },
+            "Help": { "Title": "DLL & FSL Bilgi", "DllSteps": "1. (İndir)'e tıkla\n2. Bitmesini bekle\n3. Dosya 'YMU/dll' klasöründe\n\nDosya silinirse antivirüse istisna ekle.", "FslSteps": "1. FSL İndir (Link Risklerde)\n2. GTAV klasörünü aç\n3. WINMM.dll'i oraya at\n   (isim TAM 'WINMM.dll' olmalı)\n4. Launcher'da BattlEye kapat\n5. Tamam! ✅" },
+            "Tooltip": { "Help": "Kurulum yardımı", "Channel": "Sürüm seç" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "Launcher Seç" },
+            "Btn": { "StartGta": "GTA 5 Başlat", "InjectBase": "YimMenu Enjekte Et", "NoDll": "DLL Yok", "InjectFile": "{0} Enjekte Et" },
+            "Notify": { "AlreadyRunning": "GTA 5 zaten çalışıyor!", "SelectLauncher": "Launcher seçin.", "SuccessTitle": "Enjeksiyon Başarılı", "SuccessMsg": "DLL enjekte edildi!" },
+            "Help": { "Title": "Enjeksiyon Bilgi", "StartGtaSteps": "1. Launcher seç\n2. 'GTA 5 Başlat'a bas\n3. Sonraki adımı oku ↗", "TabInject": "DLL Enjekte Et", "InjectSteps": "1. GTA 5'i başlat (↖ Önceki adım)\n2. Menüyü bekle\n3. 'Enjekte Et'e tıkla\n4. Yüklenmesini bekle\n5. Tamam! ✅" },
+            "Tooltip": { "Help": "Enjeksiyon yardımı", "Launcher": "GTA başlatıcın", "Dll": "Enjekte edilecek DLL" },
+            "Error": { "NoDllSelected": "Hata: DLL seçilmedi.", "ProcessLost": "GTA 5 işlemi kayboldu.", "InjectionFailed": "Enjeksiyon başarısız.", "NoRockstarPath": "Rockstar yolu bulunamadı.", "NoExeFound": "Dosya bulunamadı: '{0}'", "LaunchFailed": "Başlatma hatası." }
+        },
+        "Settings": {
+            "Header": { "Appearance": "Görünüm", "Lua": "Lua Ayarları", "Other": "Diğer" },
+            "Label": { "Language": "Dil" },
+            "Theme": { "Dark": "Koyu", "Light": "Açık" },
+            "Lua": { "AutoReload": "Scriptleri oto-yenile", "ListDisabled": "Devre Dışı", "ListEnabled": "Etkin", "Tooltip": { "AutoReload": "Değişiklikleri otomatik uygula", "Enable": "Etkinleştir", "Disable": "Devre Dışı Bırak", "Refresh": "Yenile" } },
+            "Other": { "DebugConsole": "Harici Debug Konsolu", "Tooltip": { "Debug": "Konsol penceresini göster" } },
+            "Btn": { "OpenScripts": "Script Klasörü", "DiscoverLua": "Lua Keşfet", "OpenYimFolder": "YimMenu Klasörü", "OpenYmuFolder": "YMU Klasörü", "ReportBug": "Hata Bildir", "RequestFeature": "Özellik İste", "CheckUpdates": "YMU Güncelleme", "UpToDate": "YMU güncel", "Downloading": "İndiriliyor..." },
+            "Tooltip": { "OpenScripts": "Script klasörünü aç", "DiscoverLua": "YimMenu-Lua GitHub'ı aç", "OpenYimFolder": "Klasörü aç", "OpenYmuFolder": "Klasörü aç", "ReportBug": "GitHub'da bildir", "RequestFeature": "GitHub'da iste", "Language": "Dili değiştir (Yeniden başlatma gerekir)" },
+            "Update": { 
+                "Title": "YMU Güncelleyici", 
+                "UpToDate": "YMU zaten güncel.", 
+                "AvailableTitle": "Güncelleme Var", 
+                "AvailableMsg": "Güncelleme {0} mevcut!", 
+                "Prompt": "Şimdi kur?", 
+                "CheckTitle": "Güncelleme Kontrolü", 
+                "ErrorTitle": "Güncelleme Hatası",
+                "Ahead": "En son sürümden daha yeni bir sürüm kullanıyorsunuz." 
+            },
+            "Notify": { "RestartRequired": "Dili değiştirmek için YMU'yu yeniden başlatın." }
+        }
+    },
+    "zh_CN": {
+        "meta": { "name": "简体中文" },
+        "Sidebar": { "Risks": "风险", "Download": "下载", "Inject": "注入", "Settings": "设置" },
+        "Common": { "Error": "错误", "Info": "信息", "UnexpectedError": "发生意外错误" },
+        "Risk": {
+            "Title": "注意",
+            "Info": "请始终在禁用 BattlEye 的情况下使用 YMU 和 YimMenu。\n在线使用模组有封号风险。",
+            "Btn": { "YimOfficial": "YimMenu 官方仓库", "YimLegacy": "YimMenu (legacy) 仓库", "YimV2": "YimMenuV2 (enhanced) 仓库", "FSL": "FSL UC 帖子" },
+            "Tooltip": { "YimOfficial": "打开官方 GitHub 仓库", "YimLegacy": "打开 legacy 仓库", "YimV2": "打开 enhanced 仓库", "FSL": "打开 UnknownCheats FSL 帖子" }
+        },
+        "Download": {
+            "Status": { "Initial": "选择频道以检查更新。", "Checking": "正在检查更新...", "UpToDate": "YimMenu 已是最新。", "NewVersion": "有新版本可用！", "Error": "发生错误。", "Downloading": "正在下载", "Success": "下载成功并已验证！", "Failed": "下载失败。" },
+            "Btn": { "Check": "检查更新", "Checking": "检查中...", "UpToDate": "已最新", "Update": "更新", "Download": "下载", "Retry": "重试", "Downloading": "下载中..." },
+            "Notify": { "NewVersion": "新版本已准备好。", "CheckFailed": "检查失败", "SuccessTitle": "下载完成", "SuccessMsg": "DLL 下载成功！", "FailedTitle": "失败", "FailedMsg": "验证失败。" },
+            "Help": { "Title": "DLL & FSL 信息", "DllSteps": "1. 点击 (下载)\n2. 等待完成\n3. 文件在 'YMU/dll' 文件夹中\n\n如果文件被删除，请在杀毒软件中添加例外。", "FslSteps": "1. 下载 FSL (链接在风险页)\n2. 打开 GTAV 目录\n3. 放入 WINMM.dll\n   (文件名必须是 'WINMM.dll')\n4. 在启动器中禁用 BattlEye\n5. 完成！✅" },
+            "Tooltip": { "Help": "安装帮助", "Channel": "选择版本" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "选择启动器" },
+            "Btn": { "StartGta": "启动 GTA 5", "InjectBase": "注入 YimMenu", "NoDll": "未找到 DLL", "InjectFile": "注入 {0}" },
+            "Notify": { "AlreadyRunning": "GTA 5 正在运行！", "SelectLauncher": "请选择启动器。", "SuccessTitle": "注入成功", "SuccessMsg": "DLL 注入成功！" },
+            "Help": { "Title": "注入信息", "StartGtaSteps": "1. 选择启动器\n2. 点击 '启动 GTA 5'\n3. 阅读下一步 ↗", "TabInject": "注入 DLL", "InjectSteps": "1. 启动 GTA 5 (↖ 上一步)\n2. 等待游戏菜单\n3. 点击 '注入'\n4. 等待加载\n5. 完成！✅" },
+            "Tooltip": { "Help": "注入帮助", "Launcher": "你的 GTA 启动器", "Dll": "注入的 DLL" },
+            "Error": { "NoDllSelected": "错误：未选择 DLL。", "ProcessLost": "GTA 5 进程丢失。", "InjectionFailed": "注入失败。", "NoRockstarPath": "未找到 Rockstar 路径。", "NoExeFound": "未找到文件：'{0}'", "LaunchFailed": "启动失败。" }
+        },
+        "Settings": {
+            "Header": { "Appearance": "外观", "Lua": "Lua 设置", "Other": "其他" },
+            "Label": { "Language": "语言" },
+            "Theme": { "Dark": "深色", "Light": "浅色" },
+            "Lua": { "AutoReload": "自动重载脚本", "ListDisabled": "已禁用", "ListEnabled": "已启用", "Tooltip": { "AutoReload": "脚本保存时自动应用更改", "Enable": "启用", "Disable": "禁用", "Refresh": "刷新" } },
+            "Other": { "DebugConsole": "外部调试控制台", "Tooltip": { "Debug": "显示控制台窗口" } },
+            "Btn": { "OpenScripts": "脚本文件夹", "DiscoverLua": "发现 Lua", "OpenYimFolder": "YimMenu 文件夹", "OpenYmuFolder": "YMU 文件夹", "ReportBug": "报告 Bug", "RequestFeature": "请求功能", "CheckUpdates": "检查 YMU 更新", "UpToDate": "YMU 已最新", "Downloading": "下载中..." },
+            "Tooltip": { "OpenScripts": "打开脚本文件夹", "DiscoverLua": "打开 GitHub YimMenu-Lua", "OpenYimFolder": "打开文件夹", "OpenYmuFolder": "打开文件夹", "ReportBug": "在 GitHub 报告", "RequestFeature": "在 GitHub 请求", "Language": "更改语言 (需要重启)" },
+            "Update": { 
+                "Title": "YMU 更新器", 
+                "UpToDate": "YMU 已经是最新版本。", 
+                "AvailableTitle": "有可用更新", 
+                "AvailableMsg": "更新 {0} 可用！", 
+                "Prompt": "立即安装？", 
+                "CheckTitle": "更新检查", 
+                "ErrorTitle": "更新错误",
+                "Ahead": "您正在使用比最新版本更新的版本。" 
+            },
+            "Notify": { "RestartRequired": "请重启 YMU 以应用语言更改。" }
+        }
+    },
+    "ja_JP": {
+        "meta": { "name": "日本語" },
+        "Sidebar": { "Risks": "リスク", "Download": "ダウンロード", "Inject": "注入", "Settings": "設定" },
+        "Common": { "Error": "エラー", "Info": "情報", "UnexpectedError": "予期せぬエラーが発生しました" },
+        "Risk": {
+            "Title": "注意",
+            "Info": "YMUとYimMenuは常にBattlEyeを無効にして使用してください。\nオンラインでのMOD使用はBANのリスクがあります。",
+            "Btn": { "YimOfficial": "公式YimMenuリポジトリ", "YimLegacy": "YimMenu (legacy) リポジトリ", "YimV2": "YimMenuV2 (enhanced) リポジトリ", "FSL": "UCのFSLスレッド" },
+            "Tooltip": { "YimOfficial": "公式GitHubリポジトリを開く", "YimLegacy": "Legacyリポジトリを開く", "YimV2": "Enhancedリポジトリを開く", "FSL": "UnknownCheatsのFSLスレッドを開く" }
+        },
+        "Download": {
+            "Status": { "Initial": "更新を確認するチャンネルを選択してください。", "Checking": "更新を確認中...", "UpToDate": "YimMenuは最新です。", "NewVersion": "新しいバージョンがあります！", "Error": "エラーが発生しました。", "Downloading": "ダウンロード中", "Success": "ダウンロード成功！", "Failed": "ダウンロード失敗。" },
+            "Btn": { "Check": "更新を確認", "Checking": "確認中...", "UpToDate": "最新", "Update": "更新", "Download": "ダウンロード", "Retry": "再試行", "Downloading": "ダウンロード中..." },
+            "Notify": { "NewVersion": "新しいバージョンが利用可能です。", "CheckFailed": "確認に失敗しました", "SuccessTitle": "ダウンロード完了", "SuccessMsg": "DLLのダウンロードに成功しました！", "FailedTitle": "失敗", "FailedMsg": "検証に失敗しました。" },
+            "Help": { "Title": "DLL & FSL情報", "DllSteps": "1. (ダウンロード)をクリック\n2. 完了を待つ\n3. ファイルは 'YMU/dll' フォルダにあります\n\nファイルが消えた場合は、アンチウイルスの例外に追加してください。", "FslSteps": "1. FSLをダウンロード (リスクページにリンク)\n2. GTAVフォルダを開く\n3. WINMM.dllを入れる\n   (名前は 'WINMM.dll' 必須)\n4. ランチャーでBattlEyeを無効化\n5. 完了！✅" },
+            "Tooltip": { "Help": "インストールヘルプ", "Channel": "バージョン選択" }
+        },
+        "Inject": {
+            "Launcher": { "Select": "ランチャー選択" },
+            "Btn": { "StartGta": "GTA 5 起動", "InjectBase": "YimMenuを注入", "NoDll": "DLLなし", "InjectFile": "{0} を注入" },
+            "Notify": { "AlreadyRunning": "GTA 5は既に起動しています！", "SelectLauncher": "ランチャーを選択してください。", "SuccessTitle": "注入成功", "SuccessMsg": "DLLが正常に注入されました！" },
+            "Help": { "Title": "注入情報", "StartGtaSteps": "1. ランチャーを選択\n2. 'GTA 5 起動'を押す\n3. 次のステップへ ↗", "TabInject": "DLL注入", "InjectSteps": "1. GTA 5を起動 (↖ 前のステップ)\n2. メニューを待つ\n3. '注入'をクリック\n4. ロードを待つ\n5. 完了！✅" },
+            "Tooltip": { "Help": "注入ヘルプ", "Launcher": "GTAランチャー", "Dll": "注入するDLL" },
+            "Error": { "NoDllSelected": "エラー：DLLが選択されていません。", "ProcessLost": "GTA 5プロセス消失。", "InjectionFailed": "注入失敗。", "NoRockstarPath": "Rockstarパス不明。", "NoExeFound": "ファイルなし：'{0}'", "LaunchFailed": "起動エラー。" }
+        },
+        "Settings": {
+            "Header": { "Appearance": "外観", "Lua": "Lua設定", "Other": "その他" },
+            "Label": { "Language": "言語" },
+            "Theme": { "Dark": "ダーク", "Light": "ライト" },
+            "Lua": { "AutoReload": "スクリプト自動再読み込み", "ListDisabled": "無効", "ListEnabled": "有効", "Tooltip": { "AutoReload": "変更を自動的に適用", "Enable": "有効化", "Disable": "無効化", "Refresh": "更新" } },
+            "Other": { "DebugConsole": "外部デバッグコンソール", "Tooltip": { "Debug": "コンソールウィンドウを表示" } },
+            "Btn": { "OpenScripts": "スクリプトフォルダ", "DiscoverLua": "Luaを探す", "OpenYimFolder": "YimMenuフォルダ", "OpenYmuFolder": "YMUフォルダ", "ReportBug": "バグ報告", "RequestFeature": "機能リクエスト", "CheckUpdates": "YMU更新確認", "UpToDate": "YMUは最新です", "Downloading": "ダウンロード中..." },
+            "Tooltip": { "OpenScripts": "フォルダを開く", "DiscoverLua": "GitHubを開く", "OpenYimFolder": "フォルダを開く", "OpenYmuFolder": "フォルダを開く", "ReportBug": "GitHubで報告", "RequestFeature": "GitHubでリクエスト", "Language": "言語変更 (要再起動)" },
+            "Update": { 
+                "Title": "YMUアップデータ", 
+                "UpToDate": "YMUは最新です。", 
+                "AvailableTitle": "更新あり", 
+                "AvailableMsg": "更新 {0} が利用可能です！", 
+                "Prompt": "今すぐインストールしますか？", 
+                "CheckTitle": "更新確認", 
+                "ErrorTitle": "更新エラー",
+                "Ahead": "最新リリースより新しいバージョンを使用しています。" 
+            },
+            "Notify": { "RestartRequired": "言語を変更するにはYMUを再起動してください。" }
+        }
+    }
+}
