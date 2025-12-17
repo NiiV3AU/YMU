@@ -205,6 +205,37 @@ def restart_application():
     sys.exit(0)
 
 
+def restart_as_admin():
+    """
+    Restarts the current application with Administrator privileges using ShellExecute 'runas'.
+    Includes robust path handling and error checking.
+    """
+    import ctypes
+
+    logger.info("Requesting restart with Admin privileges...")
+    if "__compiled__" in globals() or getattr(sys, "frozen", False):
+        executable = os.path.abspath(sys.argv[0])
+        params = None
+    else:
+        executable = sys.executable
+        params = " ".join([f'"{arg}"' for arg in sys.argv])
+    logger.info(f"Target executable for Admin restart: {executable}")
+    try:
+        result = ctypes.windll.shell32.ShellExecuteW(
+            None, "runas", executable, params, None, 1
+        )
+        logger.info(f"ShellExecute returned code: {result}")
+        if result > 32:
+            logger.info("UAC prompt triggered successfully. Exiting.")
+            QApplication.quit()
+            sys.exit(0)
+        else:
+            logger.error(f"Failed to start as Admin. Error code: {result}")
+
+    except Exception as e:
+        logger.error(f"Exception during restart_as_admin: {e}")
+
+
 class FocusStealingFilter(QObject):
     """
     An event filter that clears focus on mouse clicks, but ignores clicks
@@ -2578,15 +2609,30 @@ class InjectPage(QWidget):
 
     def on_task_error(self, error: Exception):
         logger.error(f"A task failed in the background: {error}")
-        cast(MainWindow, self.window()).notification_manager.show(
-            self.loc_manager.tr("Common.Error", "An Error Occurred"),
-            str(error),
-            icon_type="error",
-        )
         if self.gta_pid:
             self._set_state(self.STATE_APP_RUNNING)
         else:
             self._set_state(self.STATE_IDLE)
+        if isinstance(error, PermissionError) or "Access Denied" in str(error):
+            msg = self.loc_manager.tr(
+                "Inject.Error.AccessDenied",
+                "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
+            )
+            action_text = self.loc_manager.tr("Common.RestartAdmin", "Restart as Admin")
+            cast(MainWindow, self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Error", "Permission Error"),
+                msg,
+                icon_type="error",
+                duration=10000,
+                action_text=action_text,
+                action_callback=restart_as_admin,
+            )
+        else:
+            cast(MainWindow, self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Error", "An Error Occurred"),
+                str(error),
+                icon_type="error",
+            )
 
 
 class SettingsPage(QWidget):

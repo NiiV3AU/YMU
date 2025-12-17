@@ -17,7 +17,8 @@
             "UnexpectedError": "An unexpected error occurred",
             "Restart": "Restart Now",
             "Yes": "Yes",
-            "No": "No"
+            "No": "No",
+            "RestartAdmin": "Restart as Admin"
         },
         "Risk": {
             "Title": "ATTENTION",
@@ -105,7 +106,8 @@
                 "InjectionFailed": "Injection failed. See logs for details.",
                 "NoRockstarPath": "Could not find Rockstar Games installation path.",
                 "NoExeFound": "Executable not found at '{0}'",
-                "LaunchFailed": "Error launching game. See logs for details."
+                "LaunchFailed": "Error launching game. See logs for details.",
+                "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator."
             }
         },
         "Settings": {
@@ -190,7 +192,8 @@
             "UnexpectedError": "Ein unerwarteter Fehler ist aufgetreten",
             "Restart": "Jetzt neustarten",
             "Yes": "Ja",
-            "No": "Nein"
+            "No": "Nein",
+            "RestartAdmin": "Als Admin neustarten"
         },
         "Risk": {
             "Title": "ACHTUNG",
@@ -278,7 +281,8 @@
                 "InjectionFailed": "Injection fehlgeschlagen. Siehe Logs.",
                 "NoRockstarPath": "Konnte Rockstar Games Installationspfad nicht finden.",
                 "NoExeFound": "Executable nicht gefunden in '{0}'",
-                "LaunchFailed": "Fehler beim Spielstart. Siehe Logs."
+                "LaunchFailed": "Fehler beim Spielstart. Siehe Logs.",
+                "AccessDenied": "Fehlende Rechte zum Injecten in GTA V.\nVersuche, YMU als Administrator neu zu starten."
             }
         },
         "Settings": {
@@ -363,7 +367,8 @@
             "UnexpectedError": "Er is een onverwachte fout opgetreden",
             "Restart": "Nu herstarten",
             "Yes": "Ja",
-            "No": "Nee"
+            "No": "Nee",
+            "RestartAdmin": "Herstarten als Admin"
         },
         "Risk": {
             "Title": "LET OP",
@@ -451,7 +456,8 @@
                 "InjectionFailed": "Injectie mislukt. Zie logs voor details.",
                 "NoRockstarPath": "Kon Rockstar Games installatiepad niet vinden.",
                 "NoExeFound": "Executable niet gevonden in '{0}'",
-                "LaunchFailed": "Fout bij starten game. Zie logs voor details."
+                "LaunchFailed": "Fout bij starten game. Zie logs voor details.",
+                "AccessDenied": "Geen rechten om te injecten in GTA V.\nProbeer YMU als administrator te herstarten."
             }
         },
         "Settings": {
@@ -536,7 +542,8 @@
             "UnexpectedError": "Une erreur inattendue est survenue",
             "Restart": "Redémarrer maintenant",
             "Yes": "Oui",
-            "No": "Non"
+            "No": "Non",
+            "RestartAdmin": "Redémarrer en Admin"
         },
         "Risk": {
             "Title": "ATTENTION",
@@ -624,7 +631,8 @@
                 "InjectionFailed": "Injection échouée. Voir logs pour détails.",
                 "NoRockstarPath": "Impossible de trouver le chemin d'installation Rockstar Games.",
                 "NoExeFound": "Exécutable non trouvé à '{0}'",
-                "LaunchFailed": "Erreur au lancement du jeu. Voir logs."
+                "LaunchFailed": "Erreur au lancement du jeu. Voir logs.",
+                "AccessDenied": "Permissions manquantes pour injecter dans GTA V.\nEssaie de redémarrer YMU en tant qu'administrateur."
             }
         },
         "Settings": {
@@ -709,7 +717,8 @@
             "UnexpectedError": "Ocurrió un error inesperado",
             "Restart": "Reiniciar ahora",
             "Yes": "Sí",
-            "No": "No"
+            "No": "No",
+            "RestartAdmin": "Reiniciar como Admin"
         },
         "Risk": {
             "Title": "ATENCIÓN",
@@ -797,7 +806,8 @@
                 "InjectionFailed": "Inyección fallida. Mira los logs para detalles.",
                 "NoRockstarPath": "No se pudo encontrar la ruta de instalación de Rockstar Games.",
                 "NoExeFound": "Ejecutable no encontrado en '{0}'",
-                "LaunchFailed": "Error al iniciar el juego. Mira los logs."
+                "LaunchFailed": "Error al iniciar el juego. Mira los logs.",
+                "AccessDenied": "Faltan permisos para inyectar en GTA V.\nPrueba a reiniciar YMU como administrador."
             }
         },
         "Settings": {
@@ -882,7 +892,8 @@
             "UnexpectedError": "Ocorreu um erro inesperado",
             "Restart": "Reiniciar Agora",
             "Yes": "Sim",
-            "No": "Não"
+            "No": "Não",
+            "RestartAdmin": "Reiniciar como Admin"
         },
         "Risk": {
             "Title": "ATENÇÃO",
@@ -970,7 +981,8 @@
                 "InjectionFailed": "Falha na injection. Veja os logs para detalhes.",
                 "NoRockstarPath": "Não foi possível encontrar o caminho de instalação da Rockstar Games.",
                 "NoExeFound": "Executável não encontrado em '{0}'",
-                "LaunchFailed": "Erro ao iniciar o jogo. Veja os logs."
+                "LaunchFailed": "Erro ao iniciar o jogo. Veja os logs.",
+                "AccessDenied": "Permissões insuficientes para injetar no GTA V.\nTente reiniciar o YMU como administrador."
             }
         },
         "Settings": {
@@ -1055,7 +1067,8 @@
             "UnexpectedError": "Wystąpił nieoczekiwany błąd",
             "Restart": "Zrestartuj teraz",
             "Yes": "Tak",
-            "No": "Nie"
+            "No": "Nie",
+            "RestartAdmin": "Uruchom jako Admin"
         },
         "Risk": {
             "Title": "UWAGA",
@@ -1143,7 +1156,8 @@
                 "InjectionFailed": "Wstrzykiwanie nieudane. Zobacz logi.",
                 "NoRockstarPath": "Nie znaleziono ścieżki instalacji Rockstar Games.",
                 "NoExeFound": "Nie znaleziono pliku wykonywalnego w '{0}'",
-                "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi."
+                "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi.",
+                "AccessDenied": "Brak uprawnień do zainjectowania do GTA V.\nSpróbuj uruchomić YMU jako administrator."
             }
         },
         "Settings": {
@@ -1228,7 +1242,8 @@
             "UnexpectedError": "Произошла неожиданная ошибка",
             "Restart": "Перезапустить",
             "Yes": "Да",
-            "No": "Нет"
+            "No": "Нет",
+            "RestartAdmin": "Перезапустить как админ"
         },
         "Risk": {
             "Title": "ВНИМАНИЕ",
@@ -1316,7 +1331,8 @@
                 "InjectionFailed": "Инжект не удался. Смотрите логи.",
                 "NoRockstarPath": "Не найден путь установки Rockstar Games.",
                 "NoExeFound": "Исполняемый файл не найден в '{0}'",
-                "LaunchFailed": "Ошибка запуска игры. Смотрите логи."
+                "LaunchFailed": "Ошибка запуска игры. Смотрите логи.",
+                "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора."
             }
         },
         "Settings": {
@@ -1401,7 +1417,8 @@
             "UnexpectedError": "Сталася неочікувана помилка",
             "Restart": "Перезапустити",
             "Yes": "Так",
-            "No": "Ні"
+            "No": "Ні",
+            "RestartAdmin": "Перезапустити як адмін"
         },
         "Risk": {
             "Title": "УВАГА",
@@ -1489,7 +1506,8 @@
                 "InjectionFailed": "Інжект не вдався. Дивіться логи.",
                 "NoRockstarPath": "Не знайдено шлях встановлення Rockstar Games.",
                 "NoExeFound": "Виконуваний файл не знайдено в '{0}'",
-                "LaunchFailed": "Помилка запуску гри. Дивіться логи."
+                "LaunchFailed": "Помилка запуску гри. Дивіться логи.",
+                "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора."
             }
         },
         "Settings": {
@@ -1574,7 +1592,8 @@
             "UnexpectedError": "Beklenmeyen bir hata oluştu",
             "Restart": "Şimdi Yeniden Başlat",
             "Yes": "Evet",
-            "No": "Hayır"
+            "No": "Hayır",
+            "RestartAdmin": "Yönetici olarak yeniden başlat"
         },
         "Risk": {
             "Title": "DİKKAT",
@@ -1662,7 +1681,8 @@
                 "InjectionFailed": "Enjeksiyon başarısız. Detaylar için loglara bak.",
                 "NoRockstarPath": "Rockstar Games kurulum yolu bulunamadı.",
                 "NoExeFound": "Executable şurada bulunamadı: '{0}'",
-                "LaunchFailed": "Oyun başlatma hatası. Loglara bak."
+                "LaunchFailed": "Oyun başlatma hatası. Loglara bak.",
+                "AccessDenied": "GTA V'e inject etmek için yetki yok.\nYMU'yu yönetici olarak yeniden başlatmayı dene."
             }
         },
         "Settings": {
@@ -1747,7 +1767,8 @@
             "UnexpectedError": "发生意外错误",
             "Restart": "立即重启",
             "Yes": "是",
-            "No": "否"
+            "No": "否",
+            "RestartAdmin": "以管理员身份重启"
         },
         "Risk": {
             "Title": "注意",
@@ -1835,7 +1856,8 @@
                 "InjectionFailed": "注入失败，详情请查看日志。",
                 "NoRockstarPath": "找不到 Rockstar Games 安装路径。",
                 "NoExeFound": "在 '{0}' 未找到可执行文件",
-                "LaunchFailed": "启动游戏错误，详情请查看日志。"
+                "LaunchFailed": "启动游戏错误，详情请查看日志。",
+                "AccessDenied": "缺少注入 (Inject) GTA V 的权限。\n请尝试以管理员身份重启 YMU。"
             }
         },
         "Settings": {
@@ -1920,7 +1942,8 @@
             "UnexpectedError": "予期せぬエラーが発生しました",
             "Restart": "今すぐ再起動",
             "Yes": "はい",
-            "No": "いいえ"
+            "No": "いいえ",
+            "RestartAdmin": "管理者として再起動"
         },
         "Risk": {
             "Title": "注意",
@@ -2008,7 +2031,8 @@
                 "InjectionFailed": "インジェクト失敗。詳細はログを確認してください。",
                 "NoRockstarPath": "Rockstar Gamesのインストールパスが見つかりません。",
                 "NoExeFound": "'{0}' に実行ファイルが見つかりません",
-                "LaunchFailed": "ゲームの起動エラー。詳細はログを確認してください。"
+                "LaunchFailed": "ゲームの起動エラー。詳細はログを確認してください。",
+                "AccessDenied": "GTA Vへのインジェクト権限がありません。\n管理者としてYMUを再起動してみてください。"
             }
         },
         "Settings": {

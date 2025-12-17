@@ -33,6 +33,7 @@ FALLBACK_DATA = {
             "Restart": "Restart Now",
             "Yes": "Yes",
             "No": "No",
+            "RestartAdmin": "Restart as Admin",
         },
         "Risk": {
             "Title": "ATTENTION",
@@ -121,6 +122,7 @@ FALLBACK_DATA = {
                 "NoRockstarPath": "Could not find Rockstar Games installation path.",
                 "NoExeFound": "Executable not found at '{0}'",
                 "LaunchFailed": "Error launching game. See logs for details.",
+                "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
             },
         },
         "Settings": {

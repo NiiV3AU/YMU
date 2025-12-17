@@ -62,26 +62,27 @@ def inject_dll(pid: int, dll_filename: str, **kwargs) -> bool:
     dll_path = os.path.join(YMU_DLL_DIR, dll_filename)
     if not os.path.isabs(dll_path):
         dll_path = os.path.abspath(dll_path)
-
     if not os.path.exists(dll_path):
         logger.error(f"DLL not found at path: {dll_path}")
         return False
-
     try:
         if not psutil.pid_exists(pid):
             logger.error(f"Process with PID {pid} does not exist. Cannot inject.")
             return False
-
         logger.info(f"Attempting to inject '{dll_path}' into PID {pid}...")
         pyinjector.inject(pid, dll_path)
         logger.info("Injection successful.")
         return True
-    except (pyinjector.ProcessNotFound, pyinjector.InjectorError) as e:  # type: ignore
+    except pyinjector.InjectorError as e:
+        error_msg = str(e)
+        if "Access is denied" in error_msg:
+            logger.warning("Injection blocked due to insufficient permissions.")
+            raise PermissionError("Access Denied")
         logger.exception(f"A pyinjector error occurred during injection: {e}")
         return False
     except Exception as e:
         logger.exception(f"An unexpected exception occurred during injection: {e}")
-        return False
+        raise e
 
 
 def is_process_running(pid: int) -> bool:
