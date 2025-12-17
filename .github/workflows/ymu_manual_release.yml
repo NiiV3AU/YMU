@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pyinstaller
+          pip install flake8 nuitka zstandard
           pip install -r requirements.txt
 
       - name: Verify With Flake8
@@ -36,7 +36,7 @@ jobs:
 
       - name: Build Executable
         run: |
-          pyinstaller "gui.py" --noconfirm --onefile --windowed --noconsole --name "YMU" --icon "./assets/icons/ymu.ico" --add-data "./assets;assets" --collect-submodules "theme_manager" --version-file "./version.txt"
+          python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="1.1.6" --product-version="1.1.6" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - 2025" --output-filename=YMU.exe src/gui.py
 
       - name: Generate Checksum for Executable
         run: |
@@ -44,7 +44,7 @@ jobs:
           certutil -hashfile dist\YMU.exe SHA256 > dist\YMU.exe.sha256
           # Optional: Display the checksum in the logs
           cat dist\YMU.exe.sha256
-      
+
       - name: Generate Build Info
         id: var
         run: |
@@ -107,7 +107,7 @@ jobs:
           sha_content=$(grep -v "SHA256" YMU.exe.sha256 | grep -v "CertUtil")
           echo "build_sha=${sha_content}" >> $GITHUB_OUTPUT
           echo "Checksum content: ${sha_content}"
-          
+
       - name: Create and Upload Release
         uses: softprops/action-gh-release@v2
         with:
