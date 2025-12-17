@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> **GTA V Enhanced Support**
+> 
+> We are aware of detection issues regarding the "Enhanced" version of GTA V. A fix regarding incorrect file paths is currently in development and will be deployed in the upcoming release.
+
 # YimMenuUpdater (YMU)
 The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
