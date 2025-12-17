@@ -12,7 +12,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 [![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
 [![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
-[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/143422bcd6a7f51c9ead4ab489e3bb8887e573e8cc84644d12b503cb659f4a45)
+[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/7925f2d9faddaa72d54005bdff507522c1b1214760847629abbd5444eb39d548)
 
 ![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
 
@@ -27,7 +27,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 Your security is the top priority.
 
 - **Clean Scan Results:** The application is regularly checked with VirusTotal to ensure it's free from threats.
-- **Microsoft SmartScreen:** YMU is recognized as a safe application, so you won't get any annoying warnings.
+- ~~**Microsoft SmartScreen:** YMU is recognized as a safe application, so you won't get any annoying warnings.~~ (v1.1.5 is whitelisted, v1.1.6 still needs to be approved)
 - **Full Source Code Available:** Don't just trust it, verify it. The entire source code is available right here on GitHub for you to review.
 
 ---
