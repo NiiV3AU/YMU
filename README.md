@@ -1,4 +1,5 @@
-> [!NOTE] > **GTA V Enhanced Support Resolved**
+> [!NOTE]
+> **GTA V Enhanced Support Resolved**
 >
 > The detection issues regarding the "Enhanced" version of GTA V have been **fixed** in version **v1.1.6**. Please update to the latest version to ensure full compatibility.
 
@@ -55,17 +56,17 @@ Get the latest release directly from the downloads page. Just download and run t
 ### Dark Theme
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/cbd458c8-5aec-4db6-9b4e-41a842000042?raw=true" alt="YMU Dark Theme: Settings" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/c799c4dd-a6f5-4a53-a2ff-4b6d49d2be2f?raw=true" alt="YMU Dark Theme: Inject" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/76409d2b-ebf8-4919-80c1-74a4ac77b094?raw=true" alt="YMU Dark Theme: Download" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/6c322c71-5ed9-4476-a091-22da12772fe6?raw=true" alt="YMU Dark Theme: Settings" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/ddf5b40f-3925-43cf-b536-24b833d56889?raw=true" alt="YMU Dark Theme: Inject" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/23ac7acb-071b-4412-9b03-dbc071eefe02?raw=true" alt="YMU Dark Theme: Download" width="32%"/>
 </div>
 
 ### Light Theme
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/bffd8f4d-7317-4eb8-bdca-cfdc1717817a?raw=true" alt="YMU Light Theme: Settings" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/7002a77c-9707-4ef4-a6da-b33290ea49cf?raw=true" alt="YMU Light Theme: Inject" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/d0cb13f4-9eb7-4075-b325-2b6372adc058?raw=true" alt="YMU Light Theme: Download" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/2d111d22-7344-4a71-ad5e-899d7bd091bf?raw=true" alt="YMU Light Theme: Settings" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/19fcf98e-83e2-4083-bbb5-717cb4bb86fe?raw=true" alt="YMU Light Theme: Inject" width="32%"/>
+  <img src="https://github.com/user-attachments/assets/857f8c8c-3746-4a1d-800c-f926613a03d2?raw=true" alt="YMU Light Theme: Download" width="32%"/>
 </div>
 
 ---
@@ -195,7 +196,8 @@ This project uses **Nuitka** (instead of PyInstaller) to create a high-performan
 
 ## ⭐ Support the Project
 
-> [!IMPORTANT] > **Show your support by giving this Project a ⭐. Thanks <3!**
+> [!IMPORTANT]
+> **Show your support by giving this Project a ⭐. Thanks <3!**
 
 ---
 
