@@ -1,6 +1,6 @@
 {
     "en_US": {
-        "meta": {"name": "English (US)"},
+        "meta": { "name": "English (US)" },
         "Sidebar": {
             "Risks": "Risks",
             "Download": "Download",
@@ -76,7 +76,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Select Launcher"},
+            "Launcher": { "Select": "Select Launcher" },
             "Btn": {
                 "StartGta": "Start GTA 5",
                 "InjectBase": "Inject YimMenu",
@@ -116,8 +116,8 @@
                 "Lua": "Lua Settings",
                 "Other": "Other"
             },
-            "Label": {"Language": "Language"},
-            "Theme": {"Dark": "Dark", "Light": "Light"},
+            "Label": { "Language": "Language" },
+            "Theme": { "Dark": "Dark", "Light": "Light" },
             "Lua": {
                 "AutoReload": "Auto-reload changed scripts",
                 "ListDisabled": "Disabled",
@@ -175,7 +175,7 @@
         }
     },
     "de_DE": {
-        "meta": {"name": "Deutsch"},
+        "meta": { "name": "Deutsch" },
         "Sidebar": {
             "Risks": "Risiken",
             "Download": "Download",
@@ -251,7 +251,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Launcher wählen"},
+            "Launcher": { "Select": "Launcher wählen" },
             "Btn": {
                 "StartGta": "GTA 5 starten",
                 "InjectBase": "YimMenu injecten",
@@ -291,8 +291,8 @@
                 "Lua": "Lua Einstellungen",
                 "Other": "Sonstiges"
             },
-            "Label": {"Language": "Sprache"},
-            "Theme": {"Dark": "Dunkel", "Light": "Hell"},
+            "Label": { "Language": "Sprache" },
+            "Theme": { "Dark": "Dunkel", "Light": "Hell" },
             "Lua": {
                 "AutoReload": "Geänderte Skripte auto-reloaden",
                 "ListDisabled": "Deaktiviert",
@@ -350,7 +350,7 @@
         }
     },
     "nl_NL": {
-        "meta": {"name": "Nederlands"},
+        "meta": { "name": "Nederlands" },
         "Sidebar": {
             "Risks": "Risico's",
             "Download": "Download",
@@ -426,7 +426,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Selecteer Launcher"},
+            "Launcher": { "Select": "Selecteer Launcher" },
             "Btn": {
                 "StartGta": "Start GTA 5",
                 "InjectBase": "Injecteer YimMenu",
@@ -466,8 +466,8 @@
                 "Lua": "Lua Instellingen",
                 "Other": "Overig"
             },
-            "Label": {"Language": "Taal"},
-            "Theme": {"Dark": "Donker", "Light": "Licht"},
+            "Label": { "Language": "Taal" },
+            "Theme": { "Dark": "Donker", "Light": "Licht" },
             "Lua": {
                 "AutoReload": "Gewijzigde scripts auto-reloaden",
                 "ListDisabled": "Uitgeschakeld",
@@ -525,7 +525,7 @@
         }
     },
     "fr_FR": {
-        "meta": {"name": "Français"},
+        "meta": { "name": "Français" },
         "Sidebar": {
             "Risks": "Risques",
             "Download": "Télécharger",
@@ -601,7 +601,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Choisir Launcher"},
+            "Launcher": { "Select": "Choisir Launcher" },
             "Btn": {
                 "StartGta": "Lancer GTA 5",
                 "InjectBase": "Injecter YimMenu",
@@ -641,8 +641,8 @@
                 "Lua": "Paramètres Lua",
                 "Other": "Autre"
             },
-            "Label": {"Language": "Langue"},
-            "Theme": {"Dark": "Sombre", "Light": "Clair"},
+            "Label": { "Language": "Langue" },
+            "Theme": { "Dark": "Sombre", "Light": "Clair" },
             "Lua": {
                 "AutoReload": "Recharger auto. les scripts modifiés",
                 "ListDisabled": "Désactivé",
@@ -700,7 +700,7 @@
         }
     },
     "es_ES": {
-        "meta": {"name": "Español"},
+        "meta": { "name": "Español" },
         "Sidebar": {
             "Risks": "Riesgos",
             "Download": "Descargar",
@@ -776,7 +776,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Elegir Launcher"},
+            "Launcher": { "Select": "Elegir Launcher" },
             "Btn": {
                 "StartGta": "Iniciar GTA 5",
                 "InjectBase": "Inyectar YimMenu",
@@ -816,8 +816,8 @@
                 "Lua": "Ajustes Lua",
                 "Other": "Otros"
             },
-            "Label": {"Language": "Idioma"},
-            "Theme": {"Dark": "Oscuro", "Light": "Claro"},
+            "Label": { "Language": "Idioma" },
+            "Theme": { "Dark": "Oscuro", "Light": "Claro" },
             "Lua": {
                 "AutoReload": "Recargar auto. scripts modificados",
                 "ListDisabled": "Desactivado",
@@ -875,7 +875,7 @@
         }
     },
     "pt_BR": {
-        "meta": {"name": "Português (BR)"},
+        "meta": { "name": "Português (BR)" },
         "Sidebar": {
             "Risks": "Riscos",
             "Download": "Download",
@@ -951,7 +951,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Selecionar Launcher"},
+            "Launcher": { "Select": "Selecionar Launcher" },
             "Btn": {
                 "StartGta": "Iniciar GTA 5",
                 "InjectBase": "Injetar YimMenu",
@@ -991,8 +991,8 @@
                 "Lua": "Configurações Lua",
                 "Other": "Outros"
             },
-            "Label": {"Language": "Idioma"},
-            "Theme": {"Dark": "Escuro", "Light": "Claro"},
+            "Label": { "Language": "Idioma" },
+            "Theme": { "Dark": "Escuro", "Light": "Claro" },
             "Lua": {
                 "AutoReload": "Auto-reload em scripts alterados",
                 "ListDisabled": "Desativado",
@@ -1050,7 +1050,7 @@
         }
     },
     "pl_PL": {
-        "meta": {"name": "Polski"},
+        "meta": { "name": "Polski" },
         "Sidebar": {
             "Risks": "Ryzyko",
             "Download": "Pobierz",
@@ -1126,7 +1126,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Wybierz Launcher"},
+            "Launcher": { "Select": "Wybierz Launcher" },
             "Btn": {
                 "StartGta": "Uruchom GTA 5",
                 "InjectBase": "Wstrzyknij YimMenu",
@@ -1166,8 +1166,8 @@
                 "Lua": "Ustawienia Lua",
                 "Other": "Inne"
             },
-            "Label": {"Language": "Język"},
-            "Theme": {"Dark": "Ciemny", "Light": "Jasny"},
+            "Label": { "Language": "Język" },
+            "Theme": { "Dark": "Ciemny", "Light": "Jasny" },
             "Lua": {
                 "AutoReload": "Auto-reload zmienionych skryptów",
                 "ListDisabled": "Wyłączone",
@@ -1225,7 +1225,7 @@
         }
     },
     "ru_RU": {
-        "meta": {"name": "Русский"},
+        "meta": { "name": "Русский" },
         "Sidebar": {
             "Risks": "Риски",
             "Download": "Скачать",
@@ -1301,7 +1301,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Выбрать Лаунчер"},
+            "Launcher": { "Select": "Выбрать Лаунчер" },
             "Btn": {
                 "StartGta": "Запустить GTA 5",
                 "InjectBase": "Заинжектить YimMenu",
@@ -1341,8 +1341,8 @@
                 "Lua": "Настройки Lua",
                 "Other": "Прочее"
             },
-            "Label": {"Language": "Язык"},
-            "Theme": {"Dark": "Темная", "Light": "Светлая"},
+            "Label": { "Language": "Язык" },
+            "Theme": { "Dark": "Темная", "Light": "Светлая" },
             "Lua": {
                 "AutoReload": "Авто-релоад скриптов",
                 "ListDisabled": "Отключено",
@@ -1400,7 +1400,7 @@
         }
     },
     "uk_UA": {
-        "meta": {"name": "Українська"},
+        "meta": { "name": "Українська" },
         "Sidebar": {
             "Risks": "Ризики",
             "Download": "Завантажити",
@@ -1476,7 +1476,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Обрати Лаунчер"},
+            "Launcher": { "Select": "Обрати Лаунчер" },
             "Btn": {
                 "StartGta": "Запустити GTA 5",
                 "InjectBase": "Заінжектити YimMenu",
@@ -1516,8 +1516,8 @@
                 "Lua": "Налаштування Lua",
                 "Other": "Інше"
             },
-            "Label": {"Language": "Мова"},
-            "Theme": {"Dark": "Темна", "Light": "Світла"},
+            "Label": { "Language": "Мова" },
+            "Theme": { "Dark": "Темна", "Light": "Світла" },
             "Lua": {
                 "AutoReload": "Авто-релоад скриптів",
                 "ListDisabled": "Вимкнено",
@@ -1575,7 +1575,7 @@
         }
     },
     "tr_TR": {
-        "meta": {"name": "Türkçe"},
+        "meta": { "name": "Türkçe" },
         "Sidebar": {
             "Risks": "Riskler",
             "Download": "İndir",
@@ -1651,7 +1651,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "Launcher Seç"},
+            "Launcher": { "Select": "Launcher Seç" },
             "Btn": {
                 "StartGta": "GTA 5'i Başlat",
                 "InjectBase": "YimMenu'yu Enjekte Et",
@@ -1691,8 +1691,8 @@
                 "Lua": "Lua Ayarları",
                 "Other": "Diğer"
             },
-            "Label": {"Language": "Dil (Language)"},
-            "Theme": {"Dark": "Karanlık", "Light": "Aydınlık"},
+            "Label": { "Language": "Dil (Language)" },
+            "Theme": { "Dark": "Karanlık", "Light": "Aydınlık" },
             "Lua": {
                 "AutoReload": "Değişen scriptleri otomatik yenile",
                 "ListDisabled": "Devre Dışı",
@@ -1750,7 +1750,7 @@
         }
     },
     "zh_CN": {
-        "meta": {"name": "简体中文"},
+        "meta": { "name": "简体中文" },
         "Sidebar": {
             "Risks": "风险提示",
             "Download": "下载",
@@ -1826,7 +1826,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "选择启动器"},
+            "Launcher": { "Select": "选择启动器" },
             "Btn": {
                 "StartGta": "启动 GTA 5",
                 "InjectBase": "注入 YimMenu",
@@ -1866,8 +1866,8 @@
                 "Lua": "Lua 设置",
                 "Other": "其他"
             },
-            "Label": {"Language": "语言 (Language)"},
-            "Theme": {"Dark": "深色", "Light": "浅色"},
+            "Label": { "Language": "语言 (Language)" },
+            "Theme": { "Dark": "深色", "Light": "浅色" },
             "Lua": {
                 "AutoReload": "自动重载变更的脚本",
                 "ListDisabled": "已禁用",
@@ -1924,8 +1924,183 @@
             }
         }
     },
+    "zh_TW": {
+        "meta": { "name": "繁體中文" },
+        "Sidebar": {
+            "Risks": "風險提示",
+            "Download": "下載",
+            "Inject": "注入",
+            "Settings": "設定",
+            "Tooltip": {
+                "Risks": "顯示重要警告與資訊",
+                "ProjectPage": "在瀏覽器中開啟 YMU 專案頁面"
+            }
+        },
+        "Common": {
+            "Error": "錯誤",
+            "Info": "資訊",
+            "UnexpectedError": "發生意外錯誤",
+            "Restart": "立即重新啟動",
+            "Yes": "是",
+            "No": "否",
+            "RestartAdmin": "以系統管理員身分重新啟動"
+        },
+        "Risk": {
+            "Title": "注意",
+            "Info": "使用 YMU 與 YimMenu 時請務必停用 BattlEye。\n在線上模式使用模組存在帳號被封鎖的風險。",
+            "Btn": {
+                "YimOfficial": "YimMenu 官方 GitHub 儲存庫",
+                "YimLegacy": "YimMenu (舊版) GitHub 儲存庫",
+                "YimV2": "YimMenuV2 (增強版) GitHub 儲存庫",
+                "FSL": "FSL 的 UnknownCheats 論壇文章"
+            },
+            "Tooltip": {
+                "YimOfficial": "開啟官方 YimMenu GitHub 儲存庫",
+                "YimLegacy": "開啟 YimMenu (舊版) GitHub 儲存庫",
+                "YimV2": "開啟 YimMenuV2 (增強版) GitHub 儲存庫",
+                "FSL": "開啟 UnknownCheats 上的 FSL 文章以下載檔案與取得支援"
+            }
+        },
+        "Download": {
+            "Status": {
+                "Initial": "請選擇一個通道以檢查更新。",
+                "Checking": "正在檢查更新...",
+                "UpToDate": "YimMenu 已是最新版本。",
+                "NewVersion": "發現新版本！",
+                "Error": "發生錯誤，請重試。",
+                "Downloading": "正在下載",
+                "Success": "下載成功並通過驗證！",
+                "Failed": "下載失敗，請檢查日誌。"
+            },
+            "Btn": {
+                "Check": "檢查更新",
+                "Checking": "檢查中...",
+                "UpToDate": "已是最新",
+                "Update": "更新",
+                "Download": "下載",
+                "Retry": "重試",
+                "Downloading": "下載中..."
+            },
+            "Notify": {
+                "NewVersion": "新版本已準備好下載。",
+                "CheckFailed": "檢查更新失敗",
+                "SuccessTitle": "下載完成",
+                "SuccessMsg": "DLL 已成功下載並通過驗證！",
+                "FailedTitle": "下載失敗",
+                "FailedMsg": "驗證失敗，請檢查日誌。",
+                "UpdateTitle": "{0} 更新"
+            },
+            "Help": {
+                "Title": "DLL 與 FSL 說明",
+                "DllSteps": "1. 點擊 (下載)\n2. 等待下載完成\n3. 檔案位於 'YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
+                "FslSteps": "1. 下載 FSL (連結在風險提示頁面)\n2. 開啟你的 GTAV 遊戲目錄\n3. 將 WINMM.dll 拖曳到該資料夾\n   (檔案名稱必須完全相同：'WINMM.dll')\n4. 在 Rockstar 啟動器中停用 BattlEye\n5. 完成！ ✅"
+            },
+            "Tooltip": {
+                "Help": "顯示 DLL 與 FSL 安裝說明",
+                "Channel": "選擇要下載的 YimMenu 版本"
+            }
+        },
+        "Inject": {
+            "Launcher": { "Select": "選擇啟動器" },
+            "Btn": {
+                "StartGta": "啟動 GTA 5",
+                "InjectBase": "注入 YimMenu",
+                "NoDll": "未找到 DLL",
+                "InjectFile": "注入 {0}"
+            },
+            "Notify": {
+                "AlreadyRunning": "GTA 5 已經在執行中！",
+                "SelectLauncher": "請先選擇一個啟動器。",
+                "SuccessTitle": "注入成功",
+                "SuccessMsg": "DLL 注入成功！"
+            },
+            "Help": {
+                "Title": "注入說明",
+                "StartGtaSteps": "1. 選擇你的啟動器\n2. 點擊 '啟動 GTA 5'\n3. 閱讀下一步 ↗",
+                "TabInject": "注入 DLL",
+                "InjectSteps": "1. 啟動 GTA 5 (↖ 上一步)\n2. 等待遊戲進入開始畫面/選單\n3. 點擊 '注入 YimMenu'\n4. 等待 YimMenu 載入完成\n5. 完成！ ✅"
+            },
+            "Tooltip": {
+                "Help": "顯示注入過程的說明資訊",
+                "Launcher": "選擇你用來啟動 GTA V 的平台",
+                "Dll": "選擇要注入的 DLL"
+            },
+            "Error": {
+                "NoDllSelected": "錯誤：未選擇或未找到用於注入的 DLL。",
+                "ProcessLost": "GTA 5 程序在注入前消失。",
+                "InjectionFailed": "注入失敗，詳情請查看日誌。",
+                "NoRockstarPath": "找不到 Rockstar Games 安裝路徑。",
+                "NoExeFound": "在 '{0}' 未找到可執行檔",
+                "LaunchFailed": "啟動遊戲錯誤，詳情請查看日誌。",
+                "AccessDenied": "缺少注入 (Inject) GTA V 的權限。\n請嘗試以系統管理員身分重新啟動 YMU。"
+            }
+        },
+        "Settings": {
+            "Header": {
+                "Appearance": "外觀",
+                "Lua": "Lua 設定",
+                "Other": "其他"
+            },
+            "Label": { "Language": "語言 (Language)" },
+            "Theme": { "Dark": "深色", "Light": "淺色" },
+            "Lua": {
+                "AutoReload": "自動重新載入變更的腳本",
+                "ListDisabled": "已停用",
+                "ListEnabled": "已啟用",
+                "Tooltip": {
+                    "AutoReload": "當 Lua 腳本檔案儲存時自動套用變更",
+                    "Enable": "啟用選中的腳本",
+                    "Disable": "停用選中的腳本",
+                    "Refresh": "重新整理腳本列表"
+                }
+            },
+            "Other": {
+                "DebugConsole": "啟用外部除錯控制台",
+                "Tooltip": {
+                    "Debug": "顯示 YimMenu 的外部控制台視窗以查看詳細日誌與除錯資訊"
+                }
+            },
+            "Btn": {
+                "OpenScripts": "開啟 Scripts 資料夾",
+                "DiscoverLua": "探索 Lua 腳本",
+                "OpenYimFolder": "開啟 YimMenu 資料夾",
+                "OpenYmuFolder": "開啟 YMU 資料夾",
+                "ReportBug": "回報 Bug",
+                "RequestFeature": "請求新功能",
+                "CheckUpdates": "檢查 YMU 更新",
+                "UpToDate": "YMU 已是最新",
+                "Downloading": "正在下載更新程式..."
+            },
+            "Tooltip": {
+                "OpenScripts": "開啟 Lua 腳本所在的資料夾",
+                "DiscoverLua": "開啟官方 YimMenu-Lua GitHub 組織以尋找新腳本",
+                "OpenYimFolder": "開啟 YimMenu 資料夾 (%APPDATA%/YimMenu)",
+                "OpenYmuFolder": "開啟 YMU 資料夾 (%APPDATA%/YMU)",
+                "ReportBug": "在瀏覽器中開啟 GitHub 的 Bug 回報頁面",
+                "RequestFeature": "在瀏覽器中開啟 GitHub 的功能請求頁面",
+                "Language": "選擇應用程式語言 (需要重新啟動)",
+                "UpdateLang": "檢查翻譯更新"
+            },
+            "Update": {
+                "Title": "YMU 更新程式",
+                "UpToDate": "你的 YMU 已經是最新版本。",
+                "AvailableTitle": "有可用更新",
+                "AvailableMsg": "更新 {0} 可用！",
+                "Prompt": "你想現在下載並安裝它嗎？",
+                "CheckTitle": "YMU 更新檢查",
+                "ErrorTitle": "更新錯誤",
+                "Ahead": "你執行的版本比最新發布版還要新。"
+            },
+            "Notify": {
+                "RestartRequired": "請重新啟動 YMU 以套用新語言。",
+                "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新的語言列表。",
+                "LangTitle": "語言已變更",
+                "LangUpToDate": "翻譯已是最新版本。"
+            }
+        }
+    },
     "ja_JP": {
-        "meta": {"name": "日本語"},
+        "meta": { "name": "日本語" },
         "Sidebar": {
             "Risks": "リスク",
             "Download": "ダウンロード",
@@ -2001,7 +2176,7 @@
             }
         },
         "Inject": {
-            "Launcher": {"Select": "ランチャーを選択"},
+            "Launcher": { "Select": "ランチャーを選択" },
             "Btn": {
                 "StartGta": "GTA 5 を起動",
                 "InjectBase": "YimMenuをインジェクト",
@@ -2041,8 +2216,8 @@
                 "Lua": "Lua 設定",
                 "Other": "その他"
             },
-            "Label": {"Language": "言語 (Language)"},
-            "Theme": {"Dark": "ダーク", "Light": "ライト"},
+            "Label": { "Language": "言語 (Language)" },
+            "Theme": { "Dark": "ダーク", "Light": "ライト" },
             "Lua": {
                 "AutoReload": "変更されたスクリプトを自動リロード",
                 "ListDisabled": "無効",
