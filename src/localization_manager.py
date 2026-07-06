@@ -8,7 +8,8 @@ from typing import Dict, List, Optional
 import requests
 from PySide6.QtCore import QObject, Signal
 
-from paths import USER_AGENT, YMU_CONFIG_FILE_PATH, YMU_LANG_DIR
+from paths import USER_AGENT, YMU_LANG_DIR
+from ymu_config import get_config
 
 logger = logging.getLogger(__name__)
 
@@ -199,42 +200,18 @@ class LocalizationManager(QObject):
 
     def __init__(self):
         super().__init__()
-        self.config_path = YMU_CONFIG_FILE_PATH
-        saved_locale = self._load_locale_preference()
-        self.active_locale = saved_locale
+        self.config = get_config()
+        self.active_locale = self.config.get("locale", "en_US")
 
         self.data: Dict = FALLBACK_DATA.copy()
         self.load_local_file()
 
-    def _get_current_config(self) -> dict:
-        """Helper to read the config safely."""
-        if not os.path.exists(self.config_path):
-            return {}
-        try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (OSError, json.JSONDecodeError):
-            return {}
-
-    def _load_locale_preference(self) -> str:
-        """Reads the language from YMU/config.json."""
-        config = self._get_current_config()
-        return config.get("locale", "en_US")
-
     def set_locale(self, locale: str):
-        """Saves the language in YMU/config.json."""
+        """Saves the language in YMU's config."""
         if locale in self.data:
             self.active_locale = locale
-            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            config = self._get_current_config()
-            config["locale"] = locale
-
-            try:
-                with open(self.config_path, "w", encoding="utf-8") as f:
-                    json.dump(config, f, indent=4)
+            if self.config.set("locale", locale):
                 logger.info(f"Locale switched and saved to YMU config: {locale}")
-            except OSError as e:
-                logger.error(f"Failed to save locale: {e}")
 
     def fetch_updates(self):
         """Start the update check manually (by clicking the button)."""
