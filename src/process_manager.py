@@ -6,8 +6,6 @@ import os
 import psutil
 import pyinjector
 
-from paths import YMU_DLL_DIR
-
 logger = logging.getLogger(__name__)
 
 
@@ -21,15 +19,27 @@ def is_admin() -> bool:
         return False
 
 
-def find_gta_pid(target_executables: tuple[str, ...], *args, **kwargs) -> int | None:
+def find_gta_pid(
+    target_executables: tuple[str, ...],
+    custom_install_dir: str | None = None,
+    *args,
+    **kwargs,
+) -> int | None:
     """
     Scans for a GTA5 process matching one of the given executable names and
     returns its PID. The caller passes the executables of the active edition
     (see menu_modes.py) so Legacy mode never targets the Enhanced process and
-    vice versa.
+    vice versa. If a custom install directory is set, any process whose
+    executable lives inside it also matches (covers renamed/exotic exes on
+    Epic/Xbox installs).
     :return: The process ID (PID) if found, otherwise None.
     """
     targets = tuple(t.lower() for t in target_executables)
+    custom_dir = (
+        os.path.normcase(os.path.normpath(custom_install_dir))
+        if custom_install_dir
+        else None
+    )
     try:
         for p in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
             if p.info["name"] and p.info["name"].lower() in targets:
@@ -46,6 +56,14 @@ def find_gta_pid(target_executables: tuple[str, ...], *args, **kwargs) -> int | 
                     f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
                 )
                 return p.pid
+
+            if custom_dir and p.info["exe"]:
+                exe_dir = os.path.normcase(os.path.normpath(p.info["exe"]))
+                if exe_dir.startswith(custom_dir + os.sep):
+                    logger.info(
+                        f"Found process inside custom dir: '{p.info['exe']}' with PID: {p.pid}"
+                    )
+                    return p.pid
 
             if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
                 exe_in_cmd = p.info["cmdline"][0].lower()
@@ -66,14 +84,13 @@ def find_gta_pid(target_executables: tuple[str, ...], *args, **kwargs) -> int | 
     return None
 
 
-def inject_dll(pid: int, dll_filename: str, **kwargs) -> bool:
+def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
     """
     Injects a DLL into a process with the given PID.
     :param pid: The Process ID of the target process.
     :param dll_path: The absolute path to the DLL file.
     :return: True if injection was successful, otherwise False.
     """
-    dll_path = os.path.join(YMU_DLL_DIR, dll_filename)
     if not os.path.isabs(dll_path):
         dll_path = os.path.abspath(dll_path)
     if not os.path.exists(dll_path):

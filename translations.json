@@ -97,7 +97,8 @@
                 "AlreadyRunning": "GTA 5 is already running!",
                 "SelectLauncher": "Please select a launcher first.",
                 "SuccessTitle": "Injection Successful",
-                "SuccessMsg": "Successfully injected DLL!"
+                "SuccessMsg": "Successfully injected DLL!",
+                "CustomDllMissing": "The configured custom DLL no longer exists:\n{0}"
             },
             "Help": {
                 "Title": "Injection Info",
@@ -119,13 +120,17 @@
                 "LaunchFailed": "Error launching game. See logs for details.",
                 "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
                 "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks page) and make\nsure the Legacy/Enhanced switch matches your game."
+            },
+            "Label": {
+                "Custom": "custom"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Appearance",
                 "Lua": "Lua Settings",
-                "Other": "Other"
+                "Other": "Other",
+                "Paths": "Custom Paths"
             },
             "Label": {
                 "Language": "Language"
@@ -190,6 +195,17 @@
                 "LangUpToDate": "Translations are already up-to-date.",
                 "V2FileMissing": "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
                 "FolderMissing": "Folder does not exist yet:\n{0}"
+            },
+            "Paths": {
+                "GtaDir": "GTA V install folder",
+                "CustomDll": "Custom menu DLL",
+                "Browse": "Browse",
+                "Clear": "Clear",
+                "AutoDetect": "Auto-detected",
+                "DefaultDll": "Use downloaded DLL",
+                "ErrorNotFound": "Path does not exist.",
+                "ErrorNoGta": "No GTA V executable found in this folder.",
+                "ErrorNotDll": "Please select a .dll file."
             }
         }
     },

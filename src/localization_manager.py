@@ -107,11 +107,13 @@ FALLBACK_DATA = {
                 "NoDll": "No DLL found",
                 "InjectFile": "Inject {0}",
             },
+            "Label": {"Custom": "custom"},
             "Notify": {
                 "AlreadyRunning": "GTA 5 is already running!",
                 "SelectLauncher": "Please select a launcher first.",
                 "SuccessTitle": "Injection Successful",
                 "SuccessMsg": "Successfully injected DLL!",
+                "CustomDllMissing": "The configured custom DLL no longer exists:\n{0}",
             },
             "Help": {
                 "Title": "Injection Info",
@@ -139,7 +141,19 @@ FALLBACK_DATA = {
             "Header": {
                 "Appearance": "Appearance",
                 "Lua": "Lua Settings",
+                "Paths": "Custom Paths",
                 "Other": "Other",
+            },
+            "Paths": {
+                "GtaDir": "GTA V install folder",
+                "CustomDll": "Custom menu DLL",
+                "Browse": "Browse",
+                "Clear": "Clear",
+                "AutoDetect": "Auto-detected",
+                "DefaultDll": "Use downloaded DLL",
+                "ErrorNotFound": "Path does not exist.",
+                "ErrorNoGta": "No GTA V executable found in this folder.",
+                "ErrorNotDll": "Please select a .dll file.",
             },
             "Label": {"Language": "Language"},
             "Theme": {"Dark": "Dark", "Light": "Light"},

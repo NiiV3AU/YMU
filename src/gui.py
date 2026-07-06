@@ -63,11 +63,13 @@ from PySide6.QtWidgets import (
     QButtonGroup,
     QComboBox,
     QDialog,
+    QFileDialog,
     QFrame,
     QGridLayout,
     QHBoxLayout,
     QLabel,
     QLayout,
+    QLineEdit,
     QListWidget,
     QMainWindow,
     QMessageBox,
@@ -2404,16 +2406,41 @@ class InjectPage(QWidget):
             self.inject_button.stop_animation()
 
     def _update_dll_selector(self):
-        """Scans the DLL folder and dynamically adjusts the UI."""
+        """Scans the DLL folder plus any custom DLL and adjusts the UI.
+        Builds a display-name -> absolute-path map; dll_to_inject is an
+        absolute path."""
         dll_dir = YMU_DLL_DIR
         os.makedirs(dll_dir, exist_ok=True)
 
-        found_dlls = [f for f in os.listdir(dll_dir) if f.lower().endswith(".dll")]
-        cleaned_names = [name.removesuffix(".dll") for name in found_dlls]
+        self._dll_paths: dict[str, str] = {}
+        for f in os.listdir(dll_dir):
+            if f.lower().endswith(".dll"):
+                self._dll_paths[f.removesuffix(".dll")] = os.path.join(dll_dir, f)
 
+        custom_dll = get_config().get("paths.custom_dll")
+        if custom_dll:
+            if os.path.isfile(custom_dll):
+                label = "{0} ({1})".format(
+                    os.path.basename(custom_dll).removesuffix(".dll"),
+                    self.loc_manager.tr("Inject.Label.Custom", "custom"),
+                )
+                self._dll_paths[label] = custom_dll
+            elif not getattr(self, "_warned_missing_custom_dll", False):
+                self._warned_missing_custom_dll = True
+                cast(MainWindow, self.window()).notification_manager.show(
+                    self.loc_manager.tr("Common.Info", "Information"),
+                    self.loc_manager.tr(
+                        "Inject.Notify.CustomDllMissing",
+                        "The configured custom DLL no longer exists:\n{0}",
+                    ).format(custom_dll),
+                    icon_type="info",
+                )
+
+        names = list(self._dll_paths.keys())
+        self.dll_select.blockSignals(True)
         self.dll_select.clear()
 
-        if len(found_dlls) == 0:
+        if len(names) == 0:
             self.dll_select.setVisible(False)
             self.dll_to_inject = None
             self.inject_button.setText(
@@ -2421,30 +2448,30 @@ class InjectPage(QWidget):
             )
             self.inject_button.setEnabled(False)
 
-        elif len(found_dlls) == 1:
+        elif len(names) == 1:
             self.dll_select.setVisible(False)
-            self.dll_to_inject = found_dlls[0]
+            self.dll_to_inject = self._dll_paths[names[0]]
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
-            self.inject_button.setText(fmt.format(cleaned_names[0]))
+            self.inject_button.setText(fmt.format(names[0]))
 
         else:
-            self.dll_select.addItems(cleaned_names)
+            self.dll_select.addItems(names)
             self.dll_select.setVisible(True)
-            current_cleaned_name = self.dll_select.currentText()
-            self.dll_to_inject = f"{current_cleaned_name}.dll"
+            current_name = self.dll_select.currentText()
+            self.dll_to_inject = self._dll_paths[current_name]
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
-            self.inject_button.setText(fmt.format(current_cleaned_name))
+            self.inject_button.setText(fmt.format(current_name))
 
+        self.dll_select.blockSignals(False)
         self._update_ui_for_state()
 
     def _on_dll_selection_changed(self, index):
         """Updates the DLL to be injected when the user makes a selection."""
-        if index > -1:
-            cleaned_name = self.dll_select.currentText()
+        name = self.dll_select.currentText()
+        if index > -1 and name in getattr(self, "_dll_paths", {}):
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
-            self.inject_button.setText(fmt.format(cleaned_name))
-
-            self.dll_to_inject = f"{cleaned_name}.dll"
+            self.inject_button.setText(fmt.format(name))
+            self.dll_to_inject = self._dll_paths[name]
         self._update_ui_for_state()
 
     def _on_launcher_selection_changed(self):
@@ -2484,7 +2511,13 @@ class InjectPage(QWidget):
     def handle_start_gta_click(self):
         if self._state != self.STATE_IDLE:
             return
-        if process_manager.find_gta_pid(self.get_mode().target_executables) is not None:
+        if (
+            process_manager.find_gta_pid(
+                self.get_mode().target_executables,
+                get_config().get("paths.gta_dir"),
+            )
+            is not None
+        ):
             cast(MainWindow, self.window()).notification_manager.show(
                 self.loc_manager.tr("Common.Info", "Information"),
                 self.loc_manager.tr(
@@ -2512,6 +2545,14 @@ class InjectPage(QWidget):
             on_finished=self.on_launch_attempt_finished,
             on_error=self.on_task_error,
         )
+
+    def _resolve_game_dir(self) -> str | None:
+        """A user-configured custom install path wins over registry detection."""
+        custom_dir = get_config().get("paths.gta_dir")
+        if custom_dir and os.path.isdir(custom_dir):
+            logger.info(f"Using custom GTA V install path: {custom_dir}")
+            return custom_dir
+        return self._get_rockstar_path()
 
     def _get_rockstar_path(self) -> str | None:
         """Finds the GTA V install path via Registry (Standard & Enhanced)."""
@@ -2561,7 +2602,7 @@ class InjectPage(QWidget):
                 raise RuntimeError(f"Could not send command to {launcher}.") from e
 
         elif launcher == "Rockstar Games":
-            path = self._get_rockstar_path()
+            path = self._resolve_game_dir()
             if not path:
                 msg = self.loc_manager.tr(
                     "Inject.Error.NoRockstarPath",
@@ -2570,11 +2611,21 @@ class InjectPage(QWidget):
                 logger.error(msg)
                 raise FileNotFoundError(msg)
 
-            executable_path = os.path.join(path, "PlayGTAV.exe")
-            if not os.path.exists(executable_path):
+            # PlayGTAV.exe is the normal launcher; fall back to the direct
+            # game executables for exotic (custom-path) installs.
+            candidates = ["PlayGTAV.exe", "GTA5.exe", "GTA5_Enhanced.exe"]
+            executable_path = next(
+                (
+                    os.path.join(path, exe)
+                    for exe in candidates
+                    if os.path.exists(os.path.join(path, exe))
+                ),
+                None,
+            )
+            if not executable_path:
                 msg = self.loc_manager.tr(
                     "Inject.Error.NoExeFound", "Executable not found at '{0}'"
-                ).format(executable_path)
+                ).format(path)
                 logger.error(msg)
                 raise FileNotFoundError(msg)
 
@@ -2604,6 +2655,7 @@ class InjectPage(QWidget):
         self.worker_manager.run_task(
             process_manager.find_gta_pid,
             self.get_mode().target_executables,
+            get_config().get("paths.gta_dir"),
             on_finished=self.update_inject_button_status,
         )
 
@@ -3129,8 +3181,11 @@ class SettingsPage(QWidget):
             self.btn_check_for_updates, alignment=Qt.AlignmentFlag.AlignCenter
         )
 
+        paths_frame = self._build_paths_frame()
+
         content_layout.addWidget(appearance_frame)
         content_layout.addWidget(lua_frame)
+        content_layout.addWidget(paths_frame)
         content_layout.addWidget(other_frame)
         content_layout.addStretch()
 
@@ -3188,6 +3243,155 @@ class SettingsPage(QWidget):
         """Slot: the sidebar switch changed the active edition."""
         self._refresh_lua_lists()
         self._load_initial_settings()
+
+    def _build_paths_frame(self) -> QFrame:
+        """Custom GTA V install path and custom DLL (issue #19)."""
+        config = get_config()
+        link_button_colors = {
+            "color_normal": ("#8B8B8B", "#555555"),
+            "color_hover": ("#E0E0E0", "#121212"),
+        }
+
+        frame = QFrame()
+        frame.setObjectName("CardFrame")
+        layout = QVBoxLayout(frame)
+
+        title = QLabel(self.loc_manager.tr("Settings.Header.Paths", "Custom Paths"))
+        title.setObjectName("SettingsTitle")
+        layout.addWidget(title)
+
+        # --- GTA V install directory row ---
+        gta_label = QLabel(
+            self.loc_manager.tr("Settings.Paths.GtaDir", "GTA V install folder")
+        )
+        self.gta_dir_edit = QLineEdit()
+        self.gta_dir_edit.setReadOnly(True)
+        self.gta_dir_edit.setPlaceholderText(
+            self.loc_manager.tr("Settings.Paths.AutoDetect", "Auto-detected")
+        )
+        self.gta_dir_edit.setText(config.get("paths.gta_dir") or "")
+
+        btn_browse_gta = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Paths.Browse', 'Browse')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "folder.svg")),
+            **link_button_colors,
+        )
+        btn_browse_gta.setObjectName("LinkButton")
+        btn_clear_gta = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
+            theme_manager=self.theme_manager,
+            **link_button_colors,
+        )
+        btn_clear_gta.setObjectName("LinkButton")
+        btn_browse_gta.clicked.connect(self._browse_gta_dir)
+        btn_clear_gta.clicked.connect(lambda: self._clear_path("paths.gta_dir"))
+
+        gta_row = QHBoxLayout()
+        gta_row.addWidget(self.gta_dir_edit, stretch=1)
+        gta_row.addWidget(btn_browse_gta)
+        gta_row.addWidget(btn_clear_gta)
+
+        layout.addWidget(gta_label)
+        layout.addLayout(gta_row)
+
+        # --- Custom DLL row ---
+        dll_label = QLabel(
+            self.loc_manager.tr("Settings.Paths.CustomDll", "Custom menu DLL")
+        )
+        self.custom_dll_edit = QLineEdit()
+        self.custom_dll_edit.setReadOnly(True)
+        self.custom_dll_edit.setPlaceholderText(
+            self.loc_manager.tr("Settings.Paths.DefaultDll", "Use downloaded DLL")
+        )
+        self.custom_dll_edit.setText(config.get("paths.custom_dll") or "")
+
+        btn_browse_dll = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Paths.Browse', 'Browse')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "folder.svg")),
+            **link_button_colors,
+        )
+        btn_browse_dll.setObjectName("LinkButton")
+        btn_clear_dll = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
+            theme_manager=self.theme_manager,
+            **link_button_colors,
+        )
+        btn_clear_dll.setObjectName("LinkButton")
+        btn_browse_dll.clicked.connect(self._browse_custom_dll)
+        btn_clear_dll.clicked.connect(lambda: self._clear_path("paths.custom_dll"))
+
+        dll_row = QHBoxLayout()
+        dll_row.addWidget(self.custom_dll_edit, stretch=1)
+        dll_row.addWidget(btn_browse_dll)
+        dll_row.addWidget(btn_clear_dll)
+
+        layout.addSpacing(10)
+        layout.addWidget(dll_label)
+        layout.addLayout(dll_row)
+
+        return frame
+
+    def _browse_gta_dir(self):
+        directory = QFileDialog.getExistingDirectory(
+            self,
+            self.loc_manager.tr("Settings.Paths.GtaDir", "GTA V install folder"),
+        )
+        if not directory:
+            return
+        if not os.path.isdir(directory):
+            self._path_error(
+                self.loc_manager.tr(
+                    "Settings.Paths.ErrorNotFound", "Path does not exist."
+                )
+            )
+            return
+        gta_exes = ("playgtav.exe", "gta5.exe", "gta5_enhanced.exe")
+        present = {f.lower() for f in os.listdir(directory)}
+        if not present.intersection(gta_exes):
+            self._path_error(
+                self.loc_manager.tr(
+                    "Settings.Paths.ErrorNoGta",
+                    "No GTA V executable found in this folder.",
+                )
+            )
+            return
+        get_config().set("paths.gta_dir", directory)
+        self.gta_dir_edit.setText(directory)
+
+    def _browse_custom_dll(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self,
+            self.loc_manager.tr("Settings.Paths.CustomDll", "Custom menu DLL"),
+            "",
+            "DLL files (*.dll)",
+        )
+        if not file_path:
+            return
+        if not os.path.isfile(file_path) or not file_path.lower().endswith(".dll"):
+            self._path_error(
+                self.loc_manager.tr(
+                    "Settings.Paths.ErrorNotDll", "Please select a .dll file."
+                )
+            )
+            return
+        get_config().set("paths.custom_dll", file_path)
+        self.custom_dll_edit.setText(file_path)
+
+    def _clear_path(self, key: str):
+        get_config().set(key, None)
+        if key == "paths.gta_dir":
+            self.gta_dir_edit.clear()
+        elif key == "paths.custom_dll":
+            self.custom_dll_edit.clear()
+
+    def _path_error(self, message: str):
+        cast(MainWindow, self.window()).notification_manager.show(
+            self.loc_manager.tr("Common.Error", "Error"),
+            message,
+            icon_type="error",
+        )
 
     def _open_link(self, path_or_url: str):
         """Opens a local folder path or a web URL."""
