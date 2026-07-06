@@ -21,6 +21,9 @@ DEFAULTS = {
     "theme": "dark",
     "locale": "en_US",
     "mode": "legacy",
+    # True once the user has picked an edition via the sidebar toggle. Until
+    # then, YMU may auto-select the edition based on what is installed.
+    "mode_user_set": False,
     "paths": {
         "gta_dir": None,
         "custom_dll": None,

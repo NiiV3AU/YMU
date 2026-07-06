@@ -82,6 +82,7 @@ from PySide6.QtWidgets import (
 )
 
 import lua_manager
+import menu_modes
 import process_manager
 import release_service
 import settings_manager
@@ -1528,6 +1529,8 @@ class MainWindow(QMainWindow):
         self.loc_manager = loc_manager
         self.config = get_config()
         self.current_mode = get_mode(self.config.get("mode", "legacy"))
+        self._autodetect_message: Optional[str] = None
+        self._maybe_autodetect_edition()
         self.notification_manager = NotificationManager(self, self.theme_manager)
 
         self.setWindowTitle("YimMenuUpdater | NV3")
@@ -1598,6 +1601,15 @@ class MainWindow(QMainWindow):
         """Signals that the app is initialized and triggers the first paint."""
         self._is_ready_to_show = True
         self.update()
+
+        if self._autodetect_message:
+            self.notification_manager.show(
+                self.loc_manager.tr("Common.Info", "Information"),
+                self._autodetect_message,
+                icon_type="info",
+                duration=8000,
+            )
+            self._autodetect_message = None
 
     def paintEvent(self, event):
         """Called every time the window needs to be repainted."""
@@ -1722,7 +1734,7 @@ class MainWindow(QMainWindow):
             self.loc_manager.tr("Sidebar.Mode.Legacy", "Legacy")
         )
         self.mode_enhanced_label = QLabel(
-            self.loc_manager.tr("Sidebar.Mode.Enhanced", "Enhanced")
+            self.loc_manager.tr("Sidebar.Mode.Enhanced", "E&E")
         )
 
         self.mode_toggle = ToggleSwitch()
@@ -1759,6 +1771,8 @@ class MainWindow(QMainWindow):
     def _on_mode_toggled(self, checked: bool):
         """Persists the new mode and notifies all pages."""
         key = "enhanced" if checked else "legacy"
+        # A manual toggle is an explicit choice: stop auto-detecting from now on.
+        self.config.set("mode_user_set", True)
         if key == self.current_mode.key:
             return
         self.current_mode = get_mode(key)
@@ -1766,6 +1780,33 @@ class MainWindow(QMainWindow):
         self._update_mode_labels()
         logger.info(f"Mode switched to: {self.current_mode.display_name}")
         self.mode_changed.emit(self.current_mode)
+
+    def _maybe_autodetect_edition(self):
+        """On first run (before the user has ever picked an edition), select the
+        installed edition automatically so most users never touch the toggle.
+        Runs synchronously — it is only a couple of fast registry reads."""
+        if self.config.get("mode_user_set", False):
+            return
+        try:
+            detected = menu_modes.detect_installed_modes()
+        except Exception as e:
+            logger.warning(f"Edition auto-detection failed: {e}")
+            return
+
+        if len(detected) == 1 and detected[0] != self.current_mode.key:
+            new_mode = get_mode(detected[0])
+            logger.info(
+                f"Auto-detected {new_mode.display_name}; selecting it automatically."
+            )
+            self.current_mode = new_mode
+            self.config.set("mode", new_mode.key)
+            self._autodetect_message = self.loc_manager.tr(
+                "Sidebar.Mode.AutoDetected",
+                "Detected {0} — selected it automatically.\n"
+                "Use the sidebar switch to change it.",
+            ).format(new_mode.display_name)
+        elif len(detected) > 1:
+            logger.info("Both GTA V editions detected; keeping the saved mode.")
 
 
 class RiskPage(QWidget):
@@ -1894,7 +1935,9 @@ class DownloadPage(QWidget):
     STATUS_DOWNLOAD = "STATUS_DOWNLOAD"
     STATUS_UPDATE = "STATUS_UPDATE"
 
-    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
+    def __init__(
+        self, theme_manager, worker_manager, loc_manager, get_mode, parent=None
+    ):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
@@ -2245,7 +2288,9 @@ class InjectPage(QWidget):
     STATE_INJECTING = "INJECTING"
     STATE_INJECTED = "INJECTED"
 
-    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
+    def __init__(
+        self, theme_manager, worker_manager, loc_manager, get_mode, parent=None
+    ):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
@@ -2406,16 +2451,21 @@ class InjectPage(QWidget):
             self.inject_button.stop_animation()
 
     def _update_dll_selector(self):
-        """Scans the DLL folder plus any custom DLL and adjusts the UI.
-        Builds a display-name -> absolute-path map; dll_to_inject is an
-        absolute path."""
+        """Builds the DLL choice for the active edition. The Legacy/Enhanced
+        DLL follows the global sidebar toggle, so the only real choice is
+        whether to use it or a user-configured custom DLL. The selector is
+        therefore only shown when a custom DLL is present alongside the
+        edition's DLL. dll_to_inject is an absolute path."""
         dll_dir = YMU_DLL_DIR
         os.makedirs(dll_dir, exist_ok=True)
+        mode = self.get_mode()
 
         self._dll_paths: dict[str, str] = {}
-        for f in os.listdir(dll_dir):
-            if f.lower().endswith(".dll"):
-                self._dll_paths[f.removesuffix(".dll")] = os.path.join(dll_dir, f)
+
+        # The DLL that matches the currently selected edition.
+        mode_dll_path = os.path.join(dll_dir, mode.dll_name)
+        if os.path.isfile(mode_dll_path):
+            self._dll_paths[mode.dll_name.removesuffix(".dll")] = mode_dll_path
 
         custom_dll = get_config().get("paths.custom_dll")
         if custom_dll:
@@ -2446,17 +2496,25 @@ class InjectPage(QWidget):
             self.inject_button.setText(
                 self.loc_manager.tr("Inject.Btn.NoDll", "No DLL found")
             )
+            self.inject_button.setToolTip(
+                self.loc_manager.tr(
+                    "Inject.Tooltip.NoDll",
+                    "Download the {0} DLL on the Download page first.",
+                ).format(mode.display_name)
+            )
             self.inject_button.setEnabled(False)
 
         elif len(names) == 1:
             self.dll_select.setVisible(False)
             self.dll_to_inject = self._dll_paths[names[0]]
+            self.inject_button.setToolTip("")
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
             self.inject_button.setText(fmt.format(names[0]))
 
         else:
             self.dll_select.addItems(names)
             self.dll_select.setVisible(True)
+            self.inject_button.setToolTip("")
             current_name = self.dll_select.currentText()
             self.dll_to_inject = self._dll_paths[current_name]
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
@@ -2537,61 +2595,42 @@ class InjectPage(QWidget):
             return
 
         self._set_state(self.STATE_LAUNCHING)
-        # Capture the launcher on the GUI thread; the worker must not read widgets.
+        # Capture launcher and mode on the GUI thread; the worker must not read
+        # widgets or the live mode.
         launcher = self.launcher_select.currentText()
+        mode = self.get_mode()
         self.worker_manager.run_task(
             self._launch_game_logic,
             launcher,
+            mode,
             on_finished=self.on_launch_attempt_finished,
             on_error=self.on_task_error,
         )
 
-    def _resolve_game_dir(self) -> str | None:
-        """A user-configured custom install path wins over registry detection."""
+    def _resolve_game_dir(self, mode: MenuMode) -> str | None:
+        """Resolves the install directory of the active edition. A user-set
+        custom path wins (poweruser override); otherwise the edition's Rockstar
+        registry keys are used."""
         custom_dir = get_config().get("paths.gta_dir")
         if custom_dir and os.path.isdir(custom_dir):
             logger.info(f"Using custom GTA V install path: {custom_dir}")
             return custom_dir
-        return self._get_rockstar_path()
+        return menu_modes.get_install_dir(mode)
 
-    def _get_rockstar_path(self) -> str | None:
-        """Finds the GTA V install path via Registry (Standard & Enhanced)."""
-        if not IS_WINDOWS:
-            return None
-        possible_subkeys = [
-            r"SOFTWARE\Rockstar Games\Grand Theft Auto V",
-            r"SOFTWARE\WOW6432Node\Rockstar Games\Grand Theft Auto V",
-            r"SOFTWARE\Rockstar Games\GTAV Enhanced",
-            r"SOFTWARE\WOW6432Node\Rockstar Games\GTAV Enhanced",
-        ]
+    def _launch_game_logic(self, launcher: str, mode: MenuMode, progress_signal=None):
+        """Contains the actual logic for launching the game for a given
+        edition."""
+        logger.info(
+            f"Attempting to launch {mode.display_name} via {launcher} launcher."
+        )
 
-        for subkey in possible_subkeys:
-            try:
-                regkey = winreg.OpenKey(
-                    winreg.HKEY_LOCAL_MACHINE, subkey, 0, winreg.KEY_READ
-                )
-                path, _ = winreg.QueryValueEx(regkey, "InstallFolder")
-                winreg.CloseKey(regkey)
-                if path:
-                    path = path.strip('"').strip()
-                    if os.path.exists(path):
-                        logger.info(f"Found GTA V path via registry at: {path}")
-                        return path
-            except OSError:
-                continue
+        if launcher == "Steam":
+            uri = mode.steam_uri
+        elif launcher == "Epic Games":
+            uri = menu_modes.EPIC_LAUNCH_URI
+        else:
+            uri = None
 
-        logger.error("Could not find Rockstar Games installation path in registry.")
-        return None
-
-    def _launch_game_logic(self, launcher: str, progress_signal=None):
-        """Contains the actual logic for launching the game."""
-        logger.info(f"Attempting to launch GTA 5 via {launcher} launcher.")
-        launch_uris = {
-            "Steam": "steam://run/271590",
-            "Epic Games": "com.epicgames.launcher://apps/9d2d0eb64d5c44529cece33fe2a46482?action=launch&silent=true",
-        }
-
-        uri = launch_uris.get(launcher)
         if uri:
             try:
                 webbrowser.open(uri)
@@ -2602,7 +2641,7 @@ class InjectPage(QWidget):
                 raise RuntimeError(f"Could not send command to {launcher}.") from e
 
         elif launcher == "Rockstar Games":
-            path = self._resolve_game_dir()
+            path = self._resolve_game_dir(mode)
             if not path:
                 msg = self.loc_manager.tr(
                     "Inject.Error.NoRockstarPath",
@@ -2611,13 +2650,12 @@ class InjectPage(QWidget):
                 logger.error(msg)
                 raise FileNotFoundError(msg)
 
-            # PlayGTAV.exe is the normal launcher; fall back to the direct
-            # game executables for exotic (custom-path) installs.
-            candidates = ["PlayGTAV.exe", "GTA5.exe", "GTA5_Enhanced.exe"]
+            # PlayGTAV.exe is the normal launcher shim; fall back to the direct
+            # edition executable for exotic (custom-path) installs.
             executable_path = next(
                 (
                     os.path.join(path, exe)
-                    for exe in candidates
+                    for exe in mode.launch_executables
                     if os.path.exists(os.path.join(path, exe))
                 ),
                 None,
@@ -2633,7 +2671,7 @@ class InjectPage(QWidget):
                 os.startfile(executable_path)
                 return "Success"
             except OSError as e:
-                logger.exception(f"Failed to start PlayGTAV.exe: {e}")
+                logger.exception(f"Failed to start {executable_path}: {e}")
                 msg = self.loc_manager.tr(
                     "Inject.Error.LaunchFailed",
                     "Error launching game. See logs for details.",
@@ -2777,7 +2815,9 @@ class InjectPage(QWidget):
 
 
 class SettingsPage(QWidget):
-    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
+    def __init__(
+        self, theme_manager, worker_manager, loc_manager, get_mode, parent=None
+    ):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager

@@ -33,7 +33,7 @@ StringFileInfo(
     StringStruct(u'FileDescription', u'YimMenuUpdater'),
     StringStruct(u'FileVersion', u'1.1.7'),
     StringStruct(u'InternalName', u'YMU'),
-    StringStruct(u'LegalCopyright', u'github.com/NiiV3AU/YMU - 2025'),
+    StringStruct(u'LegalCopyright', u'github.com/NiiV3AU/YMU - 2026'),
     StringStruct(u'OriginalFilename', u'ymu.exe'),
     StringStruct(u'ProductName', u'YMU'),
     StringStruct(u'ProductVersion', u'1.1.7')])

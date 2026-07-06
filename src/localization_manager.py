@@ -30,8 +30,9 @@ FALLBACK_DATA = {
             },
             "Mode": {
                 "Legacy": "Legacy",
-                "Enhanced": "Enhanced",
+                "Enhanced": "E&E",
                 "Tooltip": "Switch between YimMenu (Legacy) and YimMenuV2 (Enhanced)",
+                "AutoDetected": "Detected {0} — selected it automatically.\nUse the sidebar switch to change it.",
             },
         },
         "Common": {
@@ -125,6 +126,7 @@ FALLBACK_DATA = {
                 "Help": "Show help for the injection process",
                 "Launcher": "Select the launcher you use to start GTA V",
                 "Dll": "Select the DLL to inject",
+                "NoDll": "Download the {0} DLL on the Download page first.",
             },
             "Error": {
                 "NoDllSelected": "Error: No DLL selected or found for injection.",
