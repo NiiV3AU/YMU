@@ -28,6 +28,11 @@ FALLBACK_DATA = {
                 "Risks": "Show important warnings and information",
                 "ProjectPage": "Open the YMU project page in your browser",
             },
+            "Mode": {
+                "Legacy": "Legacy",
+                "Enhanced": "Enhanced",
+                "Tooltip": "Switch between YimMenu (Legacy) and YimMenuV2 (Enhanced)",
+            },
         },
         "Common": {
             "Error": "Error",
@@ -91,6 +96,7 @@ FALLBACK_DATA = {
             "Tooltip": {
                 "Help": "Show help for DLL and FSL installation",
                 "Channel": "Select the YimMenu version to download",
+                "ActiveChannel": "Active edition — change it with the Legacy/Enhanced switch in the sidebar",
             },
         },
         "Inject": {
@@ -126,6 +132,7 @@ FALLBACK_DATA = {
                 "NoExeFound": "Executable not found at '{0}'",
                 "LaunchFailed": "Error launching game. See logs for details.",
                 "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
+                "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks page) and make\nsure the Legacy/Enhanced switch matches your game.",
             },
         },
         "Settings": {
@@ -140,6 +147,7 @@ FALLBACK_DATA = {
                 "AutoReload": "Auto-reload changed scripts",
                 "ListDisabled": "Disabled",
                 "ListEnabled": "Enabled",
+                "NoScriptsDir": "No {0} folder found yet.\nInject and run it once to create it.",
                 "Tooltip": {
                     "AutoReload": "Automatically re-apply changes when Lua script files are saved",
                     "Enable": "Enable selected script(s)",
@@ -189,6 +197,8 @@ FALLBACK_DATA = {
                 "LangUpdated": "Translations were successfully downloaded.\nRestart YMU to see the updated Language List in Settings.",
                 "LangTitle": "Language Changed",
                 "LangUpToDate": "Translations are already up-to-date.",
+                "V2FileMissing": "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
+                "FolderMissing": "Folder does not exist yet:\n{0}",
             },
         },
     }

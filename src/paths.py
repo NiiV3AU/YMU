@@ -28,10 +28,17 @@ YMU_DLL_DIR = _create_path(os.path.join(YMU_APPDATA_DIR, "dll"))
 YMU_LOG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "ymu.log")
 YMU_CONFIG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "config.json")
 
-YIMMENU_APPDATA_DIR = _create_path(os.path.join(APPDATA_PATH, "YimMenu"))
+# YimMenu directories are intentionally NOT created here: their absence is
+# how YMU detects that an edition is not installed yet.
+YIMMENU_APPDATA_DIR = os.path.join(APPDATA_PATH, "YimMenu")
 YIMMENU_SCRIPTS_DIR = os.path.join(YIMMENU_APPDATA_DIR, "scripts")
 YIMMENU_DISABLED_SCRIPTS_DIR = os.path.join(YIMMENU_SCRIPTS_DIR, "disabled")
 YIMMENU_SETTINGS_FILE_PATH = os.path.join(YIMMENU_APPDATA_DIR, "settings.json")
+
+YIMMENUV2_APPDATA_DIR = os.path.join(APPDATA_PATH, "YimMenuV2")
+YIMMENUV2_SCRIPTS_DIR = os.path.join(YIMMENUV2_APPDATA_DIR, "scripts")
+YIMMENUV2_DISABLED_SCRIPTS_DIR = os.path.join(YIMMENUV2_SCRIPTS_DIR, "disabled")
+YIMMENUV2_SETTINGS_FILE_PATH = os.path.join(YIMMENUV2_APPDATA_DIR, "settings.json")
 YMU_LANG_DIR = _create_path(os.path.join(YMU_APPDATA_DIR, "lang"))
 
 

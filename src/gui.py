@@ -85,12 +85,11 @@ import release_service
 import settings_manager
 import update_checker
 from localization_manager import LocalizationManager
+from menu_modes import MenuMode, get_mode
 
 # import modules
 from paths import (
     LOCAL_VERSION,
-    YIMMENU_APPDATA_DIR,
-    YIMMENU_SCRIPTS_DIR,
     YMU_APPDATA_DIR,
     YMU_DLL_DIR,
     YMU_LOG_FILE_PATH,
@@ -98,6 +97,7 @@ from paths import (
 )
 from theme_manager import ThemeManager
 from worker_manager import WorkerManager
+from ymu_config import get_config
 
 log_formatter = logging.Formatter(
     fmt="%(asctime)s [%(levelname)-8s] [%(name)-18s] %(message)s", datefmt="%H:%M:%S"
@@ -1510,6 +1510,8 @@ class ToggleSwitch(QWidget):
 
 
 class MainWindow(QMainWindow):
+    mode_changed = Signal(object)  # emits the new MenuMode
+
     def __init__(
         self,
         theme_manager: "ThemeManager",
@@ -1522,6 +1524,8 @@ class MainWindow(QMainWindow):
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
         self.loc_manager = loc_manager
+        self.config = get_config()
+        self.current_mode = get_mode(self.config.get("mode", "legacy"))
         self.notification_manager = NotificationManager(self, self.theme_manager)
 
         self.setWindowTitle("YimMenuUpdater | NV3")
@@ -1543,6 +1547,8 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.content_stack, stretch=1)
         self.setCentralWidget(main_widget)
 
+        get_active_mode = lambda: self.current_mode  # noqa: E731
+
         self.risk_page = RiskPage(
             theme_manager=self.theme_manager, loc_manager=self.loc_manager
         )
@@ -1550,17 +1556,24 @@ class MainWindow(QMainWindow):
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
+            get_mode=get_active_mode,
         )
         self.inject_page = InjectPage(
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
+            get_mode=get_active_mode,
         )
         self.settings_page = SettingsPage(
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
+            get_mode=get_active_mode,
         )
+
+        self.mode_changed.connect(self.download_page.on_mode_changed)
+        self.mode_changed.connect(self.inject_page.on_mode_changed)
+        self.mode_changed.connect(self.settings_page.on_mode_changed)
 
         self.content_stack.addWidget(self.risk_page)
         self.content_stack.addWidget(self.download_page)
@@ -1568,7 +1581,6 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(self.settings_page)
 
         self.setup_sidebar(sidebar_layout)
-        self._trigger_initial_dll_checks()
 
     def _on_translation_update_finished(self, update_occurred: bool):
         """Slot: Called when the LocalizationManager has finished checking."""
@@ -1665,6 +1677,8 @@ class MainWindow(QMainWindow):
         self.button_group.addButton(btn_settings)
         layout.addStretch()
 
+        self._setup_mode_switch(layout)
+
         footer_button = StatefulButton(
             f"YMU {update_checker.LOCAL_VERSION}\n© NiiV3AU",
             theme_manager=self.theme_manager,
@@ -1695,25 +1709,61 @@ class MainWindow(QMainWindow):
             lambda: self.content_stack.setCurrentWidget(self.settings_page)
         )
 
-    def _trigger_initial_dll_checks(self):
-        """
-        Triggers a background update check for all DLL channels upon startup
-        to populate the cache.
-        """
-        logger.info("Triggering initial DLL checks in the background...")
-        all_channels = list(self.download_page.RELEASE_CHANNELS.keys())
+    def _setup_mode_switch(self, layout: QVBoxLayout):
+        """Builds the Legacy/Enhanced edition switch at the bottom of the sidebar."""
+        mode_frame = QFrame()
+        mode_frame.setObjectName("ModeSwitchFrame")
+        mode_layout = QHBoxLayout(mode_frame)
+        mode_layout.setContentsMargins(10, 4, 10, 4)
 
-        for i, channel_name in enumerate(all_channels):
-            QTimer.singleShot(
-                i * 200, lambda name=channel_name: self._check_channel(name)
+        self.mode_legacy_label = QLabel(
+            self.loc_manager.tr("Sidebar.Mode.Legacy", "Legacy")
+        )
+        self.mode_enhanced_label = QLabel(
+            self.loc_manager.tr("Sidebar.Mode.Enhanced", "Enhanced")
+        )
+
+        self.mode_toggle = ToggleSwitch()
+        self.mode_toggle.setToolTip(
+            self.loc_manager.tr(
+                "Sidebar.Mode.Tooltip",
+                "Switch between YimMenu (Legacy) and YimMenuV2 (Enhanced)",
             )
+        )
 
-    def _check_channel(self, channel_name: str):
-        """Helper function to check a single channel."""
-        logger.info(f"Running startup check for: {channel_name}")
-        index = self.download_page.channel_select.findText(channel_name)
-        if index != -1:
-            self.download_page.channel_select.setCurrentIndex(index)
+        mode_layout.addWidget(self.mode_legacy_label)
+        mode_layout.addStretch()
+        mode_layout.addWidget(self.mode_toggle)
+        mode_layout.addStretch()
+        mode_layout.addWidget(self.mode_enhanced_label)
+
+        layout.addWidget(mode_frame)
+
+        self.mode_toggle.blockSignals(True)
+        self.mode_toggle.setChecked(self.current_mode.key == "enhanced")
+        self.mode_toggle.blockSignals(False)
+        self._update_mode_labels()
+
+        self.mode_toggle.toggled.connect(self._on_mode_toggled)
+
+    def _update_mode_labels(self):
+        """Highlights the active edition so the current mode is unambiguous."""
+        active = "font-weight: bold; color: #28A745;"
+        inactive = "color: #8B8B8B;"
+        is_enhanced = self.current_mode.key == "enhanced"
+        self.mode_legacy_label.setStyleSheet(inactive if is_enhanced else active)
+        self.mode_enhanced_label.setStyleSheet(active if is_enhanced else inactive)
+
+    def _on_mode_toggled(self, checked: bool):
+        """Persists the new mode and notifies all pages."""
+        key = "enhanced" if checked else "legacy"
+        if key == self.current_mode.key:
+            return
+        self.current_mode = get_mode(key)
+        self.config.set("mode", key)
+        self._update_mode_labels()
+        logger.info(f"Mode switched to: {self.current_mode.display_name}")
+        self.mode_changed.emit(self.current_mode)
 
 
 class RiskPage(QWidget):
@@ -1841,19 +1891,13 @@ class DownloadPage(QWidget):
     STATUS_UPTODATE = "STATUS_UPTODATE"
     STATUS_DOWNLOAD = "STATUS_DOWNLOAD"
     STATUS_UPDATE = "STATUS_UPDATE"
-    RELEASE_CHANNELS = {
-        "YimMenu (Legacy)": {"repo": "Mr-X-GTA/YimMenu", "dll_name": "YimMenu.dll"},
-        "YimMenuV2 (Enhanced)": {
-            "repo": "YimMenu/YimMenuV2",
-            "dll_name": "YimMenuV2.dll",
-        },
-    }
 
-    def __init__(self, theme_manager, worker_manager, loc_manager, parent=None):
+    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
         self.loc_manager = loc_manager
+        self.get_mode = get_mode
 
         self.latest_release_data = None
         self.release_provider = None
@@ -1877,14 +1921,15 @@ class DownloadPage(QWidget):
         )
         info_button.setIconSize(QSize(20, 20))
 
-        self.channel_select = QComboBox()
-        self.channel_select.addItems(list(self.RELEASE_CHANNELS.keys()))
-        self.channel_select.setToolTip(
+        self.channel_label = QLabel(self.get_mode().display_name)
+        self.channel_label.setObjectName("SettingsTitle")
+        self.channel_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.channel_label.setToolTip(
             self.loc_manager.tr(
-                "Download.Tooltip.Channel", "Select the YimMenu version to download"
+                "Download.Tooltip.ActiveChannel",
+                "Active edition — change it with the Legacy/Enhanced switch in the sidebar",
             )
         )
-        self.channel_select.setCursor(Qt.CursorShape.PointingHandCursor)
         self.status_label = QLabel(
             self.loc_manager.tr(
                 "Download.Status.Initial", "Select a channel to check for updates."
@@ -1908,7 +1953,7 @@ class DownloadPage(QWidget):
         card_frame.setObjectName("CardFrame")
         card_layout = QVBoxLayout(card_frame)
         card_layout.setSpacing(15)
-        card_layout.addWidget(self.channel_select)
+        card_layout.addWidget(self.channel_label)
         card_layout.addWidget(self.status_label)
         card_layout.addWidget(
             self.download_button, alignment=Qt.AlignmentFlag.AlignCenter
@@ -1928,8 +1973,12 @@ class DownloadPage(QWidget):
 
         info_button.clicked.connect(self.show_download_info_dialog)
         self.download_button.clicked.connect(self._on_download_button_clicked)
-        self.channel_select.currentIndexChanged.connect(self.trigger_update_check)
 
+        self.trigger_update_check()
+
+    def on_mode_changed(self, mode: MenuMode):
+        """Slot: the sidebar switch changed the active edition."""
+        self.channel_label.setText(mode.display_name)
         self.trigger_update_check()
 
     def _on_download_button_clicked(self):
@@ -1951,16 +2000,17 @@ class DownloadPage(QWidget):
             self.loc_manager.tr("Download.Btn.Checking", "Checking...")
         )
 
-        selected_channel_name = self.channel_select.currentText()
-        channel_info = self.RELEASE_CHANNELS[selected_channel_name]
-        repo_path = channel_info["repo"]
-        dll_name = channel_info["dll_name"]
+        # Capture everything mode-dependent on the GUI thread; the worker
+        # must not read widgets or the mode itself.
+        mode = self.get_mode()
+        repo_path = mode.repo
 
         self.release_provider = release_service.GitHubAPIProvider(repository=repo_path)
-        self.local_dll_path = os.path.join(YMU_DLL_DIR, dll_name)
+        self.local_dll_path = os.path.join(YMU_DLL_DIR, mode.dll_name)
 
         self.worker_manager.run_task(
-            target=self._update_check_logic,
+            self._update_check_logic,
+            repo_path,
             on_finished=self._handle_update_check_result,
             on_error=self._handle_worker_error,
         )
@@ -2000,16 +2050,15 @@ class DownloadPage(QWidget):
         )
         dialog.exec()
 
-    def _update_check_logic(self, progress_signal=None):
+    def _update_check_logic(self, repo_path: str, progress_signal=None):
         """
-        Fetches the latest release data.
+        Fetches the latest release data. Runs on a worker thread, so the
+        repo is passed in instead of being read from widgets.
         RETURNS CONSTANTS instead of display strings.
         """
         if self.release_provider is None:
             raise RuntimeError("Release provider has not been initialized.")
 
-        selected_channel_name = self.channel_select.currentText()
-        repo_path = self.RELEASE_CHANNELS[selected_channel_name]["repo"]
         current_time = time.time()
 
         if repo_path in self._release_cache:
@@ -2071,7 +2120,7 @@ class DownloadPage(QWidget):
 
             title_fmt = self.loc_manager.tr("Download.Notify.UpdateTitle", "{0} Update")
             cast(MainWindow, self.window()).notification_manager.show(
-                title_fmt.format(self.channel_select.currentText()),
+                title_fmt.format(self.get_mode().display_name),
                 self.loc_manager.tr(
                     "Download.Notify.NewVersion", "A new version is ready."
                 ),
@@ -2194,11 +2243,12 @@ class InjectPage(QWidget):
     STATE_INJECTING = "INJECTING"
     STATE_INJECTED = "INJECTED"
 
-    def __init__(self, theme_manager, worker_manager, loc_manager, parent=None):
+    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
         self.loc_manager = loc_manager
+        self.get_mode = get_mode
 
         self.gta_pid = None
         self._state = self.STATE_IDLE
@@ -2309,6 +2359,13 @@ class InjectPage(QWidget):
         super().hideEvent(event)
         self.process_checker_timer.stop()
         logger.debug("InjectPage hidden, stopped process checker timer.")
+
+    def on_mode_changed(self, mode: MenuMode):
+        """Slot: the sidebar switch changed the active edition.
+        The old PID belongs to the other edition's executable, so reset."""
+        self.gta_pid = None
+        self._set_state(self.STATE_IDLE)
+        self._update_dll_selector()
 
     def _set_state(self, new_state):
         """The only function that should ever change the state."""
@@ -2427,7 +2484,7 @@ class InjectPage(QWidget):
     def handle_start_gta_click(self):
         if self._state != self.STATE_IDLE:
             return
-        if process_manager.find_gta_pid() is not None:
+        if process_manager.find_gta_pid(self.get_mode().target_executables) is not None:
             cast(MainWindow, self.window()).notification_manager.show(
                 self.loc_manager.tr("Common.Info", "Information"),
                 self.loc_manager.tr(
@@ -2447,8 +2504,11 @@ class InjectPage(QWidget):
             return
 
         self._set_state(self.STATE_LAUNCHING)
+        # Capture the launcher on the GUI thread; the worker must not read widgets.
+        launcher = self.launcher_select.currentText()
         self.worker_manager.run_task(
-            target=self._launch_game_logic,
+            self._launch_game_logic,
+            launcher,
             on_finished=self.on_launch_attempt_finished,
             on_error=self.on_task_error,
         )
@@ -2482,9 +2542,8 @@ class InjectPage(QWidget):
         logger.error("Could not find Rockstar Games installation path in registry.")
         return None
 
-    def _launch_game_logic(self, progress_signal=None):
+    def _launch_game_logic(self, launcher: str, progress_signal=None):
         """Contains the actual logic for launching the game."""
-        launcher = self.launcher_select.currentText()
         logger.info(f"Attempting to launch GTA 5 via {launcher} launcher.")
         launch_uris = {
             "Steam": "steam://run/271590",
@@ -2543,7 +2602,8 @@ class InjectPage(QWidget):
         if self._state in [self.STATE_INJECTING]:
             return
         self.worker_manager.run_task(
-            target=process_manager.find_gta_pid,
+            process_manager.find_gta_pid,
+            self.get_mode().target_executables,
             on_finished=self.update_inject_button_status,
         )
 
@@ -2562,31 +2622,35 @@ class InjectPage(QWidget):
             return
 
         self._set_state(self.STATE_INJECTING)
+        # Capture PID and DLL on the GUI thread; the worker must not read
+        # mutable page state.
         self.worker_manager.run_task(
-            target=self._inject_logic,
+            self._inject_logic,
+            self.gta_pid,
+            self.dll_to_inject,
             on_finished=self.on_injection_complete,
             on_error=self.on_task_error,
         )
 
-    def _inject_logic(self, progress_signal=None):
+    def _inject_logic(self, pid, dll_to_inject, progress_signal=None):
         """Contains the actual logic for injecting the DLL."""
-        assert self.gta_pid is not None
+        assert pid is not None
 
-        if not self.dll_to_inject:
+        if not dll_to_inject:
             msg = self.loc_manager.tr(
                 "Inject.Error.NoDllSelected",
                 "Error: No DLL selected or found for injection.",
             )
             raise ValueError(msg)
 
-        if not process_manager.is_process_running(self.gta_pid):
+        if not process_manager.is_process_running(pid):
             msg = self.loc_manager.tr(
                 "Inject.Error.ProcessLost",
                 "GTA 5 process disappeared before injection.",
             )
             raise RuntimeError(msg)
 
-        success = process_manager.inject_dll(self.gta_pid, self.dll_to_inject)
+        success = process_manager.inject_dll(pid, dll_to_inject)
 
         if success:
             return "Success"
@@ -2617,6 +2681,24 @@ class InjectPage(QWidget):
         else:
             self._set_state(self.STATE_IDLE)
         if isinstance(error, PermissionError) or "Access Denied" in str(error):
+            if process_manager.is_admin():
+                # Already elevated — admin rights are not the problem, so a
+                # "Restart as Admin" loop (issue #17) would never resolve it.
+                # The usual culprit is BattlEye or an edition mismatch.
+                msg = self.loc_manager.tr(
+                    "Inject.Error.AccessDeniedAdmin",
+                    "Injection was denied even with Administrator rights.\n"
+                    "This is usually caused by BattlEye or a wrong game edition.\n"
+                    "Disable BattlEye in your launcher (see Risks page) and make\n"
+                    "sure the Legacy/Enhanced switch matches your game.",
+                )
+                cast(MainWindow, self.window()).notification_manager.show(
+                    self.loc_manager.tr("Common.Error", "Permission Error"),
+                    msg,
+                    icon_type="error",
+                    duration=12000,
+                )
+                return
             msg = self.loc_manager.tr(
                 "Inject.Error.AccessDenied",
                 "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
@@ -2639,11 +2721,12 @@ class InjectPage(QWidget):
 
 
 class SettingsPage(QWidget):
-    def __init__(self, theme_manager, worker_manager, loc_manager, parent=None):
+    def __init__(self, theme_manager, worker_manager, loc_manager, get_mode, parent=None):
         super().__init__(parent)
         self.theme_manager = theme_manager
         self.worker_manager = worker_manager
         self.loc_manager = loc_manager
+        self.get_mode = get_mode
         self._is_task_running = False
 
         scroll_content_widget = QWidget()
@@ -2802,6 +2885,13 @@ class SettingsPage(QWidget):
         lua_layout.addWidget(lua_title)
         lua_layout.addLayout(auto_reload_layout)
 
+        self.lua_hint_label = QLabel("")
+        self.lua_hint_label.setObjectName("RiskInfoLabel")
+        self.lua_hint_label.setWordWrap(True)
+        self.lua_hint_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lua_hint_label.setVisible(False)
+        lua_layout.addWidget(self.lua_hint_label)
+
         manager_grid_layout = QGridLayout()
 
         disabled_label = QLabel(
@@ -2832,7 +2922,7 @@ class SettingsPage(QWidget):
         buttons_layout = QVBoxLayout()
         buttons_layout.addStretch()
 
-        btn_enable_script = StatefulButton(
+        self.btn_enable_script = StatefulButton(
             "",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
@@ -2841,10 +2931,10 @@ class SettingsPage(QWidget):
             color_normal=color_normal_lua,
             color_hover=("#FFFFFF", "#FFFFFF"),
         )
-        btn_enable_script.setObjectName("EnableButton")
-        btn_enable_script.setIconSize(QSize(20, 20))
-        btn_enable_script.setFixedSize(36, 36)
-        btn_enable_script.setToolTip(
+        self.btn_enable_script.setObjectName("EnableButton")
+        self.btn_enable_script.setIconSize(QSize(20, 20))
+        self.btn_enable_script.setFixedSize(36, 36)
+        self.btn_enable_script.setToolTip(
             self.loc_manager.tr(
                 "Settings.Lua.Tooltip.Enable", "Enable selected script(s)"
             )
@@ -2864,7 +2954,7 @@ class SettingsPage(QWidget):
             self.loc_manager.tr("Settings.Lua.Tooltip.Refresh", "Refresh script lists")
         )
 
-        btn_disable_script = StatefulButton(
+        self.btn_disable_script = StatefulButton(
             "",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
@@ -2873,20 +2963,20 @@ class SettingsPage(QWidget):
             color_normal=color_normal_lua,
             color_hover=("#FFFFFF", "#FFFFFF"),
         )
-        btn_disable_script.setObjectName("DisableButton")
-        btn_disable_script.setIconSize(QSize(20, 20))
-        btn_disable_script.setFixedSize(36, 36)
-        btn_disable_script.setToolTip(
+        self.btn_disable_script.setObjectName("DisableButton")
+        self.btn_disable_script.setIconSize(QSize(20, 20))
+        self.btn_disable_script.setFixedSize(36, 36)
+        self.btn_disable_script.setToolTip(
             self.loc_manager.tr(
                 "Settings.Lua.Tooltip.Disable", "Disable selected script(s)"
             )
         )
 
-        buttons_layout.addWidget(btn_enable_script)
+        buttons_layout.addWidget(self.btn_enable_script)
         buttons_layout.addSpacing(10)
         buttons_layout.addWidget(self.btn_refresh_luas)
         buttons_layout.addSpacing(10)
-        buttons_layout.addWidget(btn_disable_script)
+        buttons_layout.addWidget(self.btn_disable_script)
         buttons_layout.addStretch()
 
         manager_grid_layout.addLayout(buttons_layout, 1, 1)
@@ -3053,7 +3143,9 @@ class SettingsPage(QWidget):
         page_layout.setContentsMargins(0, 0, 0, 0)
         page_layout.addWidget(scroll_area)
 
-        btn_open_folder.clicked.connect(lambda: self._open_link(YIMMENU_APPDATA_DIR))
+        btn_open_folder.clicked.connect(
+            lambda: self._open_link(self.get_mode().appdata_dir)
+        )
         btn_open_ymu_folder.clicked.connect(lambda: self._open_link(YMU_APPDATA_DIR))
 
         btn_report_bug.clicked.connect(
@@ -3079,10 +3171,10 @@ class SettingsPage(QWidget):
                 self.debug_console_label, has_focus
             )
         )
-        btn_enable_script.clicked.connect(self._enable_selected_scripts)
-        btn_disable_script.clicked.connect(self._disable_selected_scripts)
+        self.btn_enable_script.clicked.connect(self._enable_selected_scripts)
+        self.btn_disable_script.clicked.connect(self._disable_selected_scripts)
         btn_open_scripts_folder.clicked.connect(
-            lambda: self._open_link(YIMMENU_SCRIPTS_DIR)
+            lambda: self._open_link(self.get_mode().scripts_dir)
         )
         self.btn_refresh_luas.clicked.connect(self._refresh_lua_lists)
         btn_discover_luas.clicked.connect(
@@ -3092,32 +3184,76 @@ class SettingsPage(QWidget):
         self._refresh_lua_lists()
         self._load_initial_settings()
 
+    def on_mode_changed(self, mode: MenuMode):
+        """Slot: the sidebar switch changed the active edition."""
+        self._refresh_lua_lists()
+        self._load_initial_settings()
+
     def _open_link(self, path_or_url: str):
         """Opens a local folder path or a web URL."""
-        if os.path.isdir(path_or_url):
+        if path_or_url.lower().startswith(("http://", "https://")):
+            webbrowser.open(path_or_url)
+        elif os.path.isdir(path_or_url):
             os.startfile(path_or_url)
         else:
-            webbrowser.open(path_or_url)
+            fmt = self.loc_manager.tr(
+                "Settings.Notify.FolderMissing", "Folder does not exist yet:\n{0}"
+            )
+            cast(MainWindow, self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Info", "Information"),
+                fmt.format(path_or_url),
+                icon_type="info",
+            )
 
     def _load_initial_settings(self):
-        """Loads settings from the file and sets the UI state."""
+        """Loads the active edition's YimMenu settings and sets the UI state.
+        Signals are blocked so this never echoes writes back to the file."""
+        settings_file = self.get_mode().settings_file
+
         is_enabled = settings_manager.get_setting(
-            "lua.enable_auto_reload_changed_scripts", default=False
+            "lua.enable_auto_reload_changed_scripts",
+            default=False,
+            settings_file=settings_file,
         )
+        self.auto_reload_toggle.blockSignals(True)
         self.auto_reload_toggle.setChecked(bool(is_enabled))
+        self.auto_reload_toggle.blockSignals(False)
 
         is_debug_enabled = settings_manager.get_setting(
-            "debug.external_console", default=False
+            "debug.external_console", default=False, settings_file=settings_file
         )
+        self.debug_console_toggle.blockSignals(True)
         self.debug_console_toggle.setChecked(bool(is_debug_enabled))
+        self.debug_console_toggle.blockSignals(False)
+
+    def _write_yim_setting(self, key_path: str, value):
+        """Writes into the active edition's settings.json. YimMenuV2's file is
+        never created from scratch (unknown schema — YMU does not own it)."""
+        mode = self.get_mode()
+        ok = settings_manager.set_setting(
+            key_path,
+            value,
+            settings_file=mode.settings_file,
+            create_if_missing=(mode.key == "legacy"),
+        )
+        if not ok and mode.key != "legacy":
+            msg = self.loc_manager.tr(
+                "Settings.Notify.V2FileMissing",
+                "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
+            )
+            cast(MainWindow, self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Info", "Information"),
+                msg,
+                icon_type="info",
+            )
 
     def _on_auto_reload_toggled(self, checked: bool):
         """Called when the user clicks the auto-reload toggle."""
-        settings_manager.set_setting("lua.enable_auto_reload_changed_scripts", checked)
+        self._write_yim_setting("lua.enable_auto_reload_changed_scripts", checked)
 
     def _on_debug_console_toggled(self, checked: bool):
         """Called when the user clicks the debug console toggle."""
-        settings_manager.set_setting("debug.external_console", checked)
+        self._write_yim_setting("debug.external_console", checked)
 
     def _on_toggle_focus_changed(self, label: QLabel, has_focus: bool):
         """Updates the style of a label based on the focus state of its toggle."""
@@ -3130,7 +3266,8 @@ class SettingsPage(QWidget):
             label.setStyleSheet("")
 
     def _refresh_lua_lists(self):
-        """Fetches script lists, updates UI, and plays a brief feedback animation."""
+        """Fetches the active edition's script lists, updates UI, and plays a
+        brief feedback animation."""
 
         self.btn_refresh_luas.start_animation(duration=500)
         self.btn_refresh_luas.setEnabled(False)
@@ -3138,7 +3275,25 @@ class SettingsPage(QWidget):
         self.disabled_scripts_list.clear()
         self.enabled_scripts_list.clear()
 
-        scripts = lua_manager.get_scripts()
+        mode = self.get_mode()
+        available = lua_manager.scripts_available(mode.appdata_dir)
+        if not available:
+            fmt = self.loc_manager.tr(
+                "Settings.Lua.NoScriptsDir",
+                "No {0} folder found yet.\nInject and run it once to create it.",
+            )
+            self.lua_hint_label.setText(fmt.format(mode.display_name))
+        self.lua_hint_label.setVisible(not available)
+        self.disabled_scripts_list.setEnabled(available)
+        self.enabled_scripts_list.setEnabled(available)
+        self.btn_enable_script.setEnabled(available)
+        self.btn_disable_script.setEnabled(available)
+
+        scripts = (
+            lua_manager.get_scripts(mode.scripts_dir, mode.disabled_scripts_dir)
+            if available
+            else {"enabled": [], "disabled": []}
+        )
         self.disabled_scripts_list.addItems(scripts["disabled"])
         self.enabled_scripts_list.addItems(scripts["enabled"])
 
@@ -3168,8 +3323,11 @@ class SettingsPage(QWidget):
         if not selected_items:
             return
 
+        mode = self.get_mode()
         for item in selected_items:
-            lua_manager.enable_script(item.text())
+            lua_manager.enable_script(
+                mode.scripts_dir, mode.disabled_scripts_dir, item.text()
+            )
 
         self._refresh_lua_lists()
 
@@ -3179,8 +3337,11 @@ class SettingsPage(QWidget):
         if not selected_items:
             return
 
+        mode = self.get_mode()
         for item in selected_items:
-            lua_manager.disable_script(item.text())
+            lua_manager.disable_script(
+                mode.scripts_dir, mode.disabled_scripts_dir, item.text()
+            )
 
         self._refresh_lua_lists()
 

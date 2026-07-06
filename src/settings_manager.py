@@ -1,8 +1,9 @@
 # settings_manager.py - Manages reading and writing to YimMenu's settings.json.
+# This module only ever touches YimMenu's own settings files; YMU's own
+# settings live in ymu_config.py.
 import json
 import logging
 import os
-import shutil
 
 from paths import YIMMENU_SETTINGS_FILE_PATH
 
@@ -11,24 +12,24 @@ logger = logging.getLogger(__name__)
 SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
 
 
-def _read_json_safely():
+def _read_json_safely(settings_file: str):
     """Reads the JSON file and handles BOM or corruption."""
-    if not os.path.exists(SETTINGS_FILE_PATH):
+    if not os.path.exists(settings_file):
         return {}
     try:
-        with open(SETTINGS_FILE_PATH, "r", encoding="utf-8") as f:
+        with open(settings_file, "r", encoding="utf-8") as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError) as e:
-        logger.warning(f"Failed to read settings.json: {e}")
+        logger.warning(f"Failed to read {settings_file}: {e}")
         return {}
 
 
-def get_setting(key_path: str, default=None):
+def get_setting(key_path: str, default=None, settings_file: str = SETTINGS_FILE_PATH):
     """
     Reads a nested setting.
     Example: get_setting("lua.enable_auto_reload_changed_scripts")
     """
-    data = _read_json_safely()
+    data = _read_json_safely(settings_file)
 
     keys = key_path.split(".")
     value = data
@@ -40,11 +41,24 @@ def get_setting(key_path: str, default=None):
         return default
 
 
-def set_setting(key_path: str, value) -> bool:
+def set_setting(
+    key_path: str,
+    value,
+    settings_file: str = SETTINGS_FILE_PATH,
+    create_if_missing: bool = True,
+) -> bool:
     """
     Writes a nested setting. Ensures parent keys exist.
+    With create_if_missing=False the file is never created from scratch —
+    used for YimMenuV2, whose settings schema YMU does not own.
     """
-    data = _read_json_safely()
+    if not create_if_missing and not os.path.exists(settings_file):
+        logger.warning(
+            f"Refusing to create '{settings_file}' — it does not exist yet."
+        )
+        return False
+
+    data = _read_json_safely(settings_file)
 
     keys = key_path.split(".")
     d = data
@@ -59,13 +73,14 @@ def set_setting(key_path: str, value) -> bool:
         logger.error(f"Error traversing settings dict: {e}")
         return False
 
-    temp_file = SETTINGS_FILE_PATH + ".tmp"
+    temp_file = settings_file + ".tmp"
     try:
+        os.makedirs(os.path.dirname(settings_file), exist_ok=True)
         with open(temp_file, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
 
-        shutil.move(temp_file, SETTINGS_FILE_PATH)
-        logger.info(f"Successfully set '{key_path}' to '{value}'")
+        os.replace(temp_file, settings_file)
+        logger.info(f"Successfully set '{key_path}' to '{value}' in {settings_file}")
         return True
     except OSError as e:
         logger.error(f"Failed to write settings file: {e}")

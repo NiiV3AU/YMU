@@ -10,17 +10,29 @@ from paths import YMU_DLL_DIR
 
 logger = logging.getLogger(__name__)
 
-TARGET_EXECUTABLES = ["gta5.exe", "gta5_enhanced.exe"]
+
+def is_admin() -> bool:
+    """True if the current process runs with Administrator privileges."""
+    try:
+        import ctypes
+
+        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+    except Exception:
+        return False
 
 
-def find_gta_pid(*args, **kwargs) -> int | None:
+def find_gta_pid(target_executables: tuple[str, ...], *args, **kwargs) -> int | None:
     """
-    Scans for the GTA5 process (Standard or Enhanced) and returns its PID.
+    Scans for a GTA5 process matching one of the given executable names and
+    returns its PID. The caller passes the executables of the active edition
+    (see menu_modes.py) so Legacy mode never targets the Enhanced process and
+    vice versa.
     :return: The process ID (PID) if found, otherwise None.
     """
+    targets = tuple(t.lower() for t in target_executables)
     try:
         for p in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
-            if p.info["name"] and p.info["name"].lower() in TARGET_EXECUTABLES:
+            if p.info["name"] and p.info["name"].lower() in targets:
                 logger.info(
                     f"Found process by name: '{p.info['name']}' with PID: {p.pid}"
                 )
@@ -28,7 +40,7 @@ def find_gta_pid(*args, **kwargs) -> int | None:
 
             if (
                 p.info["exe"]
-                and os.path.basename(p.info["exe"]).lower() in TARGET_EXECUTABLES
+                and os.path.basename(p.info["exe"]).lower() in targets
             ):
                 logger.info(
                     f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
@@ -37,7 +49,7 @@ def find_gta_pid(*args, **kwargs) -> int | None:
 
             if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
                 exe_in_cmd = p.info["cmdline"][0].lower()
-                if any(exe_in_cmd.endswith(target) for target in TARGET_EXECUTABLES):
+                if any(exe_in_cmd.endswith(target) for target in targets):
                     logger.info(
                         f"Found process by command line: '{p.info['cmdline'][0]}' with PID: {p.pid}"
                     )
@@ -50,7 +62,7 @@ def find_gta_pid(*args, **kwargs) -> int | None:
             f"An unexpected error occurred while searching for the game process: {e}"
         )
 
-    logger.warning("GTA5.exe process not found.")
+    logger.warning(f"No process matching {targets} found.")
     return None
 
 
