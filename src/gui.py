@@ -2652,7 +2652,10 @@ class InjectPage(QWidget):
     def _run_process_check(self):
         if self._state in [self.STATE_INJECTING]:
             return
-        self.worker_manager.run_task(
+        # run_exclusive prevents a timer tick from starting a second scan while
+        # one is still running (e.g. a slow psutil sweep under load).
+        self.worker_manager.run_exclusive(
+            "gta_scan",
             process_manager.find_gta_pid,
             self.get_mode().target_executables,
             get_config().get("paths.gta_dir"),
@@ -2675,8 +2678,9 @@ class InjectPage(QWidget):
 
         self._set_state(self.STATE_INJECTING)
         # Capture PID and DLL on the GUI thread; the worker must not read
-        # mutable page state.
-        self.worker_manager.run_task(
+        # mutable page state. run_exclusive guards against a double injection.
+        self.worker_manager.run_exclusive(
+            "inject",
             self._inject_logic,
             self.gta_pid,
             self.dll_to_inject,
@@ -3558,8 +3562,9 @@ class SettingsPage(QWidget):
         self.btn_check_for_updates.setEnabled(False)
         self.btn_check_for_updates.start_animation()
 
-        self.worker_manager.run_task(
-            target=update_checker.check_for_updates,
+        self.worker_manager.run_exclusive(
+            "ymu_update",
+            update_checker.check_for_updates,
             on_finished=self._on_update_check_finished,
             on_error=self._on_task_error,
         )

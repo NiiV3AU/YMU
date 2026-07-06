@@ -4,12 +4,17 @@
 import json
 import logging
 import os
+import threading
 
 from paths import YIMMENU_SETTINGS_FILE_PATH
 
 logger = logging.getLogger(__name__)
 
 SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
+
+# Serializes the read-modify-write in set_setting so parallel writers cannot
+# lose each other's changes or collide on the shared .tmp file.
+_write_lock = threading.Lock()
 
 
 def _read_json_safely(settings_file: str):
@@ -52,36 +57,39 @@ def set_setting(
     With create_if_missing=False the file is never created from scratch —
     used for YimMenuV2, whose settings schema YMU does not own.
     """
-    if not create_if_missing and not os.path.exists(settings_file):
-        logger.warning(
-            f"Refusing to create '{settings_file}' — it does not exist yet."
-        )
-        return False
+    with _write_lock:
+        if not create_if_missing and not os.path.exists(settings_file):
+            logger.warning(
+                f"Refusing to create '{settings_file}' — it does not exist yet."
+            )
+            return False
 
-    data = _read_json_safely(settings_file)
+        data = _read_json_safely(settings_file)
 
-    keys = key_path.split(".")
-    d = data
-    try:
-        for i, key in enumerate(keys[:-1]):
-            if key not in d or not isinstance(d[key], dict):
-                d[key] = {}
-            d = d[key]
+        keys = key_path.split(".")
+        d = data
+        try:
+            for i, key in enumerate(keys[:-1]):
+                if key not in d or not isinstance(d[key], dict):
+                    d[key] = {}
+                d = d[key]
 
-        d[keys[-1]] = value
-    except Exception as e:
-        logger.error(f"Error traversing settings dict: {e}")
-        return False
+            d[keys[-1]] = value
+        except Exception as e:
+            logger.error(f"Error traversing settings dict: {e}")
+            return False
 
-    temp_file = settings_file + ".tmp"
-    try:
-        os.makedirs(os.path.dirname(settings_file), exist_ok=True)
-        with open(temp_file, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=4)
+        temp_file = settings_file + ".tmp"
+        try:
+            os.makedirs(os.path.dirname(settings_file), exist_ok=True)
+            with open(temp_file, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
 
-        os.replace(temp_file, settings_file)
-        logger.info(f"Successfully set '{key_path}' to '{value}' in {settings_file}")
-        return True
-    except OSError as e:
-        logger.error(f"Failed to write settings file: {e}")
-        return False
+            os.replace(temp_file, settings_file)
+            logger.info(
+                f"Successfully set '{key_path}' to '{value}' in {settings_file}"
+            )
+            return True
+        except OSError as e:
+            logger.error(f"Failed to write settings file: {e}")
+            return False
