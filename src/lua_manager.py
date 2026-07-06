@@ -1,9 +1,10 @@
 # lua_manager.py - Handles enabling and disabling of Lua scripts by moving files.
+import logging
 import os
 import shutil
-import logging
 from typing import Dict, List
-from paths import YIMMENU_APPDATA_DIR, YIMMENU_SCRIPTS_DIR, YIMMENU_DISABLED_SCRIPTS_DIR
+
+from paths import YIMMENU_APPDATA_DIR, YIMMENU_DISABLED_SCRIPTS_DIR, YIMMENU_SCRIPTS_DIR
 
 logger = logging.getLogger(__name__)
 

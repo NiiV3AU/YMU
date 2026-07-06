@@ -1,8 +1,10 @@
 # theme_manager.py - Handles loading, applying, and saving UI themes.
 import json
 import os
-from PySide6.QtWidgets import QApplication
+
 from PySide6.QtCore import QObject, Signal
+from PySide6.QtWidgets import QApplication
+
 from paths import YMU_CONFIG_FILE_PATH
 
 

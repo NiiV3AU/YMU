@@ -1,12 +1,13 @@
 # gui.py - Contains all the UI code for the application using PySide6.
 
-import sys
-import os
 import logging
+import os
+import sys
 from logging.handlers import RotatingFileHandler
 
 try:
     import winreg
+
     import win32gui
 
     IS_WINDOWS = True
@@ -26,79 +27,77 @@ if IS_WINDOWS:
     except Exception as e:
         logging.getLogger(__name__).error(f"Error during instance check: {e}")
 
-import webbrowser
-import time
 import platform
+import time
+import webbrowser
 from typing import Optional, cast
 
-from PySide6.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QWidget,
-    QVBoxLayout,
-    QPushButton,
-    QLabel,
-    QHBoxLayout,
-    QStackedWidget,
-    QDialog,
-    QTabBar,
-    QButtonGroup,
-    QMessageBox,
-    QFrame,
-    QScrollArea,
-    QListWidget,
-    QAbstractItemView,
-    QGridLayout,
-    QComboBox,
-    QLayout,
-)
 from PySide6.QtCore import (
+    Property,
+    QEasingCurve,
+    QEvent,
+    QObject,
+    QParallelAnimationGroup,
+    QPoint,
+    QPropertyAnimation,
+    QRectF,
     QSize,
     Qt,
-    QObject,
-    Signal,
-    QThread,
     QTimer,
-    QPropertyAnimation,
-    QEasingCurve,
-    QRectF,
-    Property,
-    QParallelAnimationGroup,
-    QEvent,
-    QPoint,
+    Signal,
 )
 from PySide6.QtGui import (
+    QColor,
+    QEnterEvent,
     QFontDatabase,
     QIcon,
-    QColor,
+    QLinearGradient,
     QPainter,
     QPainterPath,
     QPixmap,
-    QLinearGradient,
-    QEnterEvent,
 )
 from PySide6.QtSvg import QSvgRenderer
+from PySide6.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QButtonGroup,
+    QComboBox,
+    QDialog,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLayout,
+    QListWidget,
+    QMainWindow,
+    QMessageBox,
+    QPushButton,
+    QScrollArea,
+    QStackedWidget,
+    QTabBar,
+    QVBoxLayout,
+    QWidget,
+)
 
+import lua_manager
+import process_manager
+import release_service
+import settings_manager
+import update_checker
+from localization_manager import LocalizationManager
 
 # import modules
 from paths import (
+    LOCAL_VERSION,
+    YIMMENU_APPDATA_DIR,
+    YIMMENU_SCRIPTS_DIR,
+    YMU_APPDATA_DIR,
+    YMU_DLL_DIR,
     YMU_LOG_FILE_PATH,
     resource_path,
-    YMU_DLL_DIR,
-    YIMMENU_APPDATA_DIR,
-    YMU_APPDATA_DIR,
-    YIMMENU_SCRIPTS_DIR,
-    LOCAL_VERSION,
 )
-from worker_manager import WorkerManager
 from theme_manager import ThemeManager
-from localization_manager import LocalizationManager
-import release_service
-import process_manager
-import settings_manager
-import lua_manager
-import update_checker
-
+from worker_manager import WorkerManager
 
 log_formatter = logging.Formatter(
     fmt="%(asctime)s [%(levelname)-8s] [%(name)-18s] %(message)s", datefmt="%H:%M:%S"
@@ -1497,10 +1496,16 @@ class ToggleSwitch(QWidget):
         self.update()
 
     track_color = Property(
-        QColor, _get_track_color, _set_track_color, notify=_track_color_changed  # type: ignore
+        QColor,
+        _get_track_color,
+        _set_track_color,
+        notify=_track_color_changed,  # type: ignore
     )
     knob_position = Property(
-        float, _get_knob_position, _set_knob_position, notify=_knob_position_changed  # type: ignore
+        float,
+        _get_knob_position,
+        _set_knob_position,
+        notify=_knob_position_changed,  # type: ignore
     )
 
 
@@ -2391,9 +2396,7 @@ class InjectPage(QWidget):
 
     def show_inject_info_dialog(self):
         start_gta_default = (
-            "1. Select your launcher\n"
-            "2. Press 'Start GTA 5'\n"
-            "3. Read the next step ↗"
+            "1. Select your launcher\n2. Press 'Start GTA 5'\n3. Read the next step ↗"
         )
         start_gta_text = self.loc_manager.tr(
             "Inject.Help.StartGtaSteps", start_gta_default

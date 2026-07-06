@@ -1,15 +1,16 @@
 # release_service.py
 
+import abc
 import dataclasses
 import hashlib
-import requests
-import abc
-import os
 import logging
+import os
 import re
-from typing import Optional, Callable
-from paths import YMU_DLL_DIR, USER_AGENT
+from typing import Callable, Optional
 
+import requests
+
+from paths import USER_AGENT, YMU_DLL_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -219,6 +220,6 @@ if __name__ == "__main__":
             dll_path = os.path.join(YMU_DLL_DIR, latest_release.asset_name)
             print(f"\n'{dll_path}' was successfully downloaded and verified.")
         else:
-            print(f"\nDownload or verification FAILED. Check logs above.")
+            print("\nDownload or verification FAILED. Check logs above.")
     else:
         print("Could not find a valid release.")

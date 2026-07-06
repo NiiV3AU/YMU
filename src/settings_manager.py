@@ -1,8 +1,9 @@
 # settings_manager.py - Manages reading and writing to YimMenu's settings.json.
-import os
 import json
 import logging
+import os
 import shutil
+
 from paths import YIMMENU_SETTINGS_FILE_PATH
 
 logger = logging.getLogger(__name__)

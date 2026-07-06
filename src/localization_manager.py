@@ -1,12 +1,14 @@
 # localization_manager.py - downloads and manages translations
-import os
 import json
 import logging
-import requests
+import os
 import threading
-from typing import Dict, Optional, List
+from typing import Dict, List, Optional
+
+import requests
 from PySide6.QtCore import QObject, Signal
-from paths import YMU_LANG_DIR, YMU_CONFIG_FILE_PATH, USER_AGENT
+
+from paths import USER_AGENT, YMU_CONFIG_FILE_PATH, YMU_LANG_DIR
 
 logger = logging.getLogger(__name__)
 

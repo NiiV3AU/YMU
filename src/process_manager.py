@@ -1,9 +1,11 @@
 # process_manager.py - Handles finding the GTA5.exe process and injecting the DLL.
 
+import logging
+import os
+
 import psutil
 import pyinjector
-import os
-import logging
+
 from paths import YMU_DLL_DIR
 
 logger = logging.getLogger(__name__)

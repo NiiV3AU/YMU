@@ -1,9 +1,10 @@
-import release_service
-import subprocess
 import logging
-import sys
 import os
-from paths import YMU_APPDATA_DIR, LOCAL_VERSION
+import subprocess
+import sys
+
+import release_service
+from paths import LOCAL_VERSION, YMU_APPDATA_DIR
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +28,7 @@ def check_for_updates(*args, **kwargs):
     DATA is either the remote version string or the error message/object.
     """
     import time
+
     from packaging.version import parse
 
     current_time = time.time()

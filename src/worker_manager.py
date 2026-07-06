@@ -1,7 +1,8 @@
 # worker_manager.py - Manages the QThread and executes functions in the background.
 import logging
-from PySide6.QtCore import QObject, QThread, Signal, Slot, QMetaObject, Qt
-from typing import Callable, Any, Optional
+from typing import Any, Callable, Optional
+
+from PySide6.QtCore import QMetaObject, QObject, Qt, QThread, Signal, Slot
 
 logger = logging.getLogger(__name__)
 
