@@ -1,7 +1,7 @@
 > [!NOTE]
 > **GTA V Enhanced Support Resolved**
 >
-> The detection issues regarding the "Enhanced" version of GTA V have been **fixed** in version **v1.1.6**. Please update to the latest version to ensure full compatibility.
+> The detection issues regarding the "Enhanced" version of GTA V should be finally **fixed** in version **v1.1.7**. Please update to the latest version to ensure full compatibility.
 
 # YimMenuUpdater (YMU)
 
@@ -117,6 +117,7 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### Full Changelog
 
+- **NEW** in `v1.1.7` ↦ ⚙️ **Compatibility & Customizability:** Added full support for GTA V Enhanced Edition², support custom PATH, and DLL.
 - **NEW** in `v1.1.6` ↦ 🌍 **Localization & Performance:** Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
 - **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
 - **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
@@ -152,19 +153,19 @@ Get the latest release directly from the downloads page. Just download and run t
 | Programming Language: | [Python](https://python.org) |
 | :-------------------- | :--------------------------- |
 
-> I'm using Python `3.12.10` while coding YMU
+> I'm using Python `3.12` while coding YMU (`uv python install 3.12`)
 
 #### Libraries
 
-| Library                                            | pip command                       |
-| :------------------------------------------------- | :-------------------------------- |
-| Install all Libraries                              | `pip install -r requirements.txt` |
-| [PySide6](https://pypi.org/project/PySide6/)       | `pip install pyside6`             |
-| [requests](https://pypi.org/project/requests/)     | `pip install requests`            |
-| [psutil](https://pypi.org/project/psutil/)         | `pip install psutil`              |
-| [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector`          |
-| [pywin32](https://pypi.org/project/pywin32/)       | `pip install pywin32`             |
-| [packaging](https://pypi.org/project/packaging/)   | `pip install packaging`           |
+| Library                                            | pip command                       | uv command                   |
+| :------------------------------------------------- | :-------------------------------- | :--------------------------- |
+| Install all Libraries                              | `pip install -r requirements.txt` | `uv add -r requirements.txt` |
+| [PySide6](https://pypi.org/project/PySide6/)       | `pip install pyside6`             | `uv add pyside6`             |
+| [requests](https://pypi.org/project/requests/)     | `pip install requests`            | `uv add requests`            |
+| [psutil](https://pypi.org/project/psutil/)         | `pip install psutil`              | `uv add psutil`              |
+| [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector`          | `uv add pyinjector`          |
+| [pywin32](https://pypi.org/project/pywin32/)       | `pip install pywin32`             | `uv add pywin32`             |
+| [packaging](https://pypi.org/project/packaging/)   | `pip install packaging`           | `uv add packaging`           |
 
 ### Creating the Executable (.exe)
 
@@ -173,18 +174,17 @@ This project uses **Nuitka** (instead of PyInstaller) to create a high-performan
 1.  **Install Nuitka & Dependencies:**
 
     ```bash
-    pip install nuitka zstandard
+    uv add nuitka zstandard
     ```
 
 2.  **Run the build command:**
     Navigate to the root directory of the project in your terminal and run the following command. This will create the `YMU.exe` in the `dist` folder.
 
     ```bash
-    python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/logo_dark.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --output-dir=dist --output-filename=YMU.exe src/gui.py
+    uv python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/logo_dark.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --output-dir=dist --output-filename=YMU.exe src/gui.py
     ```
 
     **Command Breakdown:**
-
     - **`--onefile`**: Bundles everything into a single `.exe` file.
     - **`--enable-plugin=pyside6`**: Optimizes the build for Qt/PySide6.
     - **`--windows-console-mode=disable`**: Prevents the black console window.
@@ -213,10 +213,10 @@ This project uses **Nuitka** (instead of PyInstaller) to create a high-performan
 
 ## Credits
 
-| **Core & Vision**| [**@xesdoog**](https://github.com/xesdoog) (Early Development)                                                      |
-| :--------------- | :------------------------------------------------------------------------------------------------------------------ |
-| **Localization** | [**@TommyLam120**](https://github.com/TommyLam120) (zh_TW)                                                          |
-| **Menu**         | [**YimMenu**](https://yim.gta.menu/)                                                                                |
-| **Logo**         | [**Made with Figma**](https://figma.com)                                                                            |
-| **Icons**        | [**Feather**](https://feathericons.dev/)                                                                            |
-| **Fonts**        | [**Manrope**](https://fonts.google.com/specimen/Manrope) & [**JetBrains Mono**](https://www.jetbrains.com/lp/mono/) |
+| **Core & Vision** | [**@xesdoog**](https://github.com/xesdoog) (Early Development)                                                      |
+| :---------------- | :------------------------------------------------------------------------------------------------------------------ |
+| **Localization**  | [**@TommyLam120**](https://github.com/TommyLam120) (zh_TW)                                                          |
+| **Menu**          | [**YimMenu**](https://yim.gta.menu/)                                                                                |
+| **Logo**          | [**Made with Figma**](https://figma.com)                                                                            |
+| **Icons**         | [**Feather**](https://feathericons.com/)                                                                            |
+| **Fonts**         | [**Manrope**](https://fonts.google.com/specimen/Manrope) & [**JetBrains Mono**](https://www.jetbrains.com/lp/mono/) |
