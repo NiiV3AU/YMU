@@ -63,6 +63,7 @@ from PySide6.QtWidgets import (
     QDialog,
     QFileDialog,
     QFrame,
+    QGraphicsDropShadowEffect,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -389,7 +390,10 @@ STYLESHEET = """
         font-weight: bold;
         border-bottom: 2px solid #28A745; /* @primary */
     }
-    
+
+    /* The tab bar's own background (not the tabs) — match the dialog surface. */
+    QDialog#InfoDialog QTabBar { background-color: #1E1E1E; }
+
     QDialog#InfoDialog QStackedWidget {
         background-color: #2C2C2C; /* @panel */
         border: 1px solid #333333;   /* @border-color */
@@ -683,51 +687,63 @@ STYLESHEET = """
 STYLESHEET_LIGHT = """
     /***************************************************************************
      * YMU DESIGN SYSTEM (Light Theme)                                         *
+     *
+     * Elevation scale (mirrors the dark theme's logic, correctly inverted):
+     *   @background #F2F3F5  the page / recessed base
+     *   @surface    #FFFFFF  elevated white for sidebar, cards, dialogs
+     *   @panel      #ECEEF1  interactive fills (inputs, hovers)
+     *   @panel-2    #E2E5EA  stronger fill (checked / hover-2)
+     *   @border     #E3E6EA  single subtle border token
+     *   @border-2   #C4C9D0  hover / focus border
+     * Text: primary #1A1D21, secondary #5B6169, muted #A6ACB4.
+     * Cards get real elevation from a soft drop shadow applied in code
+     * (MainWindow._apply_card_shadows), since Qt QSS has no box-shadow.
      ***************************************************************************/
 
     /* --- GLOBAL STYLES --- */
-    QWidget { color: #121212; font-family: "Manrope", "Segoe UI", "Meiryo", "Microsoft YaHei", sans-serif; font-size: 14px;}
-    QMainWindow { background-color: #F5F5F5; }
+    QWidget { color: #1A1D21; font-family: "Manrope", "Segoe UI", "Meiryo", "Microsoft YaHei", sans-serif; font-size: 14px;}
+    QMainWindow { background-color: #F2F3F5; }
 
     /* --- SIDEBAR --- */
-    QWidget#Sidebar { background-color: #EEEEEE; border-right: 1px solid #DCDCDC; }
-    QPushButton#SidebarButton { background-color: transparent; color: #555555; border: none; padding: 12px; font-size: 15px; text-align: left; border-radius: 10px; margin: 4px 8px; spacing: 10px; }
-    QPushButton#SidebarButton:hover { background-color: #E0E0E0; color: #121212; }
-    QPushButton#SidebarButton:checked { background-color: #DCDCDC; color: #121212; font-weight: bold; }
+    QWidget#Sidebar { background-color: #FFFFFF; border-right: 1px solid #E3E6EA; }
+    QPushButton#SidebarButton { background-color: transparent; color: #5B6169; border: none; padding: 12px; font-size: 15px; text-align: left; border-radius: 10px; margin: 4px 8px; spacing: 10px; }
+    QPushButton#SidebarButton:hover { background-color: #ECEEF1; color: #1A1D21; }
+    QPushButton#SidebarButton:checked { background-color: #E2E5EA; color: #1A1D21; font-weight: bold; }
 
     /* --- PRIMARY BUTTONS --- */
     QPushButton { background-color: #28A745; color: #FFFFFF; border: none; padding: 10px 18px; font-weight: bold; font-size: 14px; border-radius: 10px; }
     QPushButton:hover { background-color: #2ebf4f; }
-    QPushButton:disabled { background-color: #E0E0E0; color: #AAAAAA; }
-    
+    QPushButton:disabled { background-color: #ECEEF1; color: #A6ACB4; }
+
     /* --- DIALOGS (InfoDialog & QMessageBox) --- */
     QDialog#InfoDialog, QMessageBox { background-color: #FFFFFF; }
-    QMessageBox QLabel { color: #121212; }
-    
-    QPushButton#InfoButton { background-color: transparent; color: #777777; border: 1px solid #DCDCDC; border-radius: 6px; padding: 0px; min-width: 30px; max-width: 30px; min-height: 30px; max-height: 30px; }
-    QPushButton#InfoButton:hover { background-color: #E0E0E0; border-color: #CCCCCC; color: #121212; }
-    
-    QDialog#InfoDialog QTabBar::tab { qproperty-alignment: 'AlignCenter'; color: #555555; background-color: transparent; padding: 8px 15px; border: none; border-bottom: 2px solid transparent; }
-    QDialog#InfoDialog QTabBar::tab:hover { color: #121212; }
-    QDialog#InfoDialog QTabBar::tab:selected { qproperty-alignment: 'AlignCenter'; color: #121212; font-weight: bold; border-bottom: 2px solid #28A745; }
-    QDialog#InfoDialog QStackedWidget { background-color: #F5F5F5; border: 1px solid #DCDCDC; border-radius: 5px; }
+    QMessageBox QLabel { color: #1A1D21; }
+
+    QPushButton#InfoButton { background-color: transparent; color: #5B6169; border: 1px solid #E3E6EA; border-radius: 6px; padding: 0px; min-width: 30px; max-width: 30px; min-height: 30px; max-height: 30px; }
+    QPushButton#InfoButton:hover { background-color: #ECEEF1; border-color: #C4C9D0; color: #1A1D21; }
+
+    QDialog#InfoDialog QTabBar::tab { qproperty-alignment: 'AlignCenter'; color: #5B6169; background-color: transparent; padding: 8px 15px; border: none; border-bottom: 2px solid transparent; }
+    QDialog#InfoDialog QTabBar::tab:hover { color: #1A1D21; }
+    QDialog#InfoDialog QTabBar::tab:selected { qproperty-alignment: 'AlignCenter'; color: #1A1D21; font-weight: bold; border-bottom: 2px solid #28A745; }
+    QDialog#InfoDialog QTabBar { background-color: #FFFFFF; }
+    QDialog#InfoDialog QStackedWidget { background-color: #F2F3F5; border: 1px solid #E3E6EA; border-radius: 5px; }
 
     /* --- CONTAINERS & CARDS --- */
-    QFrame#CardFrame { background-color: #FFFFFF; border: 1px solid #DCDCDC; border-radius: 10px; padding: 15px; }
-    QWidget#ScrollContainer { background-color: #F5F5F5; }
+    QFrame#CardFrame { background-color: #FFFFFF; border: 1px solid #E3E6EA; border-radius: 10px; padding: 15px; }
+    QWidget#ScrollContainer { background-color: #F2F3F5; }
 
     /* --- ComboBox Styling --- */
     QComboBox {
-        background-color: #E0E0E0;
-        border: 1px solid #DCDCDC;
+        background-color: #ECEEF1;
+        border: 1px solid #E3E6EA;
         border-radius: 8px;
         padding: 8px 12px;
-        color: #121212;
+        color: #1A1D21;
     }
 
 
     QComboBox:hover {
-        border-color: #BDBDBD;
+        border-color: #C4C9D0;
     }
 
     QComboBox::drop-down {
@@ -744,11 +760,11 @@ STYLESHEET_LIGHT = """
 
     QComboBox QAbstractItemView {
         background-color: #FFFFFF;
-        border: 1px solid #CCCCCC;
+        border: 1px solid #E3E6EA;
         border-radius: 6px;
         padding: 2px;
         outline: 0px;
-        color: #121212;
+        color: #1A1D21;
     }
 
     QComboBox QAbstractItemView::item {
@@ -760,42 +776,42 @@ STYLESHEET_LIGHT = """
     /* Hover: Hellgrau statt Grün */
     QComboBox QAbstractItemView::item:selected,
     QComboBox QAbstractItemView::item:hover {
-        background-color: #E0E0E0; 
-        color: #121212;
+        background-color: #ECEEF1;
+        color: #1A1D21;
     }
-    
+
     /* --- TEXT & TITLES --- */
     QLabel#SettingsTitle { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
-    QLabel#ListHeaderLabel { font-size: 11px; font-weight: bold; color: #555555; margin-left: 5px; margin-bottom: 5px; }
+    QLabel#ListHeaderLabel { font-size: 11px; font-weight: bold; color: #5B6169; margin-left: 5px; margin-bottom: 5px; }
     QLabel#DisabledListHeader { color: #e84555; }
     QLabel#EnabledListHeader { color: #28A745; }
 
     /* --- THEME & LINK BUTTONS --- */
-    QPushButton#ThemeButton { background-color: #E0E0E0; color: #555555; border: 1px solid #DCDCDC; padding: 8px 16px; }
-    QPushButton#ThemeButton:hover { background-color: #DCDCDC; color: #121212; }
-    QPushButton#ThemeButton:checked { background-color: #121212; color: #FFFFFF; border-color: #121212; }
+    QPushButton#ThemeButton { background-color: #ECEEF1; color: #5B6169; border: 1px solid #E3E6EA; padding: 8px 16px; }
+    QPushButton#ThemeButton:hover { background-color: #E2E5EA; color: #1A1D21; }
+    QPushButton#ThemeButton:checked { background-color: #1A1D21; color: #FFFFFF; border-color: #1A1D21; }
 
-    QPushButton#LinkButton { background-color: transparent; color: #555555; border: 1px solid #DCDCDC; border-radius: 6px; text-align: left; padding: 8px 12px; spacing: 8px; }
-    QPushButton#LinkButton:hover { background-color: #E0E0E0; color: #121212; }
+    QPushButton#LinkButton { background-color: transparent; color: #5B6169; border: 1px solid #E3E6EA; border-radius: 6px; text-align: left; padding: 8px 12px; spacing: 8px; }
+    QPushButton#LinkButton:hover { background-color: #ECEEF1; color: #1A1D21; }
 
     /* --- SCROLLBAR --- */
     QScrollArea { border: none; background: transparent; }
-    QScrollBar:vertical { border: none; background: #F5F5F5; width: 10px; margin: 0; }
-    QScrollBar::handle:vertical { background: #CCCCCC; min-height: 30px; border-radius: 5px; }
-    QScrollBar::handle:vertical:hover { background: #BDBDBD; }
+    QScrollBar:vertical { border: none; background: #F2F3F5; width: 10px; margin: 0; }
+    QScrollBar::handle:vertical { background: #C4C9D0; min-height: 30px; border-radius: 5px; }
+    QScrollBar::handle:vertical:hover { background: #AEB4BC; }
     QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical { background: none; }
     QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { background: none; border: none; height: 0px; }
 
     /* --- LUA MANAGER --- */
-    QPushButton#EnableButton, QPushButton#RefreshButton, QPushButton#DisableButton { padding: 0px; border: 1px solid #DCDCDC; background-color: #E0E0E0; border-radius: 8px; }
+    QPushButton#EnableButton, QPushButton#RefreshButton, QPushButton#DisableButton { padding: 0px; border: 1px solid #E3E6EA; background-color: #ECEEF1; border-radius: 8px; }
     QPushButton#EnableButton:hover { background-color: #28A745; border-color: #28A745; }
-    QPushButton#RefreshButton:hover { background-color: #DCDCDC; border-color: #BDBDBD; }
+    QPushButton#RefreshButton:hover { background-color: #E2E5EA; border-color: #C4C9D0; }
     QPushButton#DisableButton:hover { background-color: #e84555; border-color: #e84555; }
-    QFrame#CardFrame QListWidget { font-family: "JetBrains Mono"; font-size: 10px; background-color: #F5F5F5; border-radius: 5px; border: 1px solid #DCDCDC; }
+    QFrame#CardFrame QListWidget { font-family: "JetBrains Mono"; font-size: 10px; background-color: #F2F3F5; border-radius: 5px; border: 1px solid #E3E6EA; }
 
     /* --- FOOTER --- */
-    QPushButton#SidebarFooter { background-color: transparent; border: none; color: #AAAAAA; font-size: 11px; text-align: center; padding: 10px; }
-    QPushButton#SidebarFooter:hover { color: #777777; }
+    QPushButton#SidebarFooter { background-color: transparent; border: none; color: #A6ACB4; font-size: 11px; text-align: center; padding: 10px; }
+    QPushButton#SidebarFooter:hover { color: #5B6169; }
     /* --- Risk Page Styles --- */
     QLabel#RiskTitleLabel {
         color: #e84555;
@@ -815,8 +831,8 @@ STYLESHEET_LIGHT = """
     }
 
     QPushButton#SidebarButton:focus {
-        background-color: #E0E0E0;
-        color: #121212;
+        background-color: #ECEEF1;
+        color: #1A1D21;
     }
 
     QPushButton:focus {
@@ -824,23 +840,23 @@ STYLESHEET_LIGHT = """
     }
 
     QPushButton#InfoButton:focus {
-        background-color: #E0E0E0;
-        border-color: #CCCCCC;
-        color: #121212;
+        background-color: #ECEEF1;
+        border-color: #C4C9D0;
+        color: #1A1D21;
     }
 
     QPushButton#ThemeButton:focus {
-        background-color: #DCDCDC;
-        color: #121212;
+        background-color: #E2E5EA;
+        color: #1A1D21;
     }
 
     QPushButton#LinkButton:focus {
-        background-color: #E0E0E0;
-        color: #121212;
+        background-color: #ECEEF1;
+        color: #1A1D21;
     }
 
     QComboBox:focus, QListWidget:focus {
-        border: 1px solid #BDBDBD;
+        border: 1px solid #C4C9D0;
     }
 
     /* Lua Manager Buttons */
@@ -850,8 +866,8 @@ STYLESHEET_LIGHT = """
     }
 
     QPushButton#RefreshButton:focus {
-        background-color: #DCDCDC;
-        border-color: #BDBDBD;
+        background-color: #E2E5EA;
+        border-color: #C4C9D0;
     }
 
     QPushButton#DisableButton:focus {
@@ -861,17 +877,17 @@ STYLESHEET_LIGHT = """
     /* --- Notification System --- */
     QFrame#NotificationCard {
         background-color: #FFFFFF;
-        border: 1px solid #DCDCDC;
+        border: 1px solid #E3E6EA;
         border-radius: 10px;
     }
     #NotificationCard QLabel#NotificationTitle {
         font-size: 14px;
         font-weight: bold;
-        color: #121212;
+        color: #1A1D21;
     }
     #NotificationCard QLabel#NotificationMessage {
         font-size: 13px;
-        color: #555555;
+        color: #5B6169;
     }
     #NotificationCard QPushButton#NotificationCloseButton {
     background-color: transparent;
@@ -879,7 +895,7 @@ STYLESHEET_LIGHT = """
     border-radius: 12px;
     }
     #NotificationCard QPushButton#NotificationCloseButton:hover {
-        background-color: #E0E0E0;
+        background-color: #ECEEF1;
     }
 """
 
@@ -1599,6 +1615,30 @@ class MainWindow(QMainWindow):
 
         self.setup_sidebar(sidebar_layout)
 
+        # Cards get real elevation from a soft drop shadow in the light theme
+        # (Qt QSS has no box-shadow). Reapply whenever the theme changes.
+        self.theme_manager.themeChanged.connect(self._apply_card_shadows)
+        self._apply_card_shadows(self.theme_manager.current_theme)
+
+    def _apply_card_shadows(self, theme):
+        """Gives every card a soft drop shadow in the light theme, where flat
+        light fills give too little depth. In the dark theme a shadow on a
+        near-black surface is invisible, so it's disabled — a disabled effect is
+        bypassed by Qt, so the card (and any animation inside it) renders
+        directly with no cost. The effect is created once per card and only its
+        enabled flag is toggled afterwards."""
+        for card in self.findChildren(QFrame):
+            if card.objectName() != "CardFrame":
+                continue
+            effect = card.graphicsEffect()
+            if not isinstance(effect, QGraphicsDropShadowEffect):
+                effect = QGraphicsDropShadowEffect(card)
+                effect.setBlurRadius(24)
+                effect.setOffset(0, 4)
+                effect.setColor(QColor(60, 70, 90, 40))
+                card.setGraphicsEffect(effect)
+            effect.setEnabled(theme == "light")
+
     def _on_translation_update_finished(self, update_occurred: bool):
         """Slot: Called when the LocalizationManager has finished checking."""
         if update_occurred:
@@ -1782,8 +1822,8 @@ class MainWindow(QMainWindow):
         The bold/normal weight change is kept as a second, colour-independent
         cue."""
         if self.theme_manager.current_theme == "light":
-            active = "font-weight: bold; color: #121212;"
-            inactive = "color: #999999;"
+            active = "font-weight: bold; color: #1A1D21;"
+            inactive = "color: #A6ACB4;"
         else:
             active = "font-weight: bold; color: #FFFFFF;"
             inactive = "color: #777777;"
@@ -3432,7 +3472,7 @@ class SettingsPage(QWidget):
         btn_clear_gta = StatefulButton(
             f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
             theme_manager=self.theme_manager,
-            icon_path=resource_path(os.path.join("assets", "icons", "x.svg")),
+            icon_path=resource_path(os.path.join("assets", "icons", "trash.svg")),
             **link_button_colors,
         )
         btn_clear_gta.setObjectName("LinkButton")
@@ -3468,6 +3508,7 @@ class SettingsPage(QWidget):
         btn_clear_dll = StatefulButton(
             f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
             theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "trash.svg")),
             **link_button_colors,
         )
         btn_clear_dll.setObjectName("LinkButton")
