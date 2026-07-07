@@ -3664,7 +3664,8 @@ class SettingsPage(QWidget):
                 "Settings.Update.AvailableMsg", "Update {0} is available!"
             ).format(data)
             prompt = self.loc_manager.tr(
-                "Settings.Update.Prompt", "Do you want to download and install it now?"
+                "Settings.Update.Prompt",
+                "Do you want to open the download page in your browser?",
             )
 
             msg_box = QMessageBox(self)
@@ -3682,7 +3683,7 @@ class SettingsPage(QWidget):
             msg_box.exec()
 
             if msg_box.clickedButton() == btn_yes:
-                self._start_updater_download()
+                webbrowser.open(update_checker.RELEASES_URL)
 
         elif status == update_checker.STATUS_AHEAD:
             cast(MainWindow, self.window()).notification_manager.show(
@@ -3697,48 +3698,6 @@ class SettingsPage(QWidget):
             cast(MainWindow, self.window()).notification_manager.show(
                 self.loc_manager.tr("Settings.Update.ErrorTitle", "Update Error"),
                 f"{self.loc_manager.tr('Common.Error')}: {data}",
-                icon_type="error",
-            )
-
-    def _start_updater_download(self):
-        """Starts the background task to download and run the updater."""
-        if self._is_task_running:
-            return
-
-        self._is_task_running = True
-        self.btn_check_for_updates.setEnabled(False)
-        self.btn_check_for_updates.setText(
-            self.loc_manager.tr("Settings.Btn.Downloading", "Downloading Updater...")
-        )
-
-        self.worker_manager.run_task(
-            target=update_checker.download_and_launch_updater,
-            on_finished=self._on_updater_download_finished,
-            on_error=self._on_task_error,
-            on_progress=self._update_updater_progress,
-        )
-
-    def _update_updater_progress(self, percentage: int):
-        """Updates the button's progress fill."""
-        self.btn_check_for_updates.set_progress(percentage / 100.0)
-
-    def _on_updater_download_finished(self, result):
-        success, message = result
-        if success:
-            logger.info("Updater launched successfully. Exiting.")
-            app = QApplication.instance()
-            if app:
-                app.quit()
-        else:
-            self.btn_check_for_updates.reset_progress()
-            self.btn_check_for_updates.setEnabled(True)
-            self._is_task_running = False
-            err_title = self.loc_manager.tr(
-                "Settings.Update.ErrorTitle", "Update Error"
-            )
-            cast(MainWindow, self.window()).notification_manager.show(
-                err_title,
-                message,
                 icon_type="error",
             )
 

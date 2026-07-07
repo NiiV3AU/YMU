@@ -186,7 +186,6 @@ FALLBACK_DATA = {
                 "RequestFeature": "Request a Feature",
                 "CheckUpdates": "Check for YMU Updates",
                 "UpToDate": "YMU is up-to-date",
-                "Downloading": "Downloading Updater...",
             },
             "Tooltip": {
                 "OpenScripts": "Open the folder where your Lua scripts are located",
@@ -203,7 +202,7 @@ FALLBACK_DATA = {
                 "UpToDate": "Your YMU is already up-to-date.",
                 "AvailableTitle": "Update Available",
                 "AvailableMsg": "Update {0} is available!",
-                "Prompt": "Do you want to download and install it now?",
+                "Prompt": "Do you want to open the download page in your browser?",
                 "CheckTitle": "YMU Update Check",
                 "ErrorTitle": "Update Error",
                 "Ahead": "You are running a newer version than the latest release.",

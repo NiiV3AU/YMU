@@ -1,16 +1,14 @@
 import logging
-import os
-import subprocess
-import sys
 
 import release_service
-from paths import LOCAL_VERSION, YMU_APPDATA_DIR
+from paths import LOCAL_VERSION
 
 logger = logging.getLogger(__name__)
 
 REPO = "NiiV3AU/YMU"
-UPDATER_REPO = "xesdoog/YMU-Updater"
-UPDATER_EXE_PATH = os.path.join(YMU_APPDATA_DIR, "ymu_self_updater.exe")
+# YMU updates passively: the version check below tells the user an update
+# exists, and the UI opens this page so they can download the new build.
+RELEASES_URL = f"https://github.com/{REPO}/releases/latest"
 
 _update_cache = {}
 CACHE_DURATION_SECONDS = 300
@@ -67,43 +65,3 @@ def check_for_updates(*args, **kwargs):
     except Exception as e:
         logger.exception(f"Update check failed: {e}")
         return (STATUS_ERROR, str(e))
-
-
-def download_and_launch_updater(progress_signal=None, *args, **kwargs):
-    """
-    Downloads updater, passes sys.executable to it.
-    """
-    logger.info(f"Fetching latest updater from {UPDATER_REPO}")
-    provider = release_service.GitHubAPIProvider(
-        repository=UPDATER_REPO, asset_extension=".exe"
-    )
-    latest_release = provider.get_latest_release()
-
-    if not latest_release:
-        return (False, "Could not find the latest updater release.")
-
-    success = release_service.download_and_verify_release(
-        latest_release, progress_signal
-    )
-
-    if not success:
-        return (False, "Failed to download the updater executable.")
-
-    try:
-        logger.info(f"Launching updater: {UPDATER_EXE_PATH}")
-        current_exe = sys.executable
-        cmd = [UPDATER_EXE_PATH, current_exe]
-
-        if sys.platform == "win32":
-            subprocess.Popen(
-                cmd,
-                creationflags=subprocess.DETACHED_PROCESS,
-                close_fds=True,
-            )
-        else:
-            subprocess.Popen(cmd)
-
-        return (True, "Updater launched")
-    except (IOError, OSError) as e:
-        logger.exception(f"Failed to launch updater: {e}")
-        return (False, str(e))
