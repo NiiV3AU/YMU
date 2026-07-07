@@ -779,6 +779,7 @@ STYLESHEET_LIGHT = """
     QPushButton#LinkButton:hover { background-color: #E0E0E0; color: #121212; }
 
     /* --- SCROLLBAR --- */
+    QScrollArea { border: none; background: transparent; }
     QScrollBar:vertical { border: none; background: #F5F5F5; width: 10px; margin: 0; }
     QScrollBar::handle:vertical { background: #CCCCCC; min-height: 30px; border-radius: 5px; }
     QScrollBar::handle:vertical:hover { background: #BDBDBD; }
@@ -1404,7 +1405,7 @@ class ToggleSwitch(QWidget):
     _track_color_changed = Signal()
     _knob_position_changed = Signal()
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, variant="default"):
         super().__init__(parent)
         self.setObjectName("ToggleSwitch")
         self.setFixedSize(52, 28)
@@ -1412,8 +1413,16 @@ class ToggleSwitch(QWidget):
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self._checked = False
 
-        self._track_color_off = QColor("#8B8B8B")
-        self._track_color_on = QColor("#28A745")
+        # "default" keeps the green accent used on the Settings page.
+        # "sidebar" is monochrome (greyscale only) so the edition switch stays
+        # visually restrained and does not steal focus from other elements.
+        self._variant = variant
+        if variant == "sidebar":
+            self._track_color_off = QColor("#4A4A4A")
+            self._track_color_on = QColor("#9E9E9E")
+        else:
+            self._track_color_off = QColor("#8B8B8B")
+            self._track_color_on = QColor("#28A745")
         self._knob_color = QColor("#FFFFFF")
 
         self._current_track_color = self._track_color_off
@@ -1737,7 +1746,7 @@ class MainWindow(QMainWindow):
             self.loc_manager.tr("Sidebar.Mode.Enhanced", "E&E")
         )
 
-        self.mode_toggle = ToggleSwitch()
+        self.mode_toggle = ToggleSwitch(variant="sidebar")
         self.mode_toggle.setToolTip(
             self.loc_manager.tr(
                 "Sidebar.Mode.Tooltip",
@@ -1759,11 +1768,22 @@ class MainWindow(QMainWindow):
         self._update_mode_labels()
 
         self.mode_toggle.toggled.connect(self._on_mode_toggled)
+        # Label colours depend on the theme, and inline styles do not restyle
+        # automatically, so refresh them whenever the theme changes.
+        self.theme_manager.themeChanged.connect(lambda _t: self._update_mode_labels())
 
     def _update_mode_labels(self):
-        """Highlights the active edition so the current mode is unambiguous."""
-        active = "font-weight: bold; color: #28A745;"
-        inactive = "color: #8B8B8B;"
+        """Highlights the active edition so the current mode is unambiguous.
+        The active edition uses the plain foreground colour (no accent) so the
+        switch stays visually calm; the inactive one is muted but still legible.
+        The bold/normal weight change is kept as a second, colour-independent
+        cue."""
+        if self.theme_manager.current_theme == "light":
+            active = "font-weight: bold; color: #121212;"
+            inactive = "color: #999999;"
+        else:
+            active = "font-weight: bold; color: #FFFFFF;"
+            inactive = "color: #777777;"
         is_enhanced = self.current_mode.key == "enhanced"
         self.mode_legacy_label.setStyleSheet(inactive if is_enhanced else active)
         self.mode_enhanced_label.setStyleSheet(active if is_enhanced else inactive)
@@ -2100,7 +2120,11 @@ class DownloadPage(QWidget):
         dialog.exec()
 
     def _update_check_logic(
-        self, provider, repo_path: str, local_dll_path: str, mode_key: str,
+        self,
+        provider,
+        repo_path: str,
+        local_dll_path: str,
+        mode_key: str,
         progress_signal=None,
     ):
         """
@@ -3345,6 +3369,7 @@ class SettingsPage(QWidget):
         btn_clear_gta = StatefulButton(
             f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
             theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "x.svg")),
             **link_button_colors,
         )
         btn_clear_gta.setObjectName("LinkButton")
