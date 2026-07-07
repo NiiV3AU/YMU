@@ -3,10 +3,15 @@ description: Create a bug report to help us improve YMU
 title: "[Bug]: "
 labels: bug
 body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. **Please fill in every field carefully** — reports without a real log or version almost always get closed without a fix.
+
   - type: textarea
     attributes:
       label: Describe the bug
-      description: A clear description of what the bug is.
+      description: A clear description of what the bug is and what you expected to happen instead.
     validations:
       required: true
 
@@ -22,40 +27,86 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     attributes:
-      label: Log
-      description: |
-        For a bug report to be valid, you need to include the log for YMU.
-        The log can be found in your AppData folder at **%APPDATA%/YMU/ymu.log**.
-
-        You can paste `%APPDATA%/YMU` into your File Explorer address bar to get there quickly.
-
-        Tip: To easily upload your log file, you can rename ymu.log to ymu.txt or zip it, then drag and drop it here. Alternatively, you can open it and copy/paste its contents.
+      label: YMU Version
+      description: The exact version, shown at the bottom of the YMU window (e.g. v1.1.7). "Latest" is not enough — we need the number.
+      placeholder: "v1.1.7"
     validations:
       required: true
 
-  - type: textarea
+  - type: dropdown
     attributes:
-      label: Screenshots / Video
+      label: GTA V Edition
       description: |
-        If you think the issue can be better explained with screenshots or a video, then consider adding these here.
-
-        Tip: You can attach images by clicking this area to highlight it and then dragging files in.
+        Which edition are you using? This is the Legacy/Enhanced switch in YMU's sidebar.
+        Legacy = the original GTA V (GTA5.exe). Enhanced = GTA V Enhanced (GTA5_Enhanced.exe).
+      multiple: false
+      options:
+        - Legacy
+        - Enhanced
+        - Not sure
     validations:
-      required: false
+      required: true
 
   - type: dropdown
     attributes:
-      label: Store
+      label: Store / Launcher
       description: Which launcher/store do you use to launch your game? Cracked versions are not supported.
       multiple: false
       options:
         - Steam
         - Epic Games
         - Rockstar Games
+        - Other / Not Listed
     validations:
       required: true
+
+  - type: input
+    attributes:
+      label: Store / Launcher — details
+      description: If you selected "Other / Not Listed" above, name your store/launcher here and mention whether you set a custom GTA V path in YMU's settings.
+      placeholder: "e.g. Xbox / Game Pass, or a custom install path on D:\\Games\\GTAV"
+    validations:
+      required: false
+
+  - type: textarea
+    attributes:
+      label: Log
+      description: |
+        For a bug report to be valid, you **must** include the full log for YMU.
+        The log is at **%APPDATA%/YMU/ymu.log** — paste `%APPDATA%/YMU` into your File Explorer address bar to get there quickly.
+
+        Please paste the **entire** contents, or attach the file (rename ymu.log to ymu.txt or zip it, then drag it in). A single word or a couple of lines is not enough to diagnose anything.
+    validations:
+      required: true
+
+  - type: checkboxes
+    attributes:
+      label: Log confirmation
+      options:
+        - label: I have included the complete contents of ymu.log (or attached the file) — not a snippet, single word, or placeholder.
+          required: true
+
+  - type: checkboxes
+    attributes:
+      label: Troubleshooting already tried
+      description: These rule out the most common non-bugs. Tick what applies — this speeds up triage a lot.
+      options:
+        - label: I have BattlEye disabled (YMU/YimMenu require it OFF).
+          required: false
+        - label: I tried running YMU as Administrator.
+          required: false
+
+  - type: textarea
+    attributes:
+      label: Screenshots / Video
+      description: |
+        If the issue can be better explained with screenshots or a video, add them here.
+
+        Tip: You can attach images by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
 
   - type: textarea
     attributes:

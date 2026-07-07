@@ -1,5 +1,10 @@
 # This workflow will install Python dependencies, build an executable,
 # generate a checksum, and then create a new GitHub Release with the artifacts.
+#
+# The version is the single source of truth in src/paths.py (LOCAL_VERSION).
+# It drives the built exe's metadata, the release tag and the release name, and
+# it is also what the app compares against when checking for updates — so bump
+# LOCAL_VERSION before running this workflow.
 
 name: YMU Manual Release
 
@@ -12,6 +17,8 @@ jobs:
     name: Build YMU on Windows
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
+      version: ${{ steps.meta.outputs.version }}
+      year: ${{ steps.meta.outputs.year }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,9 +41,24 @@ jobs:
           # Check for other issues but don't stop the build
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
+      - name: Get build metadata
+        id: meta
+        run: |
+          $content = Get-Content src/paths.py -Raw
+          if ($content -match 'LOCAL_VERSION\s*=\s*"v?([0-9]+\.[0-9]+\.[0-9]+)"') {
+            $version = $Matches[1]
+          } else {
+            Write-Error "Could not find LOCAL_VERSION in src/paths.py"
+            exit 1
+          }
+          $year = (Get-Date).Year
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "year=$year" >> $env:GITHUB_OUTPUT
+          Write-Host "Building YMU version $version ($year)"
+
       - name: Build Executable
         run: |
-          python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="1.1.6" --product-version="1.1.6" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - 2025" --output-filename=YMU.exe src/gui.py
+          python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe src/gui.py
 
       - name: Generate Checksum for Executable
         run: |
@@ -63,6 +85,8 @@ jobs:
     runs-on: ubuntu-latest
     name: Create GitHub Release
     needs: build
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -72,33 +96,30 @@ jobs:
         with:
           name: ymu-build-artifacts
 
-      - name: Increment Version
-        id: increment_version
+      - name: Resolve version tag
+        id: version
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          echo "new_version=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Release version: v${VERSION}"
+
+      - name: Ensure tag does not already exist
         uses: actions/github-script@v7
         with:
           script: |
+            const tag = "${{ steps.version.outputs.new_version }}";
             const { owner, repo } = context.repo;
-            const tags = await github.rest.repos.listTags({ owner, repo });
-            let newVersion;
-            if (tags.data.length === 0) {
-              console.log('No existing tags found. Starting with version v1.1.5');
-              newVersion = 'v1.1.5';
-            } else {
-              const latestTag = tags.data[0].name;
-              const versionParts = latestTag.substring(1).split('.').map(Number);
-              if (versionParts[1] === 9 && versionParts[2] === 9) {
-                versionParts[0] += 1;
-                versionParts[1] = 0;
-                versionParts[2] = 0;
-              } else if (versionParts[2] === 9) {
-                versionParts[1] += 1;
-                versionParts[2] = 0;
+            try {
+              await github.rest.git.getRef({ owner, repo, ref: `tags/${tag}` });
+              core.setFailed(`Tag ${tag} already exists. Bump LOCAL_VERSION in src/paths.py before releasing.`);
+            } catch (error) {
+              if (error.status === 404) {
+                console.log(`Tag ${tag} is free. Proceeding.`);
               } else {
-                versionParts[2] += 1;
+                throw error;
               }
-              newVersion = `v${versionParts.join('.')}`;
             }
-            core.setOutput("new_version", newVersion);
 
       - name: Read Checksum File
         id: read_sha
@@ -111,8 +132,8 @@ jobs:
       - name: Create and Upload Release
         uses: softprops/action-gh-release@v2
         with:
-          name: YMU ${{ steps.increment_version.outputs.new_version }}
-          tag_name: ${{ steps.increment_version.outputs.new_version }}
+          name: YMU ${{ steps.version.outputs.new_version }}
+          tag_name: ${{ steps.version.outputs.new_version }}
           body: |
             ### Changelog:
             * ...
