@@ -344,9 +344,10 @@ STYLESHEET = """
         background-color: transparent;
     }
     /* --- Info Dialog Styling --- */
-    QDialog#InfoDialog {
+    QDialog#InfoDialog, QMessageBox {
         background-color: #1E1E1E; /* @surface */
     }
+    QMessageBox QLabel { color: #E0E0E0; }
 
     /* Style for the '?' button */
     QPushButton#InfoButton {
@@ -687,7 +688,6 @@ STYLESHEET_LIGHT = """
     /* --- GLOBAL STYLES --- */
     QWidget { color: #121212; font-family: "Manrope", "Segoe UI", "Meiryo", "Microsoft YaHei", sans-serif; font-size: 14px;}
     QMainWindow { background-color: #F5F5F5; }
-    QWidget#MainContentWidget { background-color: rgba(245, 245, 245, 0.85); }
 
     /* --- SIDEBAR --- */
     QWidget#Sidebar { background-color: #EEEEEE; border-right: 1px solid #DCDCDC; }
@@ -707,13 +707,13 @@ STYLESHEET_LIGHT = """
     QPushButton#InfoButton { background-color: transparent; color: #777777; border: 1px solid #DCDCDC; border-radius: 6px; padding: 0px; min-width: 30px; max-width: 30px; min-height: 30px; max-height: 30px; }
     QPushButton#InfoButton:hover { background-color: #E0E0E0; border-color: #CCCCCC; color: #121212; }
     
-    QDialog#InfoDialog QTabBar::tab { color: #555555; background-color: transparent; padding: 8px 15px; border: none; border-bottom: 2px solid transparent; }
+    QDialog#InfoDialog QTabBar::tab { qproperty-alignment: 'AlignCenter'; color: #555555; background-color: transparent; padding: 8px 15px; border: none; border-bottom: 2px solid transparent; }
     QDialog#InfoDialog QTabBar::tab:hover { color: #121212; }
-    QDialog#InfoDialog QTabBar::tab:selected { property-alignment: 'AlignCenter'; color: #121212; font-weight: bold; border-bottom: 2px solid #28A745; }
-    QDialog#InfoDialog QStackedWidget { background-color: #F5F5F5; border: 1px solid #E0E0E0; border-radius: 5px; }
+    QDialog#InfoDialog QTabBar::tab:selected { qproperty-alignment: 'AlignCenter'; color: #121212; font-weight: bold; border-bottom: 2px solid #28A745; }
+    QDialog#InfoDialog QStackedWidget { background-color: #F5F5F5; border: 1px solid #DCDCDC; border-radius: 5px; }
 
     /* --- CONTAINERS & CARDS --- */
-    QFrame#CardFrame { background-color: #FFFFFF; border: 1px solid #E0E0E0; border-radius: 10px; padding: 15px; }
+    QFrame#CardFrame { background-color: #FFFFFF; border: 1px solid #DCDCDC; border-radius: 10px; padding: 15px; }
     QWidget#ScrollContainer { background-color: #F5F5F5; }
 
     /* --- ComboBox Styling --- */
@@ -791,14 +791,14 @@ STYLESHEET_LIGHT = """
     QPushButton#EnableButton:hover { background-color: #28A745; border-color: #28A745; }
     QPushButton#RefreshButton:hover { background-color: #DCDCDC; border-color: #BDBDBD; }
     QPushButton#DisableButton:hover { background-color: #e84555; border-color: #e84555; }
-    QFrame#CardFrame QListWidget { font-family: "JetBrains Mono"; font-size: 10px; background-color: #F5F5F5; border-radius: 5px; border: 1px solid #E0E0E0; }
+    QFrame#CardFrame QListWidget { font-family: "JetBrains Mono"; font-size: 10px; background-color: #F5F5F5; border-radius: 5px; border: 1px solid #DCDCDC; }
 
     /* --- FOOTER --- */
     QPushButton#SidebarFooter { background-color: transparent; border: none; color: #AAAAAA; font-size: 11px; text-align: center; padding: 10px; }
     QPushButton#SidebarFooter:hover { color: #777777; }
     /* --- Risk Page Styles --- */
     QLabel#RiskTitleLabel {
-        color: #d32f2f;
+        color: #e84555;
         font-size: 16px;
         font-weight: bold;
         qproperty-alignment: 'AlignCenter';
@@ -861,7 +861,7 @@ STYLESHEET_LIGHT = """
     /* --- Notification System --- */
     QFrame#NotificationCard {
         background-color: #FFFFFF;
-        border: 1px solid #E0E0E0;
+        border: 1px solid #DCDCDC;
         border-radius: 10px;
     }
     #NotificationCard QLabel#NotificationTitle {
