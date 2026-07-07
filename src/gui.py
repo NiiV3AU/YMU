@@ -1944,8 +1944,9 @@ class DownloadPage(QWidget):
         self.loc_manager = loc_manager
         self.get_mode = get_mode
 
+        # Set only on the GUI thread, from the last check whose edition still
+        # matched. Read by start_download to know what to download.
         self.latest_release_data = None
-        self.release_provider = None
         self._release_cache = {}
         self.CACHE_DURATION_SECONDS = 300
 
@@ -2045,17 +2046,20 @@ class DownloadPage(QWidget):
             self.loc_manager.tr("Download.Btn.Checking", "Checking...")
         )
 
-        # Capture everything mode-dependent on the GUI thread; the worker
-        # must not read widgets or the mode itself.
+        # Capture everything mode-dependent on the GUI thread and pass it to
+        # the worker as arguments. The worker reads no shared/mode state, so a
+        # mode switch mid-check cannot mix editions; the result carries its
+        # own mode key so the callback can discard it if it is stale.
         mode = self.get_mode()
-        repo_path = mode.repo
-
-        self.release_provider = release_service.GitHubAPIProvider(repository=repo_path)
-        self.local_dll_path = os.path.join(YMU_DLL_DIR, mode.dll_name)
+        provider = release_service.GitHubAPIProvider(repository=mode.repo)
+        local_dll_path = os.path.join(YMU_DLL_DIR, mode.dll_name)
 
         self.worker_manager.run_task(
             self._update_check_logic,
-            repo_path,
+            provider,
+            mode.repo,
+            local_dll_path,
+            mode.key,
             on_finished=self._handle_update_check_result,
             on_error=self._handle_worker_error,
         )
@@ -2095,46 +2099,55 @@ class DownloadPage(QWidget):
         )
         dialog.exec()
 
-    def _update_check_logic(self, repo_path: str, progress_signal=None):
+    def _update_check_logic(
+        self, provider, repo_path: str, local_dll_path: str, mode_key: str,
+        progress_signal=None,
+    ):
         """
-        Fetches the latest release data. Runs on a worker thread, so the
-        repo is passed in instead of being read from widgets.
-        RETURNS CONSTANTS instead of display strings.
+        Fetches the latest release data. Fully self-contained (everything is
+        passed in), so it never reads shared/mode state on the worker thread.
+        Returns (mode_key, STATUS_CONSTANT, release_data) so the GUI callback
+        can discard a result whose edition is no longer selected.
         """
-        if self.release_provider is None:
-            raise RuntimeError("Release provider has not been initialized.")
-
         current_time = time.time()
 
         if repo_path in self._release_cache:
             cached_data, timestamp = self._release_cache[repo_path]
             if (current_time - timestamp) < self.CACHE_DURATION_SECONDS:
                 logger.info(f"Using cached release data for {repo_path}.")
-                self.latest_release_data = cached_data
-                return self._compare_checksums()
+                status = self._compare_checksums(cached_data, local_dll_path)
+                return (mode_key, status, cached_data)
 
         logger.info(f"Fetching fresh release data for {repo_path}.")
-        self.latest_release_data = self.release_provider.get_latest_release()
+        release_data = provider.get_latest_release()
 
-        if not self.latest_release_data:
+        if not release_data:
             raise RuntimeError("Failed to fetch release data from GitHub.")
 
-        self._release_cache[repo_path] = (self.latest_release_data, current_time)
-        return self._compare_checksums()
+        self._release_cache[repo_path] = (release_data, current_time)
+        status = self._compare_checksums(release_data, local_dll_path)
+        return (mode_key, status, release_data)
 
-    def _compare_checksums(self):
-        """Helper to determine status based on checksums."""
-        assert self.latest_release_data is not None
-        local_checksum = release_service.get_local_sha256(self.local_dll_path)
+    def _compare_checksums(self, release_data, local_dll_path: str):
+        """Pure helper: status from the release checksum vs the local DLL."""
+        local_checksum = release_service.get_local_sha256(local_dll_path)
 
-        if local_checksum == self.latest_release_data.checksum:
+        if local_checksum == release_data.checksum:
             return self.STATUS_UPTODATE
         elif local_checksum is None:
             return self.STATUS_DOWNLOAD
         else:
             return self.STATUS_UPDATE
 
-    def _handle_update_check_result(self, status: str):
+    def _handle_update_check_result(self, result):
+        mode_key, status, release_data = result
+        # Discard a check whose edition is no longer selected (the user toggled
+        # the sidebar switch while it was in flight); a fresh check for the
+        # current edition is already running.
+        if mode_key != self.get_mode().key:
+            logger.info(f"Discarding stale update-check result for '{mode_key}'.")
+            return
+        self.latest_release_data = release_data
         if status == self.STATUS_UPTODATE:
             self.is_download_ready = False
             self.status_label.setText(
@@ -2209,23 +2222,26 @@ class DownloadPage(QWidget):
         self.download_button.stop_animation()
         QApplication.processEvents()
 
+        # Capture the release on the GUI thread so a later mode switch cannot
+        # swap it out from under the running download.
+        release_data = self.latest_release_data
         self.worker_manager.run_task(
-            target=self._download_logic,
+            self._download_logic,
+            release_data,
             on_finished=self._handle_download_result,
             on_error=self._handle_worker_error,
             on_progress=self.update_download_progress,
         )
 
-    def _download_logic(self, progress_signal=None):
+    def _download_logic(self, release_data, progress_signal=None):
         """Runs in the background and executes the download."""
-        assert self.latest_release_data is not None
 
         def progress_callback(percentage):
             if progress_signal:
                 progress_signal.emit(percentage)
 
         success = release_service.download_and_verify_release(
-            self.latest_release_data, progress_callback
+            release_data, progress_callback
         )
         return success
 
