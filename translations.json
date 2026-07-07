@@ -382,8 +382,7 @@
                 "ReportBug": "Bug melden",
                 "RequestFeature": "Feature vorschlagen",
                 "CheckUpdates": "Auf YMU Updates prüfen",
-                "UpToDate": "YMU ist aktuell",
-                "Downloading": "Downloade Updater..."
+                "UpToDate": "YMU ist aktuell"
             },
             "Tooltip": {
                 "OpenScripts": "Öffnet den Ordner, in dem deine Lua-Skripte liegen",
@@ -400,7 +399,7 @@
                 "UpToDate": "Dein YMU ist bereits auf dem neuesten Stand.",
                 "AvailableTitle": "Update verfügbar",
                 "AvailableMsg": "Update {0} ist verfügbar!",
-                "Prompt": "Möchtest du es jetzt downloaden und installieren?",
+                "Prompt": "Möchtest du die Download-Seite im Browser öffnen?",
                 "CheckTitle": "YMU Update Check",
                 "ErrorTitle": "Update Fehler",
                 "Ahead": "Du nutzt eine neuere Version als den letzten Release."
@@ -596,8 +595,7 @@
                 "ReportBug": "Meld een Bug",
                 "RequestFeature": "Vraag een Feature aan",
                 "CheckUpdates": "Check voor YMU Updates",
-                "UpToDate": "YMU is up-to-date",
-                "Downloading": "Updater downloaden..."
+                "UpToDate": "YMU is up-to-date"
             },
             "Tooltip": {
                 "OpenScripts": "Open de map waar je Lua scripts staan",
@@ -614,7 +612,7 @@
                 "UpToDate": "Je YMU is al up-to-date.",
                 "AvailableTitle": "Update Beschikbaar",
                 "AvailableMsg": "Update {0} is beschikbaar!",
-                "Prompt": "Wil je het nu downloaden en installeren?",
+                "Prompt": "Wil je de downloadpagina in je browser openen?",
                 "CheckTitle": "YMU Update Check",
                 "ErrorTitle": "Update Fout",
                 "Ahead": "Je draait een nieuwere versie dan de laatste release."
@@ -721,7 +719,7 @@
             },
             "Tooltip": {
                 "Help": "Afficher l'aide pour l'installation DLL et FSL",
-                "Channel": "Sélectionner la version YimMenu à télécharger",
+                "Channel": "Sélectionne la version YimMenu à télécharger",
                 "ActiveChannel": "Édition active — change-la avec le sélecteur Legacy/Enhanced dans la barre latérale"
             }
         },
@@ -810,8 +808,7 @@
                 "ReportBug": "Signaler un Bug",
                 "RequestFeature": "Suggérer une Fonctionnalité",
                 "CheckUpdates": "Chercher MAJ YMU",
-                "UpToDate": "YMU est à jour",
-                "Downloading": "Téléchargement Updater..."
+                "UpToDate": "YMU est à jour"
             },
             "Tooltip": {
                 "OpenScripts": "Ouvrir le dossier où se trouvent tes scripts Lua",
@@ -828,7 +825,7 @@
                 "UpToDate": "Ton YMU est déjà à jour.",
                 "AvailableTitle": "Mise à jour disponible",
                 "AvailableMsg": "La mise à jour {0} est dispo !",
-                "Prompt": "Veux-tu la télécharger et l'installer maintenant ?",
+                "Prompt": "Veux-tu ouvrir la page de téléchargement dans ton navigateur ?",
                 "CheckTitle": "Vérif MAJ YMU",
                 "ErrorTitle": "Erreur Mise à jour",
                 "Ahead": "Tu utilises une version plus récente que la dernière release."
@@ -1024,8 +1021,7 @@
                 "ReportBug": "Reportar un Bug",
                 "RequestFeature": "Pedir una Función",
                 "CheckUpdates": "Buscar Updates de YMU",
-                "UpToDate": "YMU está actualizado",
-                "Downloading": "Descargando Updater..."
+                "UpToDate": "YMU está actualizado"
             },
             "Tooltip": {
                 "OpenScripts": "Abre la carpeta donde están tus scripts Lua",
@@ -1042,7 +1038,7 @@
                 "UpToDate": "Tu YMU ya está actualizado.",
                 "AvailableTitle": "Actualización Disponible",
                 "AvailableMsg": "¡La actualización {0} está disponible!",
-                "Prompt": "¿Quieres descargarla e instalarla ahora?",
+                "Prompt": "¿Quieres abrir la página de descarga en tu navegador?",
                 "CheckTitle": "Comprobación YMU",
                 "ErrorTitle": "Error de Actualización",
                 "Ahead": "Estás ejecutando una versión más nueva que el último lanzamiento."
@@ -1238,8 +1234,7 @@
                 "ReportBug": "Reportar Bug",
                 "RequestFeature": "Pedir Funcionalidade",
                 "CheckUpdates": "Checar Updates do YMU",
-                "UpToDate": "YMU está atualizado",
-                "Downloading": "Baixando Updater..."
+                "UpToDate": "YMU está atualizado"
             },
             "Tooltip": {
                 "OpenScripts": "Abrir a pasta onde seus scripts Lua estão localizados",
@@ -1256,7 +1251,7 @@
                 "UpToDate": "Seu YMU já está atualizado.",
                 "AvailableTitle": "Update Disponível",
                 "AvailableMsg": "Update {0} está disponível!",
-                "Prompt": "Deseja baixar e instalar agora?",
+                "Prompt": "Deseja abrir a página de download no seu navegador?",
                 "CheckTitle": "Checagem de Update YMU",
                 "ErrorTitle": "Erro no Update",
                 "Ahead": "Você está rodando uma versão mais nova que o último release."
@@ -1404,7 +1399,7 @@
                 "NoRockstarPath": "Nie znaleziono ścieżki instalacji Rockstar Games.",
                 "NoExeFound": "Nie znaleziono pliku wykonywalnego w '{0}'",
                 "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi.",
-                "AccessDenied": "Brak uprawnień do zainjectowania do GTA V.\nSpróbuj uruchomić YMU jako administrator.",
+                "AccessDenied": "Brak uprawnień do wstrzyknięcia do GTA V.\nSpróbuj uruchomić YMU jako administrator.",
                 "AccessDeniedAdmin": "Wstrzyknięcie zostało odrzucone nawet z uprawnieniami administratora.\nZazwyczaj powodem jest BattlEye lub zła edycja gry.\nWyłącz BattlEye w swoim launcherze (zobacz stronę Ryzyko) i\nupewnij się, że przełącznik Legacy/Enhanced pasuje do twojej gry.",
                 "CustomPathInvalid": "Własna ścieżka GTA V nie jest ustawiona lub już nie istnieje.\nUstaw ją ponownie na stronie Ustawienia."
             },
@@ -1452,8 +1447,7 @@
                 "ReportBug": "Zgłoś błąd",
                 "RequestFeature": "Poproś o funkcję",
                 "CheckUpdates": "Sprawdź aktualizacje YMU",
-                "UpToDate": "YMU jest aktualne",
-                "Downloading": "Pobieranie Updatera..."
+                "UpToDate": "YMU jest aktualne"
             },
             "Tooltip": {
                 "OpenScripts": "Otwórz folder, w którym znajdują się twoje skrypty Lua",
@@ -1470,7 +1464,7 @@
                 "UpToDate": "Twój YMU jest już aktualny.",
                 "AvailableTitle": "Aktualizacja dostępna",
                 "AvailableMsg": "Aktualizacja {0} jest dostępna!",
-                "Prompt": "Czy chcesz ją pobrać i zainstalować teraz?",
+                "Prompt": "Czy chcesz otworzyć stronę pobierania w przeglądarce?",
                 "CheckTitle": "Sprawdzanie aktualizacji YMU",
                 "ErrorTitle": "Błąd aktualizacji",
                 "Ahead": "Używasz nowszej wersji niż najnowsze wydanie."
@@ -1618,7 +1612,7 @@
                 "NoRockstarPath": "Не найден путь установки Rockstar Games.",
                 "NoExeFound": "Исполняемый файл не найден в '{0}'",
                 "LaunchFailed": "Ошибка запуска игры. Смотрите логи.",
-                "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора.",
+                "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуйте перезапустить YMU от имени администратора.",
                 "AccessDeniedAdmin": "Инжект был отклонён даже с правами администратора.\nОбычно причина — BattlEye или неверная редакция игры.\nОтключите BattlEye в лаунчере (см. страницу «Риски») и\nубедитесь, что переключатель Legacy/Enhanced совпадает с вашей игрой.",
                 "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадайте его заново на странице «Настройки»."
             },
@@ -1666,8 +1660,7 @@
                 "ReportBug": "Репортнуть баг",
                 "RequestFeature": "Запросить фичу",
                 "CheckUpdates": "Проверить апдейты YMU",
-                "UpToDate": "YMU обновлен",
-                "Downloading": "Скачивание апдейтера..."
+                "UpToDate": "YMU обновлен"
             },
             "Tooltip": {
                 "OpenScripts": "Открыть папку, где лежат ваши Lua скрипты",
@@ -1684,7 +1677,7 @@
                 "UpToDate": "Ваш YMU уже обновлен.",
                 "AvailableTitle": "Доступно обновление",
                 "AvailableMsg": "Обновление {0} доступно!",
-                "Prompt": "Хотите скачать и установить его сейчас?",
+                "Prompt": "Хотите открыть страницу загрузки в браузере?",
                 "CheckTitle": "Проверка апдейтов YMU",
                 "ErrorTitle": "Ошибка обновления",
                 "Ahead": "Вы используете версию новее, чем последний релиз."
@@ -1832,7 +1825,7 @@
                 "NoRockstarPath": "Не знайдено шлях встановлення Rockstar Games.",
                 "NoExeFound": "Виконуваний файл не знайдено в '{0}'",
                 "LaunchFailed": "Помилка запуску гри. Дивіться логи.",
-                "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора.",
+                "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуйте перезапустити YMU від імені адміністратора.",
                 "AccessDeniedAdmin": "Інжект було відхилено навіть із правами адміністратора.\nЗазвичай причина — BattlEye або неправильна редакція гри.\nВимкніть BattlEye у лаунчері (див. сторінку «Ризики») і\nпереконайтеся, що перемикач Legacy/Enhanced відповідає вашій грі.",
                 "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадайте його знову на сторінці «Налаштування»."
             },
@@ -1880,8 +1873,7 @@
                 "ReportBug": "Репортнути баг",
                 "RequestFeature": "Запросити фічу",
                 "CheckUpdates": "Перевірити оновлення YMU",
-                "UpToDate": "YMU оновлено",
-                "Downloading": "Завантаження апдейтера..."
+                "UpToDate": "YMU оновлено"
             },
             "Tooltip": {
                 "OpenScripts": "Відкрити папку, де знаходяться ваші Lua скрипти",
@@ -1898,7 +1890,7 @@
                 "UpToDate": "Ваш YMU вже оновлений.",
                 "AvailableTitle": "Доступне оновлення",
                 "AvailableMsg": "Оновлення {0} доступне!",
-                "Prompt": "Бажаєте завантажити та встановити його зараз?",
+                "Prompt": "Бажаєте відкрити сторінку завантаження в браузері?",
                 "CheckTitle": "Перевірка оновлень YMU",
                 "ErrorTitle": "Помилка оновлення",
                 "Ahead": "Ви використовуєте версію новішу, ніж останній реліз."
@@ -2094,8 +2086,7 @@
                 "ReportBug": "Bug Raporla",
                 "RequestFeature": "Özellik İste",
                 "CheckUpdates": "YMU Güncellemelerini Kontrol Et",
-                "UpToDate": "YMU güncel",
-                "Downloading": "Updater İndiriliyor..."
+                "UpToDate": "YMU güncel"
             },
             "Tooltip": {
                 "OpenScripts": "Lua scriptlerinin bulunduğu klasörü aç",
@@ -2112,7 +2103,7 @@
                 "UpToDate": "YMU zaten güncel.",
                 "AvailableTitle": "Güncelleme Mevcut",
                 "AvailableMsg": "Güncelleme {0} kullanılabilir!",
-                "Prompt": "Şimdi indirip kurmak ister misin?",
+                "Prompt": "İndirme sayfasını tarayıcında açmak ister misin?",
                 "CheckTitle": "YMU Güncelleme Kontrolü",
                 "ErrorTitle": "Güncelleme Hatası",
                 "Ahead": "Son sürümden daha yeni bir sürüm kullanıyorsun (Beta?)."
@@ -2308,8 +2299,7 @@
                 "ReportBug": "报告 Bug",
                 "RequestFeature": "请求新功能",
                 "CheckUpdates": "检查 YMU 更新",
-                "UpToDate": "YMU 已是最新",
-                "Downloading": "正在下载更新程序..."
+                "UpToDate": "YMU 已是最新"
             },
             "Tooltip": {
                 "OpenScripts": "打开 Lua 脚本所在的文件夹",
@@ -2326,7 +2316,7 @@
                 "UpToDate": "你的 YMU 已经是最新版本。",
                 "AvailableTitle": "有可用更新",
                 "AvailableMsg": "更新 {0} 可用！",
-                "Prompt": "你想现在下载并安装它吗？",
+                "Prompt": "你想在浏览器中打开下载页面吗？",
                 "CheckTitle": "YMU 更新检查",
                 "ErrorTitle": "更新错误",
                 "Ahead": "你运行的版本比最新发布版还要新。"
@@ -2522,8 +2512,7 @@
                 "ReportBug": "回報 Bug",
                 "RequestFeature": "請求新功能",
                 "CheckUpdates": "檢查 YMU 更新",
-                "UpToDate": "YMU 已是最新",
-                "Downloading": "正在下載更新程式..."
+                "UpToDate": "YMU 已是最新"
             },
             "Tooltip": {
                 "OpenScripts": "開啟 Lua 腳本所在的資料夾",
@@ -2540,7 +2529,7 @@
                 "UpToDate": "你的 YMU 已經是最新版本。",
                 "AvailableTitle": "有可用更新",
                 "AvailableMsg": "更新 {0} 可用！",
-                "Prompt": "你想現在下載並安裝它嗎？",
+                "Prompt": "你想在瀏覽器中開啟下載頁面嗎？",
                 "CheckTitle": "YMU 更新檢查",
                 "ErrorTitle": "更新錯誤",
                 "Ahead": "你執行的版本比最新發布版還要新。"
@@ -2736,8 +2725,7 @@
                 "ReportBug": "バグを報告",
                 "RequestFeature": "機能をリクエスト",
                 "CheckUpdates": "YMUの更新を確認",
-                "UpToDate": "YMUは最新です",
-                "Downloading": "アップデーターをダウンロード中..."
+                "UpToDate": "YMUは最新です"
             },
             "Tooltip": {
                 "OpenScripts": "Luaスクリプトが配置されているフォルダを開く",
@@ -2754,7 +2742,7 @@
                 "UpToDate": "お使いのYMUは既に最新です。",
                 "AvailableTitle": "アップデート利用可能",
                 "AvailableMsg": "アップデート {0} が利用可能です！",
-                "Prompt": "今すぐダウンロードしてインストールしますか？",
+                "Prompt": "ブラウザでダウンロードページを開きますか？",
                 "CheckTitle": "YMU 更新チェック",
                 "ErrorTitle": "更新エラー",
                 "Ahead": "最新リリースよりも新しいバージョンを実行しています。"
