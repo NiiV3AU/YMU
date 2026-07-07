@@ -101,7 +101,7 @@ FALLBACK_DATA = {
             },
         },
         "Inject": {
-            "Launcher": {"Select": "Select Launcher"},
+            "Launcher": {"Select": "Select Launcher", "CustomPath": "Custom Path"},
             "Btn": {
                 "StartGta": "Start GTA 5",
                 "InjectBase": "Inject YimMenu",
@@ -133,6 +133,7 @@ FALLBACK_DATA = {
                 "ProcessLost": "GTA 5 process disappeared before injection.",
                 "InjectionFailed": "Injection failed. See logs for details.",
                 "NoRockstarPath": "Could not find Rockstar Games installation path.",
+                "CustomPathInvalid": "The custom GTA V path is not set or no longer exists.\nSet it again on the Settings page.",
                 "NoExeFound": "Executable not found at '{0}'",
                 "LaunchFailed": "Error launching game. See logs for details.",
                 "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",

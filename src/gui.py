@@ -1418,8 +1418,11 @@ class ToggleSwitch(QWidget):
         # visually restrained and does not steal focus from other elements.
         self._variant = variant
         if variant == "sidebar":
+            # Monochrome and greyscale-only so the edition switch stays visually
+            # restrained. The track colour is constant in both states — only the
+            # knob slides — which reads calmer than a colour-changing track.
             self._track_color_off = QColor("#4A4A4A")
-            self._track_color_on = QColor("#9E9E9E")
+            self._track_color_on = QColor("#4A4A4A")
         else:
             self._track_color_off = QColor("#8B8B8B")
             self._track_color_on = QColor("#28A745")
@@ -2328,6 +2331,14 @@ class InjectPage(QWidget):
     STATE_INJECTING = "INJECTING"
     STATE_INJECTED = "INJECTED"
 
+    # Stable launcher keys, stored as combo item-data and in the config, so the
+    # logic and the remembered selection never depend on the (translatable)
+    # display text.
+    LAUNCHER_STEAM = "steam"
+    LAUNCHER_EPIC = "epic"
+    LAUNCHER_ROCKSTAR = "rockstar"
+    LAUNCHER_CUSTOM = "custom"
+
     def __init__(
         self, theme_manager, worker_manager, loc_manager, get_mode, parent=None
     ):
@@ -2358,10 +2369,6 @@ class InjectPage(QWidget):
         info_button.setIconSize(QSize(20, 20))
 
         self.launcher_select = QComboBox()
-        select_txt = self.loc_manager.tr("Inject.Launcher.Select", "Select Launcher")
-        self.launcher_select.addItems(
-            [select_txt, "Steam", "Epic Games", "Rockstar Games"]
-        )
         self.launcher_select.setFixedWidth(175)
         self.launcher_select.setToolTip(
             self.loc_manager.tr(
@@ -2369,6 +2376,7 @@ class InjectPage(QWidget):
             )
         )
         self.launcher_select.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._rebuild_launcher_options()
 
         self.dll_select = QComboBox()
         self.dll_select.setToolTip(
@@ -2437,9 +2445,41 @@ class InjectPage(QWidget):
     def showEvent(self, event):
         """Called every time the page becomes visible."""
         super().showEvent(event)
+        # Rebuild here so a custom path added on the Settings page shows up as a
+        # launcher option, and a cleared one disappears.
+        self._rebuild_launcher_options()
         self._update_dll_selector()
         self.process_checker_timer.start()
         logger.debug("InjectPage shown, started process checker timer.")
+
+    def _rebuild_launcher_options(self):
+        """(Re)builds the launcher dropdown. 'Custom Path' is offered only when a
+        custom GTA V install directory is configured. The last saved selection is
+        restored when still valid; an invalid one (e.g. 'custom' after the path
+        was cleared) is discarded and the placeholder is shown instead."""
+        saved = get_config().get("inject.launcher")
+        combo = self.launcher_select
+
+        combo.blockSignals(True)
+        combo.clear()
+        combo.addItem(
+            self.loc_manager.tr("Inject.Launcher.Select", "Select Launcher"), ""
+        )
+        combo.addItem("Steam", self.LAUNCHER_STEAM)
+        combo.addItem("Epic Games", self.LAUNCHER_EPIC)
+        combo.addItem("Rockstar Games", self.LAUNCHER_ROCKSTAR)
+        if get_config().get("paths.gta_dir"):
+            combo.addItem(
+                self.loc_manager.tr("Inject.Launcher.CustomPath", "Custom Path"),
+                self.LAUNCHER_CUSTOM,
+            )
+
+        idx = combo.findData(saved) if saved else -1
+        if saved and idx <= 0:
+            # The saved launcher is no longer available — discard it for good.
+            get_config().set("inject.launcher", None)
+        combo.setCurrentIndex(idx if idx > 0 else 0)
+        combo.blockSignals(False)
 
     def hideEvent(self, event):
         """Called every time the page is hidden."""
@@ -2501,11 +2541,14 @@ class InjectPage(QWidget):
         mode = self.get_mode()
 
         self._dll_paths: dict[str, str] = {}
+        self._edition_dll_name: Optional[str] = None
+        self._custom_dll_name: Optional[str] = None
 
         # The DLL that matches the currently selected edition.
         mode_dll_path = os.path.join(dll_dir, mode.dll_name)
         if os.path.isfile(mode_dll_path):
-            self._dll_paths[mode.dll_name.removesuffix(".dll")] = mode_dll_path
+            self._edition_dll_name = mode.dll_name.removesuffix(".dll")
+            self._dll_paths[self._edition_dll_name] = mode_dll_path
 
         custom_dll = get_config().get("paths.custom_dll")
         if custom_dll:
@@ -2514,6 +2557,7 @@ class InjectPage(QWidget):
                     os.path.basename(custom_dll).removesuffix(".dll"),
                     self.loc_manager.tr("Inject.Label.Custom", "custom"),
                 )
+                self._custom_dll_name = label
                 self._dll_paths[label] = custom_dll
             elif not getattr(self, "_warned_missing_custom_dll", False):
                 self._warned_missing_custom_dll = True
@@ -2555,6 +2599,13 @@ class InjectPage(QWidget):
             self.dll_select.addItems(names)
             self.dll_select.setVisible(True)
             self.inject_button.setToolTip("")
+            # Restore the saved choice (edition vs custom) when it is still
+            # available; otherwise fall back to the edition DLL.
+            saved_choice = get_config().get("inject.dll_choice")
+            if saved_choice == "custom" and self._custom_dll_name in self._dll_paths:
+                self.dll_select.setCurrentText(self._custom_dll_name)
+            elif self._edition_dll_name in self._dll_paths:
+                self.dll_select.setCurrentText(self._edition_dll_name)
             current_name = self.dll_select.currentText()
             self.dll_to_inject = self._dll_paths[current_name]
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
@@ -2564,16 +2615,20 @@ class InjectPage(QWidget):
         self._update_ui_for_state()
 
     def _on_dll_selection_changed(self, index):
-        """Updates the DLL to be injected when the user makes a selection."""
+        """Updates the DLL to inject and remembers the choice (edition/custom)."""
         name = self.dll_select.currentText()
         if index > -1 and name in getattr(self, "_dll_paths", {}):
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
             self.inject_button.setText(fmt.format(name))
             self.dll_to_inject = self._dll_paths[name]
+            choice = "custom" if name == self._custom_dll_name else "edition"
+            get_config().set("inject.dll_choice", choice)
         self._update_ui_for_state()
 
     def _on_launcher_selection_changed(self):
-        """Enables or disables the start button based on the dropdown selection."""
+        """Persists the choice and enables/disables the start button."""
+        key = self.launcher_select.currentData()
+        get_config().set("inject.launcher", key if key else None)
         self._update_ui_for_state()
 
     def show_inject_info_dialog(self):
@@ -2635,38 +2690,61 @@ class InjectPage(QWidget):
             return
 
         self._set_state(self.STATE_LAUNCHING)
-        # Capture launcher and mode on the GUI thread; the worker must not read
+        # Capture everything the worker needs on the GUI thread; it must not read
         # widgets or the live mode.
-        launcher = self.launcher_select.currentText()
+        launcher = self.launcher_select.currentData()
         mode = self.get_mode()
+        custom_dir = get_config().get("paths.gta_dir")
         self.worker_manager.run_task(
             self._launch_game_logic,
             launcher,
             mode,
+            custom_dir,
             on_finished=self.on_launch_attempt_finished,
             on_error=self.on_task_error,
         )
 
-    def _resolve_game_dir(self, mode: MenuMode) -> str | None:
-        """Resolves the install directory of the active edition. A user-set
-        custom path wins (poweruser override); otherwise the edition's Rockstar
-        registry keys are used."""
-        custom_dir = get_config().get("paths.gta_dir")
-        if custom_dir and os.path.isdir(custom_dir):
-            logger.info(f"Using custom GTA V install path: {custom_dir}")
-            return custom_dir
-        return menu_modes.get_install_dir(mode)
+    def _start_game_from_dir(self, path: str, mode: MenuMode) -> str:
+        """Finds the edition's launch executable inside `path` and starts it.
+        PlayGTAV.exe is the normal launcher shim; the direct edition executable
+        is the fallback for exotic installs."""
+        executable_path = next(
+            (
+                os.path.join(path, exe)
+                for exe in mode.launch_executables
+                if os.path.exists(os.path.join(path, exe))
+            ),
+            None,
+        )
+        if not executable_path:
+            msg = self.loc_manager.tr(
+                "Inject.Error.NoExeFound", "Executable not found at '{0}'"
+            ).format(path)
+            logger.error(msg)
+            raise FileNotFoundError(msg)
+        try:
+            os.startfile(executable_path)
+            return "Success"
+        except OSError as e:
+            logger.exception(f"Failed to start {executable_path}: {e}")
+            msg = self.loc_manager.tr(
+                "Inject.Error.LaunchFailed",
+                "Error launching game. See logs for details.",
+            )
+            raise RuntimeError(msg) from e
 
-    def _launch_game_logic(self, launcher: str, mode: MenuMode, progress_signal=None):
+    def _launch_game_logic(
+        self, launcher: str, mode: MenuMode, custom_dir, progress_signal=None
+    ):
         """Contains the actual logic for launching the game for a given
-        edition."""
+        edition. `launcher` is a stable key (see LAUNCHER_* constants)."""
         logger.info(
-            f"Attempting to launch {mode.display_name} via {launcher} launcher."
+            f"Attempting to launch {mode.display_name} via '{launcher}' launcher."
         )
 
-        if launcher == "Steam":
+        if launcher == self.LAUNCHER_STEAM:
             uri = mode.steam_uri
-        elif launcher == "Epic Games":
+        elif launcher == self.LAUNCHER_EPIC:
             uri = menu_modes.EPIC_LAUNCH_URI
         else:
             uri = None
@@ -2674,14 +2752,14 @@ class InjectPage(QWidget):
         if uri:
             try:
                 webbrowser.open(uri)
-                logger.info(f"Successfully sent launch command to {launcher}.")
+                logger.info(f"Successfully sent launch command to '{launcher}'.")
                 return f"Launch command sent to {launcher}."
             except Exception as e:
                 logger.exception(f"Failed to open URI for {launcher}: {e}")
                 raise RuntimeError(f"Could not send command to {launcher}.") from e
 
-        elif launcher == "Rockstar Games":
-            path = self._resolve_game_dir(mode)
+        elif launcher == self.LAUNCHER_ROCKSTAR:
+            path = menu_modes.get_install_dir(mode)
             if not path:
                 msg = self.loc_manager.tr(
                     "Inject.Error.NoRockstarPath",
@@ -2689,34 +2767,19 @@ class InjectPage(QWidget):
                 )
                 logger.error(msg)
                 raise FileNotFoundError(msg)
+            return self._start_game_from_dir(path, mode)
 
-            # PlayGTAV.exe is the normal launcher shim; fall back to the direct
-            # edition executable for exotic (custom-path) installs.
-            executable_path = next(
-                (
-                    os.path.join(path, exe)
-                    for exe in mode.launch_executables
-                    if os.path.exists(os.path.join(path, exe))
-                ),
-                None,
-            )
-            if not executable_path:
+        elif launcher == self.LAUNCHER_CUSTOM:
+            if not custom_dir or not os.path.isdir(custom_dir):
                 msg = self.loc_manager.tr(
-                    "Inject.Error.NoExeFound", "Executable not found at '{0}'"
-                ).format(path)
+                    "Inject.Error.CustomPathInvalid",
+                    "The custom GTA V path is not set or no longer exists.\n"
+                    "Set it again on the Settings page.",
+                )
                 logger.error(msg)
                 raise FileNotFoundError(msg)
+            return self._start_game_from_dir(custom_dir, mode)
 
-            try:
-                os.startfile(executable_path)
-                return "Success"
-            except OSError as e:
-                logger.exception(f"Failed to start {executable_path}: {e}")
-                msg = self.loc_manager.tr(
-                    "Inject.Error.LaunchFailed",
-                    "Error launching game. See logs for details.",
-                )
-                raise RuntimeError(msg) from e
         else:
             logger.error(
                 f"Logic Error: Attempted to launch with unhandled launcher: {launcher}"

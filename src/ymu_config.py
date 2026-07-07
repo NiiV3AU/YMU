@@ -28,6 +28,11 @@ DEFAULTS = {
         "gta_dir": None,
         "custom_dll": None,
     },
+    # Remembered dropdown selections on the Inject page.
+    "inject": {
+        "launcher": None,  # stable key: steam | epic | rockstar | custom
+        "dll_choice": None,  # edition | custom
+    },
 }
 
 
