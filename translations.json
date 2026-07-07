@@ -224,6 +224,12 @@
             "Tooltip": {
                 "Risks": "Wichtige Warnungen und Informationen anzeigen",
                 "ProjectPage": "YMU-Projektseite im Browser öffnen"
+            },
+            "Mode": {
+                "AutoDetected": "{0} erkannt — automatisch ausgewählt.\nNutze den Schalter in der Seitenleiste, um zu wechseln.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Zwischen YimMenu (Legacy) und YimMenuV2 (Enhanced) wechseln"
             }
         },
         "Common": {
@@ -287,12 +293,14 @@
             },
             "Tooltip": {
                 "Help": "Hilfe zur DLL- und FSL-Installation anzeigen",
-                "Channel": "Wähle die YimMenu-Version zum Downloaden"
+                "Channel": "Wähle die YimMenu-Version zum Downloaden",
+                "ActiveChannel": "Aktive Edition — wechsle sie mit dem Legacy/Enhanced-Schalter in der Seitenleiste"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Launcher wählen"
+                "Select": "Launcher wählen",
+                "CustomPath": "Eigener Pfad"
             },
             "Btn": {
                 "StartGta": "GTA 5 starten",
@@ -304,7 +312,8 @@
                 "AlreadyRunning": "GTA 5 läuft bereits!",
                 "SelectLauncher": "Bitte wähle zuerst einen Launcher.",
                 "SuccessTitle": "Injection erfolgreich",
-                "SuccessMsg": "DLL erfolgreich injected!"
+                "SuccessMsg": "DLL erfolgreich injected!",
+                "CustomDllMissing": "Die konfigurierte eigene DLL existiert nicht mehr:\n{0}"
             },
             "Help": {
                 "Title": "Injection Info",
@@ -315,7 +324,8 @@
             "Tooltip": {
                 "Help": "Hilfe zum Inject-Vorgang anzeigen",
                 "Launcher": "Wähle den Launcher, mit dem du GTA V startest",
-                "Dll": "Wähle die DLL zum Injecten"
+                "Dll": "Wähle die DLL zum Injecten",
+                "NoDll": "Lade zuerst die {0}-DLL auf der Download-Seite herunter."
             },
             "Error": {
                 "NoDllSelected": "Fehler: Keine DLL zum Injecten ausgewählt oder gefunden.",
@@ -324,14 +334,20 @@
                 "NoRockstarPath": "Konnte Rockstar Games Installationspfad nicht finden.",
                 "NoExeFound": "Executable nicht gefunden in '{0}'",
                 "LaunchFailed": "Fehler beim Spielstart. Siehe Logs.",
-                "AccessDenied": "Fehlende Rechte zum Injecten in GTA V.\nVersuche, YMU als Administrator neu zu starten."
+                "AccessDenied": "Fehlende Rechte zum Injecten in GTA V.\nVersuche, YMU als Administrator neu zu starten.",
+                "AccessDeniedAdmin": "Injection wurde selbst mit Administrator-Rechten verweigert.\nMeist liegt das an BattlEye oder der falschen Spiel-Edition.\nDeaktiviere BattlEye in deinem Launcher (siehe Risiken-Seite) und\nstelle sicher, dass der Legacy/Enhanced-Schalter zu deinem Spiel passt.",
+                "CustomPathInvalid": "Der eigene GTA V-Pfad ist nicht gesetzt oder existiert nicht mehr.\nLege ihn auf der Einstellungen-Seite erneut fest."
+            },
+            "Label": {
+                "Custom": "eigene"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Design",
                 "Lua": "Lua Einstellungen",
-                "Other": "Sonstiges"
+                "Other": "Sonstiges",
+                "Paths": "Eigene Pfade"
             },
             "Label": {
                 "Language": "Sprache"
@@ -349,7 +365,8 @@
                     "Enable": "Ausgewählte Skripte aktivieren",
                     "Disable": "Ausgewählte Skripte deaktivieren",
                     "Refresh": "Skript-Liste aktualisieren"
-                }
+                },
+                "NoScriptsDir": "Noch kein {0}-Ordner gefunden.\nInjecte es einmal, um ihn zu erstellen."
             },
             "Other": {
                 "DebugConsole": "Externe Debug-Konsole aktivieren",
@@ -392,7 +409,20 @@
                 "RestartRequired": "Bitte starte YMU neu, um die Sprache zu ändern.",
                 "LangUpdated": "Übersetzungen wurden erfolgreich heruntergeladen.\nStarte YMU neu, um die Liste in den Einstellungen zu aktualisieren.",
                 "LangTitle": "Sprache geändert",
-                "LangUpToDate": "Übersetzungen sind bereits aktuell."
+                "LangUpToDate": "Übersetzungen sind bereits aktuell.",
+                "FolderMissing": "Ordner existiert noch nicht:\n{0}",
+                "V2FileMissing": "YimMenuV2 hat noch keine settings.json.\nInjecte es einmal und starte es, dann versuche es erneut."
+            },
+            "Paths": {
+                "AutoDetect": "Automatisch erkannt",
+                "Browse": "Durchsuchen",
+                "Clear": "Löschen",
+                "CustomDll": "Eigene Menü-DLL",
+                "DefaultDll": "Heruntergeladene DLL verwenden",
+                "ErrorNoGta": "Keine GTA V-Executable in diesem Ordner gefunden.",
+                "ErrorNotDll": "Bitte wähle eine .dll-Datei.",
+                "ErrorNotFound": "Pfad existiert nicht.",
+                "GtaDir": "GTA V-Installationsordner"
             }
         }
     },
@@ -408,6 +438,12 @@
             "Tooltip": {
                 "Risks": "Belangrijke waarschuwingen en informatie tonen",
                 "ProjectPage": "Open de YMU-projectpagina in je browser"
+            },
+            "Mode": {
+                "AutoDetected": "{0} gedetecteerd — automatisch geselecteerd.\nGebruik de schakelaar in de zijbalk om te wisselen.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Wissel tussen YimMenu (Legacy) en YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -471,12 +507,14 @@
             },
             "Tooltip": {
                 "Help": "Toon hulp voor DLL en FSL installatie",
-                "Channel": "Selecteer de YimMenu versie om te downloaden"
+                "Channel": "Selecteer de YimMenu versie om te downloaden",
+                "ActiveChannel": "Actieve editie — wissel met de Legacy/Enhanced-schakelaar in de zijbalk"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Selecteer Launcher"
+                "Select": "Selecteer Launcher",
+                "CustomPath": "Aangepast pad"
             },
             "Btn": {
                 "StartGta": "Start GTA 5",
@@ -488,7 +526,8 @@
                 "AlreadyRunning": "GTA 5 draait al!",
                 "SelectLauncher": "Selecteer eerst een launcher.",
                 "SuccessTitle": "Injectie Geslaagd",
-                "SuccessMsg": "DLL succesvol geïnjecteerd!"
+                "SuccessMsg": "DLL succesvol geïnjecteerd!",
+                "CustomDllMissing": "De ingestelde aangepaste DLL bestaat niet meer:\n{0}"
             },
             "Help": {
                 "Title": "Injectie Info",
@@ -499,7 +538,8 @@
             "Tooltip": {
                 "Help": "Toon hulp voor het injectie proces",
                 "Launcher": "Selecteer de launcher die je gebruikt om GTA V te starten",
-                "Dll": "Selecteer de DLL om te injecteren"
+                "Dll": "Selecteer de DLL om te injecteren",
+                "NoDll": "Download eerst de {0}-DLL op de Download-pagina."
             },
             "Error": {
                 "NoDllSelected": "Fout: Geen DLL geselecteerd of gevonden voor injectie.",
@@ -508,14 +548,20 @@
                 "NoRockstarPath": "Kon Rockstar Games installatiepad niet vinden.",
                 "NoExeFound": "Executable niet gevonden in '{0}'",
                 "LaunchFailed": "Fout bij starten game. Zie logs voor details.",
-                "AccessDenied": "Geen rechten om te injecten in GTA V.\nProbeer YMU als administrator te herstarten."
+                "AccessDenied": "Geen rechten om te injecten in GTA V.\nProbeer YMU als administrator te herstarten.",
+                "AccessDeniedAdmin": "Injectie werd zelfs met administratorrechten geweigerd.\nDit komt meestal door BattlEye of de verkeerde game-editie.\nSchakel BattlEye uit in je launcher (zie Risico's-pagina) en\nzorg dat de Legacy/Enhanced-schakelaar bij je game past.",
+                "CustomPathInvalid": "Het aangepaste GTA V-pad is niet ingesteld of bestaat niet meer.\nStel het opnieuw in op de Instellingen-pagina."
+            },
+            "Label": {
+                "Custom": "aangepast"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Uiterlijk",
                 "Lua": "Lua Instellingen",
-                "Other": "Overig"
+                "Other": "Overig",
+                "Paths": "Aangepaste paden"
             },
             "Label": {
                 "Language": "Taal"
@@ -533,7 +579,8 @@
                     "Enable": "Geselecteerde script(s) inschakelen",
                     "Disable": "Geselecteerde script(s) uitschakelen",
                     "Refresh": "Script lijst verversen"
-                }
+                },
+                "NoScriptsDir": "Nog geen {0}-map gevonden.\nInjecteer het één keer om hem aan te maken."
             },
             "Other": {
                 "DebugConsole": "Externe Debug Console inschakelen",
@@ -576,7 +623,20 @@
                 "RestartRequired": "Herstart YMU om de nieuwe taal toe te passen.",
                 "LangUpdated": "Vertalingen succesvol gedownload.\nHerstart YMU om de geüpdatete Taal Lijst in Instellingen te zien.",
                 "LangTitle": "Taal Gewijzigd",
-                "LangUpToDate": "Vertalingen zijn al up-to-date."
+                "LangUpToDate": "Vertalingen zijn al up-to-date.",
+                "FolderMissing": "Map bestaat nog niet:\n{0}",
+                "V2FileMissing": "YimMenuV2 heeft nog geen settings.json.\nInjecteer en start het één keer, probeer daarna opnieuw."
+            },
+            "Paths": {
+                "AutoDetect": "Automatisch gedetecteerd",
+                "Browse": "Bladeren",
+                "Clear": "Wissen",
+                "CustomDll": "Aangepaste menu-DLL",
+                "DefaultDll": "Gedownloade DLL gebruiken",
+                "ErrorNoGta": "Geen GTA V-executable in deze map gevonden.",
+                "ErrorNotDll": "Selecteer een .dll-bestand.",
+                "ErrorNotFound": "Pad bestaat niet.",
+                "GtaDir": "GTA V-installatiemap"
             }
         }
     },
@@ -592,6 +652,12 @@
             "Tooltip": {
                 "Risks": "Afficher les avertissements et informations importants",
                 "ProjectPage": "Ouvrir la page du projet YMU dans le navigateur"
+            },
+            "Mode": {
+                "AutoDetected": "{0} détecté — sélectionné automatiquement.\nUtilise le sélecteur dans la barre latérale pour changer.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Basculer entre YimMenu (Legacy) et YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -655,12 +721,14 @@
             },
             "Tooltip": {
                 "Help": "Afficher l'aide pour l'installation DLL et FSL",
-                "Channel": "Sélectionner la version YimMenu à télécharger"
+                "Channel": "Sélectionner la version YimMenu à télécharger",
+                "ActiveChannel": "Édition active — change-la avec le sélecteur Legacy/Enhanced dans la barre latérale"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Choisir Launcher"
+                "Select": "Choisir Launcher",
+                "CustomPath": "Chemin personnalisé"
             },
             "Btn": {
                 "StartGta": "Lancer GTA 5",
@@ -672,7 +740,8 @@
                 "AlreadyRunning": "GTA 5 est déjà lancé !",
                 "SelectLauncher": "Sélectionne d'abord un launcher.",
                 "SuccessTitle": "Injection Réussie",
-                "SuccessMsg": "DLL injectée avec succès !"
+                "SuccessMsg": "DLL injectée avec succès !",
+                "CustomDllMissing": "La DLL personnalisée configurée n'existe plus :\n{0}"
             },
             "Help": {
                 "Title": "Infos Injection",
@@ -683,7 +752,8 @@
             "Tooltip": {
                 "Help": "Afficher l'aide pour le processus d'injection",
                 "Launcher": "Sélectionne le launcher que tu utilises pour lancer GTA V",
-                "Dll": "Sélectionne la DLL à injecter"
+                "Dll": "Sélectionne la DLL à injecter",
+                "NoDll": "Télécharge d'abord la DLL {0} sur la page Télécharger."
             },
             "Error": {
                 "NoDllSelected": "Erreur : Aucune DLL sélectionnée ou trouvée pour l'injection.",
@@ -692,14 +762,20 @@
                 "NoRockstarPath": "Impossible de trouver le chemin d'installation Rockstar Games.",
                 "NoExeFound": "Exécutable non trouvé à '{0}'",
                 "LaunchFailed": "Erreur au lancement du jeu. Voir logs.",
-                "AccessDenied": "Permissions manquantes pour injecter dans GTA V.\nEssaie de redémarrer YMU en tant qu'administrateur."
+                "AccessDenied": "Permissions manquantes pour injecter dans GTA V.\nEssaie de redémarrer YMU en tant qu'administrateur.",
+                "AccessDeniedAdmin": "L'injection a été refusée même avec les droits administrateur.\nC'est généralement dû à BattlEye ou à la mauvaise édition du jeu.\nDésactive BattlEye dans ton launcher (voir la page Risques) et\nvérifie que le sélecteur Legacy/Enhanced correspond à ton jeu.",
+                "CustomPathInvalid": "Le chemin GTA V personnalisé n'est pas défini ou n'existe plus.\nRedéfinis-le sur la page Paramètres."
+            },
+            "Label": {
+                "Custom": "perso"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Apparence",
                 "Lua": "Paramètres Lua",
-                "Other": "Autre"
+                "Other": "Autre",
+                "Paths": "Chemins personnalisés"
             },
             "Label": {
                 "Language": "Langue"
@@ -717,7 +793,8 @@
                     "Enable": "Activer le(s) script(s) sélectionné(s)",
                     "Disable": "Désactiver le(s) script(s) sélectionné(s)",
                     "Refresh": "Rafraîchir la liste des scripts"
-                }
+                },
+                "NoScriptsDir": "Aucun dossier {0} trouvé pour l'instant.\nInjecte-le une fois pour le créer."
             },
             "Other": {
                 "DebugConsole": "Activer la Console de Debug Externe",
@@ -760,7 +837,20 @@
                 "RestartRequired": "Redémarre YMU pour appliquer la nouvelle langue.",
                 "LangUpdated": "Traductions téléchargées avec succès.\nRedémarre YMU pour voir la liste des langues mise à jour dans les Paramètres.",
                 "LangTitle": "Langue Changée",
-                "LangUpToDate": "Les traductions sont déjà à jour."
+                "LangUpToDate": "Les traductions sont déjà à jour.",
+                "FolderMissing": "Le dossier n'existe pas encore :\n{0}",
+                "V2FileMissing": "YimMenuV2 n'a pas encore de settings.json.\nInjecte-le et lance-le une fois, puis réessaie."
+            },
+            "Paths": {
+                "AutoDetect": "Détecté automatiquement",
+                "Browse": "Parcourir",
+                "Clear": "Effacer",
+                "CustomDll": "DLL de menu personnalisée",
+                "DefaultDll": "Utiliser la DLL téléchargée",
+                "ErrorNoGta": "Aucun exécutable GTA V trouvé dans ce dossier.",
+                "ErrorNotDll": "Sélectionne un fichier .dll.",
+                "ErrorNotFound": "Le chemin n'existe pas.",
+                "GtaDir": "Dossier d'installation GTA V"
             }
         }
     },
@@ -776,6 +866,12 @@
             "Tooltip": {
                 "Risks": "Mostrar advertencias e información importante",
                 "ProjectPage": "Abrir la página del proyecto YMU en el navegador"
+            },
+            "Mode": {
+                "AutoDetected": "{0} detectado — seleccionado automáticamente.\nUsa el interruptor de la barra lateral para cambiar.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Cambia entre YimMenu (Legacy) y YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -839,12 +935,14 @@
             },
             "Tooltip": {
                 "Help": "Mostrar ayuda para la instalación de DLL y FSL",
-                "Channel": "Selecciona la versión de YimMenu a descargar"
+                "Channel": "Selecciona la versión de YimMenu a descargar",
+                "ActiveChannel": "Edición activa — cámbiala con el interruptor Legacy/Enhanced en la barra lateral"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Elegir Launcher"
+                "Select": "Elegir Launcher",
+                "CustomPath": "Ruta personalizada"
             },
             "Btn": {
                 "StartGta": "Iniciar GTA 5",
@@ -856,7 +954,8 @@
                 "AlreadyRunning": "¡GTA 5 ya se está ejecutando!",
                 "SelectLauncher": "Por favor selecciona un launcher primero.",
                 "SuccessTitle": "Inyección Exitosa",
-                "SuccessMsg": "¡DLL inyectada correctamente!"
+                "SuccessMsg": "¡DLL inyectada correctamente!",
+                "CustomDllMissing": "La DLL personalizada configurada ya no existe:\n{0}"
             },
             "Help": {
                 "Title": "Info Inyección",
@@ -867,7 +966,8 @@
             "Tooltip": {
                 "Help": "Mostrar ayuda para el proceso de inyección",
                 "Launcher": "Selecciona el launcher que usas para iniciar GTA V",
-                "Dll": "Selecciona la DLL para inyectar"
+                "Dll": "Selecciona la DLL para inyectar",
+                "NoDll": "Primero descarga la DLL {0} en la página Descargar."
             },
             "Error": {
                 "NoDllSelected": "Error: Ninguna DLL seleccionada o encontrada para inyección.",
@@ -876,14 +976,20 @@
                 "NoRockstarPath": "No se pudo encontrar la ruta de instalación de Rockstar Games.",
                 "NoExeFound": "Ejecutable no encontrado en '{0}'",
                 "LaunchFailed": "Error al iniciar el juego. Mira los logs.",
-                "AccessDenied": "Faltan permisos para inyectar en GTA V.\nPrueba a reiniciar YMU como administrador."
+                "AccessDenied": "Faltan permisos para inyectar en GTA V.\nPrueba a reiniciar YMU como administrador.",
+                "AccessDeniedAdmin": "La inyección fue denegada incluso con permisos de administrador.\nNormalmente se debe a BattlEye o a una edición del juego incorrecta.\nDesactiva BattlEye en tu launcher (mira la página Riesgos) y\nasegúrate de que el interruptor Legacy/Enhanced coincida con tu juego.",
+                "CustomPathInvalid": "La ruta personalizada de GTA V no está definida o ya no existe.\nVuelve a definirla en la página Ajustes."
+            },
+            "Label": {
+                "Custom": "personalizada"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Apariencia",
                 "Lua": "Ajustes Lua",
-                "Other": "Otros"
+                "Other": "Otros",
+                "Paths": "Rutas personalizadas"
             },
             "Label": {
                 "Language": "Idioma"
@@ -901,7 +1007,8 @@
                     "Enable": "Activar script(s) seleccionado(s)",
                     "Disable": "Desactivar script(s) seleccionado(s)",
                     "Refresh": "Refrescar lista de scripts"
-                }
+                },
+                "NoScriptsDir": "Aún no se encontró la carpeta {0}.\nInyéctalo una vez para crearla."
             },
             "Other": {
                 "DebugConsole": "Activar Consola de Depuración Externa",
@@ -944,7 +1051,20 @@
                 "RestartRequired": "Por favor reinicia YMU para aplicar el nuevo idioma.",
                 "LangUpdated": "Traducciones descargadas correctamente.\nReinicia YMU para ver la lista de idiomas actualizada en Ajustes.",
                 "LangTitle": "Idioma Cambiado",
-                "LangUpToDate": "Las traducciones ya están actualizadas."
+                "LangUpToDate": "Las traducciones ya están actualizadas.",
+                "FolderMissing": "La carpeta aún no existe:\n{0}",
+                "V2FileMissing": "YimMenuV2 aún no tiene settings.json.\nInyéctalo y ejecútalo una vez, luego inténtalo de nuevo."
+            },
+            "Paths": {
+                "AutoDetect": "Detectado automáticamente",
+                "Browse": "Examinar",
+                "Clear": "Borrar",
+                "CustomDll": "DLL de menú personalizada",
+                "DefaultDll": "Usar la DLL descargada",
+                "ErrorNoGta": "No se encontró ejecutable de GTA V en esta carpeta.",
+                "ErrorNotDll": "Por favor selecciona un archivo .dll.",
+                "ErrorNotFound": "La ruta no existe.",
+                "GtaDir": "Carpeta de instalación de GTA V"
             }
         }
     },
@@ -960,6 +1080,12 @@
             "Tooltip": {
                 "Risks": "Exibir avisos e informações importantes",
                 "ProjectPage": "Abrir a página do projeto YMU no navegador"
+            },
+            "Mode": {
+                "AutoDetected": "{0} detectado — selecionado automaticamente.\nUse o botão na barra lateral para trocar.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Alterne entre YimMenu (Legacy) e YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -1023,12 +1149,14 @@
             },
             "Tooltip": {
                 "Help": "Mostrar ajuda para instalação da DLL e FSL",
-                "Channel": "Selecione a versão do YimMenu para baixar"
+                "Channel": "Selecione a versão do YimMenu para baixar",
+                "ActiveChannel": "Edição ativa — troque com o botão Legacy/Enhanced na barra lateral"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Selecionar Launcher"
+                "Select": "Selecionar Launcher",
+                "CustomPath": "Caminho personalizado"
             },
             "Btn": {
                 "StartGta": "Iniciar GTA 5",
@@ -1040,7 +1168,8 @@
                 "AlreadyRunning": "GTA 5 já está rodando!",
                 "SelectLauncher": "Por favor, selecione um launcher primeiro.",
                 "SuccessTitle": "Injection com Sucesso",
-                "SuccessMsg": "DLL injetada com sucesso!"
+                "SuccessMsg": "DLL injetada com sucesso!",
+                "CustomDllMissing": "A DLL personalizada configurada não existe mais:\n{0}"
             },
             "Help": {
                 "Title": "Info de Injection",
@@ -1051,7 +1180,8 @@
             "Tooltip": {
                 "Help": "Mostrar ajuda sobre o processo de injection",
                 "Launcher": "Selecione o launcher que você usa para abrir o GTA V",
-                "Dll": "Selecione a DLL para injetar"
+                "Dll": "Selecione a DLL para injetar",
+                "NoDll": "Baixe primeiro a DLL {0} na página Download."
             },
             "Error": {
                 "NoDllSelected": "Erro: Nenhuma DLL selecionada ou encontrada para injection.",
@@ -1060,14 +1190,20 @@
                 "NoRockstarPath": "Não foi possível encontrar o caminho de instalação da Rockstar Games.",
                 "NoExeFound": "Executável não encontrado em '{0}'",
                 "LaunchFailed": "Erro ao iniciar o jogo. Veja os logs.",
-                "AccessDenied": "Permissões insuficientes para injetar no GTA V.\nTente reiniciar o YMU como administrador."
+                "AccessDenied": "Permissões insuficientes para injetar no GTA V.\nTente reiniciar o YMU como administrador.",
+                "AccessDeniedAdmin": "A injeção foi negada mesmo com permissões de administrador.\nGeralmente isso é causado pelo BattlEye ou pela edição errada do jogo.\nDesative o BattlEye no seu launcher (veja a página Riscos) e\nverifique se o botão Legacy/Enhanced corresponde ao seu jogo.",
+                "CustomPathInvalid": "O caminho personalizado do GTA V não está definido ou não existe mais.\nDefina-o novamente na página Configurações."
+            },
+            "Label": {
+                "Custom": "personalizada"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Aparência",
                 "Lua": "Configurações Lua",
-                "Other": "Outros"
+                "Other": "Outros",
+                "Paths": "Caminhos personalizados"
             },
             "Label": {
                 "Language": "Idioma"
@@ -1085,7 +1221,8 @@
                     "Enable": "Ativar script(s) selecionado(s)",
                     "Disable": "Desativar script(s) selecionado(s)",
                     "Refresh": "Recarregar lista de scripts"
-                }
+                },
+                "NoScriptsDir": "Nenhuma pasta {0} encontrada ainda.\nInjete uma vez para criá-la."
             },
             "Other": {
                 "DebugConsole": "Ativar Console de Debug Externo",
@@ -1128,7 +1265,20 @@
                 "RestartRequired": "Por favor, reinicie o YMU para aplicar o novo idioma.",
                 "LangUpdated": "Traduções baixadas com sucesso.\nReinicie o YMU para ver a lista de idiomas atualizada nas Configurações.",
                 "LangTitle": "Idioma Alterado",
-                "LangUpToDate": "As traduções já estão atualizadas."
+                "LangUpToDate": "As traduções já estão atualizadas.",
+                "FolderMissing": "A pasta ainda não existe:\n{0}",
+                "V2FileMissing": "O YimMenuV2 ainda não tem settings.json.\nInjete e execute uma vez, depois tente novamente."
+            },
+            "Paths": {
+                "AutoDetect": "Detectado automaticamente",
+                "Browse": "Procurar",
+                "Clear": "Limpar",
+                "CustomDll": "DLL de menu personalizada",
+                "DefaultDll": "Usar a DLL baixada",
+                "ErrorNoGta": "Nenhum executável do GTA V encontrado nesta pasta.",
+                "ErrorNotDll": "Por favor, selecione um arquivo .dll.",
+                "ErrorNotFound": "O caminho não existe.",
+                "GtaDir": "Pasta de instalação do GTA V"
             }
         }
     },
@@ -1144,6 +1294,12 @@
             "Tooltip": {
                 "Risks": "Pokaż ważne ostrzeżenia i informacje",
                 "ProjectPage": "Otwórz stronę projektu YMU w przeglądarce"
+            },
+            "Mode": {
+                "AutoDetected": "Wykryto {0} — wybrano automatycznie.\nUżyj przełącznika na pasku bocznym, aby zmienić.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Przełączaj między YimMenu (Legacy) a YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -1207,12 +1363,14 @@
             },
             "Tooltip": {
                 "Help": "Pokaż pomoc dotyczącą instalacji DLL i FSL",
-                "Channel": "Wybierz wersję YimMenu do pobrania"
+                "Channel": "Wybierz wersję YimMenu do pobrania",
+                "ActiveChannel": "Aktywna edycja — zmień ją przełącznikiem Legacy/Enhanced na pasku bocznym"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Wybierz Launcher"
+                "Select": "Wybierz Launcher",
+                "CustomPath": "Własna ścieżka"
             },
             "Btn": {
                 "StartGta": "Uruchom GTA 5",
@@ -1224,7 +1382,8 @@
                 "AlreadyRunning": "GTA 5 jest już uruchomione!",
                 "SelectLauncher": "Najpierw wybierz launcher.",
                 "SuccessTitle": "Wstrzykiwanie udane",
-                "SuccessMsg": "Pomyślnie wstrzyknięto DLL!"
+                "SuccessMsg": "Pomyślnie wstrzyknięto DLL!",
+                "CustomDllMissing": "Skonfigurowana własna DLL już nie istnieje:\n{0}"
             },
             "Help": {
                 "Title": "Info o Injection",
@@ -1235,7 +1394,8 @@
             "Tooltip": {
                 "Help": "Pokaż pomoc dotyczącą procesu wstrzykiwania",
                 "Launcher": "Wybierz launcher, którego używasz do GTA V",
-                "Dll": "Wybierz DLL do wstrzyknięcia"
+                "Dll": "Wybierz DLL do wstrzyknięcia",
+                "NoDll": "Najpierw pobierz DLL {0} na stronie Pobierz."
             },
             "Error": {
                 "NoDllSelected": "Błąd: Nie wybrano lub nie znaleziono DLL.",
@@ -1244,14 +1404,20 @@
                 "NoRockstarPath": "Nie znaleziono ścieżki instalacji Rockstar Games.",
                 "NoExeFound": "Nie znaleziono pliku wykonywalnego w '{0}'",
                 "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi.",
-                "AccessDenied": "Brak uprawnień do zainjectowania do GTA V.\nSpróbuj uruchomić YMU jako administrator."
+                "AccessDenied": "Brak uprawnień do zainjectowania do GTA V.\nSpróbuj uruchomić YMU jako administrator.",
+                "AccessDeniedAdmin": "Wstrzyknięcie zostało odrzucone nawet z uprawnieniami administratora.\nZazwyczaj powodem jest BattlEye lub zła edycja gry.\nWyłącz BattlEye w swoim launcherze (zobacz stronę Ryzyko) i\nupewnij się, że przełącznik Legacy/Enhanced pasuje do twojej gry.",
+                "CustomPathInvalid": "Własna ścieżka GTA V nie jest ustawiona lub już nie istnieje.\nUstaw ją ponownie na stronie Ustawienia."
+            },
+            "Label": {
+                "Custom": "własna"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Wygląd",
                 "Lua": "Ustawienia Lua",
-                "Other": "Inne"
+                "Other": "Inne",
+                "Paths": "Własne ścieżki"
             },
             "Label": {
                 "Language": "Język"
@@ -1269,7 +1435,8 @@
                     "Enable": "Włącz wybrane skrypty",
                     "Disable": "Wyłącz wybrane skrypty",
                     "Refresh": "Odśwież listę skryptów"
-                }
+                },
+                "NoScriptsDir": "Nie znaleziono jeszcze folderu {0}.\nWstrzyknij raz, aby go utworzyć."
             },
             "Other": {
                 "DebugConsole": "Włącz Zewnętrzną Konsolę Debug",
@@ -1312,7 +1479,20 @@
                 "RestartRequired": "Zrestartuj YMU, aby zastosować nowy język.",
                 "LangUpdated": "Tłumaczenia zostały pomyślnie pobrane.\nZrestartuj YMU, aby zobaczyć zaktualizowaną listę w Ustawieniach.",
                 "LangTitle": "Język zmieniony",
-                "LangUpToDate": "Tłumaczenia są już aktualne."
+                "LangUpToDate": "Tłumaczenia są już aktualne.",
+                "FolderMissing": "Folder jeszcze nie istnieje:\n{0}",
+                "V2FileMissing": "YimMenuV2 nie ma jeszcze settings.json.\nWstrzyknij i uruchom raz, potem spróbuj ponownie."
+            },
+            "Paths": {
+                "AutoDetect": "Wykryto automatycznie",
+                "Browse": "Przeglądaj",
+                "Clear": "Wyczyść",
+                "CustomDll": "Własna DLL menu",
+                "DefaultDll": "Użyj pobranej DLL",
+                "ErrorNoGta": "Nie znaleziono pliku wykonywalnego GTA V w tym folderze.",
+                "ErrorNotDll": "Wybierz plik .dll.",
+                "ErrorNotFound": "Ścieżka nie istnieje.",
+                "GtaDir": "Folder instalacji GTA V"
             }
         }
     },
@@ -1328,6 +1508,12 @@
             "Tooltip": {
                 "Risks": "Показать важные предупреждения и информацию",
                 "ProjectPage": "Открыть страницу проекта YMU в браузере"
+            },
+            "Mode": {
+                "AutoDetected": "Обнаружено: {0} — выбрано автоматически.\nИспользуйте переключатель на боковой панели, чтобы сменить.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Переключение между YimMenu (Legacy) и YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -1391,12 +1577,14 @@
             },
             "Tooltip": {
                 "Help": "Показать помощь по установке DLL и FSL",
-                "Channel": "Выберите версию YimMenu для скачивания"
+                "Channel": "Выберите версию YimMenu для скачивания",
+                "ActiveChannel": "Активная редакция — меняется переключателем Legacy/Enhanced на боковой панели"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Выбрать Лаунчер"
+                "Select": "Выбрать Лаунчер",
+                "CustomPath": "Пользовательский путь"
             },
             "Btn": {
                 "StartGta": "Запустить GTA 5",
@@ -1408,7 +1596,8 @@
                 "AlreadyRunning": "GTA 5 уже запущена!",
                 "SelectLauncher": "Сначала выберите лаунчер.",
                 "SuccessTitle": "Инжект успешен",
-                "SuccessMsg": "DLL успешно внедрена!"
+                "SuccessMsg": "DLL успешно внедрена!",
+                "CustomDllMissing": "Заданная пользовательская DLL больше не существует:\n{0}"
             },
             "Help": {
                 "Title": "Инфо об Инжекте",
@@ -1419,7 +1608,8 @@
             "Tooltip": {
                 "Help": "Показать помощь по процессу инжекта",
                 "Launcher": "Выберите лаунчер, через который запускаете GTA V",
-                "Dll": "Выберите DLL для инжекта"
+                "Dll": "Выберите DLL для инжекта",
+                "NoDll": "Сначала скачайте DLL {0} на странице «Скачать»."
             },
             "Error": {
                 "NoDllSelected": "Ошибка: DLL не выбрана или не найдена.",
@@ -1428,14 +1618,20 @@
                 "NoRockstarPath": "Не найден путь установки Rockstar Games.",
                 "NoExeFound": "Исполняемый файл не найден в '{0}'",
                 "LaunchFailed": "Ошибка запуска игры. Смотрите логи.",
-                "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора."
+                "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора.",
+                "AccessDeniedAdmin": "Инжект был отклонён даже с правами администратора.\nОбычно причина — BattlEye или неверная редакция игры.\nОтключите BattlEye в лаунчере (см. страницу «Риски») и\nубедитесь, что переключатель Legacy/Enhanced совпадает с вашей игрой.",
+                "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадайте его заново на странице «Настройки»."
+            },
+            "Label": {
+                "Custom": "своя"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Внешний вид",
                 "Lua": "Настройки Lua",
-                "Other": "Прочее"
+                "Other": "Прочее",
+                "Paths": "Пользовательские пути"
             },
             "Label": {
                 "Language": "Язык"
@@ -1453,7 +1649,8 @@
                     "Enable": "Включить выбранные скрипты",
                     "Disable": "Отключить выбранные скрипты",
                     "Refresh": "Обновить список скриптов"
-                }
+                },
+                "NoScriptsDir": "Папка {0} пока не найдена.\nВыполните инжект один раз, чтобы создать её."
             },
             "Other": {
                 "DebugConsole": "Включить внешнюю Debug консоль",
@@ -1496,7 +1693,20 @@
                 "RestartRequired": "Перезапустите YMU, чтобы применить новый язык.",
                 "LangUpdated": "Переводы успешно скачаны.\nПерезапустите YMU, чтобы увидеть обновленный список языков.",
                 "LangTitle": "Язык изменен",
-                "LangUpToDate": "Переводы уже актуальны."
+                "LangUpToDate": "Переводы уже актуальны.",
+                "FolderMissing": "Папка ещё не существует:\n{0}",
+                "V2FileMissing": "У YimMenuV2 пока нет settings.json.\nВыполните инжект и запустите один раз, затем повторите."
+            },
+            "Paths": {
+                "AutoDetect": "Определено автоматически",
+                "Browse": "Обзор",
+                "Clear": "Очистить",
+                "CustomDll": "Пользовательская DLL меню",
+                "DefaultDll": "Использовать скачанную DLL",
+                "ErrorNoGta": "В этой папке не найден исполняемый файл GTA V.",
+                "ErrorNotDll": "Пожалуйста, выберите файл .dll.",
+                "ErrorNotFound": "Путь не существует.",
+                "GtaDir": "Папка установки GTA V"
             }
         }
     },
@@ -1512,6 +1722,12 @@
             "Tooltip": {
                 "Risks": "Показати важливі попередження та інформацію",
                 "ProjectPage": "Відкрити сторінку проєкту YMU в браузері"
+            },
+            "Mode": {
+                "AutoDetected": "Виявлено: {0} — вибрано автоматично.\nВикористовуйте перемикач на бічній панелі, щоб змінити.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "Перемикання між YimMenu (Legacy) та YimMenuV2 (Enhanced)"
             }
         },
         "Common": {
@@ -1575,12 +1791,14 @@
             },
             "Tooltip": {
                 "Help": "Показати допомогу зі встановлення DLL та FSL",
-                "Channel": "Оберіть версію YimMenu для завантаження"
+                "Channel": "Оберіть версію YimMenu для завантаження",
+                "ActiveChannel": "Активна редакція — змінюється перемикачем Legacy/Enhanced на бічній панелі"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Обрати Лаунчер"
+                "Select": "Обрати Лаунчер",
+                "CustomPath": "Користувацький шлях"
             },
             "Btn": {
                 "StartGta": "Запустити GTA 5",
@@ -1592,7 +1810,8 @@
                 "AlreadyRunning": "GTA 5 вже запущена!",
                 "SelectLauncher": "Спочатку оберіть лаунчер.",
                 "SuccessTitle": "Інжект успішний",
-                "SuccessMsg": "DLL успішно впроваджена!"
+                "SuccessMsg": "DLL успішно впроваджена!",
+                "CustomDllMissing": "Задана користувацька DLL більше не існує:\n{0}"
             },
             "Help": {
                 "Title": "Інфо про Інжект",
@@ -1603,7 +1822,8 @@
             "Tooltip": {
                 "Help": "Показати допомогу по процесу інжекту",
                 "Launcher": "Оберіть лаунчер, через який запускаєте GTA V",
-                "Dll": "Оберіть DLL для інжекту"
+                "Dll": "Оберіть DLL для інжекту",
+                "NoDll": "Спершу завантажте DLL {0} на сторінці «Завантажити»."
             },
             "Error": {
                 "NoDllSelected": "Помилка: DLL не обрана або не знайдена.",
@@ -1612,14 +1832,20 @@
                 "NoRockstarPath": "Не знайдено шлях встановлення Rockstar Games.",
                 "NoExeFound": "Виконуваний файл не знайдено в '{0}'",
                 "LaunchFailed": "Помилка запуску гри. Дивіться логи.",
-                "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора."
+                "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора.",
+                "AccessDeniedAdmin": "Інжект було відхилено навіть із правами адміністратора.\nЗазвичай причина — BattlEye або неправильна редакція гри.\nВимкніть BattlEye у лаунчері (див. сторінку «Ризики») і\nпереконайтеся, що перемикач Legacy/Enhanced відповідає вашій грі.",
+                "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадайте його знову на сторінці «Налаштування»."
+            },
+            "Label": {
+                "Custom": "своя"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Вигляд",
                 "Lua": "Налаштування Lua",
-                "Other": "Інше"
+                "Other": "Інше",
+                "Paths": "Користувацькі шляхи"
             },
             "Label": {
                 "Language": "Мова"
@@ -1637,7 +1863,8 @@
                     "Enable": "Увімкнути обрані скрипти",
                     "Disable": "Вимкнути обрані скрипти",
                     "Refresh": "Оновити список скриптів"
-                }
+                },
+                "NoScriptsDir": "Папку {0} ще не знайдено.\nВиконайте інжект один раз, щоб її створити."
             },
             "Other": {
                 "DebugConsole": "Увімкнути зовнішню Debug консоль",
@@ -1680,7 +1907,20 @@
                 "RestartRequired": "Перезапустіть YMU, щоб застосувати нову мову.",
                 "LangUpdated": "Переклади успішно завантажені.\nПерезапустіть YMU, щоб побачити оновлений список мов.",
                 "LangTitle": "Мову змінено",
-                "LangUpToDate": "Переклади вже актуальні."
+                "LangUpToDate": "Переклади вже актуальні.",
+                "FolderMissing": "Папка ще не існує:\n{0}",
+                "V2FileMissing": "YimMenuV2 ще не має settings.json.\nВиконайте інжект і запустіть один раз, потім повторіть."
+            },
+            "Paths": {
+                "AutoDetect": "Визначено автоматично",
+                "Browse": "Огляд",
+                "Clear": "Очистити",
+                "CustomDll": "Користувацька DLL меню",
+                "DefaultDll": "Використати завантажену DLL",
+                "ErrorNoGta": "У цій папці не знайдено виконуваний файл GTA V.",
+                "ErrorNotDll": "Будь ласка, оберіть файл .dll.",
+                "ErrorNotFound": "Шлях не існує.",
+                "GtaDir": "Папка встановлення GTA V"
             }
         }
     },
@@ -1696,6 +1936,12 @@
             "Tooltip": {
                 "Risks": "Önemli uyarıları ve bilgileri göster",
                 "ProjectPage": "YMU proje sayfasını tarayıcıda aç"
+            },
+            "Mode": {
+                "AutoDetected": "{0} algılandı — otomatik seçildi.\nDeğiştirmek için kenar çubuğundaki anahtarı kullan.",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "YimMenu (Legacy) ve YimMenuV2 (Enhanced) arasında geçiş yap"
             }
         },
         "Common": {
@@ -1759,12 +2005,14 @@
             },
             "Tooltip": {
                 "Help": "DLL ve FSL kurulum yardımını göster",
-                "Channel": "İndirilecek YimMenu sürümünü seç"
+                "Channel": "İndirilecek YimMenu sürümünü seç",
+                "ActiveChannel": "Aktif sürüm — kenar çubuğundaki Legacy/Enhanced anahtarıyla değiştir"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "Launcher Seç"
+                "Select": "Launcher Seç",
+                "CustomPath": "Özel yol"
             },
             "Btn": {
                 "StartGta": "GTA 5'i Başlat",
@@ -1776,7 +2024,8 @@
                 "AlreadyRunning": "GTA 5 zaten çalışıyor!",
                 "SelectLauncher": "Lütfen önce bir Launcher seç.",
                 "SuccessTitle": "Enjekte Başarılı",
-                "SuccessMsg": "DLL başarıyla enjekte edildi!"
+                "SuccessMsg": "DLL başarıyla enjekte edildi!",
+                "CustomDllMissing": "Ayarlanan özel DLL artık mevcut değil:\n{0}"
             },
             "Help": {
                 "Title": "Enjeksiyon Bilgisi",
@@ -1787,7 +2036,8 @@
             "Tooltip": {
                 "Help": "Enjeksiyon işlemi için yardımı göster",
                 "Launcher": "GTA V'i başlatmak için kullandığın Launcher'ı seç",
-                "Dll": "Enjekte edilecek DLL'i seç"
+                "Dll": "Enjekte edilecek DLL'i seç",
+                "NoDll": "Önce İndir sayfasından {0} DLL'ini indir."
             },
             "Error": {
                 "NoDllSelected": "Hata: Enjeksiyon için DLL seçilmedi veya bulunamadı.",
@@ -1796,14 +2046,20 @@
                 "NoRockstarPath": "Rockstar Games kurulum yolu bulunamadı.",
                 "NoExeFound": "Executable şurada bulunamadı: '{0}'",
                 "LaunchFailed": "Oyun başlatma hatası. Loglara bak.",
-                "AccessDenied": "GTA V'e inject etmek için yetki yok.\nYMU'yu yönetici olarak yeniden başlatmayı dene."
+                "AccessDenied": "GTA V'e inject etmek için yetki yok.\nYMU'yu yönetici olarak yeniden başlatmayı dene.",
+                "AccessDeniedAdmin": "Yönetici yetkileriyle bile inject reddedildi.\nBunun nedeni genellikle BattlEye ya da yanlış oyun sürümüdür.\nLauncher'ında BattlEye'ı kapat (Riskler sayfasına bak) ve\nLegacy/Enhanced anahtarının oyununla eşleştiğinden emin ol.",
+                "CustomPathInvalid": "Özel GTA V yolu ayarlı değil ya da artık mevcut değil.\nAyarlar sayfasından yeniden ayarla."
+            },
+            "Label": {
+                "Custom": "özel"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Görünüm",
                 "Lua": "Lua Ayarları",
-                "Other": "Diğer"
+                "Other": "Diğer",
+                "Paths": "Özel yollar"
             },
             "Label": {
                 "Language": "Dil (Language)"
@@ -1821,7 +2077,8 @@
                     "Enable": "Seçili script(leri) etkinleştir",
                     "Disable": "Seçili script(leri) devre dışı bırak",
                     "Refresh": "Script listesini yenile"
-                }
+                },
+                "NoScriptsDir": "Henüz {0} klasörü bulunamadı.\nOluşturmak için bir kez inject et."
             },
             "Other": {
                 "DebugConsole": "Harici Debug Konsolunu Aç",
@@ -1864,7 +2121,20 @@
                 "RestartRequired": "Yeni dili uygulamak için lütfen YMU'yu yeniden başlat.",
                 "LangUpdated": "Çeviriler başarıyla indirildi.\nGüncel Dil Listesini görmek için YMU'yu yeniden başlat.",
                 "LangTitle": "Dil Değiştirildi",
-                "LangUpToDate": "Çeviriler zaten güncel."
+                "LangUpToDate": "Çeviriler zaten güncel.",
+                "FolderMissing": "Klasör henüz mevcut değil:\n{0}",
+                "V2FileMissing": "YimMenuV2'nin henüz settings.json'u yok.\nBir kez inject edip çalıştır, sonra tekrar dene."
+            },
+            "Paths": {
+                "AutoDetect": "Otomatik algılandı",
+                "Browse": "Gözat",
+                "Clear": "Temizle",
+                "CustomDll": "Özel menü DLL'i",
+                "DefaultDll": "İndirilen DLL'i kullan",
+                "ErrorNoGta": "Bu klasörde GTA V çalıştırılabilir dosyası bulunamadı.",
+                "ErrorNotDll": "Lütfen bir .dll dosyası seç.",
+                "ErrorNotFound": "Yol mevcut değil.",
+                "GtaDir": "GTA V kurulum klasörü"
             }
         }
     },
@@ -1880,6 +2150,12 @@
             "Tooltip": {
                 "Risks": "显示重要警告和信息",
                 "ProjectPage": "在浏览器中打开 YMU 项目页面"
+            },
+            "Mode": {
+                "AutoDetected": "检测到 {0} — 已自动选择。\n使用侧边栏的开关进行切换。",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "在 YimMenu (Legacy) 和 YimMenuV2 (Enhanced) 之间切换"
             }
         },
         "Common": {
@@ -1943,12 +2219,14 @@
             },
             "Tooltip": {
                 "Help": "显示 DLL 和 FSL 安装帮助",
-                "Channel": "选择要下载的 YimMenu 版本"
+                "Channel": "选择要下载的 YimMenu 版本",
+                "ActiveChannel": "当前版本 — 用侧边栏的 Legacy/Enhanced 开关来切换"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "选择启动器"
+                "Select": "选择启动器",
+                "CustomPath": "自定义路径"
             },
             "Btn": {
                 "StartGta": "启动 GTA 5",
@@ -1960,7 +2238,8 @@
                 "AlreadyRunning": "GTA 5 已经在运行了！",
                 "SelectLauncher": "请先选择一个启动器。",
                 "SuccessTitle": "注入成功",
-                "SuccessMsg": "DLL 注入成功！"
+                "SuccessMsg": "DLL 注入成功！",
+                "CustomDllMissing": "配置的自定义 DLL 已不存在：\n{0}"
             },
             "Help": {
                 "Title": "注入说明",
@@ -1971,7 +2250,8 @@
             "Tooltip": {
                 "Help": "显示注入过程的帮助信息",
                 "Launcher": "选择你用来启动 GTA V 的平台",
-                "Dll": "选择要注入的 DLL"
+                "Dll": "选择要注入的 DLL",
+                "NoDll": "请先在下载页面下载 {0} DLL。"
             },
             "Error": {
                 "NoDllSelected": "错误：未选择或未找到用于注入的 DLL。",
@@ -1980,14 +2260,20 @@
                 "NoRockstarPath": "找不到 Rockstar Games 安装路径。",
                 "NoExeFound": "在 '{0}' 未找到可执行文件",
                 "LaunchFailed": "启动游戏错误，详情请查看日志。",
-                "AccessDenied": "缺少注入 (Inject) GTA V 的权限。\n请尝试以管理员身份重启 YMU。"
+                "AccessDenied": "缺少注入 (Inject) GTA V 的权限。\n请尝试以管理员身份重启 YMU。",
+                "AccessDeniedAdmin": "即使拥有管理员权限，注入仍被拒绝。\n这通常是由 BattlEye 或错误的游戏版本导致的。\n请在你的启动器中禁用 BattlEye（见风险提示页），并\n确保 Legacy/Enhanced 开关与你的游戏一致。",
+                "CustomPathInvalid": "自定义 GTA V 路径未设置或已不存在。\n请在设置页面重新设置。"
+            },
+            "Label": {
+                "Custom": "自定义"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外观",
                 "Lua": "Lua 设置",
-                "Other": "其他"
+                "Other": "其他",
+                "Paths": "自定义路径"
             },
             "Label": {
                 "Language": "语言 (Language)"
@@ -2005,7 +2291,8 @@
                     "Enable": "启用选中的脚本",
                     "Disable": "禁用选中的脚本",
                     "Refresh": "刷新脚本列表"
-                }
+                },
+                "NoScriptsDir": "尚未找到 {0} 文件夹。\n先注入一次以创建它。"
             },
             "Other": {
                 "DebugConsole": "启用外部调试控制台",
@@ -2048,7 +2335,20 @@
                 "RestartRequired": "请重启 YMU 以应用新语言。",
                 "LangUpdated": "翻译文件已成功下载。\n重启 YMU 以在设置中查看更新的语言列表。",
                 "LangTitle": "语言已更改",
-                "LangUpToDate": "翻译已是最新版本。"
+                "LangUpToDate": "翻译已是最新版本。",
+                "FolderMissing": "文件夹尚不存在：\n{0}",
+                "V2FileMissing": "YimMenuV2 还没有 settings.json。\n先注入并运行一次，然后重试。"
+            },
+            "Paths": {
+                "AutoDetect": "自动检测",
+                "Browse": "浏览",
+                "Clear": "清除",
+                "CustomDll": "自定义菜单 DLL",
+                "DefaultDll": "使用已下载的 DLL",
+                "ErrorNoGta": "此文件夹中未找到 GTA V 可执行文件。",
+                "ErrorNotDll": "请选择一个 .dll 文件。",
+                "ErrorNotFound": "路径不存在。",
+                "GtaDir": "GTA V 安装文件夹"
             }
         }
     },
@@ -2064,6 +2364,12 @@
             "Tooltip": {
                 "Risks": "顯示重要警告與資訊",
                 "ProjectPage": "在瀏覽器中開啟 YMU 專案頁面"
+            },
+            "Mode": {
+                "AutoDetected": "偵測到 {0} — 已自動選擇。\n使用側邊欄的開關切換。",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "在 YimMenu (Legacy) 與 YimMenuV2 (Enhanced) 之間切換"
             }
         },
         "Common": {
@@ -2127,12 +2433,14 @@
             },
             "Tooltip": {
                 "Help": "顯示 DLL 與 FSL 安裝說明",
-                "Channel": "選擇要下載的 YimMenu 版本"
+                "Channel": "選擇要下載的 YimMenu 版本",
+                "ActiveChannel": "目前版本 — 用側邊欄的 Legacy/Enhanced 開關切換"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "選擇啟動器"
+                "Select": "選擇啟動器",
+                "CustomPath": "自訂路徑"
             },
             "Btn": {
                 "StartGta": "啟動 GTA 5",
@@ -2144,7 +2452,8 @@
                 "AlreadyRunning": "GTA 5 已經在執行中！",
                 "SelectLauncher": "請先選擇一個啟動器。",
                 "SuccessTitle": "注入成功",
-                "SuccessMsg": "DLL 注入成功！"
+                "SuccessMsg": "DLL 注入成功！",
+                "CustomDllMissing": "設定的自訂 DLL 已不存在：\n{0}"
             },
             "Help": {
                 "Title": "注入說明",
@@ -2155,7 +2464,8 @@
             "Tooltip": {
                 "Help": "顯示注入過程的說明資訊",
                 "Launcher": "選擇你用來啟動 GTA V 的平台",
-                "Dll": "選擇要注入的 DLL"
+                "Dll": "選擇要注入的 DLL",
+                "NoDll": "請先在下載頁面下載 {0} DLL。"
             },
             "Error": {
                 "NoDllSelected": "錯誤：未選擇或未找到用於注入的 DLL。",
@@ -2164,14 +2474,20 @@
                 "NoRockstarPath": "找不到 Rockstar Games 安裝路徑。",
                 "NoExeFound": "在 '{0}' 未找到可執行檔",
                 "LaunchFailed": "啟動遊戲錯誤，詳情請查看日誌。",
-                "AccessDenied": "缺少注入 (Inject) GTA V 的權限。\n請嘗試以系統管理員身分重新啟動 YMU。"
+                "AccessDenied": "缺少注入 (Inject) GTA V 的權限。\n請嘗試以系統管理員身分重新啟動 YMU。",
+                "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在你的啟動器中停用 BattlEye（見風險提示頁），並\n確認 Legacy/Enhanced 開關與你的遊戲一致。",
+                "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。"
+            },
+            "Label": {
+                "Custom": "自訂"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外觀",
                 "Lua": "Lua 設定",
-                "Other": "其他"
+                "Other": "其他",
+                "Paths": "自訂路徑"
             },
             "Label": {
                 "Language": "語言 (Language)"
@@ -2189,7 +2505,8 @@
                     "Enable": "啟用選中的腳本",
                     "Disable": "停用選中的腳本",
                     "Refresh": "重新整理腳本列表"
-                }
+                },
+                "NoScriptsDir": "尚未找到 {0} 資料夾。\n先注入一次以建立它。"
             },
             "Other": {
                 "DebugConsole": "啟用外部除錯控制台",
@@ -2232,7 +2549,20 @@
                 "RestartRequired": "請重新啟動 YMU 以套用新語言。",
                 "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新的語言列表。",
                 "LangTitle": "語言已變更",
-                "LangUpToDate": "翻譯已是最新版本。"
+                "LangUpToDate": "翻譯已是最新版本。",
+                "FolderMissing": "資料夾尚不存在：\n{0}",
+                "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。"
+            },
+            "Paths": {
+                "AutoDetect": "自動偵測",
+                "Browse": "瀏覽",
+                "Clear": "清除",
+                "CustomDll": "自訂選單 DLL",
+                "DefaultDll": "使用已下載的 DLL",
+                "ErrorNoGta": "此資料夾中未找到 GTA V 可執行檔。",
+                "ErrorNotDll": "請選擇一個 .dll 檔案。",
+                "ErrorNotFound": "路徑不存在。",
+                "GtaDir": "GTA V 安裝資料夾"
             }
         }
     },
@@ -2248,6 +2578,12 @@
             "Tooltip": {
                 "Risks": "重要な警告と情報を表示",
                 "ProjectPage": "ブラウザでYMUのプロジェクトページを開く"
+            },
+            "Mode": {
+                "AutoDetected": "{0} を検出しました — 自動的に選択しました。\nサイドバーのスイッチで変更できます。",
+                "Enhanced": "E&E",
+                "Legacy": "Legacy",
+                "Tooltip": "YimMenu (Legacy) と YimMenuV2 (Enhanced) を切り替えます"
             }
         },
         "Common": {
@@ -2311,12 +2647,14 @@
             },
             "Tooltip": {
                 "Help": "DLLとFSLのインストールヘルプを表示",
-                "Channel": "ダウンロードするYimMenuのバージョンを選択"
+                "Channel": "ダウンロードするYimMenuのバージョンを選択",
+                "ActiveChannel": "有効なエディション — サイドバーの Legacy/Enhanced スイッチで切り替えます"
             }
         },
         "Inject": {
             "Launcher": {
-                "Select": "ランチャーを選択"
+                "Select": "ランチャーを選択",
+                "CustomPath": "カスタムパス"
             },
             "Btn": {
                 "StartGta": "GTA 5 を起動",
@@ -2328,7 +2666,8 @@
                 "AlreadyRunning": "GTA 5 は既に起動しています！",
                 "SelectLauncher": "先にランチャーを選択してください。",
                 "SuccessTitle": "インジェクト成功",
-                "SuccessMsg": "DLLのインジェクトに成功しました！"
+                "SuccessMsg": "DLLのインジェクトに成功しました！",
+                "CustomDllMissing": "設定されたカスタム DLL は存在しなくなりました：\n{0}"
             },
             "Help": {
                 "Title": "インジェクト情報",
@@ -2339,7 +2678,8 @@
             "Tooltip": {
                 "Help": "インジェクト手順のヘルプを表示",
                 "Launcher": "GTA Vの起動に使用するランチャーを選択",
-                "Dll": "インジェクトするDLLを選択"
+                "Dll": "インジェクトするDLLを選択",
+                "NoDll": "まずダウンロードページで {0} DLL をダウンロードしてください。"
             },
             "Error": {
                 "NoDllSelected": "エラー: インジェクトするDLLが選択されていないか、見つかりません。",
@@ -2348,14 +2688,20 @@
                 "NoRockstarPath": "Rockstar Gamesのインストールパスが見つかりません。",
                 "NoExeFound": "'{0}' に実行ファイルが見つかりません",
                 "LaunchFailed": "ゲームの起動エラー。詳細はログを確認してください。",
-                "AccessDenied": "GTA Vへのインジェクト権限がありません。\n管理者としてYMUを再起動してみてください。"
+                "AccessDenied": "GTA Vへのインジェクト権限がありません。\n管理者としてYMUを再起動してみてください。",
+                "AccessDeniedAdmin": "管理者権限があってもインジェクトが拒否されました。\n通常、原因は BattlEye または誤ったゲームエディションです。\nランチャーで BattlEye を無効にし（リスクページ参照）、\nLegacy/Enhanced スイッチがゲームと一致しているか確認してください。",
+                "CustomPathInvalid": "カスタム GTA V パスが未設定か、存在しなくなりました。\n設定ページで再設定してください。"
+            },
+            "Label": {
+                "Custom": "カスタム"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外観",
                 "Lua": "Lua 設定",
-                "Other": "その他"
+                "Other": "その他",
+                "Paths": "カスタムパス"
             },
             "Label": {
                 "Language": "言語 (Language)"
@@ -2373,7 +2719,8 @@
                     "Enable": "選択したスクリプトを有効化",
                     "Disable": "選択したスクリプトを無効化",
                     "Refresh": "スクリプトリストを更新"
-                }
+                },
+                "NoScriptsDir": "{0} フォルダーがまだ見つかりません。\n一度インジェクトして作成してください。"
             },
             "Other": {
                 "DebugConsole": "外部デバッグコンソールを有効化",
@@ -2416,7 +2763,20 @@
                 "RestartRequired": "新しい言語を適用するにはYMUを再起動してください。",
                 "LangUpdated": "翻訳が正常にダウンロードされました。\n設定の言語リストを更新するにはYMUを再起動してください。",
                 "LangTitle": "言語が変更されました",
-                "LangUpToDate": "翻訳はすでに最新です。"
+                "LangUpToDate": "翻訳はすでに最新です。",
+                "FolderMissing": "フォルダーはまだ存在しません：\n{0}",
+                "V2FileMissing": "YimMenuV2 にはまだ settings.json がありません。\n一度インジェクトして実行してから、もう一度お試しください。"
+            },
+            "Paths": {
+                "AutoDetect": "自動検出",
+                "Browse": "参照",
+                "Clear": "クリア",
+                "CustomDll": "カスタムメニュー DLL",
+                "DefaultDll": "ダウンロードした DLL を使用",
+                "ErrorNoGta": "このフォルダーに GTA V の実行ファイルが見つかりません。",
+                "ErrorNotDll": ".dll ファイルを選択してください。",
+                "ErrorNotFound": "パスが存在しません。",
+                "GtaDir": "GTA V インストールフォルダー"
             }
         }
     }
