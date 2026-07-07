@@ -12,3 +12,8 @@ dependencies = [
     "pywin32>=312",
     "requests>=2.34.2",
 ]
+
+[dependency-groups]
+dev = [
+    "nuitka>=4.1.3",
+]
