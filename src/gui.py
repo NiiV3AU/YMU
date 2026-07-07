@@ -6,8 +6,6 @@ import sys
 from logging.handlers import RotatingFileHandler
 
 try:
-    import winreg
-
     import win32gui
 
     IS_WINDOWS = True
@@ -1335,7 +1333,7 @@ class AnimatedButton(StatefulButton):
         self._progress_changed.emit(value)
         self.update()
 
-    progress = Property(float, _get_progress, _set_progress, notify=_progress_changed)  # type: ignore
+    progress = Property(float, _get_progress, _set_progress, notify=_progress_changed)
 
     def set_progress(self, value: float):
         """Animates the progress bar to the target value."""
@@ -1350,7 +1348,9 @@ class AnimatedButton(StatefulButton):
         """Resets the progress bar instantly to 0."""
         if self.progress_animation.state() == QPropertyAnimation.State.Running:
             self.progress_animation.stop()
-        self.progress = 0.0
+        # Call the Property's setter directly (assigning to the Property
+        # descriptor confuses static type checkers).
+        self._set_progress(0.0)
 
     def _get_offset(self):
         return self._offset
@@ -1360,7 +1360,7 @@ class AnimatedButton(StatefulButton):
         self._offset_changed.emit()
         self.update()
 
-    offset = Property(float, _get_offset, _set_offset, notify=_offset_changed)  # type: ignore
+    offset = Property(float, _get_offset, _set_offset, notify=_offset_changed)
 
     def start_animation(self, duration: Optional[int] = None):
         if (
@@ -1502,13 +1502,13 @@ class ToggleSwitch(QWidget):
         QColor,
         _get_track_color,
         _set_track_color,
-        notify=_track_color_changed,  # type: ignore
+        notify=_track_color_changed,
     )
     knob_position = Property(
         float,
         _get_knob_position,
         _set_knob_position,
-        notify=_knob_position_changed,  # type: ignore
+        notify=_knob_position_changed,
     )
 
 
@@ -2701,6 +2701,10 @@ class InjectPage(QWidget):
         )
 
     def update_inject_button_status(self, pid: int | None):
+        # A scan started just before an inject click can finish mid-injection;
+        # applying its result would flip STATE_INJECTING back to APP_RUNNING.
+        if self._state == self.STATE_INJECTING:
+            return
         self.gta_pid = pid
 
         if self.gta_pid is not None:
@@ -3655,7 +3659,7 @@ class SettingsPage(QWidget):
             btn_yes = msg_box.addButton(
                 self.loc_manager.tr("Common.Yes", "Yes"), QMessageBox.ButtonRole.YesRole
             )
-            btn_no = msg_box.addButton(
+            msg_box.addButton(
                 self.loc_manager.tr("Common.No", "No"), QMessageBox.ButtonRole.NoRole
             )
 

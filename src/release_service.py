@@ -6,13 +6,24 @@ import hashlib
 import logging
 import os
 import re
-from typing import Callable, Optional
+from typing import Callable, Optional, Protocol, Union, runtime_checkable
 
 import requests
 
 from paths import USER_AGENT, YMU_DLL_DIR
 
 logger = logging.getLogger(__name__)
+
+
+@runtime_checkable
+class SupportsEmit(Protocol):
+    """A Qt Signal (has .emit) or any object exposing an emit(int) method."""
+
+    def emit(self, value: int, /) -> None: ...
+
+
+# Progress can be reported either by a plain callback or a Qt Signal.
+ProgressReporter = Union[Callable[[int], None], SupportsEmit]
 
 
 @dataclasses.dataclass
@@ -89,7 +100,7 @@ class GitHubAPIProvider(ReleaseProvider):
                 if match:
                     checksum = match.group(0)
 
-            if not all([version_tag, download_url, asset_name]):
+            if version_tag is None or download_url is None or asset_name is None:
                 logger.error(
                     "Essential release information could not be found (URL, asset name, etc.)."
                 )
@@ -97,10 +108,10 @@ class GitHubAPIProvider(ReleaseProvider):
 
             return ReleaseData(
                 version_tag=version_tag,
-                download_url=download_url,  # type: ignore
+                download_url=download_url,
                 checksum=checksum,
                 release_notes=release_notes,
-                asset_name=asset_name,  # type: ignore
+                asset_name=asset_name,
             )
 
         except requests.exceptions.RequestException as e:
@@ -133,7 +144,7 @@ def get_local_sha256(dll_path: str) -> str | None:
 
 def download_and_verify_release(
     release_data: ReleaseData,
-    progress_signal: Optional[Callable[[int], None]] = None,
+    progress_signal: Optional[ProgressReporter] = None,
     **kwargs,
 ) -> bool:
     """
@@ -156,13 +167,12 @@ def download_and_verify_release(
             for chunk in response.iter_content(chunk_size=8192):
                 f.write(chunk)
                 downloaded_size += len(chunk)
-                if total_size > 0 and progress_signal:
+                if total_size > 0 and progress_signal is not None:
                     percentage = int((downloaded_size / total_size) * 100)
-                    if progress_signal:
-                        if hasattr(progress_signal, "emit"):
-                            progress_signal.emit(percentage)
-                        else:
-                            progress_signal(percentage)
+                    if isinstance(progress_signal, SupportsEmit):
+                        progress_signal.emit(percentage)
+                    else:
+                        progress_signal(percentage)
 
         logger.info(f"Download of '{release_data.asset_name}' complete.")
 

@@ -48,10 +48,7 @@ def find_gta_pid(
                 )
                 return p.pid
 
-            if (
-                p.info["exe"]
-                and os.path.basename(p.info["exe"]).lower() in targets
-            ):
+            if p.info["exe"] and os.path.basename(p.info["exe"]).lower() in targets:
                 logger.info(
                     f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
                 )

@@ -308,7 +308,10 @@ class LocalizationManager(QObject):
             logger.warning(f"Could not check for translation updates: {e}")
             self.update_finished.emit(False, str(e), False)
 
-    def tr(self, key_path: str, default: Optional[str] = None) -> str:
+    def tr(self, key_path: str, default: Optional[str] = None, *args, **kwargs) -> str:
+        # This intentionally shadows QObject.tr with a dictionary-based lookup.
+        # *args/**kwargs keep the override signature-compatible with the base
+        # method so static type checkers don't flag an LSP violation.
         keys = key_path.split(".")
         value = self.data.get(self.active_locale, {})
         try:
@@ -326,7 +329,7 @@ class LocalizationManager(QObject):
                     fallback = fallback[k]
                 if isinstance(fallback, str):
                     return fallback
-            except:
+            except (KeyError, TypeError):
                 pass
 
         return default if default else f"[{key_path}]"

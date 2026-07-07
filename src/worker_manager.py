@@ -41,9 +41,8 @@ class Worker(QRunnable):
             )
             self.signals.finished.emit(result)
         except Exception as e:
-            logger.exception(
-                f"Exception in worker thread for target {self.target.__name__}"
-            )
+            target_name = getattr(self.target, "__name__", repr(self.target))
+            logger.exception(f"Exception in worker thread for target {target_name}")
             self.signals.error.emit(e)
 
 
@@ -63,9 +62,7 @@ class WorkerManager(QObject):
         # process scan) is skipped while one is already running.
         self._active_keys: set[str] = set()
         self._keys_lock = threading.Lock()
-        logger.info(
-            f"WorkerManager initialized with a pool of {max_threads} threads."
-        )
+        logger.info(f"WorkerManager initialized with a pool of {max_threads} threads.")
 
     def run_task(
         self,
@@ -130,7 +127,9 @@ class WorkerManager(QObject):
             with self._keys_lock:
                 self._active_keys.discard(key)
 
-        wrapped_finished = release_and_call(on_finished) if on_finished else ensure_release
+        wrapped_finished = (
+            release_and_call(on_finished) if on_finished else ensure_release
+        )
         wrapped_error = release_and_call(on_error) if on_error else ensure_release
 
         self.run_task(
