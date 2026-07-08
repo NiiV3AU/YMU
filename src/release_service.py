@@ -100,6 +100,13 @@ class GitHubAPIProvider(ReleaseProvider):
                 if match:
                     checksum = match.group(0)
 
+            if checksum is None:
+                logger.warning(
+                    f"No SHA256 checksum found in the release notes for "
+                    f"'{version_tag}' ({self.api_url}). Integrity cannot be "
+                    f"verified and up-to-date state cannot be confirmed."
+                )
+
             if version_tag is None or download_url is None or asset_name is None:
                 logger.error(
                     "Essential release information could not be found (URL, asset name, etc.)."

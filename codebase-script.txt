@@ -1,5 +1,0 @@
-Get-ChildItem -Recurse -Include *.py -Exclude codebase_for_review.txt |
-  Where-Object { $_.FullName -notmatch '\\(venv|\.venv|__pycache__|\.git)\\' } |
-  Sort-Object FullName |
-  ForEach-Object { "=== $($_.FullName.Replace((Get-Location).Path + '\', '')) ==="; Get-Content $_.FullName -Raw; "" } |
-  Out-File -Encoding utf8 codebase_for_review.txt

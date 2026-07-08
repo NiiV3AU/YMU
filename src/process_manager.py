@@ -21,7 +21,6 @@ def is_admin() -> bool:
 
 def find_gta_pid(
     target_executables: tuple[str, ...],
-    custom_install_dir: str | None = None,
     *args,
     **kwargs,
 ) -> int | None:
@@ -29,17 +28,18 @@ def find_gta_pid(
     Scans for a GTA5 process matching one of the given executable names and
     returns its PID. The caller passes the executables of the active edition
     (see menu_modes.py) so Legacy mode never targets the Enhanced process and
-    vice versa. If a custom install directory is set, any process whose
-    executable lives inside it also matches (covers renamed/exotic exes on
-    Epic/Xbox installs).
+    vice versa.
+
+    Matching is strictly by executable name (gta5.exe / gta5_enhanced.exe).
+    A configured custom install directory is used only to *launch* the game
+    (PlayGTAV.exe, see gui._start_game_from_dir) and never to identify the
+    running process: launcher and helper executables (PlayGTAV.exe,
+    Launcher.exe, the social-club service, ...) live in that same directory,
+    so matching by directory would return one of those PIDs and inject into
+    the wrong process instead of the game.
     :return: The process ID (PID) if found, otherwise None.
     """
     targets = tuple(t.lower() for t in target_executables)
-    custom_dir = (
-        os.path.normcase(os.path.normpath(custom_install_dir))
-        if custom_install_dir
-        else None
-    )
     try:
         for p in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
             if p.info["name"] and p.info["name"].lower() in targets:
@@ -53,14 +53,6 @@ def find_gta_pid(
                     f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
                 )
                 return p.pid
-
-            if custom_dir and p.info["exe"]:
-                exe_dir = os.path.normcase(os.path.normpath(p.info["exe"]))
-                if exe_dir.startswith(custom_dir + os.sep):
-                    logger.info(
-                        f"Found process inside custom dir: '{p.info['exe']}' with PID: {p.pid}"
-                    )
-                    return p.pid
 
             if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
                 exe_in_cmd = p.info["cmdline"][0].lower()

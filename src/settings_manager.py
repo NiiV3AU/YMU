@@ -18,11 +18,15 @@ _write_lock = threading.Lock()
 
 
 def _read_json_safely(settings_file: str):
-    """Reads the JSON file and handles BOM or corruption."""
+    """Reads the JSON file, returning {} if it is missing, unreadable, or malformed.
+
+    Reads as utf-8-sig so a stray UTF-8 BOM (e.g. from a hand edit in some
+    editors) is tolerated rather than treated as corruption; writes stay plain
+    utf-8 so YMU never introduces a BOM of its own."""
     if not os.path.exists(settings_file):
         return {}
     try:
-        with open(settings_file, "r", encoding="utf-8") as f:
+        with open(settings_file, "r", encoding="utf-8-sig") as f:
             return json.load(f)
     except (json.JSONDecodeError, OSError) as e:
         logger.warning(f"Failed to read {settings_file}: {e}")

@@ -66,7 +66,7 @@ body:
     attributes:
       label: Store / Launcher — details
       description: If you selected "Other / Not Listed" above, name your store/launcher here and mention whether you set a custom GTA V path in YMU's settings.
-      placeholder: "e.g. Xbox / Game Pass, or a custom install path on D:\\Games\\GTAV"
+      placeholder: "e.g. a custom install path on D:\\Games\\GTAV"
     validations:
       required: false
 
@@ -77,7 +77,7 @@ body:
         For a bug report to be valid, you **must** include the full log for YMU.
         The log is at **%APPDATA%/YMU/ymu.log** — paste `%APPDATA%/YMU` into your File Explorer address bar to get there quickly.
 
-        Please paste the **entire** contents, or attach the file (rename ymu.log to ymu.txt or zip it, then drag it in). A single word or a couple of lines is not enough to diagnose anything.
+        Please paste the **entire** contents, or attach the file. A single word or a couple of lines is not enough to diagnose anything.
     validations:
       required: true
 

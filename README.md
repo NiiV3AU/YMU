@@ -22,13 +22,17 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
 ---
 
-## ✅ Safe & Secure
+## 🛡️ Safety & Transparency
 
-Your security is the top priority.
+I can vouch for YMU's own code, so YMU is built to be *checkable* rather than simply trusted:
 
-- **Clean Scan Results:** The application is regularly checked with VirusTotal to ensure it's free from threats.
-- ~~**Microsoft SmartScreen:** YMU is recognized as a safe application, so you won't get any annoying warnings.~~ (v1.1.5 is whitelisted, v1.1.6 still needs to be approved)
-- **Full Source Code Available:** Don't just trust it, verify it. The entire source code is available right here on GitHub for you to review.
+- **Full source, in the open:** Every line of YMU lives here on GitHub. Don't just trust it; read it, or build the `.exe` yourself and compare.
+- **Verified downloads:** YMU fetches YimMenu DLLs only from their official repositories and verifies each download's SHA-256 against the publisher's published hash before it is used.
+- **VirusTotal, linked openly:** Every release links its VirusTotal report so you can review it yourself. Keep in mind that YMU is an *unsigned injector*, so heuristic engines and community votes may flag it. That is normal for this class of tool, and no scan can ever *prove* a file is clean.
+- **Microsoft SmartScreen:** Because YMU isn't code-signed, a fresh release may trigger a SmartScreen prompt until it builds up reputation. You can always cross-check the published `YMU.exe` hash against its VirusTotal report.
+
+> [!WARNING]
+> **On third-party menus:** A matching checksum proves you received exactly what the publisher posted. It cannot prove that the publisher's source is, and forever stays, safe. YimMenu is a separate project, and a compromised upstream or supply-chain attack is outside YMU's control. Use mods at your own risk.
 
 ---
 
@@ -117,7 +121,7 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### Full Changelog
 
-- **NEW** in `v1.1.7` ↦ ⚙️ **Compatibility & Customizability:** Added full support for GTA V Enhanced Edition², support custom PATH, and DLL.
+- **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, and remembered launcher/DLL selections.
 - **NEW** in `v1.1.6` ↦ 🌍 **Localization & Performance:** Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
 - **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
 - **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
@@ -131,7 +135,7 @@ Get the latest release directly from the downloads page. Just download and run t
 - **NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
 - **NEW** in `v1.0.4` ↦ GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
 - **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
-- **NEW** im `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
+- **NEW** in `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
 - **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
 
 </details>
@@ -148,47 +152,43 @@ Get the latest release directly from the downloads page. Just download and run t
 | [Download Source Code](https://github.com/NiiV3AU/YMU/archive/refs/heads/main.zip) |
 | :--------------------------------------------------------------------------------: |
 
-### Requirements and Dependencies
+### Set up the environment
 
-| Programming Language: | [Python](https://python.org) |
-| :-------------------- | :--------------------------- |
+YMU uses [**uv**](https://docs.astral.sh/uv/) for Python and dependency management. From the project root, a single command installs the right Python (`3.12`), every runtime dependency, **and** the build toolchain (Nuitka lives in the `dev` group):
 
-> I'm using Python `3.12` while coding YMU (`uv python install 3.12`)
+```bash
+uv sync
+```
 
-#### Libraries
+That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), [psutil](https://pypi.org/project/psutil/), [pyinjector](https://pypi.org/project/pyinjector/), [pywin32](https://pypi.org/project/pywin32/) and [packaging](https://pypi.org/project/packaging/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
 
-| Library                                            | pip command                       | uv command                   |
-| :------------------------------------------------- | :-------------------------------- | :--------------------------- |
-| Install all Libraries                              | `pip install -r requirements.txt` | `uv add -r requirements.txt` |
-| [PySide6](https://pypi.org/project/PySide6/)       | `pip install pyside6`             | `uv add pyside6`             |
-| [requests](https://pypi.org/project/requests/)     | `pip install requests`            | `uv add requests`            |
-| [psutil](https://pypi.org/project/psutil/)         | `pip install psutil`              | `uv add psutil`              |
-| [pyinjector](https://pypi.org/project/pyinjector/) | `pip install pyinjector`          | `uv add pyinjector`          |
-| [pywin32](https://pypi.org/project/pywin32/)       | `pip install pywin32`             | `uv add pywin32`             |
-| [packaging](https://pypi.org/project/packaging/)   | `pip install packaging`           | `uv add packaging`           |
+> **Not using uv?** Everything is declared in `pyproject.toml`, so plain pip works too:
+> `python -m venv .venv && .venv\Scripts\activate`, then `pip install .` for the runtime deps and `pip install nuitka` to build. (`requirements.txt` is also kept as a runtime-only drop-in.)
+
+### Run from source
+
+```bash
+uv run python src/gui.py
+```
 
 ### Creating the Executable (.exe)
 
-This project uses **Nuitka** (instead of PyInstaller) to create a high-performance, compact executable.
+This project uses **Nuitka** (instead of PyInstaller) to create a high-performance, compact executable. From the project root, run:
 
-1.  **Install Nuitka & Dependencies:**
+```bash
+uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --output-filename=YMU.exe src/gui.py
+```
 
-    ```bash
-    uv add nuitka zstandard
-    ```
+This creates `YMU.exe` in the `dist` folder.
 
-2.  **Run the build command:**
-    Navigate to the root directory of the project in your terminal and run the following command. This will create the `YMU.exe` in the `dist` folder.
+**Command Breakdown:**
+- **`--onefile`**: Bundles everything into a single `.exe` file.
+- **`--enable-plugin=pyside6`**: Optimizes the build for Qt/PySide6.
+- **`--windows-console-mode=disable`**: Prevents the black console window.
+- **`--include-data-dir`**: Bundles the assets folder.
+- **`--assume-yes-for-downloads`**: Lets Nuitka fetch its C toolchain non-interactively.
 
-    ```bash
-    uv python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/logo_dark.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --output-dir=dist --output-filename=YMU.exe src/gui.py
-    ```
-
-    **Command Breakdown:**
-    - **`--onefile`**: Bundles everything into a single `.exe` file.
-    - **`--enable-plugin=pyside6`**: Optimizes the build for Qt/PySide6.
-    - **`--windows-console-mode=disable`**: Prevents the black console window.
-    - **`--include-data-dir`**: Bundles the assets folder.
+> The official release build (see `.github/workflows/ymu_manual_release.yml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe`.
 
 </details>
 

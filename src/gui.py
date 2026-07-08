@@ -14,7 +14,7 @@ except (ImportError, AttributeError):
     IS_WINDOWS = False
 
 
-# check if an instance is already running -> yes? -> gets focused
+# Single-instance guard: if a YMU window already exists, focus it and exit.
 if IS_WINDOWS:
     WINDOW_TITLE = "YimMenuUpdater | NV3"
     try:
@@ -88,8 +88,6 @@ import settings_manager
 import update_checker
 from localization_manager import LocalizationManager
 from menu_modes import MenuMode, get_mode
-
-# import modules
 from paths import (
     LOCAL_VERSION,
     YMU_APPDATA_DIR,
@@ -176,10 +174,11 @@ def create_colored_icon(icon_path: str, color: QColor) -> QIcon:
 
 
 def restart_application():
-    """
-    Restarts the application.
-    FIXED for Nuitka Onefile: Uses sys.argv[0] to find the real EXE,
-    not the temporary python interpreter in sys.executable.
+    """Restarts the application.
+
+    Under Nuitka onefile, sys.argv[0] is the real EXE while sys.executable is
+    the temporary bootstrap interpreter, so the relaunch target is picked
+    accordingly.
     """
     import subprocess
 
@@ -207,10 +206,7 @@ def restart_application():
 
 
 def restart_as_admin():
-    """
-    Restarts the current application with Administrator privileges using ShellExecute 'runas'.
-    Includes robust path handling and error checking.
-    """
+    """Relaunches YMU elevated via ShellExecute 'runas', which triggers the UAC prompt."""
     import ctypes
 
     logger.info("Requesting restart with Admin privileges...")
@@ -432,27 +428,27 @@ STYLESHEET = """
         padding-right: 10px;
     }
 
-    /* Das Popup-Panel */
+    /* Dropdown popup panel: slightly darker than the trigger for contrast. */
     QComboBox QAbstractItemView {
-        background-color: #1E1E1E; /* Etwas dunkler als der Trigger für Kontrast */
+        background-color: #1E1E1E;
         border: 1px solid #333333;
-        border-radius: 6px; 
-        padding: 2px; /* Minimaler Abstand zum Rand */
+        border-radius: 6px;
+        padding: 2px;
         outline: 0px;
     }
 
-    /* Die Items: Schlank und Dezent */
+    /* Slim popup rows. */
     QComboBox QAbstractItemView::item {
-        padding: 2px 8px;   /* HIER: Das macht es dünn! */
+        padding: 2px 8px;
         border-radius: 4px;
-        min-height: 18px;   /* Kompakte Höhe */
+        min-height: 18px;
         margin: 0px;
     }
 
-    /* Hover: Grau statt Grün! */
-    QComboBox QAbstractItemView::item:selected, 
+    /* Selected/hover: neutral grey, not the green accent. */
+    QComboBox QAbstractItemView::item:selected,
     QComboBox QAbstractItemView::item:hover {
-        background-color: #333333; /* Dezent, nicht aggressiv */
+        background-color: #333333;
         color: #FFFFFF;
     }
     
@@ -773,7 +769,7 @@ STYLESHEET_LIGHT = """
         min-height: 18px;
     }
 
-    /* Hover: Hellgrau statt Grün */
+    /* Selected/hover: light grey, not the green accent. */
     QComboBox QAbstractItemView::item:selected,
     QComboBox QAbstractItemView::item:hover {
         background-color: #ECEEF1;
@@ -1434,9 +1430,8 @@ class ToggleSwitch(QWidget):
         # visually restrained and does not steal focus from other elements.
         self._variant = variant
         if variant == "sidebar":
-            # Monochrome and greyscale-only so the edition switch stays visually
-            # restrained. The track colour is constant in both states — only the
-            # knob slides — which reads calmer than a colour-changing track.
+            # Constant track colour in both states; only the knob slides, which
+            # reads calmer than a colour-changing track.
             self._track_color_off = QColor("#4A4A4A")
             self._track_color_on = QColor("#4A4A4A")
         else:
@@ -1622,11 +1617,11 @@ class MainWindow(QMainWindow):
 
     def _apply_card_shadows(self, theme):
         """Gives every card a soft drop shadow in the light theme, where flat
-        light fills give too little depth. In the dark theme a shadow on a
-        near-black surface is invisible, so it's disabled — a disabled effect is
-        bypassed by Qt, so the card (and any animation inside it) renders
-        directly with no cost. The effect is created once per card and only its
-        enabled flag is toggled afterwards."""
+        light fills lack depth. In the dark theme the shadow would be invisible
+        on the near-black surface, so it is disabled; Qt bypasses a disabled
+        effect entirely, so the card and its animations render at no cost. The
+        effect is created once per card; afterwards only its enabled flag is
+        toggled."""
         for card in self.findChildren(QFrame):
             if card.objectName() != "CardFrame":
                 continue
@@ -1638,16 +1633,6 @@ class MainWindow(QMainWindow):
                 effect.setColor(QColor(60, 70, 90, 40))
                 card.setGraphicsEffect(effect)
             effect.setEnabled(theme == "light")
-
-    def _on_translation_update_finished(self, update_occurred: bool):
-        """Slot: Called when the LocalizationManager has finished checking."""
-        if update_occurred:
-            title = self.loc_manager.tr("Common.Info", "Info")
-            msg = self.loc_manager.tr(
-                "Settings.Notify.LangUpdated",
-                "Translations were successfully downloaded.\nRestart YMU to see the updated Language List in Settings.",
-            )
-            self.notification_manager.show(title, msg, icon_type="info", duration=7000)
 
     def show_when_ready(self):
         """Signals that the app is initialized and triggers the first paint."""
@@ -2196,15 +2181,25 @@ class DownloadPage(QWidget):
         return (mode_key, status, release_data)
 
     def _compare_checksums(self, release_data, local_dll_path: str):
-        """Pure helper: status from the release checksum vs the local DLL."""
+        """Pure helper: map the release checksum vs the local DLL to a status.
+
+        No local DLL means "download". "Up-to-date" is reported only when the
+        local file matches a real remote checksum. Anything else (a mismatch,
+        or a release whose notes carry no SHA256) counts as "update available",
+        which avoids a ``None == None`` false "up-to-date" that would strand a
+        fresh user with the download button disabled."""
         local_checksum = release_service.get_local_sha256(local_dll_path)
 
-        if local_checksum == release_data.checksum:
-            return self.STATUS_UPTODATE
-        elif local_checksum is None:
+        if local_checksum is None:
             return self.STATUS_DOWNLOAD
-        else:
-            return self.STATUS_UPDATE
+        if release_data.checksum and local_checksum == release_data.checksum:
+            return self.STATUS_UPTODATE
+        if not release_data.checksum:
+            logger.warning(
+                "Remote release has no SHA256; cannot confirm the local DLL is "
+                "current, so offering an update instead of 'up-to-date'."
+            )
+        return self.STATUS_UPDATE
 
     def _handle_update_check_result(self, result):
         mode_key, status, release_data = result
@@ -2704,13 +2699,7 @@ class InjectPage(QWidget):
     def handle_start_gta_click(self):
         if self._state != self.STATE_IDLE:
             return
-        if (
-            process_manager.find_gta_pid(
-                self.get_mode().target_executables,
-                get_config().get("paths.gta_dir"),
-            )
-            is not None
-        ):
+        if process_manager.find_gta_pid(self.get_mode().target_executables) is not None:
             cast(MainWindow, self.window()).notification_manager.show(
                 self.loc_manager.tr("Common.Info", "Information"),
                 self.loc_manager.tr(
@@ -2839,7 +2828,6 @@ class InjectPage(QWidget):
             "gta_scan",
             process_manager.find_gta_pid,
             self.get_mode().target_executables,
-            get_config().get("paths.gta_dir"),
             on_finished=self.update_inject_button_status,
         )
 
