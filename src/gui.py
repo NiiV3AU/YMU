@@ -3384,12 +3384,12 @@ class SettingsPage(QWidget):
 
         btn_report_bug.clicked.connect(
             lambda: self._open_link(
-                "https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.yml"
+                "https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.yaml"
             )
         )
         btn_request_feature.clicked.connect(
             lambda: self._open_link(
-                "https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.yml"
+                "https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.yaml"
             )
         )
         self.btn_check_for_updates.clicked.connect(self._handle_check_for_updates)

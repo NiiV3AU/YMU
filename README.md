@@ -24,11 +24,8 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
 ## 🛡️ Safety & Transparency
 
-I can vouch for YMU's own code, so YMU is built to be *checkable* rather than simply trusted:
-
 - **Full source, in the open:** Every line of YMU lives here on GitHub. Don't just trust it; read it, or build the `.exe` yourself and compare.
 - **Verified downloads:** YMU fetches YimMenu DLLs only from their official repositories and verifies each download's SHA-256 against the publisher's published hash before it is used.
-- **VirusTotal, linked openly:** Every release links its VirusTotal report so you can review it yourself. Keep in mind that YMU is an *unsigned injector*, so heuristic engines and community votes may flag it. That is normal for this class of tool, and no scan can ever *prove* a file is clean.
 - **Microsoft SmartScreen:** Because YMU isn't code-signed, a fresh release may trigger a SmartScreen prompt until it builds up reputation. You can always cross-check the published `YMU.exe` hash against its VirusTotal report.
 
 > [!WARNING]
@@ -60,17 +57,17 @@ Get the latest release directly from the downloads page. Just download and run t
 ### Dark Theme
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/6c322c71-5ed9-4476-a091-22da12772fe6?raw=true" alt="YMU Dark Theme: Settings" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/ddf5b40f-3925-43cf-b536-24b833d56889?raw=true" alt="YMU Dark Theme: Inject" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/23ac7acb-071b-4412-9b03-dbc071eefe02?raw=true" alt="YMU Dark Theme: Download" width="32%"/>
+  <img src="screenshots/Settings.webp" alt="YMU Dark Theme: Settings" width="32%"/>
+  <img src="screenshots/Launch.webp" alt="YMU Dark Theme: Inject" width="32%"/>
+  <img src="screenshots/Download.webp" alt="YMU Dark Theme: Download" width="32%"/>
 </div>
 
 ### Light Theme
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/2d111d22-7344-4a71-ad5e-899d7bd091bf?raw=true" alt="YMU Light Theme: Settings" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/19fcf98e-83e2-4083-bbb5-717cb4bb86fe?raw=true" alt="YMU Light Theme: Inject" width="32%"/>
-  <img src="https://github.com/user-attachments/assets/857f8c8c-3746-4a1d-800c-f926613a03d2?raw=true" alt="YMU Light Theme: Download" width="32%"/>
+  <img src="screenshots/Settings_Light.webp" alt="YMU Light Theme: Settings" width="32%"/>
+  <img src="screenshots/Launch_Light.webp" alt="YMU Light Theme: Inject" width="32%"/>
+  <img src="screenshots/Download_Light.webp" alt="YMU Light Theme: Download" width="32%"/>
 </div>
 
 ---
@@ -121,7 +118,7 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### Full Changelog
 
-- **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, and remembered launcher/DLL selections.
+- **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, remembered launcher/DLL selections, and a refreshed light theme.
 - **NEW** in `v1.1.6` ↦ 🌍 **Localization & Performance:** Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
 - **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
 - **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
@@ -163,7 +160,7 @@ uv sync
 That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), [psutil](https://pypi.org/project/psutil/), [pyinjector](https://pypi.org/project/pyinjector/), [pywin32](https://pypi.org/project/pywin32/) and [packaging](https://pypi.org/project/packaging/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
 
 > **Not using uv?** Everything is declared in `pyproject.toml`, so plain pip works too:
-> `python -m venv .venv && .venv\Scripts\activate`, then `pip install .` for the runtime deps and `pip install nuitka` to build. (`requirements.txt` is also kept as a runtime-only drop-in.)
+> `python -m venv .venv && .venv\Scripts\activate`, then `pip install .` for the runtime deps and `pip install nuitka` to build.
 
 ### Run from source
 
@@ -182,13 +179,14 @@ uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows
 This creates `YMU.exe` in the `dist` folder.
 
 **Command Breakdown:**
+
 - **`--onefile`**: Bundles everything into a single `.exe` file.
 - **`--enable-plugin=pyside6`**: Optimizes the build for Qt/PySide6.
 - **`--windows-console-mode=disable`**: Prevents the black console window.
 - **`--include-data-dir`**: Bundles the assets folder.
 - **`--assume-yes-for-downloads`**: Lets Nuitka fetch its C toolchain non-interactively.
 
-> The official release build (see `.github/workflows/ymu_manual_release.yml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe`.
+> The official release build (see `.github/workflows/ymu_manual_release.yaml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe`.
 
 </details>
 
