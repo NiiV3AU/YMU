@@ -12,7 +12,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 [![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
 [![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
-[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/7925f2d9faddaa72d54005bdff507522c1b1214760847629abbd5444eb39d548)
+[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/329d465d5825dd6a98ad94101e82861fe44a0803e7f8a365e5a39dca1bffc0d2)
 
 ![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
 
