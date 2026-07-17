@@ -35,7 +35,7 @@
         "YimOfficial": "Official YimMenu GitHub Repo",
         "YimLegacy": "YimMenu (legacy) GitHub Repo",
         "YimV2": "YimMenuV2 (enhanced) GitHub Repo",
-        "FSL": "FSL's UnknownCheats-Thread"
+        "FSL": "FSL's UnknownCheats Thread"
       },
       "Tooltip": {
         "YimOfficial": "Open the official YimMenu GitHub repository",
@@ -76,7 +76,7 @@
       "Help": {
         "Title": "DLL & FSL Info",
         "DllSteps": "1. Click on (Download)\n2. Wait for the download to finish\n3. The file is in the 'YMU/dll' folder\n\nIf the file gets deleted, add an exception\nin your antivirus or disable it temporarily.",
-        "FslSteps": "1. Download FSL (Link provided in the Risks Page)\n2. Open your GTAV Directory\n3. Drop the WINMM.dll in the folder\n   (filename MUST be exactly 'WINMM.dll')\n4. Disable BattlEye in Rockstar's Game Launcher\n5. Done! ✅"
+        "FslSteps": "1. Download FSL (Link provided in the Risks tab)\n2. Open your GTA V directory\n3. Drop the WINMM.dll in the folder\n   (filename MUST be exactly 'WINMM.dll')\n4. Disable BattlEye in the Rockstar Games Launcher\n5. Done! ✅"
       },
       "Tooltip": {
         "Help": "Show help for DLL and FSL installation",
@@ -112,18 +112,18 @@
         "Help": "Show help for the injection process",
         "Launcher": "Select the launcher you use to start GTA V",
         "Dll": "Select the DLL to inject",
-        "NoDll": "Download the {0} DLL on the Download page first."
+        "NoDll": "Download the {0} DLL on the Download tab first."
       },
       "Error": {
         "NoDllSelected": "Error: No DLL selected or found for injection.",
         "ProcessLost": "GTA 5 process disappeared before injection.",
         "InjectionFailed": "Injection failed. See logs for details.",
         "NoRockstarPath": "Could not find Rockstar Games installation path.",
-        "CustomPathInvalid": "The custom GTA V path is not set or no longer exists.\nSet it again on the Settings page.",
+        "CustomPathInvalid": "The custom GTA V path is not set or no longer exists.\nSet it again on the Settings tab.",
         "NoExeFound": "Executable not found at '{0}'",
         "LaunchFailed": "Error launching game. See logs for details.",
         "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
-        "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks page) and make\nsure the Legacy/Enhanced switch matches your game."
+        "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks tab) and make\nsure the Legacy/Enhanced switch matches your game."
       },
       "Label": {
         "Custom": "custom"
@@ -153,7 +153,7 @@
           "Disable": "Disable selected script(s)",
           "Refresh": "Refresh script lists"
         },
-        "NoScriptsDir": "No {0} folder found yet.\nInject and run it once to create it."
+        "NoScriptsDir": "The {0} folder hasn't been created yet.\nInject and run YimMenu once to generate it."
       },
       "Other": {
         "DebugConsole": "Enable External Debug Console",
@@ -163,7 +163,7 @@
       },
       "Btn": {
         "OpenScripts": "Open Scripts Folder",
-        "DiscoverLua": "Discover Luas",
+        "DiscoverLua": "Discover Lua Scripts",
         "OpenYimFolder": "Open YimMenu Folder",
         "OpenYmuFolder": "Open YMU Folder",
         "ReportBug": "Report a Bug",
@@ -187,7 +187,7 @@
         "AvailableTitle": "Update Available",
         "AvailableMsg": "Update {0} is available!",
         "Prompt": "Do you want to open the download page in your browser?",
-        "CheckTitle": "Check for YMU Update",
+        "CheckTitle": "Check for YMU Updates",
         "ErrorTitle": "Update Error",
         "Ahead": "You are running a newer version than the latest release."
       },
@@ -289,7 +289,7 @@
       "Help": {
         "Title": "Infos zu DLL & FSL",
         "DllSteps": "1. Klicke auf (Download)\n2. Warte bis der Download fertig ist\n3. Die Datei liegt im 'YMU/dll' Ordner\n\nFalls die Datei gelöscht wird: Füge eine Ausnahme\nzu deinem Antivirus hinzu oder deaktiviere es kurz.",
-        "FslSteps": "1. Lade FSL herunter (Link auf der Risiko-Seite)\n2. Öffne dein GTAV Verzeichnis\n3. Zieh die WINMM.dll in den Ordner\n   (Dateiname MUSS exakt 'WINMM.dll' sein)\n4. Deaktiviere BattlEye im Rockstar Game Launcher\n5. Fertig! ✅"
+        "FslSteps": "1. Lade FSL herunter (Link auf der Risiko-Seite)\n2. Öffne dein GTA V-Verzeichnis\n3. Zieh die WINMM.dll in den Ordner\n   (Dateiname MUSS exakt 'WINMM.dll' sein)\n4. Deaktiviere BattlEye im Rockstar Game Launcher\n5. Fertig! ✅"
       },
       "Tooltip": {
         "Help": "Hilfe zur DLL- und FSL-Installation anzeigen",
@@ -502,7 +502,7 @@
       "Help": {
         "Title": "DLL & FSL Info",
         "DllSteps": "1. Klik op (Download)\n2. Wacht tot de download klaar is\n3. Het bestand staat in de 'YMU/dll' map\n\nAls het bestand wordt verwijderd, voeg een uitzondering\ntoe in je antivirus of schakel deze tijdelijk uit.",
-        "FslSteps": "1. Download FSL (Link op de Risico Pagina)\n2. Open je GTAV map\n3. Drop de WINMM.dll in de map\n   (bestandsnaam MOET exact 'WINMM.dll' zijn)\n4. Schakel BattlEye uit in Rockstar's Game Launcher\n5. Klaar! ✅"
+        "FslSteps": "1. Download FSL (Link op de Risico Pagina)\n2. Open je GTA V-map\n3. Drop de WINMM.dll in de map\n   (bestandsnaam MOET exact 'WINMM.dll' zijn)\n4. Schakel BattlEye uit in Rockstar's Game Launcher\n5. Klaar! ✅"
       },
       "Tooltip": {
         "Help": "Toon hulp voor DLL en FSL installatie",
@@ -715,7 +715,7 @@
       "Help": {
         "Title": "Infos DLL & FSL",
         "DllSteps": "1. Clique sur (Télécharger)\n2. Attends la fin du téléchargement\n3. Le fichier est dans le dossier 'YMU/dll'\n\nSi le fichier est supprimé, ajoute une exception\ndans ton antivirus ou désactive-le temporairement.",
-        "FslSteps": "1. Télécharge FSL (Lien sur la page Risques)\n2. Ouvre ton répertoire GTAV\n3. Dépose le fichier WINMM.dll dans le dossier\n   (le nom DOIT être exactement 'WINMM.dll')\n4. Désactive BattlEye dans le Launcher Rockstar\n5. C'est fait ! ✅"
+        "FslSteps": "1. Télécharge FSL (Lien sur la page Risques)\n2. Ouvre ton répertoire GTA V\n3. Dépose le fichier WINMM.dll dans le dossier\n   (le nom DOIT être exactement 'WINMM.dll')\n4. Désactive BattlEye dans le Launcher Rockstar\n5. C'est fait ! ✅"
       },
       "Tooltip": {
         "Help": "Afficher l'aide pour l'installation DLL et FSL",
@@ -928,7 +928,7 @@
       "Help": {
         "Title": "Info DLL y FSL",
         "DllSteps": "1. Haz clic en (Descargar)\n2. Espera a que termine la descarga\n3. El archivo está en la carpeta 'YMU/dll'\n\nSi el archivo se borra, añade una excepción\nen tu antivirus o desactívalo temporalmente.",
-        "FslSteps": "1. Descarga FSL (Link en la página de Riesgos)\n2. Abre tu directorio de GTAV\n3. Arrastra la WINMM.dll a la carpeta\n   (el nombre DEBE ser exactamente 'WINMM.dll')\n4. Desactiva BattlEye en el Launcher de Rockstar\n5. ¡Listo! ✅"
+        "FslSteps": "1. Descarga FSL (Link en la página de Riesgos)\n2. Abre tu directorio de GTA V\n3. Arrastra la WINMM.dll a la carpeta\n   (el nombre DEBE ser exactamente 'WINMM.dll')\n4. Desactiva BattlEye en el Launcher de Rockstar\n5. ¡Listo! ✅"
       },
       "Tooltip": {
         "Help": "Mostrar ayuda para la instalación de DLL y FSL",
@@ -1141,7 +1141,7 @@
       "Help": {
         "Title": "Info sobre DLL e FSL",
         "DllSteps": "1. Clique em (Baixar)\n2. Aguarde o download terminar\n3. O arquivo está na pasta 'YMU/dll'\n\nSe o arquivo for deletado, adicione uma exceção\nno seu antivírus ou desative-o temporariamente.",
-        "FslSteps": "1. Baixe o FSL (Link na página de Riscos)\n2. Abra o diretório do seu GTAV\n3. Solte o arquivo WINMM.dll na pasta\n   (o nome DEVE ser exatamente 'WINMM.dll')\n4. Desative o BattlEye no Launcher da Rockstar\n5. Pronto! ✅"
+        "FslSteps": "1. Baixe o FSL (Link na página de Riscos)\n2. Abra o diretório do seu GTA V\n3. Solte o arquivo WINMM.dll na pasta\n   (o nome DEVE ser exatamente 'WINMM.dll')\n4. Desative o BattlEye no Launcher da Rockstar\n5. Pronto! ✅"
       },
       "Tooltip": {
         "Help": "Mostrar ajuda para instalação da DLL e FSL",
@@ -1232,7 +1232,7 @@
         "OpenYimFolder": "Abrir Pasta YimMenu",
         "OpenYmuFolder": "Abrir Pasta YMU",
         "ReportBug": "Reportar Bug",
-        "RequestFeature": "Pedir Funcionalidade",
+        "RequestFeature": "Pedir Recurso",
         "CheckUpdates": "Checar Updates do YMU",
         "UpToDate": "YMU está atualizado"
       },
@@ -1242,7 +1242,7 @@
         "OpenYimFolder": "Abrir pasta YimMenu (%APPDATA%/YimMenu)",
         "OpenYmuFolder": "Abrir pasta YMU (%APPDATA%/YMU)",
         "ReportBug": "Abrir página de report de bugs no GitHub",
-        "RequestFeature": "Abrir página de request de features no GitHub",
+        "RequestFeature": "Abrir página de solicitação de recursos no GitHub",
         "Language": "Selecionar idioma do app (requer reinício)",
         "UpdateLang": "Verificar atualizações de tradução"
       },
@@ -1354,7 +1354,7 @@
       "Help": {
         "Title": "Info o DLL i FSL",
         "DllSteps": "1. Kliknij (Pobierz)\n2. Poczekaj na zakończenie pobierania\n3. Plik znajduje się w folderze 'YMU/dll'\n\nJeśli plik zostanie usunięty, dodaj wyjątek\nw antywirusie lub wyłącz go tymczasowo.",
-        "FslSteps": "1. Pobierz FSL (Link na stronie Ryzyka)\n2. Otwórz folder z GTAV\n3. Wrzuć plik WINMM.dll do folderu\n   (nazwa MUSI brzmieć dokładnie 'WINMM.dll')\n4. Wyłącz BattlEye w Launcherze Rockstar\n5. Gotowe! ✅"
+        "FslSteps": "1. Pobierz FSL (Link na stronie Ryzyka)\n2. Otwórz folder z GTA V\n3. Wrzuć plik WINMM.dll do folderu\n   (nazwa MUSI brzmieć dokładnie 'WINMM.dll')\n4. Wyłącz BattlEye w Launcherze Rockstar\n5. Gotowe! ✅"
       },
       "Tooltip": {
         "Help": "Pokaż pomoc dotyczącą instalacji DLL i FSL",
@@ -1400,7 +1400,7 @@
         "NoExeFound": "Nie znaleziono pliku wykonywalnego w '{0}'",
         "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi.",
         "AccessDenied": "Brak uprawnień do wstrzyknięcia do GTA V.\nSpróbuj uruchomić YMU jako administrator.",
-        "AccessDeniedAdmin": "Wstrzyknięcie zostało odrzucone nawet z uprawnieniami administratora.\nZazwyczaj powodem jest BattlEye lub zła edycja gry.\nWyłącz BattlEye w swoim launcherze (zobacz stronę Ryzyko) i\nupewnij się, że przełącznik Legacy/Enhanced pasuje do twojej gry.",
+        "AccessDeniedAdmin": "Wstrzyknięcie zostało odrzucone nawet z uprawnieniami administratora.\nZazwyczaj powodem jest BattlEye lub zła edycja gry.\nWyłącz BattlEye w swoim launcherze (zobacz stronę Ryzyko) i\nupewnij się, że przełącznik Legacy/Enhanced pasuje do Twojej gry.",
         "CustomPathInvalid": "Własna ścieżka GTA V nie jest ustawiona lub już nie istnieje.\nUstaw ją ponownie na stronie Ustawienia."
       },
       "Label": {
@@ -1504,7 +1504,7 @@
         "ProjectPage": "Открыть страницу проекта YMU в браузере"
       },
       "Mode": {
-        "AutoDetected": "Обнаружено: {0} — выбрано автоматически.\nИспользуйте переключатель на боковой панели, чтобы сменить.",
+        "AutoDetected": "Обнаружено: {0} — выбрано автоматически.\nИспользуй переключатель на боковой панели, чтобы сменить.",
         "Enhanced": "E&E",
         "Legacy": "Legacy",
         "Tooltip": "Переключение между YimMenu (Legacy) и YimMenuV2 (Enhanced)"
@@ -1521,7 +1521,7 @@
     },
     "Risk": {
       "Title": "ВНИМАНИЕ",
-      "Info": "Всегда используйте YMU и YimMenu с ОТКЛЮЧЕННЫМ BattlEye.\nИспользование модов в онлайне несет риск бана.",
+      "Info": "Всегда используй YMU и YimMenu с ОТКЛЮЧЕННЫМ BattlEye.\nИспользование модов в онлайне несет риск бана.",
       "Btn": {
         "YimOfficial": "Официальный GitHub YimMenu",
         "YimLegacy": "GitHub YimMenu (Legacy)",
@@ -1541,10 +1541,10 @@
         "Checking": "Проверка обновлений...",
         "UpToDate": "YimMenu обновлено.",
         "NewVersion": "Доступна новая версия!",
-        "Error": "Произошла ошибка. Попробуйте снова.",
+        "Error": "Произошла ошибка. Попробуй снова.",
         "Downloading": "Скачивание",
         "Success": "Успешно скачано и проверено!",
-        "Failed": "Ошибка скачивания. Чекните логи."
+        "Failed": "Ошибка скачивания. Чекни логи."
       },
       "Btn": {
         "Check": "Проверить апдейты",
@@ -1561,17 +1561,17 @@
         "SuccessTitle": "Скачивание завершено",
         "SuccessMsg": "DLL успешно скачана и проверена!",
         "FailedTitle": "Ошибка скачивания",
-        "FailedMsg": "Верификация не удалась. Проверьте логи.",
+        "FailedMsg": "Верификация не удалась. Проверь логи.",
         "UpdateTitle": "Обновление {0}"
       },
       "Help": {
         "Title": "Инфо о DLL и FSL",
-        "DllSteps": "1. Нажмите (Скачать)\n2. Дождитесь окончания загрузки\n3. Файл находится в папке 'YMU/dll'\n\nЕсли файл удалился, добавьте исключение\nв антивирус или временно отключите его.",
-        "FslSteps": "1. Скачайте FSL (Ссылка на странице Риски)\n2. Откройте папку с GTAV\n3. Закиньте WINMM.dll в папку\n   (имя должно быть ТОЧНО 'WINMM.dll')\n4. Отключите BattlEye в Лаунчере Rockstar\n5. Готово! ✅"
+        "DllSteps": "1. Нажми (Скачать)\n2. Дождись окончания загрузки\n3. Файл находится в папке 'YMU/dll'\n\nЕсли файл удалился, добавь исключение\nв антивирус или временно отключи его.",
+        "FslSteps": "1. Скачай FSL (Ссылка на странице Риски)\n2. Открой папку с GTA V\n3. Закинь WINMM.dll в папку\n   (имя должно быть ТОЧНО 'WINMM.dll')\n4. Отключи BattlEye в Лаунчере Rockstar\n5. Готово! ✅"
       },
       "Tooltip": {
         "Help": "Показать помощь по установке DLL и FSL",
-        "Channel": "Выберите версию YimMenu для скачивания",
+        "Channel": "Выбери версию YimMenu для скачивания",
         "ActiveChannel": "Активная редакция — меняется переключателем Legacy/Enhanced на боковой панели"
       }
     },
@@ -1588,21 +1588,21 @@
       },
       "Notify": {
         "AlreadyRunning": "GTA 5 уже запущена!",
-        "SelectLauncher": "Сначала выберите лаунчер.",
+        "SelectLauncher": "Сначала выбери лаунчер.",
         "SuccessTitle": "Инжект успешен",
         "SuccessMsg": "DLL успешно внедрена!",
         "CustomDllMissing": "Заданная пользовательская DLL больше не существует:\n{0}"
       },
       "Help": {
         "Title": "Инфо об Инжекте",
-        "StartGtaSteps": "1. Выберите свой лаунчер\n2. Нажмите 'Запустить GTA 5'\n3. Читайте следующий шаг ↗",
+        "StartGtaSteps": "1. Выбери свой лаунчер\n2. Нажми 'Запустить GTA 5'\n3. Читай следующий шаг ↗",
         "TabInject": "Инжект DLL",
-        "InjectSteps": "1. Запустите GTA 5 (↖ Пред. шаг)\n2. Ждите загрузочный экран/меню игры\n3. Нажмите 'Заинжектить YimMenu'\n4. Ждите загрузки YimMenu\n5. Готово! ✅"
+        "InjectSteps": "1. Запусти GTA 5 (↖ Пред. шаг)\n2. Жди загрузочный экран/меню игры\n3. Нажми 'Заинжектить YimMenu'\n4. Жди загрузки YimMenu\n5. Готово! ✅"
       },
       "Tooltip": {
         "Help": "Показать помощь по процессу инжекта",
-        "Launcher": "Выберите лаунчер, через который запускаете GTA V",
-        "Dll": "Выберите DLL для инжекта",
+        "Launcher": "Выбери лаунчер, через который запускаешь GTA V",
+        "Dll": "Выбери DLL для инжекта",
         "NoDll": "Сначала скачайте DLL {0} на странице «Скачать»."
       },
       "Error": {
@@ -1612,9 +1612,9 @@
         "NoRockstarPath": "Не найден путь установки Rockstar Games.",
         "NoExeFound": "Исполняемый файл не найден в '{0}'",
         "LaunchFailed": "Ошибка запуска игры. Смотрите логи.",
-        "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуйте перезапустить YMU от имени администратора.",
-        "AccessDeniedAdmin": "Инжект был отклонён даже с правами администратора.\nОбычно причина — BattlEye или неверная редакция игры.\nОтключите BattlEye в лаунчере (см. страницу «Риски») и\nубедитесь, что переключатель Legacy/Enhanced совпадает с вашей игрой.",
-        "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадайте его заново на странице «Настройки»."
+        "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора.",
+        "AccessDeniedAdmin": "Инжект был отклонён даже с правами администратора.\nОбычно причина — BattlEye или неверная редакция игры.\nОтключи BattlEye в лаунчере (см. страницу «Риски») и\nубедись, что переключатель Legacy/Enhanced совпадает с твоей игрой.",
+        "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадай его заново на странице «Настройки»."
       },
       "Label": {
         "Custom": "своя"
@@ -1644,7 +1644,7 @@
           "Disable": "Отключить выбранные скрипты",
           "Refresh": "Обновить список скриптов"
         },
-        "NoScriptsDir": "Папка {0} пока не найдена.\nВыполните инжект один раз, чтобы создать её."
+        "NoScriptsDir": "Папка {0} пока не найдена.\nВыполни инжект один раз, чтобы создать её."
       },
       "Other": {
         "DebugConsole": "Включить внешнюю Debug консоль",
@@ -1663,7 +1663,7 @@
         "UpToDate": "YMU обновлен"
       },
       "Tooltip": {
-        "OpenScripts": "Открыть папку, где лежат ваши Lua скрипты",
+        "OpenScripts": "Открыть папку, где лежат твои Lua скрипты",
         "DiscoverLua": "Открыть официальную организацию YimMenu-Lua на GitHub",
         "OpenYimFolder": "Открыть папку YimMenu (%APPDATA%/YimMenu)",
         "OpenYmuFolder": "Открыть папку YMU (%APPDATA%/YMU)",
@@ -1674,21 +1674,21 @@
       },
       "Update": {
         "Title": "Апдейтеры YMU",
-        "UpToDate": "Ваш YMU уже обновлен.",
+        "UpToDate": "Твой YMU уже обновлен.",
         "AvailableTitle": "Доступно обновление",
         "AvailableMsg": "Обновление {0} доступно!",
-        "Prompt": "Хотите открыть страницу загрузки в браузере?",
+        "Prompt": "Хочешь открыть страницу загрузки в браузере?",
         "CheckTitle": "Проверить обновление YMU",
         "ErrorTitle": "Ошибка обновления",
-        "Ahead": "Вы используете версию новее, чем последний релиз."
+        "Ahead": "Ты используешь версию новее, чем последний релиз."
       },
       "Notify": {
-        "RestartRequired": "Перезапустите YMU, чтобы применить новый язык.",
-        "LangUpdated": "Переводы успешно скачаны.\nПерезапустите YMU, чтобы увидеть обновленный список языков.",
+        "RestartRequired": "Перезапусти YMU, чтобы применить новый язык.",
+        "LangUpdated": "Переводы успешно скачаны.\nПерезапусти YMU, чтобы увидеть обновленный список языков.",
         "LangTitle": "Язык изменен",
         "LangUpToDate": "Переводы уже актуальны.",
         "FolderMissing": "Папка ещё не существует:\n{0}",
-        "V2FileMissing": "У YimMenuV2 пока нет settings.json.\nВыполните инжект и запустите один раз, затем повторите."
+        "V2FileMissing": "У YimMenuV2 пока нет settings.json.\nВыполни инжект и запусти один раз, затем повтори."
       },
       "Paths": {
         "AutoDetect": "Определено автоматически",
@@ -1697,7 +1697,7 @@
         "CustomDll": "Пользовательская DLL меню",
         "DefaultDll": "Использовать скачанную DLL",
         "ErrorNoGta": "В этой папке не найден исполняемый файл GTA V.",
-        "ErrorNotDll": "Пожалуйста, выберите файл .dll.",
+        "ErrorNotDll": "Пожалуйста, выбери файл .dll.",
         "ErrorNotFound": "Путь не существует.",
         "GtaDir": "Папка установки GTA V"
       }
@@ -1717,7 +1717,7 @@
         "ProjectPage": "Відкрити сторінку проєкту YMU в браузері"
       },
       "Mode": {
-        "AutoDetected": "Виявлено: {0} — вибрано автоматично.\nВикористовуйте перемикач на бічній панелі, щоб змінити.",
+        "AutoDetected": "Виявлено: {0} — вибрано автоматично.\nВикористовуй перемикач на бічній панелі, щоб змінити.",
         "Enhanced": "E&E",
         "Legacy": "Legacy",
         "Tooltip": "Перемикання між YimMenu (Legacy) та YimMenuV2 (Enhanced)"
@@ -1734,7 +1734,7 @@
     },
     "Risk": {
       "Title": "УВАГА",
-      "Info": "Завжди використовуйте YMU та YimMenu з ВИМКНЕНИМ BattlEye.\nВикористання модів в онлайні несе ризик бану.",
+      "Info": "Завжди використовуй YMU та YimMenu з ВИМКНЕНИМ BattlEye.\nВикористання модів в онлайні несе ризик бану.",
       "Btn": {
         "YimOfficial": "Офіційний GitHub YimMenu",
         "YimLegacy": "GitHub YimMenu (Legacy)",
@@ -1750,14 +1750,14 @@
     },
     "Download": {
       "Status": {
-        "Initial": "Оберіть канал для перевірки оновлень.",
+        "Initial": "Обери канал для перевірки оновлень.",
         "Checking": "Перевірка оновлень...",
         "UpToDate": "YimMenu оновлено.",
         "NewVersion": "Доступна нова версія!",
-        "Error": "Сталася помилка. Спробуйте ще раз.",
+        "Error": "Сталася помилка. Спробуй ще раз.",
         "Downloading": "Завантаження",
         "Success": "Успішно завантажено та перевірено!",
-        "Failed": "Помилка завантаження. Перевірте логи."
+        "Failed": "Помилка завантаження. Перевір логи."
       },
       "Btn": {
         "Check": "Перевірити оновлення",
@@ -1774,17 +1774,17 @@
         "SuccessTitle": "Завантаження завершено",
         "SuccessMsg": "DLL успішно завантажена та перевірена!",
         "FailedTitle": "Помилка завантаження",
-        "FailedMsg": "Верифікація не вдалася. Перевірте логи.",
+        "FailedMsg": "Верифікація не вдалася. Перевір логи.",
         "UpdateTitle": "Оновлення {0}"
       },
       "Help": {
         "Title": "Інфо про DLL та FSL",
-        "DllSteps": "1. Натисніть (Завантажити)\n2. Дочекайтеся завершення завантаження\n3. Файл знаходиться в папці 'YMU/dll'\n\nЯкщо файл видалився, додайте виняток\nв антивірус або тимчасово вимкніть його.",
-        "FslSteps": "1. Завантажте FSL (Посилання на сторінці Ризики)\n2. Відкрийте папку з GTAV\n3. Закиньте WINMM.dll у папку\n   (ім'я має бути ТОЧНО 'WINMM.dll')\n4. Вимкніть BattlEye в Лаунчері Rockstar\n5. Готово! ✅"
+        "DllSteps": "1. Натисни (Завантажити)\n2. Дочекайся завершення завантаження\n3. Файл знаходиться в папці 'YMU/dll'\n\nЯкщо файл видалився, додай виняток\nв антивірус або тимчасово вимкни його.",
+        "FslSteps": "1. Завантаж FSL (Посилання на сторінці Ризики)\n2. Відкрий папку з GTA V\n3. Закинь WINMM.dll у папку\n   (ім'я має бути ТОЧНО 'WINMM.dll')\n4. Вимкни BattlEye в Лаунчері Rockstar\n5. Готово! ✅"
       },
       "Tooltip": {
         "Help": "Показати допомогу зі встановлення DLL та FSL",
-        "Channel": "Оберіть версію YimMenu для завантаження",
+        "Channel": "Обери версію YimMenu для завантаження",
         "ActiveChannel": "Активна редакція — змінюється перемикачем Legacy/Enhanced на бічній панелі"
       }
     },
@@ -1801,21 +1801,21 @@
       },
       "Notify": {
         "AlreadyRunning": "GTA 5 вже запущена!",
-        "SelectLauncher": "Спочатку оберіть лаунчер.",
+        "SelectLauncher": "Спочатку обери лаунчер.",
         "SuccessTitle": "Інжект успішний",
         "SuccessMsg": "DLL успішно впроваджена!",
         "CustomDllMissing": "Задана користувацька DLL більше не існує:\n{0}"
       },
       "Help": {
         "Title": "Інфо про Інжект",
-        "StartGtaSteps": "1. Оберіть свій лаунчер\n2. Натисніть 'Запустити GTA 5'\n3. Читайте наступний крок ↗",
+        "StartGtaSteps": "1. Обери свій лаунчер\n2. Натисни 'Запустити GTA 5'\n3. Читай наступний крок ↗",
         "TabInject": "Інжект DLL",
-        "InjectSteps": "1. Запустіть GTA 5 (↖ Попередній крок)\n2. Чекайте завантажувальний екран/меню гри\n3. Натисніть 'Заінжектити YimMenu'\n4. Чекайте завантаження YimMenu\n5. Готово! ✅"
+        "InjectSteps": "1. Запусти GTA 5 (↖ Попередній крок)\n2. Чекай завантажувальний екран/меню гри\n3. Натисни 'Заінжектити YimMenu'\n4. Чекай завантаження YimMenu\n5. Готово! ✅"
       },
       "Tooltip": {
         "Help": "Показати допомогу по процесу інжекту",
-        "Launcher": "Оберіть лаунчер, через який запускаєте GTA V",
-        "Dll": "Оберіть DLL для інжекту",
+        "Launcher": "Обери лаунчер, через який запускаєш GTA V",
+        "Dll": "Обери DLL для інжекту",
         "NoDll": "Спершу завантажте DLL {0} на сторінці «Завантажити»."
       },
       "Error": {
@@ -1825,9 +1825,9 @@
         "NoRockstarPath": "Не знайдено шлях встановлення Rockstar Games.",
         "NoExeFound": "Виконуваний файл не знайдено в '{0}'",
         "LaunchFailed": "Помилка запуску гри. Дивіться логи.",
-        "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуйте перезапустити YMU від імені адміністратора.",
-        "AccessDeniedAdmin": "Інжект було відхилено навіть із правами адміністратора.\nЗазвичай причина — BattlEye або неправильна редакція гри.\nВимкніть BattlEye у лаунчері (див. сторінку «Ризики») і\nпереконайтеся, що перемикач Legacy/Enhanced відповідає вашій грі.",
-        "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадайте його знову на сторінці «Налаштування»."
+        "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора.",
+        "AccessDeniedAdmin": "Інжект було відхилено навіть із правами адміністратора.\nЗазвичай причина — BattlEye або неправильна редакція гри.\nВимкни BattlEye у лаунчері (див. сторінку «Ризики») і\nпереконайся, що перемикач Legacy/Enhanced відповідає твоїй грі.",
+        "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадай його знову на сторінці «Налаштування»."
       },
       "Label": {
         "Custom": "своя"
@@ -1857,7 +1857,7 @@
           "Disable": "Вимкнути обрані скрипти",
           "Refresh": "Оновити список скриптів"
         },
-        "NoScriptsDir": "Папку {0} ще не знайдено.\nВиконайте інжект один раз, щоб її створити."
+        "NoScriptsDir": "Папку {0} ще не знайдено.\nВиконай інжект один раз, щоб її створити."
       },
       "Other": {
         "DebugConsole": "Увімкнути зовнішню Debug консоль",
@@ -1876,7 +1876,7 @@
         "UpToDate": "YMU оновлено"
       },
       "Tooltip": {
-        "OpenScripts": "Відкрити папку, де знаходяться ваші Lua скрипти",
+        "OpenScripts": "Відкрити папку, де знаходяться твої Lua скрипти",
         "DiscoverLua": "Відкрити офіційну організацію YimMenu-Lua на GitHub",
         "OpenYimFolder": "Відкрити папку YimMenu (%APPDATA%/YimMenu)",
         "OpenYmuFolder": "Відкрити папку YMU (%APPDATA%/YMU)",
@@ -1887,21 +1887,21 @@
       },
       "Update": {
         "Title": "Апдейтери YMU",
-        "UpToDate": "Ваш YMU вже оновлений.",
+        "UpToDate": "Твій YMU вже оновлений.",
         "AvailableTitle": "Доступне оновлення",
         "AvailableMsg": "Оновлення {0} доступне!",
-        "Prompt": "Бажаєте відкрити сторінку завантаження в браузері?",
+        "Prompt": "Бажаєш відкрити сторінку завантаження в браузері?",
         "CheckTitle": "Перевірити оновлення YMU",
         "ErrorTitle": "Помилка оновлення",
-        "Ahead": "Ви використовуєте версію новішу, ніж останній реліз."
+        "Ahead": "Ти використовуєш версію новішу, ніж останній реліз."
       },
       "Notify": {
-        "RestartRequired": "Перезапустіть YMU, щоб застосувати нову мову.",
-        "LangUpdated": "Переклади успішно завантажені.\nПерезапустіть YMU, щоб побачити оновлений список мов.",
+        "RestartRequired": "Перезапусти YMU, щоб застосувати нову мову.",
+        "LangUpdated": "Переклади успішно завантажені.\nПерезапусти YMU, щоб побачити оновлений список мов.",
         "LangTitle": "Мову змінено",
         "LangUpToDate": "Переклади вже актуальні.",
         "FolderMissing": "Папка ще не існує:\n{0}",
-        "V2FileMissing": "YimMenuV2 ще не має settings.json.\nВиконайте інжект і запустіть один раз, потім повторіть."
+        "V2FileMissing": "YimMenuV2 ще не має settings.json.\nВиконай інжект і запусти один раз, потім повтори."
       },
       "Paths": {
         "AutoDetect": "Визначено автоматично",
@@ -1910,7 +1910,7 @@
         "CustomDll": "Користувацька DLL меню",
         "DefaultDll": "Використати завантажену DLL",
         "ErrorNoGta": "У цій папці не знайдено виконуваний файл GTA V.",
-        "ErrorNotDll": "Будь ласка, оберіть файл .dll.",
+        "ErrorNotDll": "Будь ласка, обери файл .dll.",
         "ErrorNotFound": "Шлях не існує.",
         "GtaDir": "Папка встановлення GTA V"
       }
@@ -1993,7 +1993,7 @@
       "Help": {
         "Title": "DLL & FSL Bilgisi",
         "DllSteps": "1. (İndir) butonuna tıkla\n2. İndirme bitene kadar bekle\n3. Dosya 'YMU/dll' klasöründe olacak\n\nEğer dosya silinirse, antivirüsüne istisna ekle\nveya geçici olarak devre dışı bırak.",
-        "FslSteps": "1. FSL'i indir (Link Riskler sayfasında)\n2. GTAV Ana Klasörünü aç\n3. WINMM.dll dosyasını klasörün içine at\n   (dosya adı TAM OLARAK 'WINMM.dll' olmalı)\n4. Rockstar Game Launcher'dan BattlEye'ı kapat\n5. Bitti! ✅"
+        "FslSteps": "1. FSL'i indir (Link Riskler sayfasında)\n2. GTA V Ana Klasörünü aç\n3. WINMM.dll dosyasını klasörün içine at\n   (dosya adı TAM OLARAK 'WINMM.dll' olmalı)\n4. Rockstar Game Launcher'dan BattlEye'ı kapat\n5. Bitti! ✅"
       },
       "Tooltip": {
         "Help": "DLL ve FSL kurulum yardımını göster",
@@ -2206,7 +2206,7 @@
       "Help": {
         "Title": "DLL 和 FSL 说明",
         "DllSteps": "1. 点击 (下载)\n2. 等待下载完成\n3. 文件位于 'YMU/dll' 文件夹中\n\n如果文件被删除，请在杀毒软件中添加白名单\n或暂时禁用杀毒软件。",
-        "FslSteps": "1. 下载 FSL (链接在风险提示页面)\n2. 打开你的 GTAV 游戏目录\n3. 将 WINMM.dll 拖入该文件夹\n   (文件名必须完全一致：'WINMM.dll')\n4. 在 Rockstar 启动器中禁用 BattlEye\n5. 完成！ ✅"
+        "FslSteps": "1. 下载 FSL (链接在风险提示页面)\n2. 打开你的 GTA V 游戏目录\n3. 将 WINMM.dll 拖入该文件夹\n   (文件名必须完全一致：'WINMM.dll')\n4. 在 Rockstar 启动器中禁用 BattlEye\n5. 完成！ ✅"
       },
       "Tooltip": {
         "Help": "显示 DLL 和 FSL 安装帮助",
@@ -2419,7 +2419,7 @@
       "Help": {
         "Title": "DLL 與 FSL 說明",
         "DllSteps": "1. 點擊 (下載)\n2. 等待下載完成\n3. 檔案位於 'YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
-        "FslSteps": "1. 下載 FSL (連結在風險提示頁面)\n2. 開啟你的 GTAV 遊戲目錄\n3. 將 WINMM.dll 拖曳到該資料夾\n   (檔案名稱必須完全相同：'WINMM.dll')\n4. 在 Rockstar 啟動器中停用 BattlEye\n5. 完成！ ✅"
+        "FslSteps": "1. 下載 FSL (連結在風險提示頁面)\n2. 開啟你的 GTA V 遊戲目錄\n3. 將 WINMM.dll 拖曳到該資料夾\n   (檔案名稱必須完全相同：'WINMM.dll')\n4. 在 Rockstar 啟動器中停用 BattlEye\n5. 完成！ ✅"
       },
       "Tooltip": {
         "Help": "顯示 DLL 與 FSL 安裝說明",
@@ -2632,7 +2632,7 @@
       "Help": {
         "Title": "DLL 與 FSL 說明",
         "DllSteps": "1. 點擊 (下載)\n2. 等待下載完成\n3. 檔案位於 'YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
-        "FslSteps": "1. 下載 FSL (連結在風險提示頁面)\n2. 開啟你的 GTAV 遊戲目錄\n3. 將 WINMM.dll 拖曳到該資料夾\n   (檔案名稱必須完全相同：'WINMM.dll')\n4. 在 Rockstar 啟動器中停用 BattlEye\n5. 完成！ ✅"
+        "FslSteps": "1. 下載 FSL (連結在風險提示頁面)\n2. 開啟你的 GTA V 遊戲目錄\n3. 將 WINMM.dll 拖曳到該資料夾\n   (檔案名稱必須完全相同：'WINMM.dll')\n4. 在 Rockstar 啟動器中停用 BattlEye\n5. 完成！ ✅"
       },
       "Tooltip": {
         "Help": "顯示 DLL 與 FSL 安裝說明",
@@ -2978,6 +2978,219 @@
         "ErrorNotDll": ".dll ファイルを選択してください。",
         "ErrorNotFound": "パスが存在しません。",
         "GtaDir": "GTA V インストールフォルダー"
+      }
+    }
+  },
+  "ko_KR": {
+    "meta": {
+      "name": "한국어"
+    },
+    "Sidebar": {
+      "Risks": "위험",
+      "Download": "다운로드",
+      "Inject": "인젝트",
+      "Settings": "설정",
+      "Tooltip": {
+        "Risks": "중요한 경고와 정보를 표시합니다",
+        "ProjectPage": "브라우저에서 YMU 프로젝트 페이지를 엽니다"
+      },
+      "Mode": {
+        "Legacy": "Legacy",
+        "Enhanced": "E&E",
+        "Tooltip": "YimMenu (Legacy)와 YimMenuV2 (Enhanced) 사이를 전환합니다",
+        "AutoDetected": "{0}이(가) 감지되어 자동으로 선택되었습니다.\n변경하려면 사이드바의 스위치를 사용하세요."
+      }
+    },
+    "Common": {
+      "Error": "오류",
+      "Info": "정보",
+      "UnexpectedError": "예기치 않은 오류가 발생했습니다",
+      "Restart": "지금 재시작",
+      "Yes": "예",
+      "No": "아니요",
+      "RestartAdmin": "관리자 권한으로 재시작"
+    },
+    "Risk": {
+      "Title": "주의",
+      "Info": "YMU와 YimMenu는 항상 BattlEye를 비활성화한 상태로 사용하세요.\n온라인에서 모드를 사용하면 밴 위험이 있습니다.",
+      "Btn": {
+        "YimOfficial": "공식 YimMenu GitHub 저장소",
+        "YimLegacy": "YimMenu (legacy) GitHub 저장소",
+        "YimV2": "YimMenuV2 (enhanced) GitHub 저장소",
+        "FSL": "FSL의 UnknownCheats 스레드"
+      },
+      "Tooltip": {
+        "YimOfficial": "공식 YimMenu GitHub 저장소를 엽니다",
+        "YimLegacy": "YimMenu (legacy) GitHub 저장소를 엽니다",
+        "YimV2": "YimMenuV2 (enhanced) GitHub 저장소를 엽니다",
+        "FSL": "다운로드 및 지원을 위한 UnknownCheats의 FSL 스레드를 엽니다"
+      }
+    },
+    "Download": {
+      "Status": {
+        "Initial": "업데이트를 확인할 채널을 선택하세요.",
+        "Checking": "업데이트 확인 중...",
+        "UpToDate": "YimMenu가 최신 상태입니다.",
+        "NewVersion": "새 버전을 사용할 수 있습니다!",
+        "Error": "오류가 발생했습니다. 다시 시도해 주세요.",
+        "Downloading": "다운로드 중",
+        "Success": "다운로드 및 검증에 성공했습니다!",
+        "Failed": "다운로드에 실패했습니다. 로그를 확인하세요."
+      },
+      "Btn": {
+        "Check": "업데이트 확인",
+        "Checking": "확인 중...",
+        "UpToDate": "최신 상태",
+        "Update": "업데이트",
+        "Download": "다운로드",
+        "Retry": "다시 확인",
+        "Downloading": "다운로드 중..."
+      },
+      "Notify": {
+        "NewVersion": "새 버전을 다운로드할 준비가 되었습니다.",
+        "CheckFailed": "업데이트 확인에 실패했습니다",
+        "SuccessTitle": "다운로드 완료",
+        "SuccessMsg": "DLL 다운로드 및 검증에 성공했습니다!",
+        "FailedTitle": "다운로드 실패",
+        "FailedMsg": "검증에 실패했습니다. 로그를 확인해 주세요.",
+        "UpdateTitle": "{0} 업데이트"
+      },
+      "Help": {
+        "Title": "DLL 및 FSL 정보",
+        "DllSteps": "1. (다운로드)를 클릭하세요\n2. 다운로드가 끝날 때까지 기다리세요\n3. 파일은 'YMU/dll' 폴더에 있습니다\n\n파일이 삭제되는 경우, 백신 프로그램에서\n예외 처리를 추가하거나 일시적으로 비활성화하세요.",
+        "FslSteps": "1. FSL을 다운로드하세요 (링크는 위험 페이지에 있습니다)\n2. GTA V 설치 폴더를 여세요\n3. WINMM.dll을 폴더에 넣으세요\n   (파일 이름은 반드시 'WINMM.dll'이어야 합니다)\n4. Rockstar Games Launcher에서 BattlEye를 비활성화하세요\n5. 완료! ✅"
+      },
+      "Tooltip": {
+        "Help": "DLL 및 FSL 설치 도움말을 표시합니다",
+        "Channel": "다운로드할 YimMenu 버전을 선택합니다",
+        "ActiveChannel": "현재 사용 중인 에디션 — 사이드바의 Legacy/Enhanced 스위치로 변경할 수 있습니다"
+      }
+    },
+    "Inject": {
+      "Launcher": {
+        "Select": "런처 선택",
+        "CustomPath": "사용자 지정 경로"
+      },
+      "Btn": {
+        "StartGta": "GTA 5 시작",
+        "InjectBase": "YimMenu 인젝트",
+        "NoDll": "DLL을 찾을 수 없음",
+        "InjectFile": "{0} 인젝트"
+      },
+      "Notify": {
+        "AlreadyRunning": "GTA 5가 이미 실행 중입니다!",
+        "SelectLauncher": "먼저 런처를 선택해 주세요.",
+        "SuccessTitle": "인젝트 성공",
+        "SuccessMsg": "DLL을 성공적으로 인젝트했습니다!",
+        "CustomDllMissing": "설정된 사용자 지정 DLL이 더 이상 존재하지 않습니다:\n{0}"
+      },
+      "Help": {
+        "Title": "인젝트 정보",
+        "StartGtaSteps": "1. 사용할 런처를 선택하세요\n2. 'GTA 5 시작'을 누르세요\n3. 다음 단계를 확인하세요 ↗",
+        "TabInject": "DLL 인젝트",
+        "InjectSteps": "1. GTA 5를 시작하세요 (↖ 이전 단계)\n2. 게임의 시작 화면/메뉴가 나타날 때까지 기다리세요\n3. 'YimMenu 인젝트'를 클릭하세요\n4. YimMenu 로딩이 끝날 때까지 기다리세요\n5. 완료! ✅"
+      },
+      "Tooltip": {
+        "Help": "인젝트 과정에 대한 도움말을 표시합니다",
+        "Launcher": "GTA V를 시작할 때 사용하는 런처를 선택합니다",
+        "Dll": "인젝트할 DLL을 선택합니다",
+        "NoDll": "먼저 다운로드 페이지에서 {0} DLL을 다운로드하세요."
+      },
+      "Error": {
+        "NoDllSelected": "오류: 인젝트할 DLL이 선택되지 않았거나 찾을 수 없습니다.",
+        "ProcessLost": "인젝트 전에 GTA 5 프로세스가 사라졌습니다.",
+        "InjectionFailed": "인젝트에 실패했습니다. 자세한 내용은 로그를 확인하세요.",
+        "NoRockstarPath": "Rockstar Games 설치 경로를 찾을 수 없습니다.",
+        "CustomPathInvalid": "사용자 지정 GTA V 경로가 설정되지 않았거나 더 이상 존재하지 않습니다.\n설정 페이지에서 다시 설정해 주세요.",
+        "NoExeFound": "'{0}' 경로에서 실행 파일을 찾을 수 없습니다",
+        "LaunchFailed": "게임 실행 중 오류가 발생했습니다. 자세한 내용은 로그를 확인하세요.",
+        "AccessDenied": "GTA V에 인젝트할 권한이 없습니다.\nYMU를 관리자 권한으로 다시 시작해 보세요.",
+        "AccessDeniedAdmin": "관리자 권한으로도 인젝트가 거부되었습니다.\n이는 보통 BattlEye 또는 잘못된 게임 에디션 때문에 발생합니다.\n런처에서 BattlEye를 비활성화하고(위험 페이지 참고)\nLegacy/Enhanced 스위치가 게임과 일치하는지 확인하세요."
+      },
+      "Label": {
+        "Custom": "사용자 지정"
+      }
+    },
+    "Settings": {
+      "Header": {
+        "Appearance": "외관",
+        "Lua": "Lua 설정",
+        "Other": "기타",
+        "Paths": "사용자 지정 경로"
+      },
+      "Label": {
+        "Language": "언어"
+      },
+      "Theme": {
+        "Dark": "다크",
+        "Light": "라이트"
+      },
+      "Lua": {
+        "AutoReload": "변경된 스크립트 자동 새로고침",
+        "ListDisabled": "비활성화됨",
+        "ListEnabled": "활성화됨",
+        "Tooltip": {
+          "AutoReload": "Lua 스크립트 파일이 저장되면 변경 사항을 자동으로 다시 적용합니다",
+          "Enable": "선택한 스크립트 활성화",
+          "Disable": "선택한 스크립트 비활성화",
+          "Refresh": "스크립트 목록 새로고침"
+        },
+        "NoScriptsDir": "{0} 폴더를 아직 찾을 수 없습니다.\n한 번 인젝트하여 실행하면 생성됩니다."
+      },
+      "Other": {
+        "DebugConsole": "외부 디버그 콘솔 활성화",
+        "Tooltip": {
+          "Debug": "자세한 로그와 디버깅을 위해 YimMenu의 외부 콘솔 창을 표시합니다"
+        }
+      },
+      "Btn": {
+        "OpenScripts": "Scripts 폴더 열기",
+        "DiscoverLua": "Lua 찾아보기",
+        "OpenYimFolder": "YimMenu 폴더 열기",
+        "OpenYmuFolder": "YMU 폴더 열기",
+        "ReportBug": "버그 신고",
+        "RequestFeature": "기능 요청",
+        "CheckUpdates": "YMU 업데이트 확인",
+        "UpToDate": "YMU 최신 상태"
+      },
+      "Tooltip": {
+        "OpenScripts": "Lua 스크립트가 있는 폴더를 엽니다",
+        "DiscoverLua": "새 스크립트를 찾기 위해 공식 YimMenu-Lua GitHub 조직을 엽니다",
+        "OpenYimFolder": "YimMenu 폴더를 엽니다 (%APPDATA%/YimMenu)",
+        "OpenYmuFolder": "YMU 폴더를 엽니다 (%APPDATA%/YMU)",
+        "ReportBug": "브라우저에서 GitHub의 버그 신고 페이지를 엽니다",
+        "RequestFeature": "브라우저에서 GitHub의 기능 요청 페이지를 엽니다",
+        "Language": "애플리케이션 언어를 선택합니다 (재시작 필요)",
+        "UpdateLang": "번역 업데이트 확인"
+      },
+      "Update": {
+        "Title": "YMU 업데이트",
+        "UpToDate": "YMU가 이미 최신 상태입니다.",
+        "AvailableTitle": "업데이트 사용 가능",
+        "AvailableMsg": "업데이트 {0}을(를) 사용할 수 있습니다!",
+        "Prompt": "브라우저에서 다운로드 페이지를 여시겠습니까?",
+        "CheckTitle": "YMU 업데이트 확인",
+        "ErrorTitle": "업데이트 오류",
+        "Ahead": "현재 최신 릴리스보다 더 새로운 버전을 사용 중입니다."
+      },
+      "Notify": {
+        "RestartRequired": "새 언어를 적용하려면 YMU를 재시작해 주세요.",
+        "LangUpdated": "번역을 성공적으로 다운로드했습니다.\n설정의 언어 목록을 업데이트하려면 YMU를 재시작하세요.",
+        "LangTitle": "언어 변경됨",
+        "LangUpToDate": "번역이 이미 최신 상태입니다.",
+        "V2FileMissing": "YimMenuV2에 아직 settings.json이 없습니다.\n한 번 인젝트하여 실행한 후 다시 시도하세요.",
+        "FolderMissing": "폴더가 아직 존재하지 않습니다:\n{0}"
+      },
+      "Paths": {
+        "GtaDir": "GTA V 설치 폴더",
+        "CustomDll": "사용자 지정 메뉴 DLL",
+        "Browse": "찾아보기",
+        "Clear": "지우기",
+        "AutoDetect": "자동 감지됨",
+        "DefaultDll": "다운로드한 DLL 사용",
+        "ErrorNotFound": "경로가 존재하지 않습니다.",
+        "ErrorNoGta": "이 폴더에서 GTA V 실행 파일을 찾을 수 없습니다.",
+        "ErrorNotDll": ".dll 파일을 선택해 주세요."
       }
     }
   }
