@@ -13,7 +13,7 @@ your licenses.
 The licensor grants you a copyright license for the
 software to do everything you might do with the software
 that would otherwise infringe the licensor's copyright
-in it for any permitted purpose.  However, you may
+in it for any permitted purpose. However, you may
 only distribute the software according to [Distribution
 License](#distribution-license) and make changes or new works
 based on the software according to [Changes and New Works
@@ -22,7 +22,7 @@ License](#changes-and-new-works-license).
 ## Distribution License
 
 The licensor grants you an additional copyright license
-to distribute copies of the software.  Your license
+to distribute copies of the software. Your license
 to distribute covers distributing the software with
 changes and new works permitted by [Changes and New Works
 License](#changes-and-new-works-license).
@@ -33,7 +33,7 @@ You must ensure that anyone who gets a copy of any part of
 the software from you also gets a copy of these terms or the
 URL for them above, as well as copies of any plain-text lines
 beginning with `Required Notice:` that the licensor provided
-with the software.  For example:
+with the software. For example:
 
 > Required Notice: Copyright Yoyodyne, Inc. (http://example.com)
 
@@ -59,11 +59,11 @@ licensor or any of its affiliates provides using the software.
 
 Goods and services compete even when they provide functionality
 through different kinds of interfaces or for different technical
-platforms.  Applications can compete with services, libraries
+platforms. Applications can compete with services, libraries
 with plugins, frameworks with development tools, and so on,
 even if they're written in different programming languages
-or for different computer architectures.  Goods and services
-compete even when provided free of charge.  If you market a
+or for different computer architectures. Goods and services
+compete even when provided free of charge. If you market a
 product as a practical substitute for the software or another
 product, it definitely competes.
 
@@ -83,10 +83,10 @@ You may begin using the software to compete with a product
 or service that the licensor or any of its affiliates has
 stopped providing, unless the licensor includes a plain-text
 line beginning with `Licensor Line of Business:` with the
-software that mentions that line of business.  For example:
+software that mentions that line of business. For example:
 
 > Licensor Line of Business: YoyodyneCMS Content Management
-System (http://example.com/cms)
+> System (http://example.com/cms)
 
 ## Sales of Business
 
@@ -104,7 +104,7 @@ law. These terms do not limit them.
 
 These terms do not allow you to sublicense or transfer any of
 your licenses to anyone else, or prevent the licensor from
-granting licenses to anyone else.  These terms do not imply
+granting licenses to anyone else. These terms do not imply
 any other licenses.
 
 ## Patent Defense
@@ -122,15 +122,15 @@ violated any of these terms, or done anything with the software
 not covered by your licenses, your licenses can nonetheless
 continue if you come into full compliance with these terms,
 and take practical steps to correct past violations, within
-32 days of receiving notice.  Otherwise, all your licenses
+32 days of receiving notice. Otherwise, all your licenses
 end immediately.
 
 ## No Liability
 
-***As far as the law allows, the software comes as is, without
+**_As far as the law allows, the software comes as is, without
 any warranty or condition, and the licensor will not be liable
 to you for any damages arising out of these terms or the use
-or nature of the software, under any kind of legal claim.***
+or nature of the software, under any kind of legal claim._**
 
 ## Definitions
 
@@ -154,7 +154,7 @@ under common control with.
 
 **Control** means ownership of substantially all the assets of
 an entity, or the power to direct its management and policies
-by vote, contract, or otherwise.  Control can be direct or
+by vote, contract, or otherwise. Control can be direct or
 indirect.
 
 **Your licenses** are all the licenses granted to you for the
