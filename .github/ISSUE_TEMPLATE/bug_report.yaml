@@ -30,8 +30,8 @@ body:
   - type: input
     attributes:
       label: YMU Version
-      description: The exact version, shown at the bottom of the YMU window (e.g. v1.1.7). "Latest" is not enough — we need the number.
-      placeholder: "v1.1.7"
+      description: The exact version, shown at the bottom of the YMU window (e.g. v1.1.8). "Latest" is not enough — we need the number.
+      placeholder: "v1.1.8"
     validations:
       required: true
 

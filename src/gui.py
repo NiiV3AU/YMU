@@ -1,5 +1,6 @@
 # gui.py - Contains all the UI code for the application using PySide6.
 
+import io
 import logging
 import os
 import sys
@@ -104,6 +105,11 @@ log_formatter = logging.Formatter(
 )
 
 stream_handler = logging.StreamHandler()
+# The file handler is utf-8; make the console handler tolerate non-ASCII too
+# (e.g. a Cyrillic user name in a logged path) instead of raising on a cp1252
+# console. Guarded because the release build has no console (stream is None).
+if isinstance(stream_handler.stream, io.TextIOWrapper):
+    stream_handler.stream.reconfigure(encoding="utf-8", errors="backslashreplace")
 stream_handler.setFormatter(log_formatter)
 
 file_handler = RotatingFileHandler(
@@ -127,6 +133,7 @@ system_info = {
     "YMU Version": ymu_version,
     "Operating System": f"{platform.system()} {platform.release()}",
     "Architecture": platform.architecture()[0],
+    "Administrator": process_manager.is_admin(),
     "Working Directory": os.getcwd(),
 }
 
@@ -1690,6 +1697,9 @@ class MainWindow(QMainWindow):
                 "Sidebar.Tooltip.Risks", "Show important warnings and information"
             )
         )
+        # Kept as an attribute so pages can navigate here programmatically
+        # (e.g. the "How to disable" action on a BattlEye injection warning).
+        self.btn_risks = btn_risks
 
         btn_download = StatefulButton(
             f"  {self.loc_manager.tr('Sidebar.Download')}",
@@ -1699,6 +1709,9 @@ class MainWindow(QMainWindow):
         )
         btn_download.setCheckable(True)
         btn_download.setObjectName("SidebarButton")
+        # Kept as an attribute so other pages can navigate here programmatically
+        # (e.g. the "Re-download DLL" action on an injection error).
+        self.btn_download = btn_download
 
         btn_inject = StatefulButton(
             f"  {self.loc_manager.tr('Sidebar.Inject')}",
@@ -1759,6 +1772,17 @@ class MainWindow(QMainWindow):
         btn_settings.clicked.connect(
             lambda: self.content_stack.setCurrentWidget(self.settings_page)
         )
+
+    def show_download_page(self):
+        """Navigate to the Download page as if the sidebar button was clicked,
+        so the page switch, the selected-button highlight and its icon all stay
+        in sync. Used by the 'Re-download DLL' action on injection errors."""
+        self.btn_download.click()
+
+    def show_risks_page(self):
+        """Navigate to the Risks page (which explains how to disable BattlEye),
+        keeping the sidebar selection in sync."""
+        self.btn_risks.click()
 
     def _setup_mode_switch(self, layout: QVBoxLayout):
         """Builds the Legacy/Enhanced edition switch at the bottom of the sidebar."""
@@ -2366,6 +2390,11 @@ class InjectPage(QWidget):
     STATE_INJECTING = "INJECTING"
     STATE_INJECTED = "INJECTED"
 
+    # If GTA V never appears within this many seconds of launching (the user
+    # closed it, or it crashed during load), stop waiting and re-enable the
+    # Start button instead of spinning forever.
+    LAUNCH_TIMEOUT_S = 60
+
     # Stable launcher keys, stored as combo item-data and in the config, so the
     # logic and the remembered selection never depend on the (translatable)
     # display text.
@@ -2385,6 +2414,7 @@ class InjectPage(QWidget):
 
         self.gta_pid = None
         self._state = self.STATE_IDLE
+        self._launch_started_at = 0.0
         self.dll_to_inject = None
 
         info_button = StatefulButton(
@@ -2718,6 +2748,7 @@ class InjectPage(QWidget):
             )
             return
 
+        self._launch_started_at = time.monotonic()
         self._set_state(self.STATE_LAUNCHING)
         # Capture everything the worker needs on the GUI thread; it must not read
         # widgets or the live mode.
@@ -2841,12 +2872,35 @@ class InjectPage(QWidget):
         if self.gta_pid is not None:
             if self._state != self.STATE_INJECTED:
                 self._set_state(self.STATE_APP_RUNNING)
-        else:
-            if self._state != self.STATE_LAUNCHING:
+        elif self._state == self.STATE_LAUNCHING:
+            # Keep waiting through a normal (possibly slow) launch, but give up
+            # if the game never appears — otherwise the Start button spins
+            # forever when GTA is closed manually or crashes during load.
+            if time.monotonic() - self._launch_started_at > self.LAUNCH_TIMEOUT_S:
+                logger.info(
+                    f"Launch timed out after {self.LAUNCH_TIMEOUT_S}s — GTA V did "
+                    "not appear. Re-enabling the Start button."
+                )
                 self._set_state(self.STATE_IDLE)
+                cast(MainWindow, self.window()).notification_manager.show(
+                    self.loc_manager.tr("Common.Info", "Information"),
+                    self.loc_manager.tr(
+                        "Inject.Notify.LaunchTimeout",
+                        "GTA V didn't start (or was closed before it loaded).\n"
+                        "You can try launching again.",
+                    ),
+                    icon_type="info",
+                )
+        else:
+            self._set_state(self.STATE_IDLE)
 
     def handle_inject_click(self):
         if self._state != self.STATE_APP_RUNNING:
+            return
+
+        # YMU informs, it does not block: if BattlEye is running, warn clearly
+        # about the ban risk but let the user decide to inject anyway.
+        if process_manager.is_battleye_running() and not self._confirm_battleye_override():
             return
 
         self._set_state(self.STATE_INJECTING)
@@ -2860,6 +2914,47 @@ class InjectPage(QWidget):
             on_finished=self.on_injection_complete,
             on_error=self.on_task_error,
         )
+
+    def _confirm_battleye_override(self) -> bool:
+        """BattlEye is active. Warn about the ban risk and let the user choose —
+        YMU never blocks a deliberate decision. Returns True to inject anyway.
+
+        Offers a third 'How to disable' choice that opens the Risks page and
+        does not inject. The safe option (Cancel) is the default.
+        """
+        tr = self.loc_manager.tr
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle(tr("Inject.BattlEye.Title", "BattlEye Is Running"))
+        box.setText(
+            tr(
+                "Inject.BattlEye.Warn",
+                "BattlEye is active. Injecting while it runs can get your "
+                "account banned and will often fail outright.\n\n"
+                "This is entirely your decision and at your own risk — "
+                "disabling BattlEye in your launcher first is strongly "
+                "recommended.",
+            )
+        )
+        proceed = box.addButton(
+            tr("Inject.BattlEye.Proceed", "Inject anyway"),
+            QMessageBox.ButtonRole.AcceptRole,
+        )
+        learn = box.addButton(
+            tr("Inject.BattlEye.Learn", "How to disable"),
+            QMessageBox.ButtonRole.ActionRole,
+        )
+        cancel = box.addButton(
+            tr("Common.Cancel", "Cancel"), QMessageBox.ButtonRole.RejectRole
+        )
+        box.setDefaultButton(cancel)
+        box.exec()
+
+        clicked = box.clickedButton()
+        if clicked is learn:
+            cast(MainWindow, self.window()).show_risks_page()
+            return False
+        return clicked is proceed
 
     def _inject_logic(self, pid, dll_to_inject, progress_signal=None):
         """Contains the actual logic for injecting the DLL."""
@@ -2909,6 +3004,26 @@ class InjectPage(QWidget):
             self._set_state(self.STATE_APP_RUNNING)
         else:
             self._set_state(self.STATE_IDLE)
+        if isinstance(error, process_manager.InjectionError):
+            title, message, duration = self._injection_error_message(error)
+            win = cast(MainWindow, self.window())
+            action_text = None
+            action_callback = None
+            if error.reason in ("dll_missing", "module_not_found", "not_a_dll"):
+                # A fresh download fixes a missing/incomplete/wrong DLL.
+                action_text = self.loc_manager.tr(
+                    "Inject.Error.RedownloadAction", "Re-download DLL"
+                )
+                action_callback = win.show_download_page
+            win.notification_manager.show(
+                title,
+                message,
+                icon_type="error",
+                duration=duration,
+                action_text=action_text,
+                action_callback=action_callback,
+            )
+            return
         if isinstance(error, PermissionError) or "Access Denied" in str(error):
             if process_manager.is_admin():
                 # Already elevated — admin rights are not the problem, so a
@@ -2947,6 +3062,79 @@ class InjectPage(QWidget):
                 str(error),
                 icon_type="error",
             )
+
+    def _injection_error_message(
+        self, error: "process_manager.InjectionError"
+    ) -> tuple[str, str, int]:
+        """Maps a classified injection failure to (title, message, duration_ms)."""
+        tr = self.loc_manager.tr
+        reason = getattr(error, "reason", "unknown")
+        if reason == "module_not_found":
+            return (
+                tr("Inject.Error.ModuleNotFoundTitle", "Injection Failed"),
+                tr(
+                    "Inject.Error.ModuleNotFound",
+                    "GTA V could not load the YimMenu DLL — it may be incomplete "
+                    "or missing a dependency.\n"
+                    "Re-download it on the Download page. If it keeps failing, "
+                    "install the latest Microsoft Visual C++ Redistributable (x64).",
+                ),
+                12000,
+            )
+        if reason == "dll_missing":
+            return (
+                tr("Inject.Error.DllMissingTitle", "DLL Not Found"),
+                tr(
+                    "Inject.Error.DllMissing",
+                    "The menu DLL wasn't found on disk.\n"
+                    "Your antivirus may have quarantined it — YimMenu is often "
+                    "flagged. Add an exclusion, then re-download it on the "
+                    "Download page.",
+                ),
+                12000,
+            )
+        if reason == "not_a_dll":
+            return (
+                tr("Inject.Error.NotADllTitle", "Not a Valid DLL"),
+                tr(
+                    "Inject.Error.NotADll",
+                    "The selected file isn't a valid Windows DLL.\n"
+                    "Pick the correct YimMenu DLL, or use YMU's built-in "
+                    "download to get the right one.",
+                ),
+                10000,
+            )
+        if reason == "bad_architecture":
+            return (
+                tr("Inject.Error.BadArchTitle", "Incompatible DLL"),
+                tr(
+                    "Inject.Error.BadArch",
+                    "GTA V needs a 64-bit YimMenu DLL, but the selected DLL "
+                    "isn't compatible.\n"
+                    "Use the official DLL for your edition — both Legacy and "
+                    "Enhanced are 64-bit.",
+                ),
+                10000,
+            )
+        if reason == "process_gone":
+            return (
+                tr("Inject.Error.ProcessGoneTitle", "Game Closed"),
+                tr(
+                    "Inject.Error.ProcessGone",
+                    "GTA V closed before injection finished.\n"
+                    "Start the game, wait for it to finish loading, then try again.",
+                ),
+                8000,
+            )
+        return (
+            tr("Common.Error", "Injection Failed"),
+            tr(
+                "Inject.Error.Unknown",
+                "Injection failed for an unexpected reason.\n"
+                "See ymu.log for the full error.\n\nDetails: {0}",
+            ).format(getattr(error, "detail", "") or str(error)),
+            10000,
+        )
 
 
 class SettingsPage(QWidget):
@@ -3907,8 +4095,8 @@ def cleanup_updater():
         try:
             os.remove(updater_path)
             logger.info(f"Removed old updater: {updater_path}")
-        except OSError:
-            pass
+        except OSError as e:
+            logger.debug(f"Could not remove old updater {updater_path}: {e}")
 
 
 if __name__ == "__main__":

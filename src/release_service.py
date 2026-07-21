@@ -124,8 +124,10 @@ class GitHubAPIProvider(ReleaseProvider):
         except requests.exceptions.RequestException as e:
             logger.error(f"A network error occurred: {e}")
             return None
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+        except Exception:
+            logger.exception(
+                "An unexpected error occurred while fetching release data."
+            )
             return None
 
 
