@@ -1,7 +1,5 @@
 > [!NOTE]
-> **GTA V Enhanced Support Resolved**
->
-> The detection issues regarding the "Enhanced" version of GTA V should be finally **fixed** in version **v1.1.7**. Please update to the latest version to ensure full compatibility.
+> **Updating YMU is manual.** The in-app self-updater was retired in v1.1.7 — to update, download the latest `YMU.exe` and replace your old one. Your settings and downloaded DLLs are kept.
 
 # YimMenuUpdater (YMU)
 
@@ -118,6 +116,7 @@ Get the latest release directly from the downloads page. Just download and run t
 
 ### Full Changelog
 
+- **NEW** in `v1.1.8` ↦ 🛡️ **Reliability & Clarity:** Fixed injection failing when the install path contains accented or non-Latin characters (e.g. `Müller` or a Cyrillic user name), plus plain-language injection errors with one-click fixes, a non-blocking BattlEye warning, a pre-injection DLL check, and a Start button that recovers when a launch never completes.
 - **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, remembered launcher/DLL selections, and a refreshed light theme.
 - **NEW** in `v1.1.6` ↦ 🌍 **Localization & Performance:** Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
 - **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
