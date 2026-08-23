@@ -17,11 +17,29 @@ except (ImportError, AttributeError):
 if IS_WINDOWS:
     import ctypes
 
+    ctypes.windll.kernel32.OpenProcess.argtypes = [
+        ctypes.c_uint32,
+        ctypes.c_int,
+        ctypes.c_uint32,
+    ]
     ctypes.windll.kernel32.OpenProcess.restype = ctypes.c_void_p
+    ctypes.windll.kernel32.WaitForSingleObject.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_uint32,
+    ]
+    ctypes.windll.kernel32.WaitForSingleObject.restype = ctypes.c_uint32
+    ctypes.windll.kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
+    ctypes.windll.kernel32.CloseHandle.restype = ctypes.c_int
+    ctypes.windll.kernel32.CreateMutexW.argtypes = [
+        ctypes.c_void_p,
+        ctypes.c_int,
+        ctypes.c_wchar_p,
+    ]
     ctypes.windll.kernel32.CreateMutexW.restype = ctypes.c_void_p
 
     # If launched as part of a restart, wait for the old process to fully exit first.
-    if "--wait-for-pid" in sys.argv:
+    is_restart = "--wait-for-pid" in sys.argv
+    if is_restart:
         try:
             pid_idx = sys.argv.index("--wait-for-pid") + 1
             if pid_idx < len(sys.argv):
@@ -46,10 +64,18 @@ if IS_WINDOWS:
     _single_instance_mutex = None
     try:
         ERROR_ALREADY_EXISTS = 183
-        _single_instance_mutex = ctypes.windll.kernel32.CreateMutexW(
-            None, False, MUTEX_NAME
-        )
-        if ctypes.windll.kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+        max_attempts = 20 if is_restart else 1
+        for attempt in range(max_attempts):
+            _single_instance_mutex = ctypes.windll.kernel32.CreateMutexW(
+                None, False, MUTEX_NAME
+            )
+            if ctypes.windll.kernel32.GetLastError() != ERROR_ALREADY_EXISTS:
+                break
+            if is_restart and attempt < max_attempts - 1:
+                import time
+
+                time.sleep(0.05)
+        else:
             hwnd = win32gui.FindWindow(None, WINDOW_TITLE)
             if hwnd != 0:
                 win32gui.ShowWindow(hwnd, 9)

@@ -66,20 +66,30 @@ def restart_application():
     for widget in QApplication.topLevelWidgets():
         widget.hide()
 
-    if "__compiled__" in globals() or getattr(sys, "frozen", False):
+    is_compiled = (
+        "__compiled__" in globals()
+        or getattr(sys, "frozen", False)
+        or sys.argv[0].lower().endswith(".exe")
+    )
+
+    if is_compiled:
         executable = os.path.abspath(sys.argv[0])
         args = [executable, "--wait-for-pid", str(old_pid)]
     else:
         executable = sys.executable
-        args = [sys.executable, sys.argv[0], "--wait-for-pid", str(old_pid)]
+        script_path = os.path.abspath(sys.argv[0])
+        args = [sys.executable, script_path, "--wait-for-pid", str(old_pid)]
 
     if IS_WINDOWS:
         try:
             logger.info(
                 f"Restarting executable at: {executable} (waiting for PID {old_pid})"
             )
+            # In compiled GUI mode, detach from parent; in dev (python.exe) mode, keep console attached
             creationflags = (
-                subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+                (subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS)
+                if is_compiled
+                else subprocess.CREATE_NEW_PROCESS_GROUP
             )
             subprocess.Popen(args, creationflags=creationflags)
         except OSError as e:
@@ -101,13 +111,20 @@ def restart_as_admin():
     for widget in QApplication.topLevelWidgets():
         widget.hide()
 
-    if "__compiled__" in globals() or getattr(sys, "frozen", False):
+    is_compiled = (
+        "__compiled__" in globals()
+        or getattr(sys, "frozen", False)
+        or sys.argv[0].lower().endswith(".exe")
+    )
+
+    if is_compiled:
         executable = os.path.abspath(sys.argv[0])
         params = f"--wait-for-pid {old_pid}"
     else:
         executable = sys.executable
-        clean_script = sys.argv[0]
+        clean_script = os.path.abspath(sys.argv[0])
         params = f'"{clean_script}" --wait-for-pid {old_pid}'
+
     logger.info(f"Target executable for Admin restart: {executable}")
     try:
         result = ctypes.windll.shell32.ShellExecuteW(
