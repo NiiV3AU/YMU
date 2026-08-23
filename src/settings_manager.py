@@ -4,13 +4,12 @@
 import json
 import logging
 import os
+import shutil
 import threading
 
 from paths import YIMMENU_SETTINGS_FILE_PATH
 
 logger = logging.getLogger(__name__)
-
-import shutil
 
 SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
 
@@ -18,20 +17,34 @@ SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
 # lose each other's changes or collide on the shared .tmp file.
 _write_lock = threading.Lock()
 
+# In-memory cache keyed by settings_file path: (mtime, data_dict)
+_cache: dict[str, tuple[float, dict]] = {}
+
 
 def _read_json_safely(settings_file: str) -> dict | None:
-    """Reads the JSON file. Returns {} if missing, dict if valid, or None if malformed/unreadable.
+    """Reads the JSON file with in-memory caching based on file mtime.
 
+    Returns {} if missing, dict if valid, or None if malformed/unreadable.
     Reads as utf-8-sig so a stray UTF-8 BOM (e.g. from a hand edit in some
     editors) is tolerated rather than treated as corruption; writes stay plain
     utf-8 so YMU never introduces a BOM of its own."""
     if not os.path.exists(settings_file):
+        _cache.pop(settings_file, None)
         return {}
+
     try:
+        mtime = os.path.getmtime(settings_file)
+        if settings_file in _cache:
+            cached_mtime, cached_data = _cache[settings_file]
+            if cached_mtime == mtime:
+                return cached_data
+
         with open(settings_file, "r", encoding="utf-8-sig") as f:
             data = json.load(f)
         if not isinstance(data, dict):
             raise TypeError("settings root is not a JSON object")
+
+        _cache[settings_file] = (mtime, data)
         return data
     except (json.JSONDecodeError, TypeError, OSError) as e:
         logger.warning(f"Failed to read {settings_file}: {e}")
@@ -88,7 +101,7 @@ def set_setting(
         keys = key_path.split(".")
         d = data
         try:
-            for i, key in enumerate(keys[:-1]):
+            for key in keys[:-1]:
                 if key not in d or not isinstance(d[key], dict):
                     d[key] = {}
                 d = d[key]
@@ -105,6 +118,7 @@ def set_setting(
                 json.dump(data, f, indent=4)
 
             os.replace(temp_file, settings_file)
+            _cache[settings_file] = (os.path.getmtime(settings_file), data)
             logger.info(
                 f"Successfully set '{key_path}' to '{value}' in {settings_file}"
             )

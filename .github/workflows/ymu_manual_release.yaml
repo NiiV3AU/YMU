@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Executable
         run: |
-          uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/gui.py
+          uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/gui.py
 
       - name: Generate Checksum for Executable
         run: |

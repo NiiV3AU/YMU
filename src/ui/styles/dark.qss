@@ -1,0 +1,434 @@
+/***************************************************************************
+ * YMU DESIGN SYSTEM (Dark Theme)                                          *
+ ***************************************************************************/
+
+/* --- BASE COLORS ---
+ * @background:  The darkest color, for the window itself.
+ * @surface:     A layer above, for container backgrounds like the sidebar.
+ * @panel:       The lightest background color, for interactive panels.
+ *
+ * --- ACCENT COLOR ---
+ * @primary:     The main accent color (a calmer green).
+ * @primary-text: Text color for elements with a @primary background.
+ *
+ * --- TEXT COLORS ---
+ * @text-primary:   Default text color.
+ * @text-secondary: For less important text.
+ * @text-disabled:  Text on disabled elements.
+ * --- OTHER ---
+ * @border-color: Color for subtle borders.
+ * @radius:       Universal corner radius.
+ */
+
+/* --- GLOBAL STYLES --- */
+QWidget {
+    color: #E0E0E0; /* @text-primary */
+    font-family: "Manrope", "Segoe UI", "Meiryo", "Microsoft YaHei", sans-serif;
+    font-size: 14px;
+}
+
+QMainWindow {
+    background-color: #121212; /* @background */
+}
+
+/* --- SIDEBAR --- */
+QWidget#Sidebar {
+    background-color: #1E1E1E; /* @surface */
+    border-right: 1px solid #333333; /* @border-color */
+}
+
+QPushButton#SidebarButton {
+    background-color: transparent;
+    color: #8B8B8B; /* @text-secondary */
+    border: none;
+    padding: 12px;
+    font-size: 15px;
+    text-align: left;
+    border-radius: 10px; /* @radius */
+    margin: 4px 8px;
+    spacing: 10px;
+}
+
+QPushButton#SidebarButton:hover {
+    background-color: #2C2C2C; /* @panel */
+    color: #E0E0E0; /* @text-primary */
+}
+
+QPushButton#SidebarButton:checked {
+    background-color: #333333;
+    color: #E0E0E0;
+    font-weight: bold;
+}
+
+/* --- PRIMARY BUTTONS --- */
+QPushButton {
+    background-color: #28A745; /* @primary */
+    color: #FFFFFF; /* @primary-text */
+    border: none;
+    padding: 10px 18px;
+    font-weight: bold;
+    font-size: 14px;
+    border-radius: 10px; /* @radius */
+}
+
+QPushButton:hover {
+    background-color: #2ebf4f;
+}
+
+QPushButton:disabled {
+    background-color: #333333; /* @border-color */
+    color: #8B8B8B; /* @text-disabled */
+}
+
+/* --- OTHER WIDGETS --- */
+QLabel {
+    background-color: transparent;
+}
+
+/* --- Info Dialog Styling --- */
+QDialog#InfoDialog, QMessageBox {
+    background-color: #1E1E1E; /* @surface */
+}
+QMessageBox QLabel { color: #E0E0E0; }
+
+/* Style for the '?' button */
+QPushButton#InfoButton {
+    background-color: transparent;
+    color: #8B8B8B;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 0px;
+    min-width: 30px;
+    max-width: 30px;
+    min-height: 30px;
+    max-height: 30px;
+}
+
+QPushButton#InfoButton:hover {
+    background-color: #333333;
+    border-color: #555555;
+    color: #E0E0E0;
+}
+
+/* Styling for the tabs inside the dialog */
+QDialog#InfoDialog QTabBar::tab {
+    qproperty-alignment: 'AlignCenter';
+    background-color: transparent;
+    color: #8B8B8B;
+    padding: 8px 15px;
+    border: none;
+    border-bottom: 2px solid transparent; 
+}
+
+QDialog#InfoDialog QTabBar::tab:hover {
+    qproperty-alignment: 'AlignCenter';
+    color: #E0E0E0;
+}
+
+QDialog#InfoDialog QTabBar::tab:selected {
+    qproperty-alignment: 'AlignCenter';
+    color: #FFFFFF;
+    font-weight: bold;
+    border-bottom: 2px solid #28A745; /* @primary */
+}
+
+/* The tab bar's own background (not the tabs) — match the dialog surface. */
+QDialog#InfoDialog QTabBar { background-color: #1E1E1E; }
+
+QDialog#InfoDialog QStackedWidget {
+    background-color: #2C2C2C; /* @panel */
+    border: 1px solid #333333;   /* @border-color */
+    border-radius: 5px;         /* @radius */
+}
+
+/* --- Styled Frame (Card) --- */
+QFrame#CardFrame {
+    background-color: #1E1E1E; /* @surface */
+    border: 1px solid #333333; /* @border-color */
+    border-radius: 10px; /* @radius */
+    padding: 15px;
+}
+
+/* --- ComboBox Styling --- */
+QComboBox {
+    background-color: #2C2C2C; /* @panel */
+    border: 1px solid #333333;
+    border-radius: 8px;
+    padding: 8px 12px;
+}
+
+QComboBox:hover {
+    border-color: #555555;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: url({ASSET_PATH}/chevron-down.svg);
+    width: 20px;
+    height: 20px;
+    padding-right: 10px;
+}
+
+/* Dropdown popup panel: slightly darker than the trigger for contrast. */
+QComboBox QAbstractItemView {
+    background-color: #1E1E1E;
+    border: 1px solid #333333;
+    border-radius: 6px;
+    padding: 2px;
+    outline: 0px;
+}
+
+/* Slim popup rows. */
+QComboBox QAbstractItemView::item {
+    padding: 2px 8px;
+    border-radius: 4px;
+    min-height: 18px;
+    margin: 0px;
+}
+
+/* Selected/hover: neutral grey, not the green accent. */
+QComboBox QAbstractItemView::item:selected,
+QComboBox QAbstractItemView::item:hover {
+    background-color: #333333;
+    color: #FFFFFF;
+}
+
+QLabel#SettingsTitle {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* --- Theme-Buttons --- */
+QPushButton#ThemeButton {
+    background-color: #333333;
+    color: #8B8B8B;
+    border: 1px solid #555555;
+    padding: 8px 16px;
+}
+
+QPushButton#ThemeButton:hover {
+    background-color: #444444;
+    color:#CCCCCC;
+}
+
+QPushButton#ThemeButton:checked {
+    background-color: #E0E0E0;
+    color: #121212;
+    border-color: #E0E0E0;
+}
+
+/* --- Link-Buttons --- */
+QPushButton#LinkButton {
+    background-color: transparent;
+    color: #8B8B8B; /* @text-secondary */
+    border: 1px solid #333333; /* @border-color */
+    border-radius: 6px;
+    text-align: left;
+    padding: 8px 12px;
+    spacing: 8px;
+}
+
+QPushButton#LinkButton:hover {
+    background-color: #333333;
+    color: #E0E0E0; /* @text-primary */
+    text-decoration: none;
+}
+
+/* --- ScrollBar Styling --- */
+QScrollArea {
+    border: none;
+    background: transparent;
+}
+
+QScrollBar:vertical {
+    border: none;
+    background: #2C2C2C;
+    width: 10px;
+    margin: 0;
+}
+
+/* The handle that you drag */
+QScrollBar::handle:vertical {
+    background: #555555;
+    min-height: 30px;
+    border-radius: 5px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #6E6E6E;
+}
+
+/* The track above and below the handle */
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+/* The top and bottom arrow buttons (hidden) */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    background: none;
+    border: none;
+    height: 0px;
+}
+
+QWidget#ScrollContainer {
+    background-color: #121212; /* @background */
+}
+
+QLabel#ListHeaderLabel {
+    font-size: 11px;
+    font-weight: bold;
+    color: #8B8B8B; /* @text-secondary */
+    margin-left: 5px;
+    margin-bottom: 5px;
+}
+
+QLabel#DisabledListHeader {
+    color: #e84555;
+}
+
+QLabel#EnabledListHeader {
+    color: #28A745;
+}
+
+/* --- Lua Manager Control Buttons --- */
+QPushButton#EnableButton,
+QPushButton#RefreshButton,
+QPushButton#DisableButton {
+    padding: 0px;
+    border: 1px solid #333333;
+    background-color: #333333;
+    border-radius: 8px;
+}
+
+QPushButton#EnableButton:hover {
+    background-color: #28A745;
+    border-color: #28A745;
+}
+
+QPushButton#RefreshButton:hover {
+    background-color: #444444;
+    border-color: #555555;
+}
+
+QPushButton#DisableButton:hover {
+    background-color: #e84555;
+    border-color: #e84555;
+}
+
+QFrame#CardFrame QListWidget {
+    font-family: "JetBrains Mono";
+    font-size: 10px;
+    background-color: #2C2C2C;
+    border-radius: 5px;
+    border: 1px solid #333333;
+}
+
+/* --- Sidebar Footer --- */
+QPushButton#SidebarFooter {
+    background-color: transparent;
+    border: none;
+    color: #666666;
+    font-size: 11px;
+    text-align: center;
+    padding: 10px;
+}
+
+QPushButton#SidebarFooter:hover {
+    color: #8B8B8B; /* @text-secondary */
+}
+
+/* --- Risk Page Styles --- */
+QLabel#RiskTitleLabel {
+    color: #e84555;
+    font-size: 16px;
+    font-weight: bold;
+    qproperty-alignment: 'AlignCenter';
+}
+
+QLabel#RiskInfoLabel {
+    qproperty-alignment: 'AlignCenter';
+    font-size: 12px;
+}
+
+/* --- KEYBOARD FOCUS STYLES --- */
+*:focus {
+    outline: 0;
+}
+
+QPushButton#SidebarButton:focus {
+    background-color: #2C2C2C; /* @panel */
+    color: #E0E0E0; /* @text-primary */
+}
+
+QPushButton:focus {
+    background-color: #2ebf4f;
+}
+
+QPushButton#InfoButton:focus {
+    background-color: #333333;
+    border-color: #555555;
+    color: #E0E0E0;
+}
+
+QPushButton#ThemeButton:focus {
+    background-color: #444444;
+    color: #CCCCCC;
+}
+
+QPushButton#LinkButton:focus {
+    background-color: #333333;
+    color: #E0E0E0;
+}
+
+QComboBox:focus, QListWidget:focus {
+    border: 1px solid #555555;
+}
+
+/* Lua Manager Buttons */
+QPushButton#EnableButton:focus {
+    background-color: #28A745;
+    border-color: #28A745;
+}
+
+QPushButton#RefreshButton:focus {
+    background-color: #444444;
+    border-color: #555555;
+}
+
+QPushButton#DisableButton:focus {
+    background-color: #e84555;
+    border-color: #e84555;
+}
+
+/* --- Notification System --- */
+QFrame#NotificationCard {
+    background-color: #1E1E1E; /* @surface */
+    border: 1px solid #333333; /* @border-color */
+    border-radius: 10px; /* @radius */
+}
+
+#NotificationCard QLabel#NotificationTitle {
+    font-size: 14px;
+    font-weight: bold;
+    color: #E0E0E0; /* @text-primary */
+}
+
+#NotificationCard QLabel#NotificationMessage {
+    font-size: 13px;
+    color: #8B8B8B; /* @text-secondary */
+}
+
+#NotificationCard QPushButton#NotificationCloseButton {
+    background-color: transparent;
+    border: none;
+    border-radius: 12px;
+}
+
+#NotificationCard QPushButton#NotificationCloseButton:hover {
+    background-color: #333333;
+}

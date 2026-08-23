@@ -74,27 +74,30 @@ def find_gta_pid(
     """
     targets = tuple(t.lower() for t in target_executables)
     try:
-        for p in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
+        for p in psutil.process_iter(["pid", "name"]):
             try:
-                if p.info["name"] and p.info["name"].lower() in targets:
-                    logger.info(
-                        f"Found process by name: '{p.info['name']}' with PID: {p.pid}"
-                    )
+                name = p.info.get("name")
+                if name and name.lower() in targets:
+                    logger.info(f"Found process by name: '{name}' with PID: {p.pid}")
                     return p.pid
 
-                if p.info["exe"] and os.path.basename(p.info["exe"]).lower() in targets:
-                    logger.info(
-                        f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
-                    )
-                    return p.pid
-
-                if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
-                    exe_in_cmd = p.info["cmdline"][0].lower()
-                    if any(exe_in_cmd.endswith(target) for target in targets):
+                # Fallback to exe / cmdline only if name is missing/empty
+                if not name:
+                    exe = p.exe()
+                    if exe and os.path.basename(exe).lower() in targets:
                         logger.info(
-                            f"Found process by command line: '{p.info['cmdline'][0]}' with PID: {p.pid}"
+                            f"Found process by executable path: '{exe}' with PID: {p.pid}"
                         )
                         return p.pid
+
+                    cmdline = p.cmdline()
+                    if cmdline and len(cmdline) > 0:
+                        exe_in_cmd = cmdline[0].lower()
+                        if any(exe_in_cmd.endswith(target) for target in targets):
+                            logger.info(
+                                f"Found process by command line: '{cmdline[0]}' with PID: {p.pid}"
+                            )
+                            return p.pid
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
 
