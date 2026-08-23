@@ -120,7 +120,7 @@ __all__ = [
 ]
 
 log_formatter = logging.Formatter(
-    fmt="%(asctime)s [%(levelname)-8s] [%(name)-18s] %(message)s", datefmt="%H:%M:%S"
+    fmt="%(asctime)s [%(levelname)-8s] [%(name)-24s] %(message)s", datefmt="%H:%M:%S"
 )
 
 stream_handler = logging.StreamHandler()
