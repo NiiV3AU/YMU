@@ -11,7 +11,7 @@ def get_required_env(env_var: str) -> str:
     """Gets an environment variable that is required for the app to run."""
     value = os.getenv(env_var)
     if value is None:
-        raise EnvironmentError(f"Required environment variable '{env_var}' is not set.")
+        raise OSError(f"Required environment variable '{env_var}' is not set.")
     return value
 
 
@@ -27,6 +27,7 @@ YMU_APPDATA_DIR = _create_path(os.path.join(APPDATA_PATH, "YMU"))
 YMU_DLL_DIR = _create_path(os.path.join(YMU_APPDATA_DIR, "dll"))
 YMU_LOG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "ymu.log")
 YMU_CONFIG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "config.json")
+YMU_CACHE_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "cache.json")
 
 # YimMenu directories are intentionally NOT created here: their absence is
 # how YMU detects that an edition is not installed yet.
@@ -51,7 +52,7 @@ def resource_path(relative_path: str) -> str:
     3. Normal Python Script
     """
     if hasattr(sys, "_MEIPASS"):
-        base_path = getattr(sys, "_MEIPASS")
+        base_path = sys._MEIPASS
     else:
         base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
         possible_path = os.path.join(base_path, relative_path)

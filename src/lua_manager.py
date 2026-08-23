@@ -4,12 +4,11 @@
 import logging
 import os
 import shutil
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
 
-def _get_lua_files(directory: str) -> List[str]:
+def _get_lua_files(directory: str) -> list[str]:
     """Helper function to find all .lua files in a directory."""
     if not os.path.isdir(directory):
         return []
@@ -26,7 +25,7 @@ def scripts_available(appdata_dir: str) -> bool:
     return os.path.isdir(appdata_dir)
 
 
-def get_scripts(scripts_dir: str, disabled_dir: str) -> Dict[str, List[str]]:
+def get_scripts(scripts_dir: str, disabled_dir: str) -> dict[str, list[str]]:
     """
     Returns a dictionary with lists of enabled and disabled lua scripts,
     with the '.lua' suffix removed for display.
@@ -67,8 +66,8 @@ def enable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
         shutil.move(src, dest)
         logger.info(f"Enabled script: {actual_filename}")
         return True
-    except (IOError, OSError) as e:
-        logger.exception(f"Error enabling script {actual_filename}: {e}")
+    except OSError:
+        logger.exception(f"Error enabling script {actual_filename}")
         return False
 
 
@@ -89,6 +88,6 @@ def disable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
         shutil.move(src, dest)
         logger.info(f"Disabled script: {actual_filename}")
         return True
-    except (IOError, OSError) as e:
-        logger.exception(f"Error disabling script {actual_filename}: {e}")
+    except OSError:
+        logger.exception(f"Error disabling script {actual_filename}")
         return False

@@ -39,7 +39,7 @@ def check_for_updates(*args, **kwargs):
     logger.info("Checking for YMU updates...")
     try:
         provider = release_service.GitHubAPIProvider(
-            repository=REPO, asset_extension=".exe"
+            repository=REPO, asset_extension=""
         )
         latest_release = provider.get_latest_release()
 
@@ -62,6 +62,9 @@ def check_for_updates(*args, **kwargs):
         _update_cache[REPO] = (result, current_time)
         return result
 
+    except release_service.RateLimitException as e:
+        logger.warning(f"Rate limit during YMU update check: {e}")
+        return (STATUS_ERROR, str(e))
     except Exception as e:
-        logger.exception(f"Update check failed: {e}")
+        logger.exception("Update check failed")
         return (STATUS_ERROR, str(e))

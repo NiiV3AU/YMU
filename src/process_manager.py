@@ -47,10 +47,8 @@ def _classify_injector_error(e: pyinjector.InjectorError) -> Exception:
 def is_admin() -> bool:
     """True if the current process runs with Administrator privileges."""
     try:
-        import ctypes
-
         return bool(ctypes.windll.shell32.IsUserAnAdmin())
-    except Exception:
+    except (AttributeError, OSError):
         return False
 
 
@@ -77,31 +75,32 @@ def find_gta_pid(
     targets = tuple(t.lower() for t in target_executables)
     try:
         for p in psutil.process_iter(["pid", "name", "exe", "cmdline"]):
-            if p.info["name"] and p.info["name"].lower() in targets:
-                logger.info(
-                    f"Found process by name: '{p.info['name']}' with PID: {p.pid}"
-                )
-                return p.pid
-
-            if p.info["exe"] and os.path.basename(p.info["exe"]).lower() in targets:
-                logger.info(
-                    f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
-                )
-                return p.pid
-
-            if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
-                exe_in_cmd = p.info["cmdline"][0].lower()
-                if any(exe_in_cmd.endswith(target) for target in targets):
+            try:
+                if p.info["name"] and p.info["name"].lower() in targets:
                     logger.info(
-                        f"Found process by command line: '{p.info['cmdline'][0]}' with PID: {p.pid}"
+                        f"Found process by name: '{p.info['name']}' with PID: {p.pid}"
                     )
                     return p.pid
 
-    except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-        pass
-    except Exception as e:
+                if p.info["exe"] and os.path.basename(p.info["exe"]).lower() in targets:
+                    logger.info(
+                        f"Found process by executable path: '{p.info['exe']}' with PID: {p.pid}"
+                    )
+                    return p.pid
+
+                if p.info["cmdline"] and len(p.info["cmdline"]) > 0:
+                    exe_in_cmd = p.info["cmdline"][0].lower()
+                    if any(exe_in_cmd.endswith(target) for target in targets):
+                        logger.info(
+                            f"Found process by command line: '{p.info['cmdline'][0]}' with PID: {p.pid}"
+                        )
+                        return p.pid
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+
+    except Exception:
         logger.exception(
-            f"An unexpected error occurred while searching for the game process: {e}"
+            "An unexpected error occurred while searching for the game process"
         )
 
     logger.warning(f"No process matching {targets} found.")
@@ -121,11 +120,14 @@ def is_battleye_running() -> bool:
     """
     try:
         for p in psutil.process_iter(["name"]):
-            name = p.info["name"]
-            if name and name.lower() in BATTLEYE_EXECUTABLES:
-                logger.info(f"BattlEye process detected: {name}")
-                return True
-    except Exception as e:
+            try:
+                name = p.info["name"]
+                if name and name.lower() in BATTLEYE_EXECUTABLES:
+                    logger.info(f"BattlEye process detected: {name}")
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                continue
+    except (psutil.Error, OSError) as e:
         logger.debug(f"BattlEye check failed, assuming not running: {e}")
     return False
 
@@ -250,8 +252,8 @@ def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
                 f"detail={getattr(e, 'error_str', None) or str(e)!r}"
             )
         raise classified from e
-    except Exception as e:
-        logger.exception(f"An unexpected exception occurred during injection: {e}")
+    except Exception:
+        logger.exception("An unexpected exception occurred during injection")
         raise
 
 

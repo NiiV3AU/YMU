@@ -6,7 +6,7 @@ import logging
 import os
 import shutil
 import threading
-from typing import Any, Optional
+from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 
@@ -56,8 +56,8 @@ class YmuConfig(QObject):
                 with open(self._path, "r", encoding="utf-8") as f:
                     data = json.load(f)
                 if not isinstance(data, dict):
-                    raise ValueError("config root is not a JSON object")
-            except (OSError, json.JSONDecodeError, ValueError) as e:
+                    raise TypeError("config root is not a JSON object")
+            except (OSError, json.JSONDecodeError, TypeError) as e:
                 logger.error(f"Config file unreadable ({e}). Backing up and resetting.")
                 self._backup_corrupt_file()
                 data = None
@@ -114,6 +114,12 @@ class YmuConfig(QObject):
         except OSError as e:
             logger.error(f"Failed to write YMU config: {e}")
             return False
+        finally:
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
     # --- public API ---
 
@@ -149,7 +155,7 @@ class YmuConfig(QObject):
             return copy.deepcopy(self._data)
 
 
-_config: Optional[YmuConfig] = None
+_config: YmuConfig | None = None
 _config_lock = threading.Lock()
 
 

@@ -5,7 +5,8 @@
 # via run_exclusive().
 import logging
 import threading
-from typing import Any, Callable, Optional
+from collections.abc import Callable
+from typing import Any
 
 from PySide6.QtCore import QObject, QRunnable, Qt, QThreadPool, Signal, Slot
 
@@ -49,7 +50,7 @@ class Worker(QRunnable):
 class WorkerManager(QObject):
     """Manages a thread pool for all background tasks."""
 
-    def __init__(self, parent: Optional[QObject] = None, max_threads: int = 4):
+    def __init__(self, parent: QObject | None = None, max_threads: int = 4):
         super().__init__(parent)
         self._pool = QThreadPool()
         self._pool.setMaxThreadCount(max_threads)
@@ -68,9 +69,9 @@ class WorkerManager(QObject):
         self,
         target: Callable,
         *args,
-        on_finished: Optional[Callable[[Any], None]] = None,
-        on_error: Optional[Callable[[Exception], None]] = None,
-        on_progress: Optional[Callable[[int], None]] = None,
+        on_finished: Callable[[Any], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+        on_progress: Callable[[int], None] | None = None,
         **kwargs,
     ):
         """Queues a task on the pool. Callbacks fire on the GUI thread."""
@@ -98,9 +99,9 @@ class WorkerManager(QObject):
         key: str,
         target: Callable,
         *args,
-        on_finished: Optional[Callable[[Any], None]] = None,
-        on_error: Optional[Callable[[Exception], None]] = None,
-        on_progress: Optional[Callable[[int], None]] = None,
+        on_finished: Callable[[Any], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+        on_progress: Callable[[int], None] | None = None,
         **kwargs,
     ) -> bool:
         """Like run_task, but refuses to start if a task with the same key is

@@ -10,6 +10,8 @@ from paths import YIMMENU_SETTINGS_FILE_PATH
 
 logger = logging.getLogger(__name__)
 
+import shutil
+
 SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
 
 # Serializes the read-modify-write in set_setting so parallel writers cannot
@@ -17,8 +19,8 @@ SETTINGS_FILE_PATH = YIMMENU_SETTINGS_FILE_PATH
 _write_lock = threading.Lock()
 
 
-def _read_json_safely(settings_file: str):
-    """Reads the JSON file, returning {} if it is missing, unreadable, or malformed.
+def _read_json_safely(settings_file: str) -> dict | None:
+    """Reads the JSON file. Returns {} if missing, dict if valid, or None if malformed/unreadable.
 
     Reads as utf-8-sig so a stray UTF-8 BOM (e.g. from a hand edit in some
     editors) is tolerated rather than treated as corruption; writes stay plain
@@ -27,10 +29,13 @@ def _read_json_safely(settings_file: str):
         return {}
     try:
         with open(settings_file, "r", encoding="utf-8-sig") as f:
-            return json.load(f)
-    except (json.JSONDecodeError, OSError) as e:
+            data = json.load(f)
+        if not isinstance(data, dict):
+            raise TypeError("settings root is not a JSON object")
+        return data
+    except (json.JSONDecodeError, TypeError, OSError) as e:
         logger.warning(f"Failed to read {settings_file}: {e}")
-        return {}
+        return None
 
 
 def get_setting(key_path: str, default=None, settings_file: str = SETTINGS_FILE_PATH):
@@ -39,6 +44,8 @@ def get_setting(key_path: str, default=None, settings_file: str = SETTINGS_FILE_
     Example: get_setting("lua.enable_auto_reload_changed_scripts")
     """
     data = _read_json_safely(settings_file)
+    if data is None:
+        return default
 
     keys = key_path.split(".")
     value = data
@@ -69,6 +76,14 @@ def set_setting(
             return False
 
         data = _read_json_safely(settings_file)
+        if data is None:
+            # File exists but is corrupt. Create a .bak before proceeding.
+            try:
+                shutil.copyfile(settings_file, settings_file + ".bak")
+                logger.info(f"Corrupt settings backed up to {settings_file}.bak")
+            except OSError as e:
+                logger.error(f"Could not back up corrupt settings: {e}")
+            data = {}
 
         keys = key_path.split(".")
         d = data
@@ -79,7 +94,7 @@ def set_setting(
                 d = d[key]
 
             d[keys[-1]] = value
-        except Exception as e:
+        except (TypeError, KeyError, IndexError) as e:
             logger.error(f"Error traversing settings dict: {e}")
             return False
 
@@ -97,3 +112,9 @@ def set_setting(
         except OSError as e:
             logger.error(f"Failed to write settings file: {e}")
             return False
+        finally:
+            if os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                except OSError:
+                    pass

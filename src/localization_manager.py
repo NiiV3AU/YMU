@@ -1,9 +1,8 @@
-# localization_manager.py - downloads and manages translations
+import copy
 import json
 import logging
 import os
 import threading
-from typing import Dict, List, Optional
 
 import requests
 from PySide6.QtCore import QObject, Signal
@@ -42,6 +41,7 @@ FALLBACK_DATA = {
             "Restart": "Restart Now",
             "Yes": "Yes",
             "No": "No",
+            "Cancel": "Cancel",
             "RestartAdmin": "Restart as Admin",
         },
         "Risk": {
@@ -69,6 +69,7 @@ FALLBACK_DATA = {
                 "Error": "An error occurred. Please try again.",
                 "Downloading": "Downloading",
                 "Success": "Download successful and verified!",
+                "SuccessUnverified": "Download successful (unverified)!",
                 "Failed": "Download failed. Check logs.",
             },
             "Btn": {
@@ -85,9 +86,18 @@ FALLBACK_DATA = {
                 "CheckFailed": "Failed to check for updates",
                 "SuccessTitle": "Download Complete",
                 "SuccessMsg": "DLL successfully downloaded and verified!",
+                "SuccessMsgUnverified": "DLL downloaded successfully, but could not be verified (no remote checksum).",
                 "FailedTitle": "Download Failed",
                 "FailedMsg": "Verification failed. Please check the logs.",
                 "UpdateTitle": "{0} Update",
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Unverified DLL Download",
+                "UnverifiedPrompt": "No SHA256 checksum was provided with this release.\n\nYMU cannot verify the integrity or authenticity of the file.\n\nDo you want to download it anyway?",
+                "DownloadAnyway": "Download anyway",
+            },
+            "Error": {
+                "RateLimited": "GitHub API rate limit reached. Please try again in {0} minutes.",
             },
             "Help": {
                 "Title": "DLL & FSL Info",
@@ -115,6 +125,13 @@ FALLBACK_DATA = {
                 "SuccessTitle": "Injection Successful",
                 "SuccessMsg": "Successfully injected DLL!",
                 "CustomDllMissing": "The configured custom DLL no longer exists:\n{0}",
+                "LaunchTimeout": "GTA V didn't start (or was closed before it loaded).\nYou can try launching again.",
+            },
+            "BattlEye": {
+                "Title": "BattlEye Is Running",
+                "Warn": "BattlEye is active. Injecting while it runs can get your account banned and will often fail outright.\n\nThis is entirely your decision and at your own risk — disabling BattlEye in your launcher first is strongly recommended.",
+                "Proceed": "Inject anyway",
+                "Learn": "How to disable",
             },
             "Help": {
                 "Title": "Injection Info",
@@ -138,6 +155,7 @@ FALLBACK_DATA = {
                 "LaunchFailed": "Error launching game. See logs for details.",
                 "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
                 "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks page) and make\nsure the Legacy/Enhanced switch matches your game.",
+                "RedownloadAction": "Re-download DLL",
             },
         },
         "Settings": {
@@ -229,8 +247,22 @@ class LocalizationManager(QObject):
         self.config = get_config()
         self.active_locale = self.config.get("locale", "en_US")
 
-        self.data: Dict = FALLBACK_DATA.copy()
+        self.data: dict = copy.deepcopy(FALLBACK_DATA)
         self.load_local_file()
+
+    @staticmethod
+    def _deep_merge(base: dict, override: dict) -> dict:
+        result = copy.deepcopy(base)
+        for key, val in override.items():
+            if (
+                key in result
+                and isinstance(result[key], dict)
+                and isinstance(val, dict)
+            ):
+                result[key] = LocalizationManager._deep_merge(result[key], val)
+            else:
+                result[key] = copy.deepcopy(val)
+        return result
 
     def set_locale(self, locale: str):
         """Saves the language in YMU's config."""
@@ -246,7 +278,7 @@ class LocalizationManager(QObject):
         )
         update_thread.start()
 
-    def get_available_locales(self) -> List[str]:
+    def get_available_locales(self) -> list[str]:
         return list(self.data.keys())
 
     def get_language_name(self, locale_code: str) -> str:
@@ -259,38 +291,51 @@ class LocalizationManager(QObject):
             with open(LOCAL_FILE_PATH, "r", encoding="utf-8") as f:
                 loaded_data = json.load(f)
                 if isinstance(loaded_data, dict):
-                    self.data = loaded_data
+                    self.data = self._deep_merge(FALLBACK_DATA, loaded_data)
                     logger.info("Local translations.json loaded.")
-        except Exception as e:
+        except (OSError, json.JSONDecodeError) as e:
             logger.error(f"Failed to load translations.json: {e}")
+
+    def _read_local_raw_data(self) -> dict | None:
+        if not os.path.exists(LOCAL_FILE_PATH):
+            return None
+        try:
+            with open(LOCAL_FILE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                return data if isinstance(data, dict) else None
+        except (OSError, json.JSONDecodeError):
+            return None
 
     def _update_from_remote_thread(self):
         """Internal method, runs in thread."""
         logger.info(f"Checking for translation updates from: {REMOTE_LANG_URL}")
+        tmp_path = LOCAL_FILE_PATH + ".tmp"
         try:
             headers = {"User-Agent": USER_AGENT}
             response = requests.get(REMOTE_LANG_URL, headers=headers, timeout=10)
             if response.status_code == 200:
                 remote_data = response.json()
                 if isinstance(remote_data, dict):
-                    if remote_data != self.data:
-                        logger.info("New translations detected. Updating local file...")
-                        os.makedirs(os.path.dirname(LOCAL_FILE_PATH), exist_ok=True)
-                        with open(LOCAL_FILE_PATH, "w", encoding="utf-8") as f:
-                            json.dump(remote_data, f, indent=4, ensure_ascii=False)
-                        self.data = remote_data
-                        msg = self.tr(
-                            "Settings.Notify.LangUpdated",
-                            "Translations updated successfully!",
-                        )
-                        self.update_finished.emit(True, msg, True)
-                    else:
+                    local_raw = self._read_local_raw_data()
+                    if local_raw is not None and local_raw == remote_data:
                         logger.info("Local translations are already up-to-date.")
                         msg = self.tr(
                             "Settings.Notify.LangUpToDate",
                             "Translations are already up-to-date.",
                         )
                         self.update_finished.emit(True, msg, False)
+                    else:
+                        logger.info("New translations detected. Updating local file...")
+                        os.makedirs(os.path.dirname(LOCAL_FILE_PATH), exist_ok=True)
+                        with open(tmp_path, "w", encoding="utf-8") as f:
+                            json.dump(remote_data, f, indent=4, ensure_ascii=False)
+                        os.replace(tmp_path, LOCAL_FILE_PATH)
+                        self.data = self._deep_merge(FALLBACK_DATA, remote_data)
+                        msg = self.tr(
+                            "Settings.Notify.LangUpdated",
+                            "Translations updated successfully!",
+                        )
+                        self.update_finished.emit(True, msg, True)
                 else:
                     logger.warning("Remote JSON is valid but not a dictionary.")
                     self.update_finished.emit(
@@ -304,11 +349,17 @@ class LocalizationManager(QObject):
                     False, f"HTTP Error: {response.status_code}", False
                 )
 
-        except Exception as e:
+        except (requests.RequestException, OSError, ValueError) as e:
             logger.warning(f"Could not check for translation updates: {e}")
             self.update_finished.emit(False, str(e), False)
+        finally:
+            if os.path.exists(tmp_path):
+                try:
+                    os.remove(tmp_path)
+                except OSError:
+                    pass
 
-    def tr(self, key_path: str, default: Optional[str] = None, *args, **kwargs) -> str:
+    def tr(self, key_path: str, default: str | None = None, *args, **kwargs) -> str:
         # This intentionally shadows QObject.tr with a dictionary-based lookup.
         # *args/**kwargs keep the override signature-compatible with the base
         # method so static type checkers don't flag an LSP violation.

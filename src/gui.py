@@ -15,21 +15,55 @@ except (ImportError, AttributeError):
     IS_WINDOWS = False
 
 
-# Single-instance guard: if a YMU window already exists, focus it and exit.
+# Single-instance guard via Windows Named Mutex and relaunch synchronization.
 if IS_WINDOWS:
+    import ctypes
+
+    ctypes.windll.kernel32.OpenProcess.restype = ctypes.c_void_p
+    ctypes.windll.kernel32.CreateMutexW.restype = ctypes.c_void_p
+
+    # If launched as part of a restart, wait for the old process to fully exit first.
+    if "--wait-for-pid" in sys.argv:
+        try:
+            pid_idx = sys.argv.index("--wait-for-pid") + 1
+            if pid_idx < len(sys.argv):
+                old_pid = int(sys.argv[pid_idx])
+                import time
+
+                PROCESS_SYNCHRONIZE = 0x00100000
+                h_proc = ctypes.windll.kernel32.OpenProcess(
+                    PROCESS_SYNCHRONIZE, False, old_pid
+                )
+                if h_proc:
+                    # Wait up to 3000ms for old process to exit
+                    ctypes.windll.kernel32.WaitForSingleObject(h_proc, 3000)
+                    ctypes.windll.kernel32.CloseHandle(h_proc)
+                else:
+                    time.sleep(0.05)
+        except (ValueError, OSError, AttributeError) as e:
+            logging.getLogger(__name__).debug(f"Error waiting for old PID: {e}")
+
     WINDOW_TITLE = "YimMenuUpdater | NV3"
+    MUTEX_NAME = "Local\\YMU_SingleInstance_Mutex"
+    _single_instance_mutex = None
     try:
-        hwnd = win32gui.FindWindow(None, WINDOW_TITLE)
-        if hwnd != 0:
-            win32gui.SetForegroundWindow(hwnd)
+        ERROR_ALREADY_EXISTS = 183
+        _single_instance_mutex = ctypes.windll.kernel32.CreateMutexW(
+            None, False, MUTEX_NAME
+        )
+        if ctypes.windll.kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+            hwnd = win32gui.FindWindow(None, WINDOW_TITLE)
+            if hwnd != 0:
+                win32gui.ShowWindow(hwnd, 9)
+                win32gui.SetForegroundWindow(hwnd)
             sys.exit(0)
-    except Exception as e:
+    except (OSError, AttributeError) as e:
         logging.getLogger(__name__).error(f"Error during instance check: {e}")
 
 import platform
 import time
 import webbrowser
-from typing import Optional, cast
+from typing import cast
 
 from PySide6.QtCore import (
     Property,
@@ -124,10 +158,7 @@ root_logger.addHandler(file_handler)
 
 logger = logging.getLogger(__name__)
 
-try:
-    ymu_version = LOCAL_VERSION
-except Exception:
-    ymu_version = "unknown"  # Fallback
+ymu_version = LOCAL_VERSION
 
 system_info = {
     "YMU Version": ymu_version,
@@ -190,25 +221,30 @@ def restart_application():
     import subprocess
 
     logger.info("Restart requested via UI. Relaunching...")
+    old_pid = os.getpid()
 
-    QApplication.quit()
+    for widget in QApplication.topLevelWidgets():
+        widget.hide()
 
-    if "__compiled__" in globals():
-        executable = sys.argv[0]
-    elif getattr(sys, "frozen", False):
-        executable = sys.executable
+    if "__compiled__" in globals() or getattr(sys, "frozen", False):
+        executable = os.path.abspath(sys.argv[0])
+        args = [executable, "--wait-for-pid", str(old_pid)]
     else:
-        subprocess.Popen([sys.executable] + sys.argv)
-        sys.exit(0)
+        executable = sys.executable
+        args = [sys.executable, sys.argv[0], "--wait-for-pid", str(old_pid)]
+
     if IS_WINDOWS:
         try:
-            logger.info(f"Restarting executable at: {executable}")
-            os.startfile(executable)
-        except Exception as e:
-            logger.error(f"Failed to restart via os.startfile: {e}")
-            subprocess.Popen([executable])
+            logger.info(
+                f"Restarting executable at: {executable} (waiting for PID {old_pid})"
+            )
+            subprocess.Popen(args)
+        except OSError as e:
+            logger.error(f"Failed to restart via subprocess.Popen: {e}")
     else:
-        subprocess.Popen([executable])
+        subprocess.Popen(args)
+
+    QApplication.quit()
     sys.exit(0)
 
 
@@ -217,12 +253,18 @@ def restart_as_admin():
     import ctypes
 
     logger.info("Requesting restart with Admin privileges...")
+    old_pid = os.getpid()
+
+    for widget in QApplication.topLevelWidgets():
+        widget.hide()
+
     if "__compiled__" in globals() or getattr(sys, "frozen", False):
         executable = os.path.abspath(sys.argv[0])
-        params = None
+        params = f"--wait-for-pid {old_pid}"
     else:
         executable = sys.executable
-        params = " ".join([f'"{arg}"' for arg in sys.argv])
+        clean_script = sys.argv[0]
+        params = f'"{clean_script}" --wait-for-pid {old_pid}'
     logger.info(f"Target executable for Admin restart: {executable}")
     try:
         result = ctypes.windll.shell32.ShellExecuteW(
@@ -235,9 +277,13 @@ def restart_as_admin():
             sys.exit(0)
         else:
             logger.error(f"Failed to start as Admin. Error code: {result}")
+            for widget in QApplication.topLevelWidgets():
+                widget.show()
 
-    except Exception as e:
+    except (OSError, AttributeError) as e:
         logger.error(f"Exception during restart_as_admin: {e}")
+        for widget in QApplication.topLevelWidgets():
+            widget.show()
 
 
 class FocusStealingFilter(QObject):
@@ -1201,9 +1247,9 @@ class StatefulButton(QPushButton):
         *args,
         theme_manager,
         icon_path=None,
-        color_normal: Optional[tuple] = None,
-        color_hover: Optional[tuple] = None,
-        color_checked: Optional[tuple] = None,
+        color_normal: tuple | None = None,
+        color_hover: tuple | None = None,
+        color_checked: tuple | None = None,
         **kwargs,
     ):
         super().__init__(*args, **kwargs)
@@ -1382,7 +1428,7 @@ class AnimatedButton(StatefulButton):
 
     offset = Property(float, _get_offset, _set_offset, notify=_offset_changed)
 
-    def start_animation(self, duration: Optional[int] = None):
+    def start_animation(self, duration: int | None = None):
         if (
             self.current_animation
             and self.current_animation.state() == QPropertyAnimation.State.Running
@@ -1507,7 +1553,7 @@ class ToggleSwitch(QWidget):
 
     def keyPressEvent(self, event):
         """Handles key presses when the widget has focus."""
-        if event.key() == Qt.Key.Key_Space or Qt.Key.Key_Enter:
+        if event.key() in (Qt.Key.Key_Space, Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.setChecked(not self.isChecked())
         else:
             super().keyPressEvent(event)
@@ -1559,7 +1605,7 @@ class MainWindow(QMainWindow):
         self.loc_manager = loc_manager
         self.config = get_config()
         self.current_mode = get_mode(self.config.get("mode", "legacy"))
-        self._autodetect_message: Optional[str] = None
+        self._autodetect_message: str | None = None
         self._maybe_autodetect_edition()
         self.notification_manager = NotificationManager(self, self.theme_manager)
 
@@ -1582,7 +1628,7 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.content_stack, stretch=1)
         self.setCentralWidget(main_widget)
 
-        get_active_mode = lambda: self.current_mode  # noqa: E731
+        get_active_mode = lambda: self.current_mode
 
         self.risk_page = RiskPage(
             theme_manager=self.theme_manager, loc_manager=self.loc_manager
@@ -1861,7 +1907,7 @@ class MainWindow(QMainWindow):
             return
         try:
             detected = menu_modes.detect_installed_modes()
-        except Exception as e:
+        except OSError as e:
             logger.warning(f"Edition auto-detection failed: {e}")
             return
 
@@ -2284,9 +2330,17 @@ class DownloadPage(QWidget):
         )
         self.download_button.setEnabled(True)
 
+        if isinstance(error, release_service.RateLimitException) and error.wait_minutes:
+            err_msg = self.loc_manager.tr(
+                "Download.Error.RateLimited",
+                "GitHub API rate limit reached. Please try again in {0} minutes.",
+            ).format(error.wait_minutes)
+        else:
+            err_msg = f"{self.loc_manager.tr('Download.Notify.CheckFailed', 'Failed to check for updates')}: {error}"
+
         cast(MainWindow, self.window()).notification_manager.show(
             self.loc_manager.tr("Common.Error", "Error"),
-            f"{self.loc_manager.tr('Download.Notify.CheckFailed', 'Failed to check for updates')}: {error}",
+            err_msg,
             icon_type="error",
         )
 
@@ -2298,8 +2352,37 @@ class DownloadPage(QWidget):
             )
             return
 
+        release_data = self.latest_release_data
+
+        if not release_data.checksum:
+            tr = self.loc_manager.tr
+            box = QMessageBox(self)
+            box.setIcon(QMessageBox.Icon.Warning)
+            box.setWindowTitle(
+                tr("Download.Dialog.UnverifiedTitle", "Unverified DLL Download")
+            )
+            box.setText(
+                tr(
+                    "Download.Dialog.UnverifiedPrompt",
+                    "No SHA256 checksum was provided with this release.\n\n"
+                    "YMU cannot verify the integrity or authenticity of the file.\n\n"
+                    "Do you want to download it anyway?",
+                )
+            )
+            proceed = box.addButton(
+                tr("Download.Dialog.DownloadAnyway", "Download anyway"),
+                QMessageBox.ButtonRole.AcceptRole,
+            )
+            cancel = box.addButton(
+                tr("Common.Cancel", "Cancel"), QMessageBox.ButtonRole.RejectRole
+            )
+            box.setDefaultButton(cancel)
+            box.exec()
+            if box.clickedButton() is not proceed:
+                return
+
         self.status_label.setText(
-            f"{self.loc_manager.tr('Download.Status.Downloading', 'Downloading')} {self.latest_release_data.asset_name}..."
+            f"{self.loc_manager.tr('Download.Status.Downloading', 'Downloading')} {release_data.asset_name}..."
         )
         self.download_button.setEnabled(False)
         self.download_button.setText(
@@ -2308,46 +2391,66 @@ class DownloadPage(QWidget):
         self.download_button.stop_animation()
         QApplication.processEvents()
 
-        # Capture the release on the GUI thread so a later mode switch cannot
-        # swap it out from under the running download.
-        release_data = self.latest_release_data
+        # Capture the release and current mode on the GUI thread so a later mode
+        # switch cannot swap it out from under the running download.
+        mode_key = self.get_mode().key
         self.worker_manager.run_task(
             self._download_logic,
             release_data,
+            mode_key,
             on_finished=self._handle_download_result,
             on_error=self._handle_worker_error,
             on_progress=self.update_download_progress,
         )
 
-    def _download_logic(self, release_data, progress_signal=None):
+    def _download_logic(self, release_data, mode_key: str, progress_signal=None):
         """Runs in the background and executes the download."""
 
         def progress_callback(percentage):
             if progress_signal:
                 progress_signal.emit(percentage)
 
-        success = release_service.download_and_verify_release(
+        success, is_verified = release_service.download_and_verify_release(
             release_data, progress_callback
         )
-        return success
+        return (mode_key, success, is_verified)
 
-    def _handle_download_result(self, success: bool):
+    def _handle_download_result(self, result: tuple[str, bool, bool]):
+        mode_key, success, is_verified = result
+        if mode_key != self.get_mode().key:
+            logger.info(f"Discarding stale download result for '{mode_key}'.")
+            return
+
         if success:
             self.download_button.set_progress(1.0)
-            self.status_label.setText(
+            status_text = (
                 self.loc_manager.tr(
                     "Download.Status.Success", "Download successful and verified!"
                 )
+                if is_verified
+                else self.loc_manager.tr(
+                    "Download.Status.SuccessUnverified",
+                    "Download successful (unverified)!",
+                )
             )
+            self.status_label.setText(status_text)
 
+            msg_text = (
+                self.loc_manager.tr(
+                    "Download.Notify.SuccessMsg",
+                    "DLL successfully downloaded and verified!",
+                )
+                if is_verified
+                else self.loc_manager.tr(
+                    "Download.Notify.SuccessMsgUnverified",
+                    "DLL downloaded successfully, but could not be verified (no remote checksum).",
+                )
+            )
             cast(MainWindow, self.window()).notification_manager.show(
                 self.loc_manager.tr(
                     "Download.Notify.SuccessTitle", "Download Complete"
                 ),
-                self.loc_manager.tr(
-                    "Download.Notify.SuccessMsg",
-                    "DLL successfully downloaded and verified!",
-                ),
+                msg_text,
                 icon_type="success",
             )
 
@@ -2543,7 +2646,7 @@ class InjectPage(QWidget):
         if saved and idx <= 0:
             # The saved launcher is no longer available — discard it for good.
             get_config().set("inject.launcher", None)
-        combo.setCurrentIndex(idx if idx > 0 else 0)
+        combo.setCurrentIndex(max(0, idx))
         combo.blockSignals(False)
 
     def hideEvent(self, event):
@@ -2606,8 +2709,8 @@ class InjectPage(QWidget):
         mode = self.get_mode()
 
         self._dll_paths: dict[str, str] = {}
-        self._edition_dll_name: Optional[str] = None
-        self._custom_dll_name: Optional[str] = None
+        self._edition_dll_name: str | None = None
+        self._custom_dll_name: str | None = None
 
         # The DLL that matches the currently selected edition.
         mode_dll_path = os.path.join(dll_dir, mode.dll_name)
@@ -2618,7 +2721,7 @@ class InjectPage(QWidget):
         custom_dll = get_config().get("paths.custom_dll")
         if custom_dll:
             if os.path.isfile(custom_dll):
-                label = "{0} ({1})".format(
+                label = "{} ({})".format(
                     os.path.basename(custom_dll).removesuffix(".dll"),
                     self.loc_manager.tr("Inject.Label.Custom", "custom"),
                 )
@@ -2786,7 +2889,7 @@ class InjectPage(QWidget):
             os.startfile(executable_path)
             return "Success"
         except OSError as e:
-            logger.exception(f"Failed to start {executable_path}: {e}")
+            logger.exception(f"Failed to start {executable_path}")
             msg = self.loc_manager.tr(
                 "Inject.Error.LaunchFailed",
                 "Error launching game. See logs for details.",
@@ -2815,7 +2918,7 @@ class InjectPage(QWidget):
                 logger.info(f"Successfully sent launch command to '{launcher}'.")
                 return f"Launch command sent to {launcher}."
             except Exception as e:
-                logger.exception(f"Failed to open URI for {launcher}: {e}")
+                logger.exception(f"Failed to open URI for {launcher}")
                 raise RuntimeError(f"Could not send command to {launcher}.") from e
 
         elif launcher == self.LAUNCHER_ROCKSTAR:
@@ -2900,7 +3003,10 @@ class InjectPage(QWidget):
 
         # YMU informs, it does not block: if BattlEye is running, warn clearly
         # about the ban risk but let the user decide to inject anyway.
-        if process_manager.is_battleye_running() and not self._confirm_battleye_override():
+        if (
+            process_manager.is_battleye_running()
+            and not self._confirm_battleye_override()
+        ):
             return
 
         self._set_state(self.STATE_INJECTING)
@@ -4111,7 +4217,7 @@ if __name__ == "__main__":
 
             shutil.rmtree(old_ymu_path)
             logger.info("Legacy folder successfully removed.")
-    except Exception as e:
+    except OSError as e:
         logger.error(f"Failed to delete the legacy './ymu' folder: {e}")
 
     app = QApplication(sys.argv)
@@ -4122,7 +4228,7 @@ if __name__ == "__main__":
     font_dir = resource_path(os.path.join("assets", "fonts"))
     if os.path.exists(font_dir):
         for font_file in os.listdir(font_dir):
-            if font_file.endswith((".ttf")):
+            if font_file.endswith(".ttf"):
                 QFontDatabase.addApplicationFont(os.path.join(font_dir, font_file))
     asset_path = resource_path(os.path.join("assets", "icons")).replace("\\", "/")
     theme_manager = ThemeManager(app, STYLESHEET, STYLESHEET_LIGHT, asset_path)
