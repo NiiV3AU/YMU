@@ -207,7 +207,8 @@ class NotificationManager(QObject):
         self.parent_widget = parent
         self.theme_manager = theme_manager
         self.notifications: list[NotificationWidget] = []
-        self.padding = 15
+        self.padding = 16
+        self.gap = 8
 
     def show(
         self,
@@ -240,20 +241,22 @@ class NotificationManager(QObject):
 
     def _reposition_notifications(self, is_new: bool = False, new_duration: int = 0):
         """Calculates positions for all notifications and triggers their animations."""
-        parent_rect = self.parent_widget.rect()
-        current_y = parent_rect.bottom() - self.padding
+        parent_width = self.parent_widget.width()
+        parent_height = self.parent_widget.height()
+        current_y = parent_height - self.padding
 
         for notification in reversed(self.notifications):
             notification.adjustSize()
             h = notification.height()
-            current_y -= h + int(self.padding / 2)
-            pos_x = parent_rect.right() - notification.width() - self.padding
+            current_y -= h
+            pos_x = parent_width - notification.width() - self.padding
             target_pos = QPoint(pos_x, current_y)
             is_the_very_newest = is_new and notification is self.notifications[-1]
             if is_the_very_newest:
                 notification.start_fly_in(target_pos, new_duration)
             elif notification.pos() != target_pos:
                 notification.animate_to(target_pos)
+            current_y -= self.gap
 
     def _remove_notification(self, notification: NotificationWidget):
         if notification in self.notifications:
