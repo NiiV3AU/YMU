@@ -1,6 +1,7 @@
 .venv/
 .ruff_cache/
 dist/
+docs/
 __pycache__/
 *.py[cod]
 *$py.class
