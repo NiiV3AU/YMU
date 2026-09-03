@@ -532,7 +532,8 @@
             "Restart": "Nu herstarten",
             "Yes": "Ja",
             "No": "Nee",
-            "RestartAdmin": "Herstarten als Admin"
+            "RestartAdmin": "Herstarten als Admin",
+            "Cancel": "Annuleren"
         },
         "Risk": {
             "Title": "LET OP",
@@ -559,7 +560,8 @@
                 "Error": "Er is een fout opgetreden. Probeer opnieuw.",
                 "Downloading": "Downloaden",
                 "Success": "Download geslaagd en geverifieerd!",
-                "Failed": "Download mislukt. Check de logs."
+                "Failed": "Download mislukt. Check de logs.",
+                "SuccessUnverified": "Download geslaagd (ongeverifieerd)!"
             },
             "Btn": {
                 "Check": "Check op Updates",
@@ -577,7 +579,8 @@
                 "SuccessMsg": "DLL succesvol gedownload en geverifieerd!",
                 "FailedTitle": "Download Mislukt",
                 "FailedMsg": "Verificatie mislukt. Check alsjeblieft de logs.",
-                "UpdateTitle": "{0} Update"
+                "UpdateTitle": "{0} Update",
+                "SuccessMsgUnverified": "DLL succesvol gedownload, maar kon niet worden geverifieerd (geen externe controlesom)."
             },
             "Help": {
                 "Title": "DLL & FSL Info",
@@ -588,6 +591,14 @@
                 "Help": "Toon hulp voor DLL en FSL installatie",
                 "Channel": "Selecteer de YimMenu versie om te downloaden",
                 "ActiveChannel": "Actieve editie — wissel met de Legacy/Enhanced-schakelaar in de zijbalk"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Ongeverifieerde DLL-download",
+                "UnverifiedPrompt": "Er is geen SHA256-controlesom opgegeven bij deze release.\n\nYMU kan de integriteit of authenticiteit van het bestand niet verifiëren.\n\nWil je het toch downloaden?",
+                "DownloadAnyway": "Toch downloaden"
+            },
+            "Error": {
+                "RateLimited": "GitHub API-limiet bereikt. Probeer het over {0} minuten opnieuw."
             }
         },
         "Inject": {
@@ -606,7 +617,8 @@
                 "SelectLauncher": "Selecteer eerst een launcher.",
                 "SuccessTitle": "Injectie Geslaagd",
                 "SuccessMsg": "DLL succesvol geïnjecteerd!",
-                "CustomDllMissing": "De ingestelde aangepaste DLL bestaat niet meer:\n{0}"
+                "CustomDllMissing": "De ingestelde aangepaste DLL bestaat niet meer:\n{0}",
+                "LaunchTimeout": "GTA V is niet gestart (of werd gesloten voordat het geladen was).\nJe kunt proberen het opnieuw te starten."
             },
             "Help": {
                 "Title": "Injectie Info",
@@ -629,18 +641,36 @@
                 "LaunchFailed": "Fout bij starten game. Zie logs voor details.",
                 "AccessDenied": "Geen rechten om te injecten in GTA V.\nProbeer YMU als administrator te herstarten.",
                 "AccessDeniedAdmin": "Injectie werd zelfs met administratorrechten geweigerd.\nDit komt meestal door BattlEye of de verkeerde game-editie.\nSchakel BattlEye uit in je launcher (zie Risico's-pagina) en\nzorg dat de Legacy/Enhanced-schakelaar bij je game past.",
-                "CustomPathInvalid": "Het aangepaste GTA V-pad is niet ingesteld of bestaat niet meer.\nStel het opnieuw in op de Instellingen-pagina."
+                "CustomPathInvalid": "Het aangepaste GTA V-pad is niet ingesteld of bestaat niet meer.\nStel het opnieuw in op de Instellingen-pagina.",
+                "VerificationFailedTitle": "Injectie niet bevestigd",
+                "VerificationFailed": "De DLL-injectie is geactiveerd, maar de module kon niet worden geverifieerd in het geheugen van GTA V.\n\nDit gebeurt meestal wanneer BattlEye actief is, een antivirusprogramma het heeft geblokkeerd of het spel is gecrasht.",
+                "RedownloadAction": "DLL opnieuw downloaden"
             },
             "Label": {
                 "Custom": "aangepast"
+            },
+            "BattlEye": {
+                "Title": "BattlEye is actief",
+                "Warn": "BattlEye is actief. Injecteren terwijl dit actief is kan ertoe leiden dat je account wordt verbannen en zal vaak meteen mislukken.\n\nDit is geheel jouw eigen beslissing en op eigen risico — het wordt sterk aanbevolen om BattlEye eerst in je launcher uit te schakelen.",
+                "Proceed": "Toch injecteren",
+                "Learn": "Hoe uit te schakelen"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Uiterlijk",
+                "Injection": "Injectie",
                 "Lua": "Lua Instellingen",
                 "Other": "Overig",
                 "Paths": "Aangepaste paden"
+            },
+            "Inject": {
+                "AutoClose": "YMU sluiten na injectie",
+                "SoundFeedback": "Geluidssignaal bij succes",
+                "Tooltip": {
+                    "AutoClose": "Sluit YMU automatisch zodra de DLL succesvol in het spel is geïnjecteerd",
+                    "SoundFeedback": "Speelt een bevestigingsgeluid af wanneer een download of injectie succesvol is voltooid"
+                }
             },
             "Label": {
                 "Language": "Taal"
@@ -703,7 +733,12 @@
                 "LangTitle": "Taal Gewijzigd",
                 "LangUpToDate": "Vertalingen zijn al up-to-date.",
                 "FolderMissing": "Map bestaat nog niet:\n{0}",
-                "V2FileMissing": "YimMenuV2 heeft nog geen settings.json.\nInjecteer en start het één keer, probeer daarna opnieuw."
+                "V2FileMissing": "YimMenuV2 heeft nog geen settings.json.\nInjecteer en start het één keer, probeer daarna opnieuw.",
+                "NoGtaDirFound": "Kon de GTA V-map niet vinden. Blader eerst naar je GTA V-installatiemap en selecteer deze.",
+                "BattlEyeDisabledTitle": "BattlEye uitgeschakeld",
+                "BattlEyeDisabledMsg": "-nobattleye is toegevoegd aan commandline.txt in je GTA V-map.",
+                "BattlEyeRestoredTitle": "BattlEye hersteld",
+                "BattlEyeRestoredMsg": "-nobattleye is verwijderd uit commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Automatisch gedetecteerd",
@@ -714,7 +749,12 @@
                 "ErrorNoGta": "Geen GTA V-executable in deze map gevonden.",
                 "ErrorNotDll": "Selecteer een .dll-bestand.",
                 "ErrorNotFound": "Pad bestaat niet.",
-                "GtaDir": "GTA V-installatiemap"
+                "GtaDir": "GTA V-installatiemap",
+                "ErrorWriteCommandline": "Kon commandline.txt niet aanpassen. Controleer de bestandsrechten.",
+                "NoBattlEye": "BattlEye uitschakelen (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Voegt -nobattleye toe aan of verwijdert het uit commandline.txt in je GTA V-map om zonder BattlEye te spelen"
+                }
             }
         }
     },
@@ -745,7 +785,8 @@
             "Restart": "Redémarrer maintenant",
             "Yes": "Oui",
             "No": "Non",
-            "RestartAdmin": "Redémarrer en Admin"
+            "RestartAdmin": "Redémarrer en Admin",
+            "Cancel": "Annuler"
         },
         "Risk": {
             "Title": "ATTENTION",
@@ -772,7 +813,8 @@
                 "Error": "Une erreur est survenue. Réessaye.",
                 "Downloading": "Téléchargement en cours",
                 "Success": "Téléchargement réussi et vérifié !",
-                "Failed": "Échec du téléchargement. Vérifie les logs."
+                "Failed": "Échec du téléchargement. Vérifie les logs.",
+                "SuccessUnverified": "Téléchargement réussi (non vérifié) !"
             },
             "Btn": {
                 "Check": "Chercher des updates",
@@ -790,7 +832,8 @@
                 "SuccessMsg": "DLL téléchargée et vérifiée avec succès !",
                 "FailedTitle": "Échec du Téléchargement",
                 "FailedMsg": "Vérification échouée. Check les logs stp.",
-                "UpdateTitle": "Update {0}"
+                "UpdateTitle": "Update {0}",
+                "SuccessMsgUnverified": "DLL téléchargée avec succès, mais n'a pas pu être vérifiée (aucune somme de contrôle distante)."
             },
             "Help": {
                 "Title": "Infos DLL & FSL",
@@ -801,6 +844,14 @@
                 "Help": "Afficher l'aide pour l'installation DLL et FSL",
                 "Channel": "Sélectionne la version YimMenu à télécharger",
                 "ActiveChannel": "Édition active — change-la avec le sélecteur Legacy/Enhanced dans la barre latérale"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Téléchargement de DLL non vérifiée",
+                "UnverifiedPrompt": "Aucune somme de contrôle SHA256 n'a été fournie avec cette version.\n\nYMU ne peut pas vérifier l'intégrité ou l'authenticité du fichier.\n\nVeux-tu quand même le télécharger ?",
+                "DownloadAnyway": "Télécharger quand même"
+            },
+            "Error": {
+                "RateLimited": "Limite de l'API GitHub atteinte. Réessaie dans {0} minutes."
             }
         },
         "Inject": {
@@ -819,7 +870,8 @@
                 "SelectLauncher": "Sélectionne d'abord un launcher.",
                 "SuccessTitle": "Injection Réussie",
                 "SuccessMsg": "DLL injectée avec succès !",
-                "CustomDllMissing": "La DLL personnalisée configurée n'existe plus :\n{0}"
+                "CustomDllMissing": "La DLL personnalisée configurée n'existe plus :\n{0}",
+                "LaunchTimeout": "GTA V n'a pas démarré (ou a été fermé avant son chargement).\nTu peux réessayer de le lancer."
             },
             "Help": {
                 "Title": "Infos Injection",
@@ -842,18 +894,36 @@
                 "LaunchFailed": "Erreur au lancement du jeu. Voir logs.",
                 "AccessDenied": "Permissions manquantes pour injecter dans GTA V.\nEssaie de redémarrer YMU en tant qu'administrateur.",
                 "AccessDeniedAdmin": "L'injection a été refusée même avec les droits administrateur.\nC'est généralement dû à BattlEye ou à la mauvaise édition du jeu.\nDésactive BattlEye dans ton launcher (voir la page Risques) et\nvérifie que le sélecteur Legacy/Enhanced correspond à ton jeu.",
-                "CustomPathInvalid": "Le chemin GTA V personnalisé n'est pas défini ou n'existe plus.\nRedéfinis-le sur la page Paramètres."
+                "CustomPathInvalid": "Le chemin GTA V personnalisé n'est pas défini ou n'existe plus.\nRedéfinis-le sur la page Paramètres.",
+                "VerificationFailedTitle": "Injection non confirmée",
+                "VerificationFailed": "L'injection de la DLL a été déclenchée, mais le module n'a pas pu être vérifié dans la mémoire de GTA V.\n\nCela se produit généralement lorsque BattlEye est actif, qu'un antivirus l'a bloqué ou que le jeu a planté.",
+                "RedownloadAction": "Retélécharger la DLL"
             },
             "Label": {
                 "Custom": "perso"
+            },
+            "BattlEye": {
+                "Title": "BattlEye est actif",
+                "Warn": "BattlEye est actif. Injecter pendant qu'il tourne peut faire bannir ton compte et échouera souvent d'emblée.\n\nC'est entièrement ta décision et à tes risques et périls — il est fortement recommandé de désactiver BattlEye dans ton launcher au préalable.",
+                "Proceed": "Injecter quand même",
+                "Learn": "Comment désactiver"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Apparence",
+                "Injection": "Injection",
                 "Lua": "Paramètres Lua",
                 "Other": "Autre",
                 "Paths": "Chemins personnalisés"
+            },
+            "Inject": {
+                "AutoClose": "Fermer YMU après l'injection",
+                "SoundFeedback": "Signal sonore en cas de succès",
+                "Tooltip": {
+                    "AutoClose": "Ferme automatiquement YMU dès que la DLL a été injectée dans le jeu",
+                    "SoundFeedback": "Joue un son de confirmation lorsqu'un téléchargement ou une injection réussit"
+                }
             },
             "Label": {
                 "Language": "Langue"
@@ -916,7 +986,12 @@
                 "LangTitle": "Langue Changée",
                 "LangUpToDate": "Les traductions sont déjà à jour.",
                 "FolderMissing": "Le dossier n'existe pas encore :\n{0}",
-                "V2FileMissing": "YimMenuV2 n'a pas encore de settings.json.\nInjecte-le et lance-le une fois, puis réessaie."
+                "V2FileMissing": "YimMenuV2 n'a pas encore de settings.json.\nInjecte-le et lance-le une fois, puis réessaie.",
+                "NoGtaDirFound": "Impossible de trouver le dossier de GTA V. Sélectionne d'abord ton dossier d'installation GTA V.",
+                "BattlEyeDisabledTitle": "BattlEye désactivé",
+                "BattlEyeDisabledMsg": "-nobattleye a été ajouté à commandline.txt dans ton dossier GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye rétabli",
+                "BattlEyeRestoredMsg": "-nobattleye a été retiré de commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Détecté automatiquement",
@@ -927,7 +1002,12 @@
                 "ErrorNoGta": "Aucun exécutable GTA V trouvé dans ce dossier.",
                 "ErrorNotDll": "Sélectionne un fichier .dll.",
                 "ErrorNotFound": "Le chemin n'existe pas.",
-                "GtaDir": "Dossier d'installation GTA V"
+                "GtaDir": "Dossier d'installation GTA V",
+                "ErrorWriteCommandline": "Impossible de modifier commandline.txt. Vérifie les autorisations du fichier.",
+                "NoBattlEye": "Désactiver BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Ajoute ou retire -nobattleye dans commandline.txt dans ton dossier GTA V pour lancer le jeu sans BattlEye"
+                }
             }
         }
     },
@@ -958,7 +1038,8 @@
             "Restart": "Reiniciar ahora",
             "Yes": "Sí",
             "No": "No",
-            "RestartAdmin": "Reiniciar como Admin"
+            "RestartAdmin": "Reiniciar como Admin",
+            "Cancel": "Cancelar"
         },
         "Risk": {
             "Title": "ATENCIÓN",
@@ -985,7 +1066,8 @@
                 "Error": "Ocurrió un error. Inténtalo de nuevo.",
                 "Downloading": "Descargando",
                 "Success": "¡Descarga exitosa y verificada!",
-                "Failed": "Descarga fallida. Revisa los logs."
+                "Failed": "Descarga fallida. Revisa los logs.",
+                "SuccessUnverified": "¡Descarga exitosa (sin verificar)!"
             },
             "Btn": {
                 "Check": "Buscar actualizaciones",
@@ -1003,7 +1085,8 @@
                 "SuccessMsg": "¡DLL descargada y verificada correctamente!",
                 "FailedTitle": "Descarga Fallida",
                 "FailedMsg": "Verificación fallida. Por favor revisa los logs.",
-                "UpdateTitle": "Actualización {0}"
+                "UpdateTitle": "Actualización {0}",
+                "SuccessMsgUnverified": "DLL descargada correctamente, pero no se pudo verificar (sin suma de comprobación remota)."
             },
             "Help": {
                 "Title": "Info DLL y FSL",
@@ -1014,6 +1097,14 @@
                 "Help": "Mostrar ayuda para la instalación de DLL y FSL",
                 "Channel": "Selecciona la versión de YimMenu a descargar",
                 "ActiveChannel": "Edición activa — cámbiala con el interruptor Legacy/Enhanced en la barra lateral"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Descarga de DLL no verificada",
+                "UnverifiedPrompt": "No se proporcionó ninguna suma de comprobación SHA256 con este lanzamiento.\n\nYMU no puede verificar la integridad ni la autenticidad del archivo.\n\n¿Quieres descargarlo de todos modos?",
+                "DownloadAnyway": "Descargar de todos modos"
+            },
+            "Error": {
+                "RateLimited": "Límite de la API de GitHub alcanzado. Inténtalo de nuevo en {0} minutos."
             }
         },
         "Inject": {
@@ -1032,7 +1123,8 @@
                 "SelectLauncher": "Por favor selecciona un launcher primero.",
                 "SuccessTitle": "Inyección Exitosa",
                 "SuccessMsg": "¡DLL inyectada correctamente!",
-                "CustomDllMissing": "La DLL personalizada configurada ya no existe:\n{0}"
+                "CustomDllMissing": "La DLL personalizada configurada ya no existe:\n{0}",
+                "LaunchTimeout": "GTA V no se inició (o se cerró antes de cargarse).\nPuedes intentar iniciarlo de nuevo."
             },
             "Help": {
                 "Title": "Info Inyección",
@@ -1055,18 +1147,36 @@
                 "LaunchFailed": "Error al iniciar el juego. Mira los logs.",
                 "AccessDenied": "Faltan permisos para inyectar en GTA V.\nPrueba a reiniciar YMU como administrador.",
                 "AccessDeniedAdmin": "La inyección fue denegada incluso con permisos de administrador.\nNormalmente se debe a BattlEye o a una edición del juego incorrecta.\nDesactiva BattlEye en tu launcher (mira la página Riesgos) y\nasegúrate de que el interruptor Legacy/Enhanced coincida con tu juego.",
-                "CustomPathInvalid": "La ruta personalizada de GTA V no está definida o ya no existe.\nVuelve a definirla en la página Ajustes."
+                "CustomPathInvalid": "La ruta personalizada de GTA V no está definida o ya no existe.\nVuelve a definirla en la página Ajustes.",
+                "VerificationFailedTitle": "Inyección no confirmada",
+                "VerificationFailed": "Se activó la inyección de la DLL, pero no se pudo verificar el módulo en la memoria de GTA V.\n\nEsto suele suceder cuando BattlEye está activo, un antivirus lo bloqueó o el juego se cerró inesperadamente.",
+                "RedownloadAction": "Volver a descargar la DLL"
             },
             "Label": {
                 "Custom": "personalizada"
+            },
+            "BattlEye": {
+                "Title": "BattlEye está activo",
+                "Warn": "BattlEye está activo. Inyectar mientras se ejecuta puede hacer que baneen tu cuenta y a menudo fallará por completo.\n\nEsta decisión es enteramente tuya y bajo tu propio riesgo — se recomienda encarecidamente desactivar primero BattlEye en tu launcher.",
+                "Proceed": "Inyectar de todos modos",
+                "Learn": "Cómo desactivar"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Apariencia",
+                "Injection": "Inyección",
                 "Lua": "Ajustes Lua",
                 "Other": "Otros",
                 "Paths": "Rutas personalizadas"
+            },
+            "Inject": {
+                "AutoClose": "Cerrar YMU tras la inyección",
+                "SoundFeedback": "Sonido de confirmación al tener éxito",
+                "Tooltip": {
+                    "AutoClose": "Cierra YMU automáticamente una vez que la DLL haya sido inyectada en el juego",
+                    "SoundFeedback": "Reproduce un sonido de confirmación cuando una descarga o inyección se completa con éxito"
+                }
             },
             "Label": {
                 "Language": "Idioma"
@@ -1129,7 +1239,12 @@
                 "LangTitle": "Idioma Cambiado",
                 "LangUpToDate": "Las traducciones ya están actualizadas.",
                 "FolderMissing": "La carpeta aún no existe:\n{0}",
-                "V2FileMissing": "YimMenuV2 aún no tiene settings.json.\nInyéctalo y ejecútalo una vez, luego inténtalo de nuevo."
+                "V2FileMissing": "YimMenuV2 aún no tiene settings.json.\nInyéctalo y ejecútalo una vez, luego inténtalo de nuevo.",
+                "NoGtaDirFound": "No se pudo encontrar la carpeta de GTA V. Por favor, examina y selecciona primero la carpeta de instalación de GTA V.",
+                "BattlEyeDisabledTitle": "BattlEye desactivado",
+                "BattlEyeDisabledMsg": "Se añadió -nobattleye a commandline.txt en tu carpeta de GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye restaurado",
+                "BattlEyeRestoredMsg": "Se eliminó -nobattleye de commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Detectado automáticamente",
@@ -1140,7 +1255,12 @@
                 "ErrorNoGta": "No se encontró ejecutable de GTA V en esta carpeta.",
                 "ErrorNotDll": "Por favor selecciona un archivo .dll.",
                 "ErrorNotFound": "La ruta no existe.",
-                "GtaDir": "Carpeta de instalación de GTA V"
+                "GtaDir": "Carpeta de instalación de GTA V",
+                "ErrorWriteCommandline": "No se pudo modificar commandline.txt. Comprueba los permisos del archivo.",
+                "NoBattlEye": "Desactivar BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Añade o quita -nobattleye en commandline.txt en tu carpeta de GTA V para jugar sin BattlEye"
+                }
             }
         }
     },
@@ -1171,7 +1291,8 @@
             "Restart": "Reiniciar Agora",
             "Yes": "Sim",
             "No": "Não",
-            "RestartAdmin": "Reiniciar como Admin"
+            "RestartAdmin": "Reiniciar como Admin",
+            "Cancel": "Cancelar"
         },
         "Risk": {
             "Title": "ATENÇÃO",
@@ -1198,7 +1319,8 @@
                 "Error": "Ocorreu um erro. Tente novamente.",
                 "Downloading": "Baixando",
                 "Success": "Download concluído e verificado!",
-                "Failed": "Falha no download. Veja os logs."
+                "Failed": "Falha no download. Veja os logs.",
+                "SuccessUnverified": "Download concluído (não verificado)!"
             },
             "Btn": {
                 "Check": "Verificar Updates",
@@ -1216,7 +1338,8 @@
                 "SuccessMsg": "DLL baixada e verificada com sucesso!",
                 "FailedTitle": "Falha no Download",
                 "FailedMsg": "Falha na verificação. Por favor, verifique os logs.",
-                "UpdateTitle": "Update do {0}"
+                "UpdateTitle": "Update do {0}",
+                "SuccessMsgUnverified": "DLL baixada com sucesso, mas não pôde ser verificada (nenhuma soma de verificação remota)."
             },
             "Help": {
                 "Title": "Info sobre DLL e FSL",
@@ -1227,6 +1350,14 @@
                 "Help": "Mostrar ajuda para instalação da DLL e FSL",
                 "Channel": "Selecione a versão do YimMenu para baixar",
                 "ActiveChannel": "Edição ativa — troque com o botão Legacy/Enhanced na barra lateral"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Download de DLL não verificada",
+                "UnverifiedPrompt": "Nenhuma soma de verificação SHA256 foi fornecida com este lançamento.\n\nO YMU não pode verificar a integridade ou autenticidade do arquivo.\n\nDeseja baixar mesmo assim?",
+                "DownloadAnyway": "Baixar mesmo assim"
+            },
+            "Error": {
+                "RateLimited": "Limite de taxa da API do GitHub atingido. Tente novamente em {0} minutos."
             }
         },
         "Inject": {
@@ -1245,7 +1376,8 @@
                 "SelectLauncher": "Por favor, selecione um launcher primeiro.",
                 "SuccessTitle": "Injection com Sucesso",
                 "SuccessMsg": "DLL injetada com sucesso!",
-                "CustomDllMissing": "A DLL personalizada configurada não existe mais:\n{0}"
+                "CustomDllMissing": "A DLL personalizada configurada não existe mais:\n{0}",
+                "LaunchTimeout": "O GTA V não iniciou (ou foi fechado antes de carregar).\nVocê pode tentar iniciar novamente."
             },
             "Help": {
                 "Title": "Info de Injection",
@@ -1268,18 +1400,36 @@
                 "LaunchFailed": "Erro ao iniciar o jogo. Veja os logs.",
                 "AccessDenied": "Permissões insuficientes para injetar no GTA V.\nTente reiniciar o YMU como administrador.",
                 "AccessDeniedAdmin": "A injeção foi negada mesmo com permissões de administrador.\nGeralmente isso é causado pelo BattlEye ou pela edição errada do jogo.\nDesative o BattlEye no seu launcher (veja a página Riscos) e\nverifique se o botão Legacy/Enhanced corresponde ao seu jogo.",
-                "CustomPathInvalid": "O caminho personalizado do GTA V não está definido ou não existe mais.\nDefina-o novamente na página Configurações."
+                "CustomPathInvalid": "O caminho personalizado do GTA V não está definido ou não existe mais.\nDefina-o novamente na página Configurações.",
+                "VerificationFailedTitle": "Injeção não confirmada",
+                "VerificationFailed": "A injeção da DLL foi disparada, mas o módulo não pôde ser verificado na memória do GTA V.\n\nIsso geralmente acontece quando o BattlEye está ativo, um antivírus o bloqueou ou o jogo travou.",
+                "RedownloadAction": "Baixar DLL novamente"
             },
             "Label": {
                 "Custom": "personalizada"
+            },
+            "BattlEye": {
+                "Title": "O BattlEye está ativo",
+                "Warn": "O BattlEye está ativo. Injetar enquanto ele estiver em execução pode resultar no banimento da sua conta e frequentemente falhará por completo.\n\nEsta é uma decisão inteiramente sua e por sua conta e risco — é altamente recomendável desativar o BattlEye no seu launcher primeiro.",
+                "Proceed": "Injetar mesmo assim",
+                "Learn": "Como desativar"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Aparência",
+                "Injection": "Injeção",
                 "Lua": "Configurações Lua",
                 "Other": "Outros",
                 "Paths": "Caminhos personalizados"
+            },
+            "Inject": {
+                "AutoClose": "Fechar YMU após a injeção",
+                "SoundFeedback": "Sinal sonoro em caso de sucesso",
+                "Tooltip": {
+                    "AutoClose": "Fecha o YMU automaticamente assim que a DLL for injetada no jogo",
+                    "SoundFeedback": "Toca um sinal sonoro de confirmação quando um download ou injeção for concluído com sucesso"
+                }
             },
             "Label": {
                 "Language": "Idioma"
@@ -1342,7 +1492,12 @@
                 "LangTitle": "Idioma Alterado",
                 "LangUpToDate": "As traduções já estão atualizadas.",
                 "FolderMissing": "A pasta ainda não existe:\n{0}",
-                "V2FileMissing": "O YimMenuV2 ainda não tem settings.json.\nInjete e execute uma vez, depois tente novamente."
+                "V2FileMissing": "O YimMenuV2 ainda não tem settings.json.\nInjete e execute uma vez, depois tente novamente.",
+                "NoGtaDirFound": "Não foi possível encontrar a pasta do GTA V. Procure e selecione a pasta de instalação do GTA V primeiro.",
+                "BattlEyeDisabledTitle": "BattlEye desativado",
+                "BattlEyeDisabledMsg": "Adicionado -nobattleye ao commandline.txt na pasta do GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye restaurado",
+                "BattlEyeRestoredMsg": "Removido -nobattleye do commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Detectado automaticamente",
@@ -1353,7 +1508,12 @@
                 "ErrorNoGta": "Nenhum executável do GTA V encontrado nesta pasta.",
                 "ErrorNotDll": "Por favor, selecione um arquivo .dll.",
                 "ErrorNotFound": "O caminho não existe.",
-                "GtaDir": "Pasta de instalação do GTA V"
+                "GtaDir": "Pasta de instalação do GTA V",
+                "ErrorWriteCommandline": "Não foi possível modificar o commandline.txt. Verifique as permissões do arquivo.",
+                "NoBattlEye": "Desativar BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Adiciona ou remove -nobattleye no commandline.txt na sua pasta do GTA V para rodar sem o BattlEye"
+                }
             }
         }
     },
@@ -1384,7 +1544,8 @@
             "Restart": "Zrestartuj teraz",
             "Yes": "Tak",
             "No": "Nie",
-            "RestartAdmin": "Uruchom jako Admin"
+            "RestartAdmin": "Uruchom jako Admin",
+            "Cancel": "Anuluj"
         },
         "Risk": {
             "Title": "UWAGA",
@@ -1411,7 +1572,8 @@
                 "Error": "Wystąpił błąd. Spróbuj ponownie.",
                 "Downloading": "Pobieranie",
                 "Success": "Pobrano i zweryfikowano pomyślnie!",
-                "Failed": "Pobieranie nieudane. Sprawdź logi."
+                "Failed": "Pobieranie nieudane. Sprawdź logi.",
+                "SuccessUnverified": "Pobrano pomyślnie (niezweryfikowano)!"
             },
             "Btn": {
                 "Check": "Sprawdź aktualizacje",
@@ -1429,7 +1591,8 @@
                 "SuccessMsg": "DLL pobrana i zweryfikowana pomyślnie!",
                 "FailedTitle": "Pobieranie nieudane",
                 "FailedMsg": "Weryfikacja nieudana. Sprawdź logi.",
-                "UpdateTitle": "Aktualizacja {0}"
+                "UpdateTitle": "Aktualizacja {0}",
+                "SuccessMsgUnverified": "DLL pobrana pomyślnie, ale nie mogła zostać zweryfikowana (brak zdalnej sumy kontrolnej)."
             },
             "Help": {
                 "Title": "Info o DLL i FSL",
@@ -1440,6 +1603,14 @@
                 "Help": "Pokaż pomoc dotyczącą instalacji DLL i FSL",
                 "Channel": "Wybierz wersję YimMenu do pobrania",
                 "ActiveChannel": "Aktywna edycja — zmień ją przełącznikiem Legacy/Enhanced na pasku bocznym"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Pobieranie niezweryfikowanej DLL",
+                "UnverifiedPrompt": "Z tym wydaniem nie dostarczono sumy kontrolnej SHA256.\n\nYMU nie może zweryfikować integralności ani autentyczności pliku.\n\nCzy chcesz pobrać go mimo to?",
+                "DownloadAnyway": "Pobierz mimo to"
+            },
+            "Error": {
+                "RateLimited": "Osiągnięto limit zapytań API GitHub. Spróbuj ponownie za {0} minut."
             }
         },
         "Inject": {
@@ -1458,7 +1629,8 @@
                 "SelectLauncher": "Najpierw wybierz launcher.",
                 "SuccessTitle": "Wstrzykiwanie udane",
                 "SuccessMsg": "Pomyślnie wstrzyknięto DLL!",
-                "CustomDllMissing": "Skonfigurowana własna DLL już nie istnieje:\n{0}"
+                "CustomDllMissing": "Skonfigurowana własna DLL już nie istnieje:\n{0}",
+                "LaunchTimeout": "GTA V nie uruchomiło się (lub zostało zamknięte przed załadowaniem).\nMożesz spróbować uruchomić je ponownie."
             },
             "Help": {
                 "Title": "Info o Injection",
@@ -1481,18 +1653,36 @@
                 "LaunchFailed": "Błąd uruchamiania gry. Zobacz logi.",
                 "AccessDenied": "Brak uprawnień do wstrzyknięcia do GTA V.\nSpróbuj uruchomić YMU jako administrator.",
                 "AccessDeniedAdmin": "Wstrzyknięcie zostało odrzucone nawet z uprawnieniami administratora.\nZazwyczaj powodem jest BattlEye lub zła edycja gry.\nWyłącz BattlEye w swoim launcherze (zobacz stronę Ryzyko) i\nupewnij się, że przełącznik Legacy/Enhanced pasuje do Twojej gry.",
-                "CustomPathInvalid": "Własna ścieżka GTA V nie jest ustawiona lub już nie istnieje.\nUstaw ją ponownie na stronie Ustawienia."
+                "CustomPathInvalid": "Własna ścieżka GTA V nie jest ustawiona lub już nie istnieje.\nUstaw ją ponownie na stronie Ustawienia.",
+                "VerificationFailedTitle": "Wstrzyknięcie niepotwierdzone",
+                "VerificationFailed": "Wstrzyknięcie DLL zostało wywołane, ale moduł nie mógł zostać zweryfikowany w pamięci GTA V.\n\nZazwyczaj dzieje się tak, gdy BattlEye jest aktywny, program antywirusowy go zablokował lub gra uległa awarii.",
+                "RedownloadAction": "Pobierz DLL ponownie"
             },
             "Label": {
                 "Custom": "własna"
+            },
+            "BattlEye": {
+                "Title": "BattlEye jest aktywny",
+                "Warn": "BattlEye jest aktywny. Wstrzykiwanie podczas jego działania może doprowadzić do zablokowania konta i często kończy się całkowitym niepowodzeniem.\n\nJest to wyłącznie Twoja decyzja i robisz to na własne ryzyko — zdecydowanie zaleca się wcześniejsze wyłączenie BattlEye w launcherze.",
+                "Proceed": "Wstrzyknij mimo to",
+                "Learn": "Jak wyłączyć"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Wygląd",
+                "Injection": "Wstrzykiwanie",
                 "Lua": "Ustawienia Lua",
                 "Other": "Inne",
                 "Paths": "Własne ścieżki"
+            },
+            "Inject": {
+                "AutoClose": "Zamknij YMU po wstrzyknięciu",
+                "SoundFeedback": "Sygnał dźwiękowy po sukcesie",
+                "Tooltip": {
+                    "AutoClose": "Automatycznie zamyka YMU po pomyślnym wstrzyknięciu DLL do gry",
+                    "SoundFeedback": "Odtwarza dźwięk potwierdzenia po pomyślnym zakończeniu pobierania lub wstrzykiwania"
+                }
             },
             "Label": {
                 "Language": "Język"
@@ -1555,7 +1745,12 @@
                 "LangTitle": "Język zmieniony",
                 "LangUpToDate": "Tłumaczenia są już aktualne.",
                 "FolderMissing": "Folder jeszcze nie istnieje:\n{0}",
-                "V2FileMissing": "YimMenuV2 nie ma jeszcze settings.json.\nWstrzyknij i uruchom raz, potem spróbuj ponownie."
+                "V2FileMissing": "YimMenuV2 nie ma jeszcze settings.json.\nWstrzyknij i uruchom raz, potem spróbuj ponownie.",
+                "NoGtaDirFound": "Nie można znaleźć folderu GTA V. Najpierw wskaż folder instalacyjny GTA V.",
+                "BattlEyeDisabledTitle": "BattlEye wyłączony",
+                "BattlEyeDisabledMsg": "Dodano -nobattleye do commandline.txt w folderze GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye przywrócony",
+                "BattlEyeRestoredMsg": "Usunięto -nobattleye z commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Wykryto automatycznie",
@@ -1566,7 +1761,12 @@
                 "ErrorNoGta": "Nie znaleziono pliku wykonywalnego GTA V w tym folderze.",
                 "ErrorNotDll": "Wybierz plik .dll.",
                 "ErrorNotFound": "Ścieżka nie istnieje.",
-                "GtaDir": "Folder instalacji GTA V"
+                "GtaDir": "Folder instalacji GTA V",
+                "ErrorWriteCommandline": "Nie można zmodyfikować commandline.txt. Sprawdź uprawnienia do pliku.",
+                "NoBattlEye": "Wyłącz BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Dodaje lub usuwa -nobattleye w pliku commandline.txt w folderze GTA V, aby uruchamiać bez BattlEye"
+                }
             }
         }
     },
@@ -1597,7 +1797,8 @@
             "Restart": "Перезапустить",
             "Yes": "Да",
             "No": "Нет",
-            "RestartAdmin": "Перезапустить как админ"
+            "RestartAdmin": "Перезапустить как админ",
+            "Cancel": "Отмена"
         },
         "Risk": {
             "Title": "ВНИМАНИЕ",
@@ -1624,7 +1825,8 @@
                 "Error": "Произошла ошибка. Попробуй снова.",
                 "Downloading": "Скачивание",
                 "Success": "Успешно скачано и проверено!",
-                "Failed": "Ошибка скачивания. Чекни логи."
+                "Failed": "Ошибка скачивания. Чекни логи.",
+                "SuccessUnverified": "Успешно скачано (без проверки)!"
             },
             "Btn": {
                 "Check": "Проверить апдейты",
@@ -1642,7 +1844,8 @@
                 "SuccessMsg": "DLL успешно скачана и проверена!",
                 "FailedTitle": "Ошибка скачивания",
                 "FailedMsg": "Верификация не удалась. Проверь логи.",
-                "UpdateTitle": "Обновление {0}"
+                "UpdateTitle": "Обновление {0}",
+                "SuccessMsgUnverified": "DLL успешно скачана, но не удалось проверить её (нет удалённой контрольной суммы)."
             },
             "Help": {
                 "Title": "Инфо о DLL и FSL",
@@ -1653,6 +1856,14 @@
                 "Help": "Показать помощь по установке DLL и FSL",
                 "Channel": "Выбери версию YimMenu для скачивания",
                 "ActiveChannel": "Активная редакция — меняется переключателем Legacy/Enhanced на боковой панели"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Загрузка непроверенной DLL",
+                "UnverifiedPrompt": "Для этого релиза не была предоставлена контрольная сумма SHA256.\n\nYMU не может проверить целостность или подлинность файла.\n\nВсё равно скачать его?",
+                "DownloadAnyway": "Всё равно скачать"
+            },
+            "Error": {
+                "RateLimited": "Достигнут лимит запросов GitHub API. Попробуй снова через {0} мин."
             }
         },
         "Inject": {
@@ -1671,7 +1882,8 @@
                 "SelectLauncher": "Сначала выбери лаунчер.",
                 "SuccessTitle": "Инжект успешен",
                 "SuccessMsg": "DLL успешно внедрена!",
-                "CustomDllMissing": "Заданная пользовательская DLL больше не существует:\n{0}"
+                "CustomDllMissing": "Заданная пользовательская DLL больше не существует:\n{0}",
+                "LaunchTimeout": "GTA V не запустилась (или была закрыта до загрузки).\nПопробуй запустить снова."
             },
             "Help": {
                 "Title": "Инфо об Инжекте",
@@ -1694,18 +1906,36 @@
                 "LaunchFailed": "Ошибка запуска игры. Смотрите логи.",
                 "AccessDenied": "Нет прав для инжекта в GTA V.\nПопробуй перезапустить YMU от имени администратора.",
                 "AccessDeniedAdmin": "Инжект был отклонён даже с правами администратора.\nОбычно причина — BattlEye или неверная редакция игры.\nОтключи BattlEye в лаунчере (см. страницу «Риски») и\nубедись, что переключатель Legacy/Enhanced совпадает с твоей игрой.",
-                "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадай его заново на странице «Настройки»."
+                "CustomPathInvalid": "Пользовательский путь GTA V не задан или больше не существует.\nЗадай его заново на странице «Настройки».",
+                "VerificationFailedTitle": "Инжект не подтверждён",
+                "VerificationFailed": "Инжект DLL был запущен, но модуль не удалось обнаружить в памяти GTA V.\n\nОбычно это происходит, если активен BattlEye, антивирус заблокировал его или игра вылетела.",
+                "RedownloadAction": "Скачать DLL заново"
             },
             "Label": {
                 "Custom": "своя"
+            },
+            "BattlEye": {
+                "Title": "BattlEye активен",
+                "Warn": "BattlEye активен. Инжект во время его работы может привести к бану аккаунта и чаще всего завершается ошибкой.\n\nЭто исключительно твоё решение и твой риск — настоятельно рекомендуется сначала отключить BattlEye в лаунчере.",
+                "Proceed": "Всё равно заинжектить",
+                "Learn": "Как отключить"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Внешний вид",
+                "Injection": "Инжект",
                 "Lua": "Настройки Lua",
                 "Other": "Прочее",
                 "Paths": "Пользовательские пути"
+            },
+            "Inject": {
+                "AutoClose": "Закрывать YMU после инжекта",
+                "SoundFeedback": "Звуковой сигнал при успехе",
+                "Tooltip": {
+                    "AutoClose": "Автоматически закрывать YMU, как только DLL будет успешно внедрена в игру",
+                    "SoundFeedback": "Воспроизводить звуковой сигнал при успешном завершении скачивания или инжекта"
+                }
             },
             "Label": {
                 "Language": "Язык"
@@ -1768,7 +1998,12 @@
                 "LangTitle": "Язык изменен",
                 "LangUpToDate": "Переводы уже актуальны.",
                 "FolderMissing": "Папка ещё не существует:\n{0}",
-                "V2FileMissing": "У YimMenuV2 пока нет settings.json.\nВыполни инжект и запусти один раз, затем повтори."
+                "V2FileMissing": "У YimMenuV2 пока нет settings.json.\nВыполни инжект и запусти один раз, затем повтори.",
+                "NoGtaDirFound": "Не удалось найти папку GTA V. Сначала укажи папку установки GTA V через кнопку «Обзор».",
+                "BattlEyeDisabledTitle": "BattlEye отключён",
+                "BattlEyeDisabledMsg": "Параметр -nobattleye добавлен в commandline.txt в папке GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye восстановлен",
+                "BattlEyeRestoredMsg": "Параметр -nobattleye удалён из commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Определено автоматически",
@@ -1779,7 +2014,12 @@
                 "ErrorNoGta": "В этой папке не найден исполняемый файл GTA V.",
                 "ErrorNotDll": "Пожалуйста, выбери файл .dll.",
                 "ErrorNotFound": "Путь не существует.",
-                "GtaDir": "Папка установки GTA V"
+                "GtaDir": "Папка установки GTA V",
+                "ErrorWriteCommandline": "Не удалось изменить commandline.txt. Проверь права доступа к файлу.",
+                "NoBattlEye": "Отключить BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Добавляет или удаляет -nobattleye в commandline.txt в папке GTA V для запуска без BattlEye"
+                }
             }
         }
     },
@@ -1810,7 +2050,8 @@
             "Restart": "Перезапустити",
             "Yes": "Так",
             "No": "Ні",
-            "RestartAdmin": "Перезапустити як адмін"
+            "RestartAdmin": "Перезапустити як адмін",
+            "Cancel": "Скасувати"
         },
         "Risk": {
             "Title": "УВАГА",
@@ -1837,7 +2078,8 @@
                 "Error": "Сталася помилка. Спробуй ще раз.",
                 "Downloading": "Завантаження",
                 "Success": "Успішно завантажено та перевірено!",
-                "Failed": "Помилка завантаження. Перевір логи."
+                "Failed": "Помилка завантаження. Перевір логи.",
+                "SuccessUnverified": "Успішно завантажено (не перевірено)!"
             },
             "Btn": {
                 "Check": "Перевірити оновлення",
@@ -1855,7 +2097,8 @@
                 "SuccessMsg": "DLL успішно завантажена та перевірена!",
                 "FailedTitle": "Помилка завантаження",
                 "FailedMsg": "Верифікація не вдалася. Перевір логи.",
-                "UpdateTitle": "Оновлення {0}"
+                "UpdateTitle": "Оновлення {0}",
+                "SuccessMsgUnverified": "DLL успішно завантажена, але не вдалося перевірити її (немає віддаленої контрольної суми)."
             },
             "Help": {
                 "Title": "Інфо про DLL та FSL",
@@ -1866,6 +2109,14 @@
                 "Help": "Показати допомогу зі встановлення DLL та FSL",
                 "Channel": "Обери версію YimMenu для завантаження",
                 "ActiveChannel": "Активна редакція — змінюється перемикачем Legacy/Enhanced на бічній панелі"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Завантаження неперевіреної DLL",
+                "UnverifiedPrompt": "Для цього релізу не надано контрольну суму SHA256.\n\nYMU не може перевірити цілісність або автентичність файлу.\n\nВсе одно завантажити його?",
+                "DownloadAnyway": "Все одно завантажити"
+            },
+            "Error": {
+                "RateLimited": "Досягнуто ліміту запитів GitHub API. Спробуй знову через {0} хв."
             }
         },
         "Inject": {
@@ -1884,7 +2135,8 @@
                 "SelectLauncher": "Спочатку обери лаунчер.",
                 "SuccessTitle": "Інжект успішний",
                 "SuccessMsg": "DLL успішно впроваджена!",
-                "CustomDllMissing": "Задана користувацька DLL більше не існує:\n{0}"
+                "CustomDllMissing": "Задана користувацька DLL більше не існує:\n{0}",
+                "LaunchTimeout": "GTA V не запустилася (або була закрита до завантаження).\nСпробуй запустити знову."
             },
             "Help": {
                 "Title": "Інфо про Інжект",
@@ -1907,18 +2159,36 @@
                 "LaunchFailed": "Помилка запуску гри. Дивіться логи.",
                 "AccessDenied": "Немає прав для інжекту в GTA V.\nСпробуй перезапустити YMU від імені адміністратора.",
                 "AccessDeniedAdmin": "Інжект було відхилено навіть із правами адміністратора.\nЗазвичай причина — BattlEye або неправильна редакція гри.\nВимкни BattlEye у лаунчері (див. сторінку «Ризики») і\nпереконайся, що перемикач Legacy/Enhanced відповідає твоїй грі.",
-                "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадай його знову на сторінці «Налаштування»."
+                "CustomPathInvalid": "Користувацький шлях GTA V не задано або він більше не існує.\nЗадай його знову на сторінці «Налаштування».",
+                "VerificationFailedTitle": "Інжект не підтверджено",
+                "VerificationFailed": "Інжект DLL було запущено, але модуль не вдалося виявити у пам'яті GTA V.\n\nЗазвичай це відбувається, якщо активний BattlEye, антивірус заблокував його або гра вилетіла.",
+                "RedownloadAction": "Завантажити DLL знову"
             },
             "Label": {
                 "Custom": "своя"
+            },
+            "BattlEye": {
+                "Title": "BattlEye активний",
+                "Warn": "BattlEye активний. Інжект під час його роботи може призвести до бану облікового запису та найчастіше завершується помилкою.\n\nЦе виключно твоє рішення і на твій власний ризик — наполегливо рекомендується спочатку вимкнути BattlEye у лаунчері.",
+                "Proceed": "Все одно заінжектити",
+                "Learn": "Як вимкнути"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Вигляд",
+                "Injection": "Інжект",
                 "Lua": "Налаштування Lua",
                 "Other": "Інше",
                 "Paths": "Користувацькі шляхи"
+            },
+            "Inject": {
+                "AutoClose": "Закривати YMU після інжекту",
+                "SoundFeedback": "Звуковий сигнал при успіху",
+                "Tooltip": {
+                    "AutoClose": "Автоматично закривати YMU, щойно DLL буде успішно заінжекчена у гру",
+                    "SoundFeedback": "Відтворювати звуковий сигнал при успішному завершенні завантаження або інжекту"
+                }
             },
             "Label": {
                 "Language": "Мова"
@@ -1981,7 +2251,12 @@
                 "LangTitle": "Мову змінено",
                 "LangUpToDate": "Переклади вже актуальні.",
                 "FolderMissing": "Папка ще не існує:\n{0}",
-                "V2FileMissing": "YimMenuV2 ще не має settings.json.\nВиконай інжект і запусти один раз, потім повтори."
+                "V2FileMissing": "YimMenuV2 ще не має settings.json.\nВиконай інжект і запусти один раз, потім повтори.",
+                "NoGtaDirFound": "Не вдалося знайти папку GTA V. Спочатку обери папку встановлення GTA V через кнопку «Огляд».",
+                "BattlEyeDisabledTitle": "BattlEye вимкнено",
+                "BattlEyeDisabledMsg": "Параметр -nobattleye додано до commandline.txt у папці GTA V.",
+                "BattlEyeRestoredTitle": "BattlEye відновлено",
+                "BattlEyeRestoredMsg": "Параметр -nobattleye видалено з commandline.txt."
             },
             "Paths": {
                 "AutoDetect": "Визначено автоматично",
@@ -1992,7 +2267,12 @@
                 "ErrorNoGta": "У цій папці не знайдено виконуваний файл GTA V.",
                 "ErrorNotDll": "Будь ласка, обери файл .dll.",
                 "ErrorNotFound": "Шлях не існує.",
-                "GtaDir": "Папка встановлення GTA V"
+                "GtaDir": "Папка встановлення GTA V",
+                "ErrorWriteCommandline": "Не вдалося змінити commandline.txt. Перевір права доступу до файлу.",
+                "NoBattlEye": "Вимкнути BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Додає або видаляє -nobattleye у commandline.txt у папці GTA V для запуску без BattlEye"
+                }
             }
         }
     },
@@ -2023,7 +2303,8 @@
             "Restart": "Şimdi Yeniden Başlat",
             "Yes": "Evet",
             "No": "Hayır",
-            "RestartAdmin": "Yönetici olarak yeniden başlat"
+            "RestartAdmin": "Yönetici olarak yeniden başlat",
+            "Cancel": "İptal"
         },
         "Risk": {
             "Title": "DİKKAT",
@@ -2050,7 +2331,8 @@
                 "Error": "Bir hata oluştu. Lütfen tekrar dene.",
                 "Downloading": "İndiriliyor",
                 "Success": "İndirme başarılı ve doğrulandı!",
-                "Failed": "İndirme başarısız. Logları kontrol et."
+                "Failed": "İndirme başarısız. Logları kontrol et.",
+                "SuccessUnverified": "İndirme başarılı (doğrulanmadı)!"
             },
             "Btn": {
                 "Check": "Güncellemeleri Kontrol Et",
@@ -2068,7 +2350,8 @@
                 "SuccessMsg": "DLL başarıyla indirildi ve doğrulandı!",
                 "FailedTitle": "İndirme Başarısız",
                 "FailedMsg": "Doğrulama hatası. Lütfen logları kontrol et.",
-                "UpdateTitle": "{0} Güncellemesi"
+                "UpdateTitle": "{0} Güncellemesi",
+                "SuccessMsgUnverified": "DLL başarıyla indirildi ancak doğrulanamadı (uzak sağlama toplamı yok)."
             },
             "Help": {
                 "Title": "DLL & FSL Bilgisi",
@@ -2079,6 +2362,14 @@
                 "Help": "DLL ve FSL kurulum yardımını göster",
                 "Channel": "İndirilecek YimMenu sürümünü seç",
                 "ActiveChannel": "Aktif sürüm — kenar çubuğundaki Legacy/Enhanced anahtarıyla değiştir"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "Doğrulanmamış DLL İndirmesi",
+                "UnverifiedPrompt": "Bu sürümle birlikte herhangi bir SHA256 sağlama toplamı sağlanmadı.\n\nYMU dosyanın bütünlüğünü veya orijinalliğini doğrulayamaz.\n\nYine de indirmek istiyor musun?",
+                "DownloadAnyway": "Yine de indir"
+            },
+            "Error": {
+                "RateLimited": "GitHub API istek sınırına ulaşıldı. Lütfen {0} dakika sonra tekrar dene."
             }
         },
         "Inject": {
@@ -2097,7 +2388,8 @@
                 "SelectLauncher": "Lütfen önce bir Launcher seç.",
                 "SuccessTitle": "Enjekte Başarılı",
                 "SuccessMsg": "DLL başarıyla enjekte edildi!",
-                "CustomDllMissing": "Ayarlanan özel DLL artık mevcut değil:\n{0}"
+                "CustomDllMissing": "Ayarlanan özel DLL artık mevcut değil:\n{0}",
+                "LaunchTimeout": "GTA V başlamadı (veya yüklenmeden önce kapatıldı).\nYeniden başlatmayı deneyebilirsin."
             },
             "Help": {
                 "Title": "Enjeksiyon Bilgisi",
@@ -2120,18 +2412,36 @@
                 "LaunchFailed": "Oyun başlatma hatası. Loglara bak.",
                 "AccessDenied": "GTA V'e inject etmek için yetki yok.\nYMU'yu yönetici olarak yeniden başlatmayı dene.",
                 "AccessDeniedAdmin": "Yönetici yetkileriyle bile inject reddedildi.\nBunun nedeni genellikle BattlEye ya da yanlış oyun sürümüdür.\nLauncher'ında BattlEye'ı kapat (Riskler sayfasına bak) ve\nLegacy/Enhanced anahtarının oyununla eşleştiğinden emin ol.",
-                "CustomPathInvalid": "Özel GTA V yolu ayarlı değil ya da artık mevcut değil.\nAyarlar sayfasından yeniden ayarla."
+                "CustomPathInvalid": "Özel GTA V yolu ayarlı değil ya da artık mevcut değil.\nAyarlar sayfasından yeniden ayarla.",
+                "VerificationFailedTitle": "Inject Doğrulanmadı",
+                "VerificationFailed": "DLL inject işlemi tetiklendi ancak modül GTA V belleğinde doğrulanamadı.\n\nBu durum genellikle BattlEye aktif olduğunda, bir antivirüs engellediğinde veya oyun çöktüğünde meydana gelir.",
+                "RedownloadAction": "DLL'i tekrar indir"
             },
             "Label": {
                 "Custom": "özel"
+            },
+            "BattlEye": {
+                "Title": "BattlEye Çalışıyor",
+                "Warn": "BattlEye aktif. Çalışırken inject etmek hesabının yasaklanmasına yol açabilir ve genellikle doğrudan başarısız olur.\n\nBu tamamen senin kararın ve kendi riskindir — önce launcher'ında BattlEye'ı kapatman şiddetle tavsiye edilir.",
+                "Proceed": "Yine de inject et",
+                "Learn": "Nasıl kapatılır"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "Görünüm",
+                "Injection": "Inject",
                 "Lua": "Lua Ayarları",
                 "Other": "Diğer",
                 "Paths": "Özel yollar"
+            },
+            "Inject": {
+                "AutoClose": "Inject işleminden sonra YMU'yu kapat",
+                "SoundFeedback": "Başarılı olduğunda sesli bildirim",
+                "Tooltip": {
+                    "AutoClose": "DLL oyuna inject edildikten sonra YMU'yu otomatik olarak kapatır",
+                    "SoundFeedback": "İndirme veya inject işlemi başarıyla tamamlandığında sesli bir onay tonu çalar"
+                }
             },
             "Label": {
                 "Language": "Dil (Language)"
@@ -2194,7 +2504,12 @@
                 "LangTitle": "Dil Değiştirildi",
                 "LangUpToDate": "Çeviriler zaten güncel.",
                 "FolderMissing": "Klasör henüz mevcut değil:\n{0}",
-                "V2FileMissing": "YimMenuV2'nin henüz settings.json'u yok.\nBir kez inject edip çalıştır, sonra tekrar dene."
+                "V2FileMissing": "YimMenuV2'nin henüz settings.json'u yok.\nBir kez inject edip çalıştır, sonra tekrar dene.",
+                "NoGtaDirFound": "GTA V dizini bulunamadı. Lütfen önce GTA V kurulum klasörünü seç.",
+                "BattlEyeDisabledTitle": "BattlEye Devre Dışı Bırakıldı",
+                "BattlEyeDisabledMsg": "GTA V klasöründeki commandline.txt dosyasına -nobattleye eklendi.",
+                "BattlEyeRestoredTitle": "BattlEye Geri Yüklendi",
+                "BattlEyeRestoredMsg": "commandline.txt dosyasından -nobattleye kaldırıldı."
             },
             "Paths": {
                 "AutoDetect": "Otomatik algılandı",
@@ -2205,7 +2520,12 @@
                 "ErrorNoGta": "Bu klasörde GTA V çalıştırılabilir dosyası bulunamadı.",
                 "ErrorNotDll": "Lütfen bir .dll dosyası seç.",
                 "ErrorNotFound": "Yol mevcut değil.",
-                "GtaDir": "GTA V kurulum klasörü"
+                "GtaDir": "GTA V kurulum klasörü",
+                "ErrorWriteCommandline": "commandline.txt dosyası değiştirilemedi. Lütfen dosya izinlerini kontrol et.",
+                "NoBattlEye": "BattlEye'ı devre dışı bırak (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "BattlEye olmadan çalıştırmak için GTA V klasöründeki commandline.txt dosyasına -nobattleye ekler veya kaldırır"
+                }
             }
         }
     },
@@ -2236,7 +2556,8 @@
             "Restart": "立即重启",
             "Yes": "是",
             "No": "否",
-            "RestartAdmin": "以管理员身份重启"
+            "RestartAdmin": "以管理员身份重启",
+            "Cancel": "取消"
         },
         "Risk": {
             "Title": "注意",
@@ -2263,7 +2584,8 @@
                 "Error": "发生错误，请重试。",
                 "Downloading": "正在下载",
                 "Success": "下载成功并通过验证！",
-                "Failed": "下载失败，请检查日志。"
+                "Failed": "下载失败，请检查日志。",
+                "SuccessUnverified": "下载成功（未验证）！"
             },
             "Btn": {
                 "Check": "检查更新",
@@ -2281,7 +2603,8 @@
                 "SuccessMsg": "DLL 已成功下载并通过验证！",
                 "FailedTitle": "下载失败",
                 "FailedMsg": "验证失败，请检查日志。",
-                "UpdateTitle": "{0} 更新"
+                "UpdateTitle": "{0} 更新",
+                "SuccessMsgUnverified": "DLL 下载成功，但无法验证（无远程校验和）。"
             },
             "Help": {
                 "Title": "DLL 和 FSL 说明",
@@ -2292,6 +2615,14 @@
                 "Help": "显示 DLL 和 FSL 安装帮助",
                 "Channel": "选择要下载的 YimMenu 版本",
                 "ActiveChannel": "当前版本 — 用侧边栏的 Legacy/Enhanced 开关来切换"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "未验证的 DLL 下载",
+                "UnverifiedPrompt": "此版本未提供 SHA256 校验和。\n\nYMU 无法验证文件的完整性或真实性。\n\n你仍要下载吗？",
+                "DownloadAnyway": "仍然下载"
+            },
+            "Error": {
+                "RateLimited": "已达到 GitHub API 速率限制。请在 {0} 分钟后重试。"
             }
         },
         "Inject": {
@@ -2310,7 +2641,8 @@
                 "SelectLauncher": "请先选择一个启动器。",
                 "SuccessTitle": "注入成功",
                 "SuccessMsg": "DLL 注入成功！",
-                "CustomDllMissing": "配置的自定义 DLL 已不存在：\n{0}"
+                "CustomDllMissing": "配置的自定义 DLL 已不存在：\n{0}",
+                "LaunchTimeout": "GTA V 未启动（或在加载完成前被关闭）。\n你可以尝试重新启动。"
             },
             "Help": {
                 "Title": "注入说明",
@@ -2333,18 +2665,36 @@
                 "LaunchFailed": "启动游戏错误，详情请查看日志。",
                 "AccessDenied": "缺少注入 GTA V 的权限。\n请尝试以管理员身份重启 YMU。",
                 "AccessDeniedAdmin": "即使拥有管理员权限，注入仍被拒绝。\n这通常是由 BattlEye 或错误的游戏版本导致的。\n请在你的启动器中禁用 BattlEye（见风险提示页），并\n确保 Legacy/Enhanced 开关与你的游戏一致。",
-                "CustomPathInvalid": "自定义 GTA V 路径未设置或已不存在。\n请在设置页面重新设置。"
+                "CustomPathInvalid": "自定义 GTA V 路径未设置或已不存在。\n请在设置页面重新设置。",
+                "VerificationFailedTitle": "注入未确认",
+                "VerificationFailed": "已触发 DLL 注入，但无法在 GTA V 的内存中验证该模块。\n\n这通常发生在 BattlEye 处于活动状态、防病毒软件进行了拦截或游戏崩溃时。",
+                "RedownloadAction": "重新下载 DLL"
             },
             "Label": {
                 "Custom": "自定义"
+            },
+            "BattlEye": {
+                "Title": "BattlEye 正在运行",
+                "Warn": "BattlEye 处于活动状态。在其运行时注入可能会导致你的账号被封禁，并且通常会直接失败。\n\n这完全取决于你自己的决定并自担风险 — 强烈建议先在启动器中禁用 BattlEye。",
+                "Proceed": "仍然注入",
+                "Learn": "如何禁用"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外观",
+                "Injection": "注入",
                 "Lua": "Lua 设置",
                 "Other": "其他",
                 "Paths": "自定义路径"
+            },
+            "Inject": {
+                "AutoClose": "注入后自动关闭 YMU",
+                "SoundFeedback": "成功时播放提示音",
+                "Tooltip": {
+                    "AutoClose": "DLL 成功注入游戏后自动关闭 YMU",
+                    "SoundFeedback": "在下载或注入成功完成时播放确认提示音"
+                }
             },
             "Label": {
                 "Language": "语言 (Language)"
@@ -2407,7 +2757,12 @@
                 "LangTitle": "语言已更改",
                 "LangUpToDate": "翻译已是最新版本。",
                 "FolderMissing": "文件夹尚不存在：\n{0}",
-                "V2FileMissing": "YimMenuV2 还没有 settings.json。\n先注入并运行一次，然后重试。"
+                "V2FileMissing": "YimMenuV2 还没有 settings.json。\n先注入并运行一次，然后重试。",
+                "NoGtaDirFound": "找不到 GTA V 目录。请先浏览并选择你的 GTA V 安装文件夹。",
+                "BattlEyeDisabledTitle": "BattlEye 已禁用",
+                "BattlEyeDisabledMsg": "已向 GTA V 目录下的 commandline.txt 添加 -nobattleye。",
+                "BattlEyeRestoredTitle": "BattlEye 已恢复",
+                "BattlEyeRestoredMsg": "已从 commandline.txt 中移除 -nobattleye。"
             },
             "Paths": {
                 "AutoDetect": "自动检测",
@@ -2418,7 +2773,12 @@
                 "ErrorNoGta": "此文件夹中未找到 GTA V 可执行文件。",
                 "ErrorNotDll": "请选择一个 .dll 文件。",
                 "ErrorNotFound": "路径不存在。",
-                "GtaDir": "GTA V 安装文件夹"
+                "GtaDir": "GTA V 安装文件夹",
+                "ErrorWriteCommandline": "无法修改 commandline.txt。请检查文件权限。",
+                "NoBattlEye": "禁用 BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "在 GTA V 目录下的 commandline.txt 中添加或移除 -nobattleye，以便在不运行 BattlEye 的情况下启动游戏"
+                }
             }
         }
     },
@@ -2449,7 +2809,8 @@
             "Restart": "立即重新啟動",
             "Yes": "是",
             "No": "否",
-            "RestartAdmin": "以系統管理員身份重新啟動"
+            "RestartAdmin": "以系統管理員身份重新啟動",
+            "Cancel": "取消"
         },
         "Risk": {
             "Title": "注意",
@@ -2476,7 +2837,8 @@
                 "Error": "發生錯誤，請重試。",
                 "Downloading": "正在下載",
                 "Success": "下載成功並通過驗證！",
-                "Failed": "下載失敗，請檢查日誌。"
+                "Failed": "下載失敗，請檢查日誌。",
+                "SuccessUnverified": "下載成功（未驗證）！"
             },
             "Btn": {
                 "Check": "檢查更新",
@@ -2494,7 +2856,8 @@
                 "SuccessMsg": "DLL 已成功下載並通過驗證！",
                 "FailedTitle": "下載失敗",
                 "FailedMsg": "驗證失敗，請檢查日誌。",
-                "UpdateTitle": "{0} 更新"
+                "UpdateTitle": "{0} 更新",
+                "SuccessMsgUnverified": "DLL 下載成功，但無法驗證（無遠端校驗和）。"
             },
             "Help": {
                 "Title": "DLL 與 FSL 說明",
@@ -2505,6 +2868,14 @@
                 "Help": "顯示 DLL 與 FSL 安裝說明",
                 "Channel": "選擇要下載的 YimMenu 版本",
                 "ActiveChannel": "目前版本 — 用側邊欄的 Legacy/Enhanced 開關切換"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "未驗證的 DLL 下載",
+                "UnverifiedPrompt": "此版本未提供 SHA256 校驗和。\n\nYMU 無法驗證檔案的完整性或真實性。\n\n你仍然要下載嗎？",
+                "DownloadAnyway": "仍然下載"
+            },
+            "Error": {
+                "RateLimited": "已達到 GitHub API 速率限制。請在 {0} 分鐘後重試。"
             }
         },
         "Inject": {
@@ -2523,7 +2894,8 @@
                 "SelectLauncher": "請先選擇一個啟動器。",
                 "SuccessTitle": "注入成功",
                 "SuccessMsg": "DLL 注入成功！",
-                "CustomDllMissing": "設定的自訂 DLL 已不存在：\n{0}"
+                "CustomDllMissing": "設定的自訂 DLL 已不存在：\n{0}",
+                "LaunchTimeout": "GTA V 未啟動（或在載入完成前被關閉）。\n你可以嘗試重新啟動。"
             },
             "Help": {
                 "Title": "注入說明",
@@ -2546,18 +2918,36 @@
                 "LaunchFailed": "啟動遊戲錯誤，詳情請查看日誌。",
                 "AccessDenied": "缺少注入 GTA V 的權限。\n請嘗試以系統管理員身份重新啟動 YMU。",
                 "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在你的啟動器中停用 BattlEye（見風險提示頁），並\n確認 Legacy/Enhanced 開關與你的遊戲一致。",
-                "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。"
+                "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。",
+                "VerificationFailedTitle": "注入未確認",
+                "VerificationFailed": "已觸發 DLL 注入，但無法在 GTA V 的記憶體中驗證該模組。\n\n這通常發生在 BattlEye 處於活動狀態、防毒軟體進行了攔截或遊戲崩潰時。",
+                "RedownloadAction": "重新下載 DLL"
             },
             "Label": {
                 "Custom": "自訂"
+            },
+            "BattlEye": {
+                "Title": "BattlEye 正在執行",
+                "Warn": "BattlEye 處於活動狀態。在其執行時注入可能會導致你的帳號被封鎖，並且通常會直接失敗。\n\n這完全由你自己決定並自擔風險 — 強烈建議先在啟動器中停用 BattlEye。",
+                "Proceed": "仍然注入",
+                "Learn": "如何停用"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外觀",
+                "Injection": "注入",
                 "Lua": "Lua 設定",
                 "Other": "其他",
                 "Paths": "自訂路徑"
+            },
+            "Inject": {
+                "AutoClose": "注入後自動關閉 YMU",
+                "SoundFeedback": "成功時播放提示音",
+                "Tooltip": {
+                    "AutoClose": "DLL 成功注入遊戲後自動關閉 YMU",
+                    "SoundFeedback": "在下載或注入成功完成時播放確認提示音"
+                }
             },
             "Label": {
                 "Language": "語言 (Language)"
@@ -2620,7 +3010,12 @@
                 "LangTitle": "語言已變更",
                 "LangUpToDate": "翻譯已是最新版本。",
                 "FolderMissing": "資料夾尚不存在：\n{0}",
-                "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。"
+                "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。",
+                "NoGtaDirFound": "找不到 GTA V 目錄。請先瀏覽並選擇你的 GTA V 安裝資料夾。",
+                "BattlEyeDisabledTitle": "BattlEye 已停用",
+                "BattlEyeDisabledMsg": "已向 GTA V 目錄下的 commandline.txt 新增 -nobattleye。",
+                "BattlEyeRestoredTitle": "BattlEye 已復原",
+                "BattlEyeRestoredMsg": "已從 commandline.txt 中移除 -nobattleye。"
             },
             "Paths": {
                 "AutoDetect": "自動偵測",
@@ -2631,7 +3026,12 @@
                 "ErrorNoGta": "此資料夾中未找到 GTA V 可執行檔。",
                 "ErrorNotDll": "請選擇一個 .dll 檔案。",
                 "ErrorNotFound": "路徑不存在。",
-                "GtaDir": "GTA V 安裝資料夾"
+                "GtaDir": "GTA V 安裝資料夾",
+                "ErrorWriteCommandline": "無法修改 commandline.txt。請檢查檔案權限。",
+                "NoBattlEye": "停用 BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "在 GTA V 目錄下的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲"
+                }
             }
         }
     },
@@ -2662,7 +3062,8 @@
             "Restart": "立即重新啟動",
             "Yes": "是",
             "No": "否",
-            "RestartAdmin": "以系統管理員身分重新啟動"
+            "RestartAdmin": "以系統管理員身分重新啟動",
+            "Cancel": "取消"
         },
         "Risk": {
             "Title": "注意",
@@ -2689,7 +3090,8 @@
                 "Error": "發生錯誤，請重試。",
                 "Downloading": "正在下載",
                 "Success": "下載成功並通過驗證！",
-                "Failed": "下載失敗，請檢查日誌。"
+                "Failed": "下載失敗，請檢查日誌。",
+                "SuccessUnverified": "下載成功（未驗證）！"
             },
             "Btn": {
                 "Check": "檢查更新",
@@ -2707,7 +3109,8 @@
                 "SuccessMsg": "DLL 已成功下載並通過驗證！",
                 "FailedTitle": "下載失敗",
                 "FailedMsg": "驗證失敗，請檢查日誌。",
-                "UpdateTitle": "{0} 更新"
+                "UpdateTitle": "{0} 更新",
+                "SuccessMsgUnverified": "DLL 下載成功，但無法驗證（無遠端雜湊值）。"
             },
             "Help": {
                 "Title": "DLL 與 FSL 說明",
@@ -2718,6 +3121,14 @@
                 "Help": "顯示 DLL 與 FSL 安裝說明",
                 "Channel": "選擇要下載的 YimMenu 版本",
                 "ActiveChannel": "目前版本 — 用側邊欄的 Legacy/Enhanced 開關切換"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "未驗證的 DLL 下載",
+                "UnverifiedPrompt": "此版本未提供 SHA256 雜湊值。\n\nYMU 無法驗證檔案的完整性或真實性。\n\n你仍要下載嗎？",
+                "DownloadAnyway": "仍要下載"
+            },
+            "Error": {
+                "RateLimited": "已達到 GitHub API 速率限制。請在 {0} 分鐘後重試。"
             }
         },
         "Inject": {
@@ -2736,7 +3147,8 @@
                 "SelectLauncher": "請先選擇一個啟動器。",
                 "SuccessTitle": "注入成功",
                 "SuccessMsg": "DLL 注入成功！",
-                "CustomDllMissing": "設定的自訂 DLL 已不存在：\n{0}"
+                "CustomDllMissing": "設定的自訂 DLL 已不存在：\n{0}",
+                "LaunchTimeout": "GTA V 未啟動（或在載入完成前被關閉）。\n你可以嘗試重新啟動。"
             },
             "Help": {
                 "Title": "注入說明",
@@ -2759,18 +3171,36 @@
                 "LaunchFailed": "啟動遊戲錯誤，詳情請查看日誌。",
                 "AccessDenied": "缺少注入 GTA V 的權限。\n請嘗試以系統管理員身分重新啟動 YMU。",
                 "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在你的啟動器中停用 BattlEye（見風險提示頁），並\n確認 Legacy/Enhanced 開關與你的遊戲一致。",
-                "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。"
+                "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。",
+                "VerificationFailedTitle": "注入未確認",
+                "VerificationFailed": "已觸發 DLL 注入，但無法在 GTA V 的記憶體中驗證該模組。\n\n這通常發生在 BattlEye 處於運作狀態、防毒軟體封鎖或遊戲閃退時。",
+                "RedownloadAction": "重新下載 DLL"
             },
             "Label": {
                 "Custom": "自訂"
+            },
+            "BattlEye": {
+                "Title": "BattlEye 正在執行",
+                "Warn": "BattlEye 處於運作狀態。在其執行時注入可能會導致你的帳號被封鎖，且通常會直接失敗。\n\n這完全由你自己決定並自負風險 — 強烈建議先在啟動器中停用 BattlEye。",
+                "Proceed": "仍要注入",
+                "Learn": "如何停用"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外觀",
+                "Injection": "注入",
                 "Lua": "Lua 設定",
                 "Other": "其他",
                 "Paths": "自訂路徑"
+            },
+            "Inject": {
+                "AutoClose": "注入後自動關閉 YMU",
+                "SoundFeedback": "成功時播放提示音",
+                "Tooltip": {
+                    "AutoClose": "DLL 成功注入遊戲後自動關閉 YMU",
+                    "SoundFeedback": "在下載或注入成功完成時播放確認提示音"
+                }
             },
             "Label": {
                 "Language": "語言 (Language)"
@@ -2833,7 +3263,12 @@
                 "LangTitle": "語言已變更",
                 "LangUpToDate": "翻譯已是最新版本。",
                 "FolderMissing": "資料夾尚不存在：\n{0}",
-                "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。"
+                "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。",
+                "NoGtaDirFound": "找不到 GTA V 目錄。請先瀏覽並選取你的 GTA V 安裝資料夾。",
+                "BattlEyeDisabledTitle": "BattlEye 已停用",
+                "BattlEyeDisabledMsg": "已在 GTA V 目錄下的 commandline.txt 新增 -nobattleye。",
+                "BattlEyeRestoredTitle": "BattlEye 已還原",
+                "BattlEyeRestoredMsg": "已從 commandline.txt 中移除 -nobattleye。"
             },
             "Paths": {
                 "AutoDetect": "自動偵測",
@@ -2844,7 +3279,12 @@
                 "ErrorNoGta": "此資料夾中未找到 GTA V 可執行檔。",
                 "ErrorNotDll": "請選擇一個 .dll 檔案。",
                 "ErrorNotFound": "路徑不存在。",
-                "GtaDir": "GTA V 安裝資料夾"
+                "GtaDir": "GTA V 安裝資料夾",
+                "ErrorWriteCommandline": "無法修改 commandline.txt。請檢查檔案權限。",
+                "NoBattlEye": "停用 BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "在 GTA V 目錄下的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲"
+                }
             }
         }
     },
@@ -2875,7 +3315,8 @@
             "Restart": "今すぐ再起動",
             "Yes": "はい",
             "No": "いいえ",
-            "RestartAdmin": "管理者として再起動"
+            "RestartAdmin": "管理者として再起動",
+            "Cancel": "キャンセル"
         },
         "Risk": {
             "Title": "注意",
@@ -2902,7 +3343,8 @@
                 "Error": "エラーが発生しました。再試行してください。",
                 "Downloading": "ダウンロード中",
                 "Success": "ダウンロードと検証に成功しました！",
-                "Failed": "ダウンロードに失敗しました。ログを確認してください。"
+                "Failed": "ダウンロードに失敗しました。ログを確認してください。",
+                "SuccessUnverified": "ダウンロード成功（未検証）！"
             },
             "Btn": {
                 "Check": "更新を確認",
@@ -2920,7 +3362,8 @@
                 "SuccessMsg": "DLLのダウンロードと検証が完了しました！",
                 "FailedTitle": "ダウンロード失敗",
                 "FailedMsg": "検証に失敗しました。ログを確認してください。",
-                "UpdateTitle": "{0} アップデート"
+                "UpdateTitle": "{0} アップデート",
+                "SuccessMsgUnverified": "DLLは正常にダウンロードされましたが、検証できませんでした（リモートチェックサムなし）。"
             },
             "Help": {
                 "Title": "DLL & FSL 情報",
@@ -2931,6 +3374,14 @@
                 "Help": "DLLとFSLのインストールヘルプを表示",
                 "Channel": "ダウンロードするYimMenuのバージョンを選択",
                 "ActiveChannel": "有効なエディション — サイドバーの Legacy/Enhanced スイッチで切り替えます"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "未検証のDLLダウンロード",
+                "UnverifiedPrompt": "このリリースには SHA256 チェックサムが提供されていません。\n\nYMU はファイルの整合性や真正性を確認できません。\n\nそれでもダウンロードしますか？",
+                "DownloadAnyway": "それでもダウンロード"
+            },
+            "Error": {
+                "RateLimited": "GitHub API のレート制限に達しました。{0} 分後に再試行してください。"
             }
         },
         "Inject": {
@@ -2949,7 +3400,8 @@
                 "SelectLauncher": "先にランチャーを選択してください。",
                 "SuccessTitle": "インジェクト成功",
                 "SuccessMsg": "DLLのインジェクトに成功しました！",
-                "CustomDllMissing": "設定されたカスタム DLL は存在しなくなりました：\n{0}"
+                "CustomDllMissing": "設定されたカスタム DLL は存在しなくなりました：\n{0}",
+                "LaunchTimeout": "GTA V が起動しなかったか、ロード前に終了しました。\nもう一度起動を試すことができます。"
             },
             "Help": {
                 "Title": "インジェクト情報",
@@ -2972,18 +3424,36 @@
                 "LaunchFailed": "ゲームの起動エラー。詳細はログを確認してください。",
                 "AccessDenied": "GTA Vへのインジェクト権限がありません。\n管理者としてYMUを再起動してみてください。",
                 "AccessDeniedAdmin": "管理者権限があってもインジェクトが拒否されました。\n通常、原因は BattlEye または誤ったゲームエディションです。\nランチャーで BattlEye を無効にし（リスクページ参照）、\nLegacy/Enhanced スイッチがゲームと一致しているか確認してください。",
-                "CustomPathInvalid": "カスタム GTA V パスが未設定か、存在しなくなりました。\n設定ページで再設定してください。"
+                "CustomPathInvalid": "カスタム GTA V パスが未設定か、存在しなくなりました。\n設定ページで再設定してください。",
+                "VerificationFailedTitle": "インジェクト未確認",
+                "VerificationFailed": "DLL インジェクトがトリガーされましたが、GTA V のメモリ内でモジュールを確認できませんでした。\n\nこれは通常、BattlEye がアクティブであるか、アンチウイルスがブロックしたか、ゲームがクラッシュした場合に発生します。",
+                "RedownloadAction": "DLLを再ダウンロード"
             },
             "Label": {
                 "Custom": "カスタム"
+            },
+            "BattlEye": {
+                "Title": "BattlEye が実行中です",
+                "Warn": "BattlEye がアクティブです。実行中にインジェクトするとアカウントが停止される可能性があり、大半は失敗します。\n\nこれは完全にあなた自身の判断と自己責任で行われます。まずランチャーで BattlEye を無効にすることを強くお勧めします。",
+                "Proceed": "それでもインジェクト",
+                "Learn": "無効化の手順"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "外観",
+                "Injection": "インジェクト",
                 "Lua": "Lua 設定",
                 "Other": "その他",
                 "Paths": "カスタムパス"
+            },
+            "Inject": {
+                "AutoClose": "インジェクト後にYMUを閉じる",
+                "SoundFeedback": "成功時に通知音を再生",
+                "Tooltip": {
+                    "AutoClose": "DLLがゲームに正常にインジェクトされたら自動的にYMUを閉じます",
+                    "SoundFeedback": "ダウンロードまたはインジェクトが正常に完了したときに確認音を鳴らします"
+                }
             },
             "Label": {
                 "Language": "言語 (Language)"
@@ -3046,7 +3516,12 @@
                 "LangTitle": "言語が変更されました",
                 "LangUpToDate": "翻訳はすでに最新です。",
                 "FolderMissing": "フォルダーはまだ存在しません：\n{0}",
-                "V2FileMissing": "YimMenuV2 にはまだ settings.json がありません。\n一度インジェクトして実行してから、もう一度お試しください。"
+                "V2FileMissing": "YimMenuV2 にはまだ settings.json がありません。\n一度インジェクトして実行してから、もう一度お試しください。",
+                "NoGtaDirFound": "GTA V のディレクトリが見つかりませんでした。まず GTA V のインストールフォルダを選択してください。",
+                "BattlEyeDisabledTitle": "BattlEye が無効化されました",
+                "BattlEyeDisabledMsg": "GTA V ディレクトリ内の commandline.txt に -nobattleye を追加しました。",
+                "BattlEyeRestoredTitle": "BattlEye が復元されました",
+                "BattlEyeRestoredMsg": "commandline.txt から -nobattleye を削除しました。"
             },
             "Paths": {
                 "AutoDetect": "自動検出",
@@ -3057,7 +3532,12 @@
                 "ErrorNoGta": "このフォルダーに GTA V の実行ファイルが見つかりません。",
                 "ErrorNotDll": ".dll ファイルを選択してください。",
                 "ErrorNotFound": "パスが存在しません。",
-                "GtaDir": "GTA V インストールフォルダー"
+                "GtaDir": "GTA V インストールフォルダー",
+                "ErrorWriteCommandline": "commandline.txt を変更できませんでした。ファイルのアクセス許可を確認してください。",
+                "NoBattlEye": "BattlEye を無効化 (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "BattlEye なしで起動するために、GTA V ディレクトリ内の commandline.txt に -nobattleye を追加または削除します"
+                }
             }
         }
     },
@@ -3088,7 +3568,8 @@
             "Restart": "지금 재시작",
             "Yes": "예",
             "No": "아니요",
-            "RestartAdmin": "관리자 권한으로 재시작"
+            "RestartAdmin": "관리자 권한으로 재시작",
+            "Cancel": "취소"
         },
         "Risk": {
             "Title": "주의",
@@ -3115,7 +3596,8 @@
                 "Error": "오류가 발생했습니다. 다시 시도해 주세요.",
                 "Downloading": "다운로드 중",
                 "Success": "다운로드 및 검증에 성공했습니다!",
-                "Failed": "다운로드에 실패했습니다. 로그를 확인하세요."
+                "Failed": "다운로드에 실패했습니다. 로그를 확인하세요.",
+                "SuccessUnverified": "다운로드 성공 (미검증)!"
             },
             "Btn": {
                 "Check": "업데이트 확인",
@@ -3133,7 +3615,8 @@
                 "SuccessMsg": "DLL 다운로드 및 검증에 성공했습니다!",
                 "FailedTitle": "다운로드 실패",
                 "FailedMsg": "검증에 실패했습니다. 로그를 확인해 주세요.",
-                "UpdateTitle": "{0} 업데이트"
+                "UpdateTitle": "{0} 업데이트",
+                "SuccessMsgUnverified": "DLL을 성공적으로 다운로드했지만 검증할 수 없습니다(원격 체크섬 없음)."
             },
             "Help": {
                 "Title": "DLL 및 FSL 정보",
@@ -3144,6 +3627,14 @@
                 "Help": "DLL 및 FSL 설치 도움말을 표시합니다",
                 "Channel": "다운로드할 YimMenu 버전을 선택합니다",
                 "ActiveChannel": "현재 사용 중인 에디션 — 사이드바의 Legacy/Enhanced 스위치로 변경할 수 있습니다"
+            },
+            "Dialog": {
+                "UnverifiedTitle": "검증되지 않은 DLL 다운로드",
+                "UnverifiedPrompt": "이 릴리스에는 SHA256 체크섬이 제공되지 않았습니다.\n\nYMU가 파일의 무결성이나 진위 여부를 확인할 수 없습니다.\n\n그래도 다운로드하시겠습니까?",
+                "DownloadAnyway": "그래도 다운로드"
+            },
+            "Error": {
+                "RateLimited": "GitHub API 요청 한도에 도달했습니다. {0}분 후에 다시 시도해 주세요."
             }
         },
         "Inject": {
@@ -3162,7 +3653,8 @@
                 "SelectLauncher": "먼저 런처를 선택해 주세요.",
                 "SuccessTitle": "인젝트 성공",
                 "SuccessMsg": "DLL을 성공적으로 인젝트했습니다!",
-                "CustomDllMissing": "설정된 사용자 지정 DLL이 더 이상 존재하지 않습니다:\n{0}"
+                "CustomDllMissing": "설정된 사용자 지정 DLL이 더 이상 존재하지 않습니다:\n{0}",
+                "LaunchTimeout": "GTA V가 시작되지 않았거나 로드되기 전에 종료되었습니다.\n다시 시작해 보세요."
             },
             "Help": {
                 "Title": "인젝트 정보",
@@ -3185,18 +3677,36 @@
                 "NoExeFound": "'{0}' 경로에서 실행 파일을 찾을 수 없습니다",
                 "LaunchFailed": "게임 실행 중 오류가 발생했습니다. 자세한 내용은 로그를 확인하세요.",
                 "AccessDenied": "GTA V에 인젝트할 권한이 없습니다.\nYMU를 관리자 권한으로 다시 시작해 보세요.",
-                "AccessDeniedAdmin": "관리자 권한으로도 인젝트가 거부되었습니다.\n이는 보통 BattlEye 또는 잘못된 게임 에디션 때문에 발생합니다.\n런처에서 BattlEye를 비활성화하고(위험 페이지 참고)\nLegacy/Enhanced 스위치가 게임과 일치하는지 확인하세요."
+                "AccessDeniedAdmin": "관리자 권한으로도 인젝트가 거부되었습니다.\n이는 보통 BattlEye 또는 잘못된 게임 에디션 때문에 발생합니다.\n런처에서 BattlEye를 비활성화하고(위험 페이지 참고)\nLegacy/Enhanced 스위치가 게임과 일치하는지 확인하세요.",
+                "VerificationFailedTitle": "인젝트 확인되지 않음",
+                "VerificationFailed": "DLL 인젝트가 트리거되었으나 GTA V 메모리에서 모듈을 확인할 수 없습니다.\n\n이 문제는 일반적으로 BattlEye가 활성화되어 있거나 백신 프로그램이 차단했거나 게임이 충돌했을 때 발생합니다.",
+                "RedownloadAction": "DLL 다시 다운로드"
             },
             "Label": {
                 "Custom": "사용자 지정"
+            },
+            "BattlEye": {
+                "Title": "BattlEye 실행 중",
+                "Warn": "BattlEye가 활성화되어 있습니다. 실행 중 인젝트하면 계정이 정지될 수 있으며 대부분 실패합니다.\n\n이는 전적으로 귀하의 결정이자 본인 부담입니다. 먼저 런처에서 BattlEye를 비활성화하는 것을 적극 권장합니다.",
+                "Proceed": "그래도 인젝트",
+                "Learn": "비활성화 방법"
             }
         },
         "Settings": {
             "Header": {
                 "Appearance": "외관",
+                "Injection": "인젝트",
                 "Lua": "Lua 설정",
                 "Other": "기타",
                 "Paths": "사용자 지정 경로"
+            },
+            "Inject": {
+                "AutoClose": "인젝트 후 YMU 자동 종료",
+                "SoundFeedback": "성공 시 알림음 재생",
+                "Tooltip": {
+                    "AutoClose": "DLL이 게임에 성공적으로 인젝트되면 YMU를 자동으로 닫습니다",
+                    "SoundFeedback": "다운로드 또는 인젝트가 성공적으로 완료되면 확인 알림음을 재생합니다"
+                }
             },
             "Label": {
                 "Language": "언어"
@@ -3259,7 +3769,12 @@
                 "LangTitle": "언어 변경됨",
                 "LangUpToDate": "번역이 이미 최신 상태입니다.",
                 "V2FileMissing": "YimMenuV2에 아직 settings.json이 없습니다.\n한 번 인젝트하여 실행한 후 다시 시도하세요.",
-                "FolderMissing": "폴더가 아직 존재하지 않습니다:\n{0}"
+                "FolderMissing": "폴더가 아직 존재하지 않습니다:\n{0}",
+                "NoGtaDirFound": "GTA V 디렉터리를 찾을 수 없습니다. 먼저 GTA V 설치 폴더를 찾아 선택해 주세요.",
+                "BattlEyeDisabledTitle": "BattlEye 비활성화됨",
+                "BattlEyeDisabledMsg": "GTA V 디렉터리의 commandline.txt에 -nobattleye를 추가했습니다.",
+                "BattlEyeRestoredTitle": "BattlEye 복원됨",
+                "BattlEyeRestoredMsg": "commandline.txt에서 -nobattleye를 제거했습니다."
             },
             "Paths": {
                 "GtaDir": "GTA V 설치 폴더",
@@ -3270,7 +3785,12 @@
                 "DefaultDll": "다운로드한 DLL 사용",
                 "ErrorNotFound": "경로가 존재하지 않습니다.",
                 "ErrorNoGta": "이 폴더에서 GTA V 실행 파일을 찾을 수 없습니다.",
-                "ErrorNotDll": ".dll 파일을 선택해 주세요."
+                "ErrorNotDll": ".dll 파일을 선택해 주세요.",
+                "ErrorWriteCommandline": "commandline.txt를 수정할 수 없습니다. 파일 권한을 확인해 주세요.",
+                "NoBattlEye": "BattlEye 비활성화 (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "BattlEye 없이 실행하기 위해 GTA V 디렉터리의 commandline.txt에 -nobattleye를 추가하거나 제거합니다"
+                }
             }
         }
     }
