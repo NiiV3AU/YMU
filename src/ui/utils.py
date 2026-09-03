@@ -53,12 +53,26 @@ def create_colored_icon(icon_path: str, color: QColor) -> QIcon:
     return QIcon(pixmap)
 
 
+def _strip_nuitka_env(env: dict[str, str] | None = None) -> dict[str, str]:
+    """Removes Nuitka onefile environment variables to ensure child processes start a clean bootstrap."""
+    target = env if env is not None else os.environ.copy()
+    for key in list(target.keys()):
+        if key.startswith("NUITKA_"):
+            target.pop(key, None)
+    for key in list(os.environ.keys()):
+        if key.startswith("NUITKA_"):
+            os.environ.pop(key, None)
+    return target
+
+
 def restart_application():
     """Restarts the application.
 
     Under Nuitka onefile, sys.argv[0] is the real EXE while sys.executable is
     the temporary bootstrap interpreter, so the relaunch target is picked
-    accordingly.
+    accordingly. Nuitka onefile environment variables are stripped so the
+    restarted instance bootstraps cleanly into a new payload directory instead
+    of inheriting the expiring one.
     """
     logger.info("Restart requested via UI. Relaunching...")
     old_pid = os.getpid()
@@ -71,6 +85,8 @@ def restart_application():
         or getattr(sys, "frozen", False)
         or sys.argv[0].lower().endswith(".exe")
     )
+
+    clean_env = _strip_nuitka_env()
 
     if is_compiled:
         executable = os.path.abspath(sys.argv[0])
@@ -91,11 +107,11 @@ def restart_application():
                 if is_compiled
                 else subprocess.CREATE_NEW_PROCESS_GROUP
             )
-            subprocess.Popen(args, creationflags=creationflags)
+            subprocess.Popen(args, creationflags=creationflags, env=clean_env)
         except OSError as e:
             logger.error(f"Failed to restart via subprocess.Popen: {e}")
     else:
-        subprocess.Popen(args)
+        subprocess.Popen(args, env=clean_env)
 
     QApplication.quit()
     sys.exit(0)
@@ -117,13 +133,15 @@ def restart_as_admin():
         or sys.argv[0].lower().endswith(".exe")
     )
 
+    _strip_nuitka_env()
+
     if is_compiled:
         executable = os.path.abspath(sys.argv[0])
         params = f"--wait-for-pid {old_pid}"
     else:
         executable = sys.executable
         clean_script = os.path.abspath(sys.argv[0])
-        params = f'"{clean_script}" --wait-for-pid {old_pid}'
+        params = f'\"{clean_script}\" --wait-for-pid {old_pid}'
 
     logger.info(f"Target executable for Admin restart: {executable}")
     try:

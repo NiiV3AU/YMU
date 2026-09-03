@@ -116,6 +116,7 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 
 ### Full Changelog
 
+- **NEW** in `v1.1.10` ↦ 🩹 **Hotfix:** Resolved Nuitka onefile environment leakage causing SSL/HTTPS failures and corrupted temporary directories during in-app restarts.
 - **NEW** in `v1.1.9` ↦ ⚡ **Quality of Life & Precision:** Real-time in-memory module verification, auto-close after successful injection, audio feedback chimes, one-click `-nobattleye` commandline helper, full keyboard navigation & focus overhaul, and hardened notification lifecycle.
 - **NEW** in `v1.1.8` ↦ 🛡️ **Reliability & Clarity:** Fixed injection failing when the install path contains accented or non-Latin characters (e.g. `Müller` or a Cyrillic user name), plus plain-language injection errors with one-click fixes, a non-blocking BattlEye warning, a pre-injection DLL check, and a Start button that recovers when a launch never completes.
 - **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, remembered launcher/DLL selections, and a refreshed light theme.
