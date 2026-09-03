@@ -222,11 +222,19 @@ def is_dll_loaded_in_process(
 
     Polls for up to `timeout` seconds to account for module load time during heavy game load.
     """
+    if not psutil.pid_exists(pid):
+        logger.warning(f"Process PID {pid} is not running. Cannot verify module.")
+        return False
+
     target = os.path.basename(dll_name_or_path).lower()
     start = time.time()
     can_open_process = False
 
     while time.time() - start < timeout:
+        if not psutil.pid_exists(pid):
+            logger.warning(f"Process PID {pid} terminated during module verification.")
+            return False
+
         h_proc = None
         try:
             h_proc = win32api.OpenProcess(
@@ -257,8 +265,11 @@ def is_dll_loaded_in_process(
         time.sleep(0.2)
 
     if not can_open_process:
-        # If we couldn't open the process (e.g. strict security policy or permissions),
-        # fail open so we don't produce false negatives on unusual system configurations.
+        # If the process is gone, this is a crash/exit, NOT insufficient rights
+        if not psutil.pid_exists(pid):
+            return False
+
+        # Fail open ONLY if the process is confirmed still alive but restricted
         logger.warning(
             f"Could not query modules for PID {pid} (insufficient rights); assuming injection succeeded."
         )
@@ -310,12 +321,18 @@ def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
             f"pyinjector.inject completed for PID {pid}. Verifying module in memory..."
         )
 
-        if not is_dll_loaded_in_process(pid, dll_path, timeout=2.5):
+        if not is_dll_loaded_in_process(pid, inject_path, timeout=2.5):
+            if not psutil.pid_exists(pid):
+                logger.error(
+                    f"Target process (PID {pid}) crashed during or after injection."
+                )
+                raise InjectionError("process_gone", f"PID {pid}")
+
             logger.error(
-                f"In-memory verification failed: '{os.path.basename(dll_path)}' "
+                f"In-memory verification failed: '{os.path.basename(inject_path)}' "
                 f"was not found in memory of PID {pid}."
             )
-            raise InjectionError("module_not_loaded", os.path.basename(dll_path))
+            raise InjectionError("module_not_loaded", os.path.basename(inject_path))
 
         logger.info("Injection successful and verified in memory.")
         return True

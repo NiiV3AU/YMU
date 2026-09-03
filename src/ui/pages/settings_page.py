@@ -706,6 +706,14 @@ class SettingsPage(QWidget):
             self.nobattleye_toggle.blockSignals(True)
             self.nobattleye_toggle.setChecked(current_state)
             self.nobattleye_toggle.blockSignals(False)
+            cast("MainWindow", self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Error", "Error"),
+                self.loc_manager.tr(
+                    "Settings.Paths.ErrorWriteCommandline",
+                    "Could not modify commandline.txt. Please check file permissions.",
+                ),
+                icon_type="error",
+            )
 
     def _update_nobattleye_toggle_state(self):
         """Refreshes the nobattleye toggle state from disk."""

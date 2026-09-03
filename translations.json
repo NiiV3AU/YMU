@@ -244,6 +244,7 @@
                 "ErrorNotFound": "Path does not exist.",
                 "ErrorNoGta": "No GTA V executable found in this folder.",
                 "ErrorNotDll": "Please select a .dll file.",
+                "ErrorWriteCommandline": "Could not modify commandline.txt. Please check file permissions.",
                 "NoBattlEye": "Disable BattlEye (commandline.txt)",
                 "Tooltip": {
                     "NoBattlEye": "Adds or removes -nobattleye in commandline.txt in your GTA V directory to run without BattlEye"
@@ -495,6 +496,7 @@
                 "ErrorNoGta": "Keine GTA V-Executable in diesem Ordner gefunden.",
                 "ErrorNotDll": "Bitte wähle eine .dll-Datei.",
                 "ErrorNotFound": "Pfad existiert nicht.",
+                "ErrorWriteCommandline": "commandline.txt konnte nicht geändert werden. Bitte Dateirechte prüfen.",
                 "GtaDir": "GTA V-Installationsordner",
                 "NoBattlEye": "BattlEye deaktivieren (commandline.txt)",
                 "Tooltip": {
