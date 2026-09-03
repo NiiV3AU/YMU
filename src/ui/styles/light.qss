@@ -425,3 +425,23 @@ QFrame#NotificationCard {
 #NotificationCard QPushButton#NotificationCloseButton:hover {
     background-color: #ECEEF1;
 }
+
+#NotificationCard QPushButton#NotificationActionButton {
+    background-color: #E9ECEF;
+    color: #1A1D21;
+    border: 1px solid #CED4DA;
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+#NotificationCard QPushButton#NotificationActionButton:hover {
+    background-color: #218838;
+    border-color: #218838;
+    color: #FFFFFF;
+}
+
+#NotificationCard QPushButton#NotificationActionButton:focus {
+    border: 1px solid #218838;
+}

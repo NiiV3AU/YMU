@@ -246,6 +246,8 @@ class LocalizationManager(QObject):
         super().__init__()
         self.config = get_config()
         self.active_locale = self.config.get("locale", "en_US")
+        self._lock = threading.Lock()
+        self._is_updating = False
 
         self.data: dict = copy.deepcopy(FALLBACK_DATA)
         self.load_local_file()
@@ -266,23 +268,33 @@ class LocalizationManager(QObject):
 
     def set_locale(self, locale: str):
         """Saves the language in YMU's config."""
-        if locale in self.data:
+        with self._lock:
+            has_locale = locale in self.data
+        if has_locale:
             self.active_locale = locale
             if self.config.set("locale", locale):
                 logger.info(f"Locale switched and saved to YMU config: {locale}")
 
     def fetch_updates(self):
         """Start the update check manually (by clicking the button)."""
+        with self._lock:
+            if self._is_updating:
+                logger.info("Translation update already in progress.")
+                return
+            self._is_updating = True
+
         update_thread = threading.Thread(
             target=self._update_from_remote_thread, daemon=True
         )
         update_thread.start()
 
     def get_available_locales(self) -> list[str]:
-        return list(self.data.keys())
+        with self._lock:
+            return list(self.data.keys())
 
     def get_language_name(self, locale_code: str) -> str:
-        return self.data.get(locale_code, {}).get("meta", {}).get("name", locale_code)
+        with self._lock:
+            return self.data.get(locale_code, {}).get("meta", {}).get("name", locale_code)
 
     def load_local_file(self):
         if not os.path.exists(LOCAL_FILE_PATH):
@@ -330,7 +342,8 @@ class LocalizationManager(QObject):
                         with open(tmp_path, "w", encoding="utf-8") as f:
                             json.dump(remote_data, f, indent=4, ensure_ascii=False)
                         os.replace(tmp_path, LOCAL_FILE_PATH)
-                        self.data = self._deep_merge(FALLBACK_DATA, remote_data)
+                        with self._lock:
+                            self.data = self._deep_merge(FALLBACK_DATA, remote_data)
                         msg = self.tr(
                             "Settings.Notify.LangUpdated",
                             "Translations updated successfully!",
@@ -358,13 +371,16 @@ class LocalizationManager(QObject):
                     os.remove(tmp_path)
                 except OSError:
                     pass
+            with self._lock:
+                self._is_updating = False
 
     def tr(self, key_path: str, default: str | None = None, *args, **kwargs) -> str:
         # This intentionally shadows QObject.tr with a dictionary-based lookup.
         # *args/**kwargs keep the override signature-compatible with the base
         # method so static type checkers don't flag an LSP violation.
         keys = key_path.split(".")
-        value = self.data.get(self.active_locale, {})
+        with self._lock:
+            value = self.data.get(self.active_locale, {})
         try:
             for k in keys:
                 value = value[k]
@@ -374,7 +390,8 @@ class LocalizationManager(QObject):
             pass
 
         if self.active_locale != "en_US":
-            fallback = self.data.get("en_US", {})
+            with self._lock:
+                fallback = self.data.get("en_US", {})
             try:
                 for k in keys:
                     fallback = fallback[k]

@@ -2,7 +2,7 @@
 import logging
 import os
 import webbrowser
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtWidgets import (
@@ -34,7 +34,6 @@ from ui.widgets.toggle_switch import ToggleSwitch
 if TYPE_CHECKING:
     from core.worker_manager import WorkerManager
     from ui.i18n.localization_manager import LocalizationManager
-    from ui.main_window import MainWindow
     from ui.styles.theme_manager import ThemeManager
 
 logger = logging.getLogger(__name__)
@@ -537,6 +536,11 @@ class SettingsPage(QWidget):
         self._load_initial_settings()
         self._update_nobattleye_toggle_state()
 
+    def _notify(self, title: str, message: str, **kwargs):
+        win = self.window()
+        if win and hasattr(win, "notification_manager"):
+            win.notification_manager.show(title, message, **kwargs)
+
     def _build_paths_frame(self) -> QFrame:
         """Custom GTA V install path and custom DLL (issue #19)."""
         config = get_config()
@@ -664,7 +668,7 @@ class SettingsPage(QWidget):
             self.nobattleye_toggle.setChecked(False)
             self.nobattleye_toggle.blockSignals(False)
 
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "Error"),
                 self.loc_manager.tr(
                     "Settings.Notify.NoGtaDirFound",
@@ -678,7 +682,7 @@ class SettingsPage(QWidget):
         success = process_manager.set_nobattleye_enabled(gta_dir, checked)
         if success:
             if checked:
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     self.loc_manager.tr(
                         "Settings.Notify.BattlEyeDisabledTitle",
                         "BattlEye Disabled",
@@ -690,7 +694,7 @@ class SettingsPage(QWidget):
                     icon_type="success",
                 )
             else:
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     self.loc_manager.tr(
                         "Settings.Notify.BattlEyeRestoredTitle",
                         "BattlEye Restored",
@@ -706,7 +710,7 @@ class SettingsPage(QWidget):
             self.nobattleye_toggle.blockSignals(True)
             self.nobattleye_toggle.setChecked(current_state)
             self.nobattleye_toggle.blockSignals(False)
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "Error"),
                 self.loc_manager.tr(
                     "Settings.Paths.ErrorWriteCommandline",
@@ -858,7 +862,7 @@ class SettingsPage(QWidget):
             self.custom_dll_edit.clear()
 
     def _path_error(self, message: str):
-        cast("MainWindow", self.window()).notification_manager.show(
+        self._notify(
             self.loc_manager.tr("Common.Error", "Error"),
             message,
             icon_type="error",
@@ -874,7 +878,7 @@ class SettingsPage(QWidget):
             fmt = self.loc_manager.tr(
                 "Settings.Notify.FolderMissing", "Folder does not exist yet:\n{0}"
             )
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Info", "Information"),
                 fmt.format(path_or_url),
                 icon_type="info",
@@ -930,7 +934,7 @@ class SettingsPage(QWidget):
                 "Settings.Notify.V2FileMissing",
                 "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
             )
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Info", "Information"),
                 msg,
                 icon_type="info",
@@ -1058,7 +1062,7 @@ class SettingsPage(QWidget):
         status, data = result
 
         if status == update_checker.STATUS_UP_TO_DATE:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Settings.Update.Title", "YMU Updater"),
                 self.loc_manager.tr(
                     "Settings.Update.UpToDate", "Your YMU is already up-to-date."
@@ -1107,7 +1111,7 @@ class SettingsPage(QWidget):
                 webbrowser.open(update_checker.RELEASES_URL)
 
         elif status == update_checker.STATUS_AHEAD:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Settings.Update.CheckTitle", "YMU Update Check"),
                 self.loc_manager.tr(
                     "Settings.Update.Ahead", "You are running a newer version..."
@@ -1116,7 +1120,7 @@ class SettingsPage(QWidget):
             )
 
         else:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Settings.Update.ErrorTitle", "Update Error"),
                 f"{self.loc_manager.tr('Common.Error')}: {data}",
                 icon_type="error",
@@ -1142,7 +1146,7 @@ class SettingsPage(QWidget):
                     "Translations were successfully downloaded.\nRestart YMU to see the updated Language List in Settings.",
                 )
                 action_text = self.loc_manager.tr("Common.Restart", "Restart Now")
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     title,
                     msg,
                     icon_type="success",
@@ -1151,11 +1155,11 @@ class SettingsPage(QWidget):
                     action_callback=restart_application,
                 )
             else:
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     title, message, icon_type="success"
                 )
         else:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "Error"), message, icon_type="error"
             )
 
@@ -1178,7 +1182,7 @@ class SettingsPage(QWidget):
         title = self.loc_manager.tr("Settings.Notify.LangTitle", "Language Changed")
         action = self.loc_manager.tr("Common.Restart", "Restart Now")
 
-        cast("MainWindow", self.window()).notification_manager.show(
+        self._notify(
             title,
             msg,
             icon_type="info",
@@ -1199,7 +1203,7 @@ class SettingsPage(QWidget):
         self._is_task_running = False
 
         logger.error(f"A settings page task failed in the background: {error}")
-        cast("MainWindow", self.window()).notification_manager.show(
+        self._notify(
             self.loc_manager.tr("Common.Error", "Error"),
             f"{self.loc_manager.tr('Common.UnexpectedError', 'An unexpected error occurred')}: {error}",
             icon_type="error",

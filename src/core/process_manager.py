@@ -398,6 +398,18 @@ def get_gta_directory(mode: "MenuMode | None" = None) -> str | None:
     return None
 
 
+def _detect_encoding(path: str) -> str:
+    """Detects if file uses UTF-16 BOM, otherwise defaults to utf-8-sig."""
+    try:
+        with open(path, "rb") as f:
+            raw = f.read(2)
+            if raw in (b"\xff\xfe", b"\xfe\xff"):
+                return "utf-16"
+    except OSError:
+        pass
+    return "utf-8-sig"
+
+
 def is_nobattleye_enabled(gta_dir: str | None) -> bool:
     """Checks whether -nobattleye is set in commandline.txt inside gta_dir."""
     if not gta_dir or not os.path.isdir(gta_dir):
@@ -405,8 +417,9 @@ def is_nobattleye_enabled(gta_dir: str | None) -> bool:
     path = os.path.join(gta_dir, "commandline.txt")
     if not os.path.isfile(path):
         return False
+    enc = _detect_encoding(path)
     try:
-        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(path, "r", encoding=enc, errors="ignore") as f:
             return "-nobattleye" in f.read().lower().split()
     except OSError:
         return False
@@ -421,6 +434,7 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
     if not gta_dir or not os.path.isdir(gta_dir):
         return False
     path = os.path.join(gta_dir, "commandline.txt")
+    enc = _detect_encoding(path) if os.path.isfile(path) else "utf-8"
 
     if enable:
         if is_nobattleye_enabled(gta_dir):
@@ -428,14 +442,15 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
         existing = ""
         if os.path.isfile(path):
             try:
-                with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                with open(path, "r", encoding=enc, errors="ignore") as f:
                     existing = f.read()
             except OSError as e:
                 logger.error(f"Could not read existing commandline.txt: {e}")
                 return False
 
+        write_enc = "utf-16" if enc == "utf-16" else "utf-8"
         try:
-            with open(path, "w", encoding="utf-8") as f:
+            with open(path, "w", encoding=write_enc) as f:
                 if existing and not existing.endswith("\n"):
                     existing += "\n"
                 f.write(existing + "-nobattleye\n")
@@ -448,7 +463,7 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
         if not os.path.isfile(path):
             return True
         try:
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            with open(path, "r", encoding=enc, errors="ignore") as f:
                 lines = f.readlines()
         except OSError as e:
             logger.error(f"Could not read commandline.txt: {e}")
@@ -462,7 +477,8 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
 
         try:
             if cleaned_lines:
-                with open(path, "w", encoding="utf-8") as f:
+                write_enc = "utf-16" if enc == "utf-16" else "utf-8"
+                with open(path, "w", encoding=write_enc) as f:
                     f.write("\n".join(cleaned_lines) + "\n")
                 logger.info(f"Removed -nobattleye from {path}")
             else:

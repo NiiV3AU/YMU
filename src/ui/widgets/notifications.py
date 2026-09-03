@@ -58,6 +58,7 @@ class NotificationWidget(QFrame):
         self.message = message
         self.tag = tag
         self.icon_type = icon_type
+        self.is_closing = False
 
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(15, 12, 15, 12)
@@ -84,25 +85,9 @@ class NotificationWidget(QFrame):
 
         if action_text and action_callback:
             self.action_btn = QPushButton(action_text)
+            self.action_btn.setObjectName("NotificationActionButton")
             self.action_btn.setCursor(Qt.CursorShape.PointingHandCursor)
             self.action_btn.setMinimumWidth(100)
-            self.action_btn.setStyleSheet(
-                """
-                QPushButton {
-                    background-color: #333333;
-                    color: #FFFFFF;
-                    border: 1px solid #555555;
-                    border-radius: 4px;
-                    padding: 4px 12px; 
-                    font-size: 11px;
-                    font-weight: bold;
-                }
-                QPushButton:hover {
-                    background-color: #28A745;
-                    border-color: #28A745;
-                }
-            """
-            )
             self.action_btn.clicked.connect(action_callback)
             self.action_btn.clicked.connect(self.close_animation)
             text_layout.addSpacing(5)
@@ -211,6 +196,9 @@ class NotificationWidget(QFrame):
         self.adjustSize()
 
     def close_animation(self):
+        if self.is_closing:
+            return
+        self.is_closing = True
         self._close_timer.stop()
         parent = self.parentWidget()
         if not parent:
@@ -256,6 +244,11 @@ class NotificationManager(QObject):
         action_callback=None,
         tag: str | None = None,
     ):
+        # Limit active notifications to 4 to prevent overflow off screen
+        active = [n for n in self.notifications if not getattr(n, "is_closing", False)]
+        if len(active) >= 4:
+            active[0].close_animation()
+
         # If a tag is specified, update an existing notification with that tag in place
         if tag is not None:
             for n in self.notifications:
@@ -272,7 +265,7 @@ class NotificationManager(QObject):
                     return
         else:
             for n in self.notifications:
-                if n.title == title and n.message == message:
+                if n.title == title and n.message == message and not n.is_closing:
                     logger.info(f"Suppressed duplicate notification: '{title}'")
                     return
 
@@ -293,18 +286,24 @@ class NotificationManager(QObject):
         self._reposition_notifications(is_new=True, new_duration=duration)
 
     def _reposition_notifications(self, is_new: bool = False, new_duration: int = 0):
-        """Calculates positions for all notifications and triggers their animations."""
+        """Calculates positions for all active notifications and triggers their animations."""
         parent_width = self.parent_widget.width()
         parent_height = self.parent_widget.height()
         current_y = parent_height - self.padding
 
-        for notification in reversed(self.notifications):
+        active_notifications = [
+            n for n in self.notifications if not getattr(n, "is_closing", False)
+        ]
+
+        for notification in reversed(active_notifications):
             notification.adjustSize()
             h = notification.height()
             current_y -= h
             pos_x = parent_width - notification.width() - self.padding
             target_pos = QPoint(pos_x, current_y)
-            is_the_very_newest = is_new and notification is self.notifications[-1]
+            is_the_very_newest = (
+                is_new and notification is active_notifications[-1]
+            )
             if is_the_very_newest:
                 notification.start_fly_in(target_pos, new_duration)
             elif notification.pos() != target_pos:

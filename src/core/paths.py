@@ -52,11 +52,18 @@ def resource_path(relative_path: str) -> str:
     3. Normal Python Script
     """
     if hasattr(sys, "_MEIPASS"):
-        base_path = sys._MEIPASS
-    else:
-        base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-        possible_path = os.path.join(base_path, relative_path)
-        if not os.path.exists(possible_path):
-            base_path = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(sys._MEIPASS, relative_path)
 
-    return os.path.join(base_path, relative_path)
+    # 1. Try relative to sys.argv[0] directory
+    argv_base = os.path.dirname(os.path.abspath(sys.argv[0]))
+    candidate = os.path.join(argv_base, relative_path)
+    if os.path.exists(candidate):
+        return candidate
+
+    # 2. Try relative to src/ directory (since paths.py is located in src/core/)
+    src_base = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    candidate = os.path.join(src_base, relative_path)
+    if os.path.exists(candidate):
+        return candidate
+
+    return candidate

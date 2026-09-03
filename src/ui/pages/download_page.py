@@ -2,7 +2,7 @@
 import logging
 import os
 import time
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtWidgets import (
@@ -26,7 +26,6 @@ from ui.widgets.dialogs import InfoDialog
 if TYPE_CHECKING:
     from core.worker_manager import WorkerManager
     from ui.i18n.localization_manager import LocalizationManager
-    from ui.main_window import MainWindow
     from ui.styles.theme_manager import ThemeManager
 
 logger = logging.getLogger(__name__)
@@ -171,6 +170,11 @@ class DownloadPage(QWidget):
             on_error=self._handle_worker_error,
         )
 
+    def _notify(self, title: str, message: str, **kwargs):
+        win = self.window()
+        if win and hasattr(win, "notification_manager"):
+            win.notification_manager.show(title, message, **kwargs)
+
     def update_download_progress(self, percentage: int):
         self.download_button.set_progress(percentage / 100.0)
 
@@ -298,7 +302,7 @@ class DownloadPage(QWidget):
             self.download_button.setEnabled(True)
 
             title_fmt = self.loc_manager.tr("Download.Notify.UpdateTitle", "{0} Update")
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 title_fmt.format(self.get_mode().display_name),
                 self.loc_manager.tr(
                     "Download.Notify.NewVersion", "A new version is ready."
@@ -327,7 +331,7 @@ class DownloadPage(QWidget):
         else:
             err_msg = f"{self.loc_manager.tr('Download.Notify.CheckFailed', 'Failed to check for updates')}: {error}"
 
-        cast("MainWindow", self.window()).notification_manager.show(
+        self._notify(
             self.loc_manager.tr("Common.Error", "Error"),
             err_msg,
             icon_type="error",
@@ -437,7 +441,7 @@ class DownloadPage(QWidget):
                     "DLL downloaded successfully, but could not be verified (no remote checksum).",
                 )
             )
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr(
                     "Download.Notify.SuccessTitle", "Download Complete"
                 ),
@@ -448,7 +452,7 @@ class DownloadPage(QWidget):
             QTimer.singleShot(400, self._set_to_uptodate_state)
         else:
             self.download_button.reset_progress()
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Download.Notify.FailedTitle", "Download Failed"),
                 self.loc_manager.tr(
                     "Download.Notify.FailedMsg",

@@ -200,6 +200,11 @@ class InjectPage(QWidget):
         combo.setCurrentIndex(max(0, idx))
         combo.blockSignals(False)
 
+    def _notify(self, title: str, message: str, **kwargs):
+        win = self.window()
+        if win and hasattr(win, "notification_manager"):
+            win.notification_manager.show(title, message, **kwargs)
+
     def hideEvent(self, event):
         """Called every time the page is hidden."""
         super().hideEvent(event)
@@ -280,7 +285,7 @@ class InjectPage(QWidget):
                 self._dll_paths[label] = custom_dll
             elif not getattr(self, "_warned_missing_custom_dll", False):
                 self._warned_missing_custom_dll = True
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     self.loc_manager.tr("Common.Info", "Information"),
                     self.loc_manager.tr(
                         "Inject.Notify.CustomDllMissing",
@@ -384,7 +389,7 @@ class InjectPage(QWidget):
         if self._state != self.STATE_IDLE:
             return
         if process_manager.find_gta_pid(self.get_mode().target_executables) is not None:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Info", "Information"),
                 self.loc_manager.tr(
                     "Inject.Notify.AlreadyRunning", "GTA 5 is already running!"
@@ -393,7 +398,7 @@ class InjectPage(QWidget):
             )
             return
         if self.launcher_select.currentIndex() == 0:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "Error"),
                 self.loc_manager.tr(
                     "Inject.Notify.SelectLauncher", "Please select a launcher first."
@@ -536,7 +541,7 @@ class InjectPage(QWidget):
                     "not appear. Re-enabling the Start button."
                 )
                 self._set_state(self.STATE_IDLE)
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     self.loc_manager.tr("Common.Info", "Information"),
                     self.loc_manager.tr(
                         "Inject.Notify.LaunchTimeout",
@@ -554,10 +559,19 @@ class InjectPage(QWidget):
 
         # YMU informs, it does not block: if BattlEye is running, warn clearly
         # about the ban risk but let the user decide to inject anyway.
-        if (
-            process_manager.is_battleye_running()
-            and not self._confirm_battleye_override()
-        ):
+        if process_manager.is_battleye_running():
+            self.process_checker_timer.stop()
+            try:
+                override = self._confirm_battleye_override()
+            finally:
+                self.process_checker_timer.start()
+            if not override:
+                return
+
+        # Re-validate process state after modal dialog closes
+        if not self.gta_pid or not process_manager.is_process_running(self.gta_pid):
+            self._set_state(self.STATE_IDLE)
+            self.on_task_error(process_manager.InjectionError("process_gone"))
             return
 
         self._set_state(self.STATE_INJECTING)
@@ -615,7 +629,8 @@ class InjectPage(QWidget):
 
     def _inject_logic(self, pid, dll_to_inject, progress_signal=None):
         """Contains the actual logic for injecting the DLL."""
-        assert pid is not None
+        if pid is None or not process_manager.is_process_running(pid):
+            raise process_manager.InjectionError("process_gone")
 
         if not dll_to_inject:
             msg = self.loc_manager.tr(
@@ -647,7 +662,7 @@ class InjectPage(QWidget):
         self._set_state(self.STATE_INJECTED)
         logger.info(f"Injection finished with result: {result}")
 
-        cast("MainWindow", self.window()).notification_manager.show(
+        self._notify(
             self.loc_manager.tr("Inject.Notify.SuccessTitle", "Injection Successful"),
             self.loc_manager.tr(
                 "Inject.Notify.SuccessMsg", "Successfully injected DLL!"
@@ -675,7 +690,7 @@ class InjectPage(QWidget):
             self._set_state(self.STATE_IDLE)
         if isinstance(error, process_manager.InjectionError):
             title, message, duration = self._injection_error_message(error)
-            win = cast("MainWindow", self.window())
+            win = self.window()
             action_text = None
             action_callback = None
             if error.reason in ("dll_missing", "module_not_found", "not_a_dll"):
@@ -683,8 +698,9 @@ class InjectPage(QWidget):
                 action_text = self.loc_manager.tr(
                     "Inject.Error.RedownloadAction", "Re-download DLL"
                 )
-                action_callback = win.show_download_page
-            win.notification_manager.show(
+                if win and hasattr(win, "show_download_page"):
+                    action_callback = win.show_download_page
+            self._notify(
                 title,
                 message,
                 icon_type="error",
@@ -705,7 +721,7 @@ class InjectPage(QWidget):
                     "Disable BattlEye in your launcher (see Risks page) and make\n"
                     "sure the Legacy/Enhanced switch matches your game.",
                 )
-                cast("MainWindow", self.window()).notification_manager.show(
+                self._notify(
                     self.loc_manager.tr("Common.Error", "Permission Error"),
                     msg,
                     icon_type="error",
@@ -717,7 +733,7 @@ class InjectPage(QWidget):
                 "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
             )
             action_text = self.loc_manager.tr("Common.RestartAdmin", "Restart as Admin")
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "Permission Error"),
                 msg,
                 icon_type="error",
@@ -726,7 +742,7 @@ class InjectPage(QWidget):
                 action_callback=restart_as_admin,
             )
         else:
-            cast("MainWindow", self.window()).notification_manager.show(
+            self._notify(
                 self.loc_manager.tr("Common.Error", "An Error Occurred"),
                 str(error),
                 icon_type="error",
