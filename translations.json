@@ -136,6 +136,8 @@
                 "LaunchFailed": "Error launching game. See logs for details.",
                 "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
                 "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks tab) and make\nsure the Legacy/Enhanced switch matches your game.",
+                "VerificationFailedTitle": "Injection Unconfirmed",
+                "VerificationFailed": "The DLL injection was triggered, but the module could not be verified in GTA V's memory.\n\nThis usually happens when BattlEye is active, an antivirus blocked it, or the game crashed.",
                 "RedownloadAction": "Re-download DLL"
             },
             "Label": {
@@ -151,9 +153,18 @@
         "Settings": {
             "Header": {
                 "Appearance": "Appearance",
+                "Injection": "Injection",
                 "Lua": "Lua Settings",
                 "Other": "Other",
                 "Paths": "Custom Paths"
+            },
+            "Inject": {
+                "AutoClose": "Auto-Close after Injection",
+                "SoundFeedback": "Sound Feedback on Success",
+                "Tooltip": {
+                    "AutoClose": "Automatically close YMU once the DLL has been injected into the game",
+                    "SoundFeedback": "Play an audible confirmation chime when injection or download completes successfully"
+                }
             },
             "Label": {
                 "Language": "Language"
@@ -216,7 +227,12 @@
                 "LangTitle": "Language Changed",
                 "LangUpToDate": "Translations are already up-to-date.",
                 "V2FileMissing": "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
-                "FolderMissing": "Folder does not exist yet:\n{0}"
+                "FolderMissing": "Folder does not exist yet:\n{0}",
+                "NoGtaDirFound": "Could not find your GTA V directory. Please browse and select your GTA V install folder first.",
+                "BattlEyeDisabledTitle": "BattlEye Disabled",
+                "BattlEyeDisabledMsg": "Added -nobattleye to commandline.txt in your GTA V directory.",
+                "BattlEyeRestoredTitle": "BattlEye Restored",
+                "BattlEyeRestoredMsg": "Removed -nobattleye from commandline.txt."
             },
             "Paths": {
                 "GtaDir": "GTA V install folder",
@@ -227,7 +243,11 @@
                 "DefaultDll": "Use downloaded DLL",
                 "ErrorNotFound": "Path does not exist.",
                 "ErrorNoGta": "No GTA V executable found in this folder.",
-                "ErrorNotDll": "Please select a .dll file."
+                "ErrorNotDll": "Please select a .dll file.",
+                "NoBattlEye": "Disable BattlEye (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Adds or removes -nobattleye in commandline.txt in your GTA V directory to run without BattlEye"
+                }
             }
         }
     },
@@ -368,6 +388,8 @@
                 "AccessDenied": "Fehlende Rechte zum Injecten in GTA V.\nVersuche, YMU als Administrator neu zu starten.",
                 "AccessDeniedAdmin": "Injection wurde selbst mit Administrator-Rechten verweigert.\nMeist liegt das an BattlEye oder der falschen Spiel-Edition.\nDeaktiviere BattlEye in deinem Launcher (siehe Risiken-Seite) und\nstelle sicher, dass der Legacy/Enhanced-Schalter zu deinem Spiel passt.",
                 "CustomPathInvalid": "Der eigene GTA V-Pfad ist nicht gesetzt oder existiert nicht mehr.\nLege ihn auf der Einstellungen-Seite erneut fest.",
+                "VerificationFailedTitle": "Injektion unbestätigt",
+                "VerificationFailed": "Die Injektion wurde ausgelöst, die DLL konnte jedoch nicht im Speicher von GTA V nachgewiesen werden.\n\nDies passiert meist, wenn BattlEye aktiv ist, ein Antivirenprogramm das Laden blockiert hat oder das Spiel abgestürzt ist.",
                 "RedownloadAction": "DLL erneut herunterladen"
             },
             "Label": {
@@ -383,9 +405,18 @@
         "Settings": {
             "Header": {
                 "Appearance": "Design",
+                "Injection": "Injektion",
                 "Lua": "Lua Einstellungen",
                 "Other": "Sonstiges",
                 "Paths": "Eigene Pfade"
+            },
+            "Inject": {
+                "AutoClose": "YMU nach Injektion schließen",
+                "SoundFeedback": "Akustisches Feedback bei Erfolg",
+                "Tooltip": {
+                    "AutoClose": "Schließt YMU automatisch, sobald die DLL erfolgreich ins Spiel injiziert wurde",
+                    "SoundFeedback": "Spielt einen dezenten Bestätigungston ab, wenn ein Download oder Inject erfolgreich war"
+                }
             },
             "Label": {
                 "Language": "Sprache"
@@ -448,7 +479,12 @@
                 "LangTitle": "Sprache geändert",
                 "LangUpToDate": "Übersetzungen sind bereits aktuell.",
                 "FolderMissing": "Ordner existiert noch nicht:\n{0}",
-                "V2FileMissing": "YimMenuV2 hat noch keine settings.json.\nInjecte es einmal und starte es, dann versuche es erneut."
+                "V2FileMissing": "YimMenuV2 hat noch keine settings.json.\nInjecte es einmal und starte es, dann versuche es erneut.",
+                "NoGtaDirFound": "GTA V-Ordner konnte nicht gefunden werden. Bitte wähle zuerst deinen GTA V-Installationsordner aus.",
+                "BattlEyeDisabledTitle": "BattlEye deaktiviert",
+                "BattlEyeDisabledMsg": "-nobattleye wurde zur commandline.txt im GTA V-Ordner hinzugefügt.",
+                "BattlEyeRestoredTitle": "BattlEye wiederhergestellt",
+                "BattlEyeRestoredMsg": "-nobattleye wurde aus der commandline.txt entfernt."
             },
             "Paths": {
                 "AutoDetect": "Automatisch erkannt",
@@ -459,7 +495,11 @@
                 "ErrorNoGta": "Keine GTA V-Executable in diesem Ordner gefunden.",
                 "ErrorNotDll": "Bitte wähle eine .dll-Datei.",
                 "ErrorNotFound": "Pfad existiert nicht.",
-                "GtaDir": "GTA V-Installationsordner"
+                "GtaDir": "GTA V-Installationsordner",
+                "NoBattlEye": "BattlEye deaktivieren (commandline.txt)",
+                "Tooltip": {
+                    "NoBattlEye": "Fügt -nobattleye zur commandline.txt im GTA V-Ordner hinzu oder entfernt es, um ohne BattlEye zu starten"
+                }
             }
         }
     },

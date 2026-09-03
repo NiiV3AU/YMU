@@ -416,7 +416,7 @@ def download_and_verify_release(
 if __name__ == "__main__":
     logging.basicConfig(
         level=logging.DEBUG,
-        format="%(asctime)s [%(levelname)-8s] [%(name)-18s] %(message)s",
+        format="%(asctime)s [%(levelname)-8s] [%(name)-28s] %(message)s",
     )
 
     print("Searching for the latest YimMenu release...")

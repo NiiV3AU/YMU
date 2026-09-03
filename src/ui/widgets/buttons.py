@@ -49,6 +49,7 @@ class StatefulButton(QPushButton):
         }
 
         self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self.theme_manager.themeChanged.connect(self.updateThemeColors)
         self.updateThemeColors(self.theme_manager.current_theme)
 

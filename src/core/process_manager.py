@@ -5,9 +5,17 @@ import logging
 import os
 import shutil
 import tempfile
+import time
+from typing import TYPE_CHECKING
 
 import psutil
 import pyinjector
+import win32api
+import win32con
+import win32process
+
+if TYPE_CHECKING:
+    from core.menu_modes import MenuMode
 
 logger = logging.getLogger(__name__)
 
@@ -207,6 +215,61 @@ def get_dll_machine(dll_path: str) -> int | None:
         return None
 
 
+def is_dll_loaded_in_process(
+    pid: int, dll_name_or_path: str, timeout: float = 2.5
+) -> bool:
+    """Checks via Windows API whether the specified DLL is loaded in the process's address space.
+
+    Polls for up to `timeout` seconds to account for module load time during heavy game load.
+    """
+    target = os.path.basename(dll_name_or_path).lower()
+    start = time.time()
+    can_open_process = False
+
+    while time.time() - start < timeout:
+        h_proc = None
+        try:
+            h_proc = win32api.OpenProcess(
+                win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ,
+                False,
+                pid,
+            )
+            can_open_process = True
+            modules = win32process.EnumProcessModulesEx(
+                h_proc, win32process.LIST_MODULES_ALL
+            )
+            for m in modules:
+                try:
+                    mod_path = win32process.GetModuleFileNameEx(h_proc, m)
+                    if os.path.basename(mod_path).lower() == target:
+                        logger.info(
+                            f"Verified module '{target}' in memory of PID {pid}: {mod_path}"
+                        )
+                        return True
+                except (OSError, win32api.error):
+                    continue
+        except (OSError, win32api.error) as e:
+            logger.debug(f"Could not inspect modules for PID {pid}: {e}")
+        finally:
+            if h_proc:
+                win32api.CloseHandle(h_proc)
+
+        time.sleep(0.2)
+
+    if not can_open_process:
+        # If we couldn't open the process (e.g. strict security policy or permissions),
+        # fail open so we don't produce false negatives on unusual system configurations.
+        logger.warning(
+            f"Could not query modules for PID {pid} (insufficient rights); assuming injection succeeded."
+        )
+        return True
+
+    logger.warning(
+        f"Module verification timed out: '{target}' was NOT found in PID {pid}'s module list."
+    )
+    return False
+
+
 def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
     """
     Injects a DLL into a process with the given PID.
@@ -243,7 +306,18 @@ def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
         if inject_path != dll_path:
             logger.info(f"Using ASCII-safe injection path: {inject_path}")
         pyinjector.inject(pid, inject_path)
-        logger.info("Injection successful.")
+        logger.info(
+            f"pyinjector.inject completed for PID {pid}. Verifying module in memory..."
+        )
+
+        if not is_dll_loaded_in_process(pid, dll_path, timeout=2.5):
+            logger.error(
+                f"In-memory verification failed: '{os.path.basename(dll_path)}' "
+                f"was not found in memory of PID {pid}."
+            )
+            raise InjectionError("module_not_loaded", os.path.basename(dll_path))
+
+        logger.info("Injection successful and verified in memory.")
         return True
     except pyinjector.InjectorError as e:
         classified = _classify_injector_error(e)
@@ -268,3 +342,116 @@ def is_process_running(pid: int) -> bool:
     :return: True if the process is running, otherwise False.
     """
     return psutil.pid_exists(pid)
+
+
+def get_gta_directory(mode: "MenuMode | None" = None) -> str | None:
+    """Resolves the GTA V install directory.
+
+    Checks:
+    1. User-configured custom directory in config ('paths.gta_dir').
+    2. Running GTA V process path if currently running.
+    3. Rockstar registry install directory for the active edition.
+    """
+    from core import menu_modes
+    from core.config import get_config
+
+    custom_dir = get_config().get("paths.gta_dir")
+    if custom_dir and os.path.isdir(custom_dir):
+        return custom_dir
+
+    if mode is None:
+        mode = menu_modes.get_mode(get_config().get("mode", "legacy"))
+
+    # Check running process
+    pid = find_gta_pid(mode.target_executables)
+    if pid:
+        try:
+            p = psutil.Process(pid)
+            exe_path = p.exe()
+            if exe_path and os.path.isfile(exe_path):
+                return os.path.dirname(exe_path)
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+    # Check registry
+    reg_dir = menu_modes.get_install_dir(mode)
+    if reg_dir and os.path.isdir(reg_dir):
+        return reg_dir
+
+    return None
+
+
+def is_nobattleye_enabled(gta_dir: str | None) -> bool:
+    """Checks whether -nobattleye is set in commandline.txt inside gta_dir."""
+    if not gta_dir or not os.path.isdir(gta_dir):
+        return False
+    path = os.path.join(gta_dir, "commandline.txt")
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return "-nobattleye" in f.read().lower().split()
+    except OSError:
+        return False
+
+
+def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
+    """Adds or removes -nobattleye in commandline.txt inside gta_dir.
+
+    Preserves other existing commandline arguments. If -nobattleye was
+    the only argument when disabling, deletes commandline.txt cleanly.
+    """
+    if not gta_dir or not os.path.isdir(gta_dir):
+        return False
+    path = os.path.join(gta_dir, "commandline.txt")
+
+    if enable:
+        if is_nobattleye_enabled(gta_dir):
+            return True
+        existing = ""
+        if os.path.isfile(path):
+            try:
+                with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                    existing = f.read()
+            except OSError as e:
+                logger.error(f"Could not read existing commandline.txt: {e}")
+                return False
+
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                if existing and not existing.endswith("\n"):
+                    existing += "\n"
+                f.write(existing + "-nobattleye\n")
+            logger.info(f"Added -nobattleye to {path}")
+            return True
+        except OSError as e:
+            logger.error(f"Could not write to commandline.txt: {e}")
+            return False
+    else:
+        if not os.path.isfile(path):
+            return True
+        try:
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                lines = f.readlines()
+        except OSError as e:
+            logger.error(f"Could not read commandline.txt: {e}")
+            return False
+
+        cleaned_lines = []
+        for line in lines:
+            words = [w for w in line.strip().split() if w.lower() != "-nobattleye"]
+            if words:
+                cleaned_lines.append(" ".join(words))
+
+        try:
+            if cleaned_lines:
+                with open(path, "w", encoding="utf-8") as f:
+                    f.write("\n".join(cleaned_lines) + "\n")
+                logger.info(f"Removed -nobattleye from {path}")
+            else:
+                os.remove(path)
+                logger.info(f"Removed empty commandline.txt at {path}")
+            return True
+        except OSError as e:
+            logger.error(f"Could not update/delete commandline.txt: {e}")
+            return False

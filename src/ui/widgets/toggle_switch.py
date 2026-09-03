@@ -8,7 +8,7 @@ from PySide6.QtCore import (
     Qt,
     Signal,
 )
-from PySide6.QtGui import QColor, QPainter
+from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
 
 
@@ -26,7 +26,7 @@ class ToggleSwitch(QWidget):
         self.setObjectName("ToggleSwitch")
         self.setFixedSize(52, 28)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
-        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+        self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self._checked = False
 
         # "default" keeps the green accent used on the Settings page.
@@ -79,11 +79,13 @@ class ToggleSwitch(QWidget):
         """Called when the widget gains focus."""
         super().focusInEvent(event)
         self.focusChanged.emit(True)
+        self.update()
 
     def focusOutEvent(self, event):
         """Called when the widget loses focus."""
         super().focusOutEvent(event)
         self.focusChanged.emit(False)
+        self.update()
 
     def paintEvent(self, event):
         painter = QPainter(self)
@@ -91,12 +93,16 @@ class ToggleSwitch(QWidget):
 
         track_rect = self.rect().adjusted(1, 1, -1, -1)
         painter.setBrush(self._current_track_color)
-        painter.setPen(Qt.PenStyle.NoPen)
+        if self.hasFocus():
+            painter.setPen(QPen(QColor("#28A745"), 2))
+        else:
+            painter.setPen(Qt.PenStyle.NoPen)
         painter.drawRoundedRect(track_rect, 13, 13)
 
         knob_y = (self.height() - 22) / 2
         knob_rect = QRectF(self._knob_position, knob_y, 22, 22)
         painter.setBrush(self._knob_color)
+        painter.setPen(Qt.PenStyle.NoPen)
         painter.drawEllipse(knob_rect)
 
     def mousePressEvent(self, event):

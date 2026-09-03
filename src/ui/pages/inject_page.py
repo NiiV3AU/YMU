@@ -19,7 +19,7 @@ from core import menu_modes, process_manager
 from core.config import get_config
 from core.menu_modes import MenuMode
 from core.paths import YMU_DLL_DIR, resource_path
-from ui.utils import restart_as_admin
+from ui.utils import play_success_sound, restart_as_admin
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
 
@@ -655,6 +655,18 @@ class InjectPage(QWidget):
             icon_type="success",
         )
 
+        if get_config().get("inject.sound_feedback", True):
+            play_success_sound()
+
+        if get_config().get("inject.auto_close", False):
+            logger.info("Auto-close is enabled. Closing YMU in 1.5 seconds...")
+            QTimer.singleShot(1500, self._auto_close_app)
+
+    def _auto_close_app(self):
+        win = self.window()
+        if win:
+            win.close()
+
     def on_task_error(self, error: Exception):
         logger.error(f"A task failed in the background: {error}")
         if self.gta_pid:
@@ -782,6 +794,19 @@ class InjectPage(QWidget):
                     "Start the game, wait for it to finish loading, then try again.",
                 ),
                 8000,
+            )
+        if reason in ("module_not_loaded", "verification_failed"):
+            return (
+                tr(
+                    "Inject.Error.VerificationFailedTitle",
+                    "Injection Unconfirmed",
+                ),
+                tr(
+                    "Inject.Error.VerificationFailed",
+                    "The DLL injection was triggered, but the module could not be verified in GTA V's memory.\n\n"
+                    "This usually happens when BattlEye is active, an antivirus blocked it, or the game crashed.",
+                ),
+                12000,
             )
         return (
             tr("Common.Error", "Injection Failed"),

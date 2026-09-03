@@ -40,7 +40,7 @@ QWidget#Sidebar {
 QPushButton#SidebarButton {
     background-color: transparent;
     color: #8B8B8B; /* @text-secondary */
-    border: none;
+    border: 1px solid transparent;
     padding: 12px;
     font-size: 15px;
     text-align: left;
@@ -58,13 +58,14 @@ QPushButton#SidebarButton:checked {
     background-color: #333333;
     color: #E0E0E0;
     font-weight: bold;
+    border: 1px solid transparent;
 }
 
 /* --- PRIMARY BUTTONS --- */
 QPushButton {
     background-color: #28A745; /* @primary */
     color: #FFFFFF; /* @primary-text */
-    border: none;
+    border: 2px solid transparent;
     padding: 10px 18px;
     font-weight: bold;
     font-size: 14px;
@@ -331,7 +332,8 @@ QFrame#CardFrame QListWidget {
 /* --- Sidebar Footer --- */
 QPushButton#SidebarFooter {
     background-color: transparent;
-    border: none;
+    border: 1px solid transparent;
+    border-radius: 6px;
     color: #666666;
     font-size: 11px;
     text-align: center;
@@ -357,52 +359,59 @@ QLabel#RiskInfoLabel {
 
 /* --- KEYBOARD FOCUS STYLES --- */
 *:focus {
-    outline: 0;
-}
-
-QPushButton#SidebarButton:focus {
-    background-color: #2C2C2C; /* @panel */
-    color: #E0E0E0; /* @text-primary */
+    outline: none;
 }
 
 QPushButton:focus {
-    background-color: #2ebf4f;
+    border: 2px solid #FFFFFF;
+}
+
+QPushButton#SidebarButton:focus {
+    border: 1px solid #28A745;
+}
+
+QPushButton#SidebarFooter:focus {
+    border: 1px solid #28A745;
+    color: #E0E0E0;
 }
 
 QPushButton#InfoButton:focus {
-    background-color: #333333;
-    border-color: #555555;
+    border: 1px solid #28A745;
     color: #E0E0E0;
 }
 
 QPushButton#ThemeButton:focus {
-    background-color: #444444;
-    color: #CCCCCC;
+    border: 1px solid #28A745;
+}
+
+QPushButton#ThemeButton:checked:focus {
+    border: 1px solid #28A745;
+    background-color: #E0E0E0;
+    color: #121212;
 }
 
 QPushButton#LinkButton:focus {
-    background-color: #333333;
+    border: 1px solid #28A745;
     color: #E0E0E0;
 }
 
-QComboBox:focus, QListWidget:focus {
-    border: 1px solid #555555;
+QComboBox:focus,
+QListWidget:focus,
+QFrame#CardFrame QListWidget:focus {
+    border: 1px solid #28A745;
 }
 
 /* Lua Manager Buttons */
 QPushButton#EnableButton:focus {
-    background-color: #28A745;
-    border-color: #28A745;
+    border: 2px solid #34D399;
 }
 
 QPushButton#RefreshButton:focus {
-    background-color: #444444;
-    border-color: #555555;
+    border: 1px solid #28A745;
 }
 
 QPushButton#DisableButton:focus {
-    background-color: #e84555;
-    border-color: #e84555;
+    border: 2px solid #FF6B7A;
 }
 
 /* --- Notification System --- */

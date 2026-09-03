@@ -48,6 +48,7 @@ class NotificationWidget(QFrame):
         parent: QWidget | None = None,
         action_text: str | None = None,
         action_callback=None,
+        tag: str | None = None,
     ):
         super().__init__(parent)
         self.setObjectName("NotificationCard")
@@ -55,6 +56,8 @@ class NotificationWidget(QFrame):
 
         self.title = title
         self.message = message
+        self.tag = tag
+        self.icon_type = icon_type
 
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(15, 12, 15, 12)
@@ -69,15 +72,15 @@ class NotificationWidget(QFrame):
         text_layout = QVBoxLayout()
         text_layout.setSpacing(4)
 
-        title_label = QLabel(title)
-        title_label.setObjectName("NotificationTitle")
+        self.title_label = QLabel(title)
+        self.title_label.setObjectName("NotificationTitle")
 
-        message_label = QLabel(message)
-        message_label.setObjectName("NotificationMessage")
-        message_label.setWordWrap(True)
+        self.message_label = QLabel(message)
+        self.message_label.setObjectName("NotificationMessage")
+        self.message_label.setWordWrap(True)
 
-        text_layout.addWidget(title_label)
-        text_layout.addWidget(message_label)
+        text_layout.addWidget(self.title_label)
+        text_layout.addWidget(self.message_label)
 
         if action_text and action_callback:
             self.action_btn = QPushButton(action_text)
@@ -174,6 +177,39 @@ class NotificationWidget(QFrame):
             self._close_timer.timeout.connect(self.close_animation)
             self._close_timer.start()
 
+    def update_content(
+        self,
+        title: str,
+        message: str,
+        icon_type: str = "info",
+        duration: int = 6000,
+        action_text: str | None = None,
+        action_callback=None,
+    ):
+        """Updates an existing notification's content in place and resets its close timer."""
+        self.title = title
+        self.message = message
+        self.title_label.setText(title)
+        self.message_label.setText(message)
+        self._set_icon(icon_type)
+
+        if action_text and hasattr(self, "action_btn"):
+            self.action_btn.setText(action_text)
+            if action_callback:
+                try:
+                    self.action_btn.clicked.disconnect()
+                except RuntimeError:
+                    pass
+                self.action_btn.clicked.connect(action_callback)
+                self.action_btn.clicked.connect(self.close_animation)
+
+        if duration > 0:
+            self._close_timer.stop()
+            self._close_timer.setInterval(duration)
+            self._close_timer.start()
+
+        self.adjustSize()
+
     def close_animation(self):
         self._close_timer.stop()
         parent = self.parentWidget()
@@ -218,11 +254,27 @@ class NotificationManager(QObject):
         duration: int = 6000,
         action_text: str | None = None,
         action_callback=None,
+        tag: str | None = None,
     ):
-        for n in self.notifications:
-            if n.title == title and n.message == message:
-                logger.info(f"Suppressed duplicate notification: '{title}'")
-                return
+        # If a tag is specified, update an existing notification with that tag in place
+        if tag is not None:
+            for n in self.notifications:
+                if getattr(n, "tag", None) == tag:
+                    n.update_content(
+                        title=title,
+                        message=message,
+                        icon_type=icon_type,
+                        duration=duration,
+                        action_text=action_text,
+                        action_callback=action_callback,
+                    )
+                    self._reposition_notifications()
+                    return
+        else:
+            for n in self.notifications:
+                if n.title == title and n.message == message:
+                    logger.info(f"Suppressed duplicate notification: '{title}'")
+                    return
 
         notification = NotificationWidget(
             title=title,
@@ -232,6 +284,7 @@ class NotificationManager(QObject):
             parent=self.parent_widget,
             action_text=action_text,
             action_callback=action_callback,
+            tag=tag,
         )
         notification.show()
         notification.closed.connect(lambda: self._remove_notification(notification))

@@ -1,6 +1,6 @@
 [project]
 name = "ymu"
-version = "1.1.8"
+version = "1.1.9"
 description = "The smart launcher for YimMenu: Always updated, always ready."
 readme = "README.md"
 requires-python = ">=3.12"

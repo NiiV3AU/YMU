@@ -7,7 +7,7 @@ import sys
 from PySide6.QtCore import QEvent, QObject, Qt
 from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QApplication
+from PySide6.QtWidgets import QApplication, QWidget
 
 from core.paths import resource_path
 
@@ -148,17 +148,48 @@ def restart_as_admin():
 
 class FocusStealingFilter(QObject):
     """
-    An event filter that clears focus on mouse clicks, but ignores clicks
-    on an AnimatedButton that is currently animating to prevent race conditions.
+    An event filter that manages keyboard vs mouse navigation focus:
+    - Clears focus on mouse clicks, unless clicking an animating button.
+    - Tracks keyboard navigation (Tab/Backtab).
+    - Prevents Qt from artificially auto-focusing the first child widget upon
+      window restore or activation when the user was not using keyboard navigation.
     """
 
+    def __init__(self, parent: QObject | None = None):
+        super().__init__(parent)
+        self._keyboard_nav_active = False
+
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        if event.type() == QEvent.Type.MouseButtonPress:
-            if getattr(watched, "_is_animating", False):
-                pass
-            else:
+        etype = event.type()
+        if etype == QEvent.Type.KeyPress:
+            if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
+                self._keyboard_nav_active = True
+        elif etype == QEvent.Type.MouseButtonPress:
+            self._keyboard_nav_active = False
+            if not getattr(watched, "_is_animating", False):
                 focused_widget = QApplication.focusWidget()
                 if focused_widget:
                     focused_widget.clearFocus()
+        elif (
+            etype == QEvent.Type.FocusIn
+            and isinstance(watched, QWidget)
+            and hasattr(event, "reason")
+            and event.reason() == Qt.FocusReason.ActiveWindowFocusReason
+            and not self._keyboard_nav_active
+        ):
+            watched.clearFocus()
+            return True
 
         return super().eventFilter(watched, event)
+
+
+def play_success_sound():
+    """Plays an audible confirmation chime if running on Windows."""
+    if not IS_WINDOWS:
+        return
+    try:
+        import winsound
+
+        winsound.MessageBeep(winsound.MB_ICONASTERISK)
+    except (RuntimeError, OSError) as e:
+        logger.debug(f"Could not play success sound: {e}")

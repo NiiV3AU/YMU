@@ -22,7 +22,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from core import lua_manager, update_checker
+from core import lua_manager, process_manager, update_checker
 from core import settings as settings_manager
 from core.config import get_config
 from core.menu_modes import MenuMode
@@ -355,6 +355,14 @@ class SettingsPage(QWidget):
         lua_layout.addSpacing(10)
         lua_layout.addLayout(footer_layout)
 
+        self.setTabOrder(self.auto_reload_toggle, self.disabled_scripts_list)
+        self.setTabOrder(self.disabled_scripts_list, self.btn_enable_script)
+        self.setTabOrder(self.btn_enable_script, self.btn_refresh_luas)
+        self.setTabOrder(self.btn_refresh_luas, self.btn_disable_script)
+        self.setTabOrder(self.btn_disable_script, self.enabled_scripts_list)
+        self.setTabOrder(self.enabled_scripts_list, btn_open_scripts_folder)
+        self.setTabOrder(btn_open_scripts_folder, btn_discover_luas)
+
         other_frame = QFrame()
         other_frame.setObjectName("CardFrame")
         other_layout = QVBoxLayout(other_frame)
@@ -457,15 +465,18 @@ class SettingsPage(QWidget):
         )
 
         paths_frame = self._build_paths_frame()
+        injection_frame = self._build_injection_frame()
 
         content_layout.addWidget(appearance_frame)
         content_layout.addWidget(lua_frame)
         content_layout.addWidget(paths_frame)
+        content_layout.addWidget(injection_frame)
         content_layout.addWidget(other_frame)
         content_layout.addStretch()
 
         scroll_area = QScrollArea()
         scroll_area.setObjectName("SettingsScrollArea")
+        scroll_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(scroll_content_widget)
 
@@ -511,6 +522,12 @@ class SettingsPage(QWidget):
             lambda: self._open_link("https://github.com/orgs/YimMenu-Lua/repositories")
         )
 
+        self.setTabOrder(btn_discover_luas, self.gta_dir_edit)
+        self.setTabOrder(self.btn_clear_dll, self.nobattleye_toggle)
+        self.setTabOrder(self.nobattleye_toggle, self.auto_close_toggle)
+        self.setTabOrder(self.auto_close_toggle, self.sound_feedback_toggle)
+        self.setTabOrder(self.sound_feedback_toggle, self.debug_console_toggle)
+
         self._refresh_lua_lists()
         self._load_initial_settings()
 
@@ -518,6 +535,7 @@ class SettingsPage(QWidget):
         """Slot: the sidebar switch changed the active edition."""
         self._refresh_lua_lists()
         self._load_initial_settings()
+        self._update_nobattleye_toggle_state()
 
     def _build_paths_frame(self) -> QFrame:
         """Custom GTA V install path and custom DLL (issue #19)."""
@@ -589,26 +607,192 @@ class SettingsPage(QWidget):
             **link_button_colors,
         )
         btn_browse_dll.setObjectName("LinkButton")
-        btn_clear_dll = StatefulButton(
+        self.btn_clear_dll = StatefulButton(
             f"  {self.loc_manager.tr('Settings.Paths.Clear', 'Clear')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(os.path.join("assets", "icons", "trash.svg")),
             **link_button_colors,
         )
-        btn_clear_dll.setObjectName("LinkButton")
+        self.btn_clear_dll.setObjectName("LinkButton")
         btn_browse_dll.clicked.connect(self._browse_custom_dll)
-        btn_clear_dll.clicked.connect(lambda: self._clear_path("paths.custom_dll"))
+        self.btn_clear_dll.clicked.connect(lambda: self._clear_path("paths.custom_dll"))
 
         dll_row = QHBoxLayout()
         dll_row.addWidget(self.custom_dll_edit, stretch=1)
         dll_row.addWidget(btn_browse_dll)
-        dll_row.addWidget(btn_clear_dll)
+        dll_row.addWidget(self.btn_clear_dll)
 
         layout.addSpacing(10)
         layout.addWidget(dll_label)
         layout.addLayout(dll_row)
 
+        # --- BattlEye commandline.txt row ---
+        nobattleye_row = QHBoxLayout()
+        self.nobattleye_label = QLabel(
+            self.loc_manager.tr(
+                "Settings.Paths.NoBattlEye", "Disable BattlEye (commandline.txt)"
+            )
+        )
+        self.nobattleye_toggle = ToggleSwitch()
+        self.nobattleye_toggle.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Paths.Tooltip.NoBattlEye",
+                "Adds or removes -nobattleye in commandline.txt inside your GTA V directory to run without BattlEye",
+            )
+        )
+        self.nobattleye_toggle.toggled.connect(self._on_nobattleye_toggled)
+        self.nobattleye_toggle.focusChanged.connect(
+            lambda has_focus: self._on_toggle_focus_changed(
+                self.nobattleye_label, has_focus
+            )
+        )
+
+        nobattleye_row.addWidget(self.nobattleye_label)
+        nobattleye_row.addStretch()
+        nobattleye_row.addWidget(self.nobattleye_toggle)
+
+        layout.addSpacing(10)
+        layout.addLayout(nobattleye_row)
+
         return frame
+
+    def _on_nobattleye_toggled(self, checked: bool):
+        """Called when the user toggles the -nobattleye switch."""
+        gta_dir = process_manager.get_gta_directory(self.get_mode())
+        if not gta_dir or not os.path.isdir(gta_dir):
+            self.nobattleye_toggle.blockSignals(True)
+            self.nobattleye_toggle.setChecked(False)
+            self.nobattleye_toggle.blockSignals(False)
+
+            cast("MainWindow", self.window()).notification_manager.show(
+                self.loc_manager.tr("Common.Error", "Error"),
+                self.loc_manager.tr(
+                    "Settings.Notify.NoGtaDirFound",
+                    "Could not find your GTA V directory. Please browse and select your GTA V install folder first.",
+                ),
+                icon_type="error",
+                duration=6000,
+            )
+            return
+
+        success = process_manager.set_nobattleye_enabled(gta_dir, checked)
+        if success:
+            if checked:
+                cast("MainWindow", self.window()).notification_manager.show(
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeDisabledTitle",
+                        "BattlEye Disabled",
+                    ),
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeDisabledMsg",
+                        "Added -nobattleye to commandline.txt in your GTA V directory.",
+                    ),
+                    icon_type="success",
+                )
+            else:
+                cast("MainWindow", self.window()).notification_manager.show(
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeRestoredTitle",
+                        "BattlEye Restored",
+                    ),
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeRestoredMsg",
+                        "Removed -nobattleye from commandline.txt.",
+                    ),
+                    icon_type="info",
+                )
+        else:
+            current_state = process_manager.is_nobattleye_enabled(gta_dir)
+            self.nobattleye_toggle.blockSignals(True)
+            self.nobattleye_toggle.setChecked(current_state)
+            self.nobattleye_toggle.blockSignals(False)
+
+    def _update_nobattleye_toggle_state(self):
+        """Refreshes the nobattleye toggle state from disk."""
+        gta_dir = process_manager.get_gta_directory(self.get_mode())
+        is_enabled = (
+            process_manager.is_nobattleye_enabled(gta_dir) if gta_dir else False
+        )
+        self.nobattleye_toggle.blockSignals(True)
+        self.nobattleye_toggle.setChecked(is_enabled)
+        self.nobattleye_toggle.blockSignals(False)
+
+    def _build_injection_frame(self) -> QFrame:
+        """Builds the Injection preferences card."""
+        frame = QFrame()
+        frame.setObjectName("CardFrame")
+        layout = QVBoxLayout(frame)
+
+        title = QLabel(self.loc_manager.tr("Settings.Header.Injection", "Injection"))
+        title.setObjectName("SettingsTitle")
+
+        auto_close_row = QHBoxLayout()
+        self.auto_close_label = QLabel(
+            self.loc_manager.tr(
+                "Settings.Inject.AutoClose", "Auto-Close after Injection"
+            )
+        )
+        self.auto_close_toggle = ToggleSwitch()
+        self.auto_close_toggle.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Inject.Tooltip.AutoClose",
+                "Automatically close YMU once the DLL has been injected into the game",
+            )
+        )
+        self.auto_close_toggle.setChecked(
+            bool(get_config().get("inject.auto_close", False))
+        )
+        self.auto_close_toggle.toggled.connect(self._on_auto_close_toggled)
+        self.auto_close_toggle.focusChanged.connect(
+            lambda has_focus: self._on_toggle_focus_changed(
+                self.auto_close_label, has_focus
+            )
+        )
+
+        auto_close_row.addWidget(self.auto_close_label)
+        auto_close_row.addStretch()
+        auto_close_row.addWidget(self.auto_close_toggle)
+
+        sound_feedback_row = QHBoxLayout()
+        self.sound_feedback_label = QLabel(
+            self.loc_manager.tr(
+                "Settings.Inject.SoundFeedback", "Sound Feedback on Success"
+            )
+        )
+        self.sound_feedback_toggle = ToggleSwitch()
+        self.sound_feedback_toggle.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Inject.Tooltip.SoundFeedback",
+                "Play an audible confirmation chime when injection or download completes successfully",
+            )
+        )
+        self.sound_feedback_toggle.setChecked(
+            bool(get_config().get("inject.sound_feedback", True))
+        )
+        self.sound_feedback_toggle.toggled.connect(self._on_sound_feedback_toggled)
+        self.sound_feedback_toggle.focusChanged.connect(
+            lambda has_focus: self._on_toggle_focus_changed(
+                self.sound_feedback_label, has_focus
+            )
+        )
+
+        sound_feedback_row.addWidget(self.sound_feedback_label)
+        sound_feedback_row.addStretch()
+        sound_feedback_row.addWidget(self.sound_feedback_toggle)
+
+        layout.addWidget(title)
+        layout.addLayout(auto_close_row)
+        layout.addLayout(sound_feedback_row)
+
+        return frame
+
+    def _on_auto_close_toggled(self, checked: bool):
+        """Called when the user toggles the auto-close switch."""
+        get_config().set("inject.auto_close", checked)
+
+    def _on_sound_feedback_toggled(self, checked: bool):
+        """Called when the user toggles the sound feedback switch."""
+        get_config().set("inject.sound_feedback", checked)
 
     def _browse_gta_dir(self):
         directory = QFileDialog.getExistingDirectory(
@@ -636,6 +820,7 @@ class SettingsPage(QWidget):
             return
         get_config().set("paths.gta_dir", directory)
         self.gta_dir_edit.setText(directory)
+        self._update_nobattleye_toggle_state()
 
     def _browse_custom_dll(self):
         file_path, _ = QFileDialog.getOpenFileName(
@@ -660,6 +845,7 @@ class SettingsPage(QWidget):
         get_config().set(key, None)
         if key == "paths.gta_dir":
             self.gta_dir_edit.clear()
+            self._update_nobattleye_toggle_state()
         elif key == "paths.custom_dll":
             self.custom_dll_edit.clear()
 
@@ -706,6 +892,20 @@ class SettingsPage(QWidget):
         self.debug_console_toggle.blockSignals(True)
         self.debug_console_toggle.setChecked(bool(is_debug_enabled))
         self.debug_console_toggle.blockSignals(False)
+
+        self.auto_close_toggle.blockSignals(True)
+        self.auto_close_toggle.setChecked(
+            bool(get_config().get("inject.auto_close", False))
+        )
+        self.auto_close_toggle.blockSignals(False)
+
+        self.sound_feedback_toggle.blockSignals(True)
+        self.sound_feedback_toggle.setChecked(
+            bool(get_config().get("inject.sound_feedback", True))
+        )
+        self.sound_feedback_toggle.blockSignals(False)
+
+        self._update_nobattleye_toggle_state()
 
     def _write_yim_setting(self, key_path: str, value):
         """Writes into the active edition's settings.json. YimMenuV2's file is
@@ -977,6 +1177,7 @@ class SettingsPage(QWidget):
             duration=10000,
             action_text=action,
             action_callback=restart_application,
+            tag="language_change",
         )
 
     def _on_task_error(self, error: Exception):

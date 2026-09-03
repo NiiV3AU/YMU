@@ -16,8 +16,10 @@ from PySide6.QtWidgets import (
 )
 
 from core import release_service
+from core.config import get_config
 from core.menu_modes import MenuMode
 from core.paths import YMU_DLL_DIR, resource_path
+from ui.utils import play_success_sound
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
 
@@ -409,6 +411,8 @@ class DownloadPage(QWidget):
             return
 
         if success:
+            if get_config().get("inject.sound_feedback", True):
+                play_success_sound()
             self.download_button.set_progress(1.0)
             status_text = (
                 self.loc_manager.tr(

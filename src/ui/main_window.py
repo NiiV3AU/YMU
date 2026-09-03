@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from PySide6.QtCore import QSize, QTimer, Signal
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
+    QApplication,
     QButtonGroup,
     QFrame,
     QGraphicsDropShadowEffect,
@@ -140,6 +141,9 @@ class MainWindow(QMainWindow):
     def show_when_ready(self):
         """Signals that the app is initialized and triggers the first paint."""
         self._is_ready_to_show = True
+        focused = QApplication.focusWidget()
+        if focused:
+            focused.clearFocus()
         self.update()
 
         if self._autodetect_message:
