@@ -1,6 +1,3 @@
-> [!NOTE]
-> **Updating YMU is manual.** The in-app self-updater was retired in v1.1.7 — to update, download the latest `YMU.exe` and replace your old one. Your settings and downloaded DLLs are kept.
-
 # YimMenuUpdater (YMU)
 
 The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
@@ -20,30 +17,33 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
 ---
 
+## ✨ Features
+
+- **Dual-Edition Support:** Seamlessly switch between GTA V Legacy (YimMenu) and Enhanced (YimMenuV2) with instant auto-detection.
+- **Automated DLL Management:** Download and update YimMenu with a single click, protected by SHA-256 integrity verification.
+- **Smart Safety Checks:** Automatic 64-bit architecture validation and non-blocking BattlEye service detection with clear risk guidance.
+- **Integrated Game Launcher:** Start GTA V directly via Steam, Epic Games, Rockstar Games Launcher, or a custom directory.
+- **Resilient Injection Engine:** Built-in UTF-8 and ANSI path sanitization ensures reliable injection even on Windows accounts with special characters or accents.
+- **Lua Script Manager:** Easily enable, disable, and organize scripts on the fly, with direct access to scripts folders and auto-reload settings.
+- **Multi-Language Support:** Available in 15 languages with over-the-air translation updates directly within the app.
+- **Modern UI/UX:** A clean, responsive interface featuring both dark and light modes.
+
+---
+
 ## 🛡️ Safety & Transparency
 
 - **Full source, in the open:** Every line of YMU lives here on GitHub. Don't just trust it; read it, or build the `.exe` yourself and compare.
 - **Verified downloads:** YMU fetches YimMenu DLLs only from their official repositories and verifies each download's SHA-256 against the publisher's published hash before it is used.
-- **Microsoft SmartScreen:** Because YMU isn't code-signed, a fresh release may trigger a SmartScreen prompt until it builds up reputation. You can always cross-check the published `YMU.exe` hash against its VirusTotal report.
+- **Microsoft SmartScreen:** Because YMU isn't code-signed, a fresh release may trigger a SmartScreen prompt until it builds up enough reputation. You can always cross-check the published `YMU.exe` hash against its VirusTotal report.
 
 > [!WARNING]
 > **On third-party menus:** A matching checksum proves you received exactly what the publisher posted. It cannot prove that the publisher's source is, and forever stays, safe. YimMenu is a separate project, and a compromised upstream or supply-chain attack is outside YMU's control. Use mods at your own risk.
 
 ---
 
-## ✨ Features
-
-- **Automated DLL Management:** Download and update YimMenu with a single click.
-- **Smart Updates:** Automatically checks for new DLL versions on startup.
-- **Lua Script Manager:** Easily manage your favorite Lua scripts.
-- **Integrated Game Launcher:** Start GTA V and inject the menu directly from the app.
-- **Modern UI/UX:** A sleek interface with light and dark themes.
-
----
-
 ## 🚀 Getting Started
 
-Get the latest release directly from the downloads page. Just download and run the `YMU.exe`.
+Download and run `YMU.exe` directly from the latest release. No installer required.
 
 | [Download YMU.exe (Latest Release)](https://github.com/NiiV3AU/YMU/releases/latest) |
 | :---------------------------------------------------------------------------------: |
@@ -55,17 +55,17 @@ Get the latest release directly from the downloads page. Just download and run t
 ### Dark Theme
 
 <div align="center">
-  <img src="screenshots/Settings.webp" alt="YMU Dark Theme: Settings" width="32%"/>
-  <img src="screenshots/Launch.webp" alt="YMU Dark Theme: Inject" width="32%"/>
   <img src="screenshots/Download.webp" alt="YMU Dark Theme: Download" width="32%"/>
+  <img src="screenshots/Launch.webp" alt="YMU Dark Theme: Inject" width="32%"/>
+  <img src="screenshots/Settings.webp" alt="YMU Dark Theme: Settings" width="32%"/>
 </div>
 
 ### Light Theme
 
 <div align="center">
-  <img src="screenshots/Settings_Light.webp" alt="YMU Light Theme: Settings" width="32%"/>
-  <img src="screenshots/Launch_Light.webp" alt="YMU Light Theme: Inject" width="32%"/>
   <img src="screenshots/Download_Light.webp" alt="YMU Light Theme: Download" width="32%"/>
+  <img src="screenshots/Launch_Light.webp" alt="YMU Light Theme: Inject" width="32%"/>
+  <img src="screenshots/Settings_Light.webp" alt="YMU Light Theme: Settings" width="32%"/>
 </div>
 
 ---
@@ -143,7 +143,7 @@ Get the latest release directly from the downloads page. Just download and run t
 <details>
 <summary><b>Click to expand instructions for developers</b></summary>
   
-### First things first - get the source
+### First things first — get the source
 
 | [Download Source Code](https://github.com/NiiV3AU/YMU/archive/refs/heads/main.zip) |
 | :--------------------------------------------------------------------------------: |
@@ -156,15 +156,15 @@ YMU uses [**uv**](https://docs.astral.sh/uv/) for Python and dependency manageme
 uv sync
 ```
 
-That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), [psutil](https://pypi.org/project/psutil/), [pyinjector](https://pypi.org/project/pyinjector/), [pywin32](https://pypi.org/project/pywin32/) and [packaging](https://pypi.org/project/packaging/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
+That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), [psutil](https://pypi.org/project/psutil/), [pyinjector](https://pypi.org/project/pyinjector/), [pywin32](https://pypi.org/project/pywin32/), and [packaging](https://pypi.org/project/packaging/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
 
-> **Not using uv?** Everything is declared in `pyproject.toml`, so plain pip works too:
-> `python -m venv .venv && .venv\Scripts\activate`, then `pip install .` for the runtime deps and `pip install nuitka` to build.
+> **Not using uv?** Dependencies are declared in `pyproject.toml`, so plain pip works as well:
+> `python -m venv .venv && .venv\Scripts\activate`, then install the runtime dependencies and `pip install nuitka` to build.
 
 ### Run from source
 
 ```bash
-uv run python src/gui.py
+uv run python src/main.py
 ```
 
 ### Creating the Executable (.exe)
@@ -172,7 +172,7 @@ uv run python src/gui.py
 This project uses **Nuitka** (instead of PyInstaller) to create a high-performance, compact executable. From the project root, run:
 
 ```bash
-uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --output-filename=YMU.exe src/gui.py
+uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --output-filename=YMU.exe src/main.py
 ```
 
 This creates `YMU.exe` in the `dist` folder.
@@ -180,9 +180,11 @@ This creates `YMU.exe` in the `dist` folder.
 **Command Breakdown:**
 
 - **`--onefile`**: Bundles everything into a single `.exe` file.
+- **`--standalone`**: Includes all required libraries and dependencies so no external Python environment is needed.
 - **`--enable-plugin=pyside6`**: Optimizes the build for Qt/PySide6.
-- **`--windows-console-mode=disable`**: Prevents the black console window.
-- **`--include-data-dir`**: Bundles the assets folder.
+- **`--windows-console-mode=disable`**: Prevents the console window from opening in the background.
+- **`--windows-icon-from-ico`**: Embeds the application icon into the executable.
+- **`--include-data-dir`**: Bundles the application `assets` and UI stylesheets (`src/ui/styles`).
 - **`--assume-yes-for-downloads`**: Lets Nuitka fetch its C toolchain non-interactively.
 
 > The official release build (see `.github/workflows/ymu_manual_release.yaml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe`.

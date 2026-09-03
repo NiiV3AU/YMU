@@ -1,4 +1,4 @@
-# gui.py - Application entry point and runtime initialization.
+# main.py - Application entry point and runtime initialization.
 import io
 import logging
 import os
@@ -88,16 +88,17 @@ from PySide6.QtCore import QTimer
 from PySide6.QtGui import QFontDatabase
 from PySide6.QtWidgets import QApplication
 
-import process_manager
-from localization_manager import LocalizationManager
-from paths import (
+from core import process_manager
+from core.paths import (
     LOCAL_VERSION,
     YMU_APPDATA_DIR,
     YMU_LOG_FILE_PATH,
     resource_path,
 )
-from theme_manager import ThemeManager
+from core.worker_manager import WorkerManager
+from ui.i18n.localization_manager import LocalizationManager
 from ui.main_window import MainWindow
+from ui.styles.theme_manager import ThemeManager
 from ui.utils import (
     FocusStealingFilter,
     create_colored_icon,
@@ -105,7 +106,6 @@ from ui.utils import (
     restart_as_admin,
     update_app_icon,
 )
-from worker_manager import WorkerManager
 
 # Re-exports for backward compatibility
 __all__ = [

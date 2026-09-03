@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, build an executable,
 # generate a checksum, and then create a new GitHub Release with the artifacts.
 #
-# The version is the single source of truth in src/paths.py (LOCAL_VERSION).
+# The version is the single source of truth in src/core/paths.py (LOCAL_VERSION).
 # It drives the built exe's metadata, the release tag and the release name, and
 # it is also what the app compares against when checking for updates — so bump
 # LOCAL_VERSION before running this workflow.
@@ -37,11 +37,11 @@ jobs:
       - name: Get build metadata
         id: meta
         run: |
-          $content = Get-Content src/paths.py -Raw
+          $content = Get-Content src/core/paths.py -Raw
           if ($content -match 'LOCAL_VERSION\s*=\s*"v?([0-9]+\.[0-9]+\.[0-9]+)"') {
             $version = $Matches[1]
           } else {
-            Write-Error "Could not find LOCAL_VERSION in src/paths.py"
+            Write-Error "Could not find LOCAL_VERSION in src/core/paths.py"
             exit 1
           }
           $year = (Get-Date).Year
@@ -51,7 +51,7 @@ jobs:
 
       - name: Build Executable
         run: |
-          uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/gui.py
+          uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/main.py
 
       - name: Generate Checksum for Executable
         run: |
@@ -105,7 +105,7 @@ jobs:
             const { owner, repo } = context.repo;
             try {
               await github.rest.git.getRef({ owner, repo, ref: `tags/${tag}` });
-              core.setFailed(`Tag ${tag} already exists. Bump LOCAL_VERSION in src/paths.py before releasing.`);
+              core.setFailed(`Tag ${tag} already exists. Bump LOCAL_VERSION in src/core/paths.py before releasing.`);
             } catch (error) {
               if (error.status === 404) {
                 console.log(`Tag ${tag} is free. Proceeding.`);

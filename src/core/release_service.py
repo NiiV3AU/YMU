@@ -14,7 +14,7 @@ from typing import Protocol, runtime_checkable
 
 import requests
 
-from paths import USER_AGENT, YMU_CACHE_FILE_PATH, YMU_DLL_DIR
+from core.paths import USER_AGENT, YMU_CACHE_FILE_PATH, YMU_DLL_DIR
 
 logger = logging.getLogger(__name__)
 

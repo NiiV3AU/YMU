@@ -65,7 +65,8 @@ def find_gta_pid(
 
     Matching is strictly by executable name (gta5.exe / gta5_enhanced.exe).
     A configured custom install directory is used only to *launch* the game
-    (PlayGTAV.exe, see gui._start_game_from_dir) and never to identify the
+    (PlayGTAV.exe, see InjectPage._start_game_from_dir in
+    ui/pages/inject_page.py) and never to identify the
     running process: launcher and helper executables (PlayGTAV.exe,
     Launcher.exe, the social-club service, ...) live in that same directory,
     so matching by directory would return one of those PIDs and inject into

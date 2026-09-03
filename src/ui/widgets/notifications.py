@@ -24,12 +24,12 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from paths import resource_path
+from core.paths import resource_path
 from ui.utils import create_colored_icon
 from ui.widgets.buttons import StatefulButton
 
 if TYPE_CHECKING:
-    from theme_manager import ThemeManager
+    from ui.styles.theme_manager import ThemeManager
 
 logger = logging.getLogger(__name__)
 

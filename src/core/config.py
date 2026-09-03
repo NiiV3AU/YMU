@@ -1,5 +1,5 @@
-# ymu_config.py - YMU's own settings store (%APPDATA%/YMU/config.json).
-# Strictly separate from YimMenu's settings.json (see settings_manager.py).
+# config.py - YMU's own settings store (%APPDATA%/YMU/config.json).
+# Strictly separate from YimMenu's settings.json (see core/settings.py).
 import copy
 import json
 import logging
@@ -10,7 +10,7 @@ from typing import Any
 
 from PySide6.QtCore import QObject, Signal
 
-from paths import YMU_CONFIG_FILE_PATH
+from core.paths import YMU_CONFIG_FILE_PATH
 
 logger = logging.getLogger(__name__)
 

@@ -18,10 +18,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import menu_modes
-import update_checker
-from menu_modes import get_mode
-from paths import resource_path
+from core import menu_modes, update_checker
+from core.config import get_config
+from core.menu_modes import get_mode
+from core.paths import resource_path
 from ui.pages.download_page import DownloadPage
 from ui.pages.inject_page import InjectPage
 from ui.pages.risk_page import RiskPage
@@ -29,12 +29,11 @@ from ui.pages.settings_page import SettingsPage
 from ui.widgets.buttons import StatefulButton
 from ui.widgets.notifications import NotificationManager
 from ui.widgets.toggle_switch import ToggleSwitch
-from ymu_config import get_config
 
 if TYPE_CHECKING:
-    from localization_manager import LocalizationManager
-    from theme_manager import ThemeManager
-    from worker_manager import WorkerManager
+    from core.worker_manager import WorkerManager
+    from ui.i18n.localization_manager import LocalizationManager
+    from ui.styles.theme_manager import ThemeManager
 
 logger = logging.getLogger(__name__)
 

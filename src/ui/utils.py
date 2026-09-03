@@ -9,7 +9,7 @@ from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import QApplication
 
-from paths import resource_path
+from core.paths import resource_path
 
 logger = logging.getLogger(__name__)
 

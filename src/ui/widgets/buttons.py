@@ -22,7 +22,7 @@ from PySide6.QtWidgets import QPushButton
 from ui.utils import create_colored_icon
 
 if TYPE_CHECKING:
-    from theme_manager import ThemeManager
+    from ui.styles.theme_manager import ThemeManager
 
 
 class StatefulButton(QPushButton):

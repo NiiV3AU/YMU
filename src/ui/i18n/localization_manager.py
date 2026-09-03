@@ -7,8 +7,8 @@ import threading
 import requests
 from PySide6.QtCore import QObject, Signal
 
-from paths import USER_AGENT, YMU_LANG_DIR
-from ymu_config import get_config
+from core.config import get_config
+from core.paths import USER_AGENT, YMU_LANG_DIR
 
 logger = logging.getLogger(__name__)
 

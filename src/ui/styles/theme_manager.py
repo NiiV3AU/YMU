@@ -5,8 +5,8 @@ import os
 from PySide6.QtCore import QObject, Signal
 from PySide6.QtWidgets import QApplication
 
-from paths import resource_path
-from ymu_config import get_config
+from core.config import get_config
+from core.paths import resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 def _load_qss(theme_name: str) -> str:
     """Finds and reads the QSS file for the specified theme."""
     candidates = [
+        os.path.join(os.path.dirname(__file__), f"{theme_name}.qss"),
         resource_path(os.path.join("ui", "styles", f"{theme_name}.qss")),
         resource_path(os.path.join("src", "ui", "styles", f"{theme_name}.qss")),
         os.path.join(os.path.dirname(__file__), "ui", "styles", f"{theme_name}.qss"),

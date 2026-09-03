@@ -1,13 +1,13 @@
-# settings_manager.py - Manages reading and writing to YimMenu's settings.json.
+# settings.py - Manages reading and writing to YimMenu's settings.json.
 # This module only ever touches YimMenu's own settings files; YMU's own
-# settings live in ymu_config.py.
+# settings live in core/config.py.
 import json
 import logging
 import os
 import shutil
 import threading
 
-from paths import YIMMENU_SETTINGS_FILE_PATH
+from core.paths import YIMMENU_SETTINGS_FILE_PATH
 
 logger = logging.getLogger(__name__)
 

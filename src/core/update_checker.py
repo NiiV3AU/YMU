@@ -1,7 +1,7 @@
 import logging
 
-import release_service
-from paths import LOCAL_VERSION
+from core import release_service
+from core.paths import LOCAL_VERSION
 
 logger = logging.getLogger(__name__)
 

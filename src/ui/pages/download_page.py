@@ -15,17 +15,17 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-import release_service
-from menu_modes import MenuMode
-from paths import YMU_DLL_DIR, resource_path
+from core import release_service
+from core.menu_modes import MenuMode
+from core.paths import YMU_DLL_DIR, resource_path
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
 
 if TYPE_CHECKING:
-    from localization_manager import LocalizationManager
-    from theme_manager import ThemeManager
+    from core.worker_manager import WorkerManager
+    from ui.i18n.localization_manager import LocalizationManager
     from ui.main_window import MainWindow
-    from worker_manager import WorkerManager
+    from ui.styles.theme_manager import ThemeManager
 
 logger = logging.getLogger(__name__)
 

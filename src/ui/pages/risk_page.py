@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
-from paths import resource_path
+from core.paths import resource_path
 from ui.widgets.buttons import StatefulButton
 
 if TYPE_CHECKING:
-    from localization_manager import LocalizationManager
-    from theme_manager import ThemeManager
+    from ui.i18n.localization_manager import LocalizationManager
+    from ui.styles.theme_manager import ThemeManager
 
 
 class RiskPage(QWidget):

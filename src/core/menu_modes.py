@@ -6,7 +6,7 @@ import dataclasses
 import logging
 import os
 
-from paths import (
+from core.paths import (
     YIMMENU_APPDATA_DIR,
     YIMMENU_DISABLED_SCRIPTS_DIR,
     YIMMENU_SCRIPTS_DIR,
