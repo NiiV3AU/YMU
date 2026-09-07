@@ -18,7 +18,7 @@ All notable changes to the YimMenuUpdater (YMU) project will be documented in th
 - Added one-click Lua bulk actions ("Disable All (Safe Mode)" and "Enable All") in Settings, consolidated natively in `lua_manager`.
 - Added an FSL (Free Save Launcher) status indicator in Settings detecting `WINMM.dll` or `version.dll` with an UnknownCheats shortcut.
 - Added edition-aware UI separation for YimMenu (Legacy) vs YimMenuV2 (Enhanced): visually dims unsupported options with 40% opacity, sets forbidden cursors, appends `(Legacy only)` badges, and dynamically updates folder/log button labels.
-- Upgraded all icons across the application to modern Lucide icons, including a custom syringe icon for the Inject tab.
+- Upgraded all icons across the application to modern Lucide icons, including a new syringe icon for the Inject tab.
 - Harmonized step-by-step help dialogs with left-aligned centered text and clear `[Button]` bracket notation.
 - Added explicit Windows file lock detection (`FileLockedException` for WinError 5/32), notifying users cleanly when `YimMenu.dll` is locked by a running GTA V process.
 - Maintained 100% translation key parity across all 15 supported languages, adding missing notification keys and fixing encoding artifacts in German translations.
