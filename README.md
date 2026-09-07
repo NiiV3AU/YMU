@@ -8,7 +8,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 [![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
 [![Changelog](https://img.shields.io/badge/Changelog-CHANGELOG.md-gray?style=for-the-badge&logo=markdown&logoColor=white&labelColor=181717)](CHANGELOG.md)
 [![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
-[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/707a8d841a39c42eacb1900d025cbcc08243ddd62c571bb107e0a9de5930ec8d)
+[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/0e6f442e56b757e387c2d22c2885136868a4b8d0d7856e7eb620bc1df32ebab2)
 
 ![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
 
@@ -57,7 +57,7 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 
 <div align="center">
   <img src="screenshots/Download.webp" alt="YMU Dark Theme: Download" width="32%"/>
-  <img src="screenshots/Launch.webp" alt="YMU Dark Theme: Inject" width="32%"/>
+  <img src="screenshots/Inject.webp" alt="YMU Dark Theme: Inject" width="32%"/>
   <img src="screenshots/Settings.webp" alt="YMU Dark Theme: Settings" width="32%"/>
 </div>
 
@@ -65,7 +65,7 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 
 <div align="center">
   <img src="screenshots/Download_Light.webp" alt="YMU Light Theme: Download" width="32%"/>
-  <img src="screenshots/Launch_Light.webp" alt="YMU Light Theme: Inject" width="32%"/>
+  <img src="screenshots/Inject_Light.webp" alt="YMU Light Theme: Inject" width="32%"/>
   <img src="screenshots/Settings_Light.webp" alt="YMU Light Theme: Settings" width="32%"/>
 </div>
 
@@ -76,7 +76,6 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 <details>
 <summary><b>A visual look back at earlier versions (v1.0.0 – v1.0.9)</b></summary>
 
-> [!NOTE]
 > For the complete, chronological release history and technical change notes, see **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### v1.0.9
