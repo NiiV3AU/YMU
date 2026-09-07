@@ -4,6 +4,10 @@
 import logging
 import os
 import shutil
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from core.menu_modes import MenuMode
 
 logger = logging.getLogger(__name__)
 
@@ -91,3 +95,38 @@ def disable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
     except OSError:
         logger.exception(f"Error disabling script {actual_filename}")
         return False
+
+
+def bulk_toggle_scripts(mode: "MenuMode", disable: bool) -> int:
+    """Moves all Lua scripts to the disabled/ directory (disable=True) or back (disable=False).
+
+    Returns:
+        int: Number of script files moved.
+    """
+    src_dir = mode.scripts_dir if disable else mode.disabled_scripts_dir
+    dst_dir = mode.disabled_scripts_dir if disable else mode.scripts_dir
+
+    if not os.path.isdir(src_dir):
+        return 0
+
+    os.makedirs(dst_dir, exist_ok=True)
+    moved_count = 0
+
+    for item in os.listdir(src_dir):
+        if item.lower().endswith(".lua"):
+            src_file = os.path.join(src_dir, item)
+            dst_file = os.path.join(dst_dir, item)
+            if os.path.isfile(src_file):
+                try:
+                    shutil.move(src_file, dst_file)
+                    moved_count += 1
+                    logger.info(
+                        "%s script: %s -> %s",
+                        "Disabled" if disable else "Enabled",
+                        src_file,
+                        dst_file,
+                    )
+                except OSError as e:
+                    logger.warning("Failed to move script %s: %s", src_file, e)
+
+    return moved_count

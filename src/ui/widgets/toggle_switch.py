@@ -2,6 +2,7 @@
 from PySide6.QtCore import (
     Property,
     QEasingCurve,
+    QEvent,
     QParallelAnimationGroup,
     QPropertyAnimation,
     QRectF,
@@ -25,7 +26,12 @@ class ToggleSwitch(QWidget):
         super().__init__(parent)
         self.setObjectName("ToggleSwitch")
         self.setFixedSize(52, 28)
-        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self._interactive = True
+        self.setCursor(
+            Qt.CursorShape.PointingHandCursor
+            if self.isEnabled()
+            else Qt.CursorShape.ForbiddenCursor
+        )
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
         self._checked = False
 
@@ -87,9 +93,46 @@ class ToggleSwitch(QWidget):
         self.focusChanged.emit(False)
         self.update()
 
+    def isInteractive(self) -> bool:
+        return self._interactive
+
+    def setInteractive(self, interactive: bool):
+        """When not interactive, the toggle is dimmed and shows a forbidden cursor without disabling mouse hit-testing."""
+        if self._interactive == interactive:
+            return
+        self._interactive = interactive
+        if interactive:
+            self.setCursor(
+                Qt.CursorShape.PointingHandCursor
+                if self.isEnabled()
+                else Qt.CursorShape.ForbiddenCursor
+            )
+            self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        else:
+            self.setCursor(Qt.CursorShape.ForbiddenCursor)
+            self.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        self.update()
+
+    def changeEvent(self, event):
+        """Reacts to state changes, such as enabling/disabling."""
+        if event.type() == QEvent.Type.EnabledChange:
+            if not self._interactive:
+                self.setCursor(Qt.CursorShape.ForbiddenCursor)
+            else:
+                self.setCursor(
+                    Qt.CursorShape.PointingHandCursor
+                    if self.isEnabled()
+                    else Qt.CursorShape.ForbiddenCursor
+                )
+            self.update()
+        super().changeEvent(event)
+
     def paintEvent(self, event):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+
+        if not self.isEnabled() or not self._interactive:
+            painter.setOpacity(0.38)
 
         track_rect = self.rect().adjusted(1, 1, -1, -1)
         painter.setBrush(self._current_track_color)
@@ -106,10 +149,14 @@ class ToggleSwitch(QWidget):
         painter.drawEllipse(knob_rect)
 
     def mousePressEvent(self, event):
+        if not self.isEnabled() or not self._interactive:
+            return
         self.setChecked(not self.isChecked())
 
     def keyPressEvent(self, event):
         """Handles key presses when the widget has focus."""
+        if not self.isEnabled() or not self._interactive:
+            return
         if event.key() in (Qt.Key.Key_Space, Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.setChecked(not self.isChecked())
         else:

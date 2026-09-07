@@ -301,9 +301,7 @@ class NotificationManager(QObject):
             current_y -= h
             pos_x = parent_width - notification.width() - self.padding
             target_pos = QPoint(pos_x, current_y)
-            is_the_very_newest = (
-                is_new and notification is active_notifications[-1]
-            )
+            is_the_very_newest = is_new and notification is active_notifications[-1]
             if is_the_very_newest:
                 notification.start_fly_in(target_pos, new_duration)
             elif notification.pos() != target_pos:

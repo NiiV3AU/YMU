@@ -86,6 +86,11 @@ QLabel {
     background-color: transparent;
 }
 
+QLabel:disabled,
+QLabel[unsupported="true"] {
+    color: #666666;
+}
+
 /* --- Info Dialog Styling --- */
 QDialog#InfoDialog, QMessageBox {
     background-color: #1E1E1E; /* @surface */

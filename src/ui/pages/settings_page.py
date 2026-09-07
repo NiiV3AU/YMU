@@ -25,10 +25,12 @@ from PySide6.QtWidgets import (
 from core import lua_manager, process_manager, update_checker
 from core import settings as settings_manager
 from core.config import get_config
+from core.maintenance import bulk_toggle_scripts, clear_menu_caches, get_fsl_status
 from core.menu_modes import MenuMode
 from core.paths import YMU_APPDATA_DIR, resource_path
-from ui.utils import restart_application
+from ui.utils import restart_application, restart_as_admin
 from ui.widgets.buttons import AnimatedButton, StatefulButton
+from ui.widgets.notifications import NotificationManager
 from ui.widgets.toggle_switch import ToggleSwitch
 
 if TYPE_CHECKING:
@@ -71,7 +73,7 @@ class SettingsPage(QWidget):
         appearance_title.setObjectName("SettingsTitle")
 
         theme_button_layout = QHBoxLayout()
-        self.theme_group = QButtonGroup()
+        self.theme_group = QButtonGroup(self)
         self.theme_group.setExclusive(True)
 
         btn_dark_theme = StatefulButton(
@@ -142,7 +144,7 @@ class SettingsPage(QWidget):
             if code == self.loc_manager.active_locale:
                 self.lang_combo.setCurrentIndex(self.lang_combo.count() - 1)
 
-        self._lang_debounce_timer = QTimer()
+        self._lang_debounce_timer = QTimer(self)
         self._lang_debounce_timer.setSingleShot(True)
         self._lang_debounce_timer.setInterval(250)
         self._lang_debounce_timer.timeout.connect(self._commit_language_change)
@@ -345,6 +347,49 @@ class SettingsPage(QWidget):
             )
         )
 
+        self.btn_disable_all_scripts = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Lua.Btn.DisableAll', 'Disable All')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "x.svg")),
+            **link_button_colors,
+        )
+        self.btn_disable_all_scripts.setObjectName("LinkButton")
+        self.btn_disable_all_scripts.setIconSize(QSize(18, 18))
+        self.btn_disable_all_scripts.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Lua.Tooltip.DisableAll",
+                "Disable all scripts at once (Safe Mode)",
+            )
+        )
+        self.btn_disable_all_scripts.clicked.connect(
+            self._on_disable_all_scripts_clicked
+        )
+
+        self.btn_enable_all_scripts = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Lua.Btn.EnableAll', 'Enable All')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(
+                os.path.join("assets", "icons", "check-circle.svg")
+            ),
+            **link_button_colors,
+        )
+        self.btn_enable_all_scripts.setObjectName("LinkButton")
+        self.btn_enable_all_scripts.setIconSize(QSize(18, 18))
+        self.btn_enable_all_scripts.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Lua.Tooltip.EnableAll",
+                "Re-enable all disabled scripts",
+            )
+        )
+        self.btn_enable_all_scripts.clicked.connect(self._on_enable_all_scripts_clicked)
+
+        manager_grid_layout.addWidget(
+            self.btn_enable_all_scripts, 2, 0, alignment=Qt.AlignmentFlag.AlignCenter
+        )
+        manager_grid_layout.addWidget(
+            self.btn_disable_all_scripts, 2, 2, alignment=Qt.AlignmentFlag.AlignCenter
+        )
+
         footer_layout.addWidget(btn_open_scripts_folder)
         footer_layout.addStretch()
         footer_layout.addWidget(btn_discover_luas)
@@ -355,11 +400,13 @@ class SettingsPage(QWidget):
         lua_layout.addLayout(footer_layout)
 
         self.setTabOrder(self.auto_reload_toggle, self.disabled_scripts_list)
-        self.setTabOrder(self.disabled_scripts_list, self.btn_enable_script)
+        self.setTabOrder(self.disabled_scripts_list, self.btn_enable_all_scripts)
+        self.setTabOrder(self.btn_enable_all_scripts, self.btn_enable_script)
         self.setTabOrder(self.btn_enable_script, self.btn_refresh_luas)
         self.setTabOrder(self.btn_refresh_luas, self.btn_disable_script)
         self.setTabOrder(self.btn_disable_script, self.enabled_scripts_list)
-        self.setTabOrder(self.enabled_scripts_list, btn_open_scripts_folder)
+        self.setTabOrder(self.enabled_scripts_list, self.btn_disable_all_scripts)
+        self.setTabOrder(self.btn_disable_all_scripts, btn_open_scripts_folder)
         self.setTabOrder(btn_open_scripts_folder, btn_discover_luas)
 
         other_frame = QFrame()
@@ -386,15 +433,15 @@ class SettingsPage(QWidget):
         debug_console_layout.addStretch()
         debug_console_layout.addWidget(self.debug_console_toggle)
 
-        btn_open_folder = StatefulButton(
+        self.btn_open_folder = StatefulButton(
             f"  {self.loc_manager.tr('Settings.Btn.OpenYimFolder', 'Open YimMenu Folder')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(os.path.join("assets", "icons", "folder.svg")),
             **link_button_colors,
         )
-        btn_open_folder.setObjectName("LinkButton")
-        btn_open_folder.setIconSize(QSize(20, 20))
-        btn_open_folder.setToolTip(
+        self.btn_open_folder.setObjectName("LinkButton")
+        self.btn_open_folder.setIconSize(QSize(20, 20))
+        self.btn_open_folder.setToolTip(
             self.loc_manager.tr(
                 "Settings.Tooltip.OpenYimFolder",
                 "Open YimMenu folder (%APPDATA%/YimMenu)",
@@ -454,7 +501,7 @@ class SettingsPage(QWidget):
         )
         other_layout.addWidget(other_title)
         other_layout.addLayout(debug_console_layout)
-        other_layout.addWidget(btn_open_folder)
+        other_layout.addWidget(self.btn_open_folder)
         other_layout.addWidget(btn_open_ymu_folder)
         other_layout.addWidget(btn_report_bug)
         other_layout.addWidget(btn_request_feature)
@@ -465,17 +512,20 @@ class SettingsPage(QWidget):
 
         paths_frame = self._build_paths_frame()
         injection_frame = self._build_injection_frame()
+        maintenance_frame = self._build_maintenance_frame()
 
         content_layout.addWidget(appearance_frame)
         content_layout.addWidget(lua_frame)
         content_layout.addWidget(paths_frame)
         content_layout.addWidget(injection_frame)
+        content_layout.addWidget(maintenance_frame)
         content_layout.addWidget(other_frame)
         content_layout.addStretch()
 
         scroll_area = QScrollArea()
         scroll_area.setObjectName("SettingsScrollArea")
         scroll_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         scroll_area.setWidgetResizable(True)
         scroll_area.setWidget(scroll_content_widget)
 
@@ -483,7 +533,7 @@ class SettingsPage(QWidget):
         page_layout.setContentsMargins(0, 0, 0, 0)
         page_layout.addWidget(scroll_area)
 
-        btn_open_folder.clicked.connect(
+        self.btn_open_folder.clicked.connect(
             lambda: self._open_link(self.get_mode().appdata_dir)
         )
         btn_open_ymu_folder.clicked.connect(lambda: self._open_link(YMU_APPDATA_DIR))
@@ -538,8 +588,9 @@ class SettingsPage(QWidget):
 
     def _notify(self, title: str, message: str, **kwargs):
         win = self.window()
-        if win and hasattr(win, "notification_manager"):
-            win.notification_manager.show(title, message, **kwargs)
+        mgr = getattr(win, "notification_manager", None)
+        if isinstance(mgr, NotificationManager):
+            mgr.show(title, message, **kwargs)
 
     def _build_paths_frame(self) -> QFrame:
         """Custom GTA V install path and custom DLL (issue #19)."""
@@ -655,8 +706,38 @@ class SettingsPage(QWidget):
         nobattleye_row.addStretch()
         nobattleye_row.addWidget(self.nobattleye_toggle)
 
+        # --- FSL (WINMM.dll) status row ---
+        fsl_row = QHBoxLayout()
+        self.fsl_status_label = QLabel()
+        self.btn_fsl_help = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Paths.FslHelp', 'FSL Info')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "help-circle.svg")),
+            **link_button_colors,
+        )
+        self.btn_fsl_help.setObjectName("LinkButton")
+        self.btn_fsl_help.setIconSize(QSize(18, 18))
+        self.btn_fsl_help.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Paths.Tooltip.Fsl",
+                "Free Save Launcher (FSL) provides local GTA Online saves and BattlEye bypass. Click to open UnknownCheats thread.",
+            )
+        )
+        self.btn_fsl_help.clicked.connect(
+            lambda: self._open_link(
+                "https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html"
+            )
+        )
+        fsl_row.addWidget(
+            self.fsl_status_label, alignment=Qt.AlignmentFlag.AlignVCenter
+        )
+        fsl_row.addStretch()
+        fsl_row.addWidget(self.btn_fsl_help, alignment=Qt.AlignmentFlag.AlignVCenter)
+
         layout.addSpacing(10)
         layout.addLayout(nobattleye_row)
+        layout.addSpacing(8)
+        layout.addLayout(fsl_row)
 
         return frame
 
@@ -679,48 +760,83 @@ class SettingsPage(QWidget):
             )
             return
 
-        success = process_manager.set_nobattleye_enabled(gta_dir, checked)
-        if success:
-            if checked:
-                self._notify(
-                    self.loc_manager.tr(
-                        "Settings.Notify.BattlEyeDisabledTitle",
-                        "BattlEye Disabled",
-                    ),
-                    self.loc_manager.tr(
-                        "Settings.Notify.BattlEyeDisabledMsg",
-                        "Added -nobattleye to commandline.txt in your GTA V directory.",
-                    ),
-                    icon_type="success",
-                )
+        self.nobattleye_toggle.setEnabled(False)
+
+        def _do_toggle(progress_signal=None):
+            return process_manager.set_nobattleye_enabled(gta_dir, checked)
+
+        def _on_finished(success: bool):
+            self.nobattleye_toggle.setEnabled(True)
+            if success:
+                if checked:
+                    self._notify(
+                        self.loc_manager.tr(
+                            "Settings.Notify.BattlEyeDisabledTitle",
+                            "BattlEye Disabled",
+                        ),
+                        self.loc_manager.tr(
+                            "Settings.Notify.BattlEyeDisabledMsg",
+                            "Added -nobattleye to commandline.txt in your GTA V directory.",
+                        ),
+                        icon_type="success",
+                    )
+                else:
+                    self._notify(
+                        self.loc_manager.tr(
+                            "Settings.Notify.BattlEyeRestoredTitle",
+                            "BattlEye Restored",
+                        ),
+                        self.loc_manager.tr(
+                            "Settings.Notify.BattlEyeRestoredMsg",
+                            "Removed -nobattleye from commandline.txt.",
+                        ),
+                        icon_type="info",
+                    )
             else:
+                current_state = process_manager.is_nobattleye_enabled(gta_dir)
+                self.nobattleye_toggle.blockSignals(True)
+                self.nobattleye_toggle.setChecked(current_state)
+                self.nobattleye_toggle.blockSignals(False)
+                action_text = None
+                action_cb = None
+                if not process_manager.is_admin():
+                    action_text = self.loc_manager.tr(
+                        "Common.RestartAdmin", "Restart as Admin"
+                    )
+                    action_cb = restart_as_admin
+
                 self._notify(
+                    self.loc_manager.tr("Common.Error", "Error"),
                     self.loc_manager.tr(
-                        "Settings.Notify.BattlEyeRestoredTitle",
-                        "BattlEye Restored",
+                        "Settings.Paths.ErrorWriteCommandline",
+                        "Could not modify commandline.txt. Please check file permissions or run as Administrator.",
                     ),
-                    self.loc_manager.tr(
-                        "Settings.Notify.BattlEyeRestoredMsg",
-                        "Removed -nobattleye from commandline.txt.",
-                    ),
-                    icon_type="info",
+                    icon_type="error",
+                    duration=8000 if action_text else 5000,
+                    action_text=action_text,
+                    action_callback=action_cb,
                 )
-        else:
+
+        def _on_error(exc: Exception):
+            self.nobattleye_toggle.setEnabled(True)
             current_state = process_manager.is_nobattleye_enabled(gta_dir)
             self.nobattleye_toggle.blockSignals(True)
             self.nobattleye_toggle.setChecked(current_state)
             self.nobattleye_toggle.blockSignals(False)
             self._notify(
                 self.loc_manager.tr("Common.Error", "Error"),
-                self.loc_manager.tr(
-                    "Settings.Paths.ErrorWriteCommandline",
-                    "Could not modify commandline.txt. Please check file permissions.",
-                ),
+                str(exc),
                 icon_type="error",
             )
 
+        self.worker_manager.run_task(
+            _do_toggle,
+            on_finished=_on_finished,
+            on_error=_on_error,
+        )
+
     def _update_nobattleye_toggle_state(self):
-        """Refreshes the nobattleye toggle state from disk."""
+        """Refreshes the nobattleye toggle state and FSL status from disk."""
         gta_dir = process_manager.get_gta_directory(self.get_mode())
         is_enabled = (
             process_manager.is_nobattleye_enabled(gta_dir) if gta_dir else False
@@ -728,6 +844,30 @@ class SettingsPage(QWidget):
         self.nobattleye_toggle.blockSignals(True)
         self.nobattleye_toggle.setChecked(is_enabled)
         self.nobattleye_toggle.blockSignals(False)
+        self._update_fsl_status(gta_dir)
+
+    def _update_fsl_status(self, gta_dir: str | None = None):
+        """Updates the FSL detection status label."""
+        if not hasattr(self, "fsl_status_label"):
+            return
+        if gta_dir is None:
+            gta_dir = process_manager.get_gta_directory(self.get_mode())
+        has_fsl = get_fsl_status(gta_dir)
+        if has_fsl:
+            self.fsl_status_label.setText(
+                self.loc_manager.tr(
+                    "Settings.Paths.FslDetected", "FSL (WINMM.dll): Detected ✅"
+                )
+            )
+            self.fsl_status_label.setStyleSheet("color: #4CAF50; font-size: 13px;")
+        else:
+            self.fsl_status_label.setText(
+                self.loc_manager.tr(
+                    "Settings.Paths.FslMissing",
+                    "FSL (WINMM.dll): Not found (Recommended for online)",
+                )
+            )
+            self.fsl_status_label.setStyleSheet("color: #8B8B8B; font-size: 13px;")
 
     def _build_injection_frame(self) -> QFrame:
         """Builds the Injection preferences card."""
@@ -797,6 +937,137 @@ class SettingsPage(QWidget):
         layout.addLayout(sound_feedback_row)
 
         return frame
+
+    def _build_maintenance_frame(self) -> QFrame:
+        """Builds the Maintenance card (cache reset, log viewer)."""
+        frame = QFrame()
+        frame.setObjectName("CardFrame")
+        layout = QVBoxLayout(frame)
+        layout.setSpacing(12)
+
+        title = QLabel(
+            self.loc_manager.tr("Settings.Header.Maintenance", "Maintenance")
+        )
+        title.setObjectName("SettingsTitle")
+        layout.addWidget(title)
+
+        link_button_colors = {
+            "color_normal": ("#8B8B8B", "#555555"),
+            "color_hover": ("#E0E0E0", "#121212"),
+        }
+
+        btn_reset_caches = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Btn.ResetCaches', 'Clear Pointer Caches')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(os.path.join("assets", "icons", "trash.svg")),
+            **link_button_colors,
+        )
+        btn_reset_caches.setObjectName("LinkButton")
+        btn_reset_caches.setIconSize(QSize(18, 18))
+        btn_reset_caches.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Tooltip.ResetCaches",
+                "Deletes cached binary offsets. Recommended after game updates if the menu crashes on launch.",
+            )
+        )
+        btn_reset_caches.clicked.connect(self._on_reset_caches_clicked)
+
+        self.btn_open_log = StatefulButton(
+            f"  {self.loc_manager.tr('Settings.Btn.OpenLog', 'Open YimMenu Log')}",
+            theme_manager=self.theme_manager,
+            icon_path=resource_path(
+                os.path.join("assets", "icons", "external-link.svg")
+            ),
+            **link_button_colors,
+        )
+        self.btn_open_log.setObjectName("LinkButton")
+        self.btn_open_log.setIconSize(QSize(18, 18))
+        self.btn_open_log.setToolTip(
+            self.loc_manager.tr(
+                "Settings.Tooltip.OpenLog",
+                "Open the active edition's cout.log in your text editor",
+            )
+        )
+        self.btn_open_log.clicked.connect(self._on_open_log_clicked)
+
+        layout.addWidget(btn_reset_caches)
+        layout.addWidget(self.btn_open_log)
+
+        return frame
+
+    def _on_reset_caches_clicked(self):
+        """Deletes binary pointer/pattern cache files for the active edition."""
+        mode = self.get_mode()
+        count, _ = clear_menu_caches(mode)
+        if count > 0:
+            msg = self.loc_manager.tr(
+                "Settings.Notify.CachesClearedMsg",
+                "{0} cache file(s) cleared successfully.",
+            ).format(count)
+            self._notify(
+                self.loc_manager.tr(
+                    "Settings.Notify.CachesClearedTitle", "Caches Cleared"
+                ),
+                msg,
+                icon_type="success",
+            )
+        else:
+            self._notify(
+                self.loc_manager.tr("Common.Info", "Information"),
+                self.loc_manager.tr(
+                    "Settings.Notify.NoCachesMsg", "No cache files found to clear."
+                ),
+                icon_type="info",
+            )
+
+    def _on_open_log_clicked(self):
+        """Opens the active edition's cout.log file if it exists."""
+        mode = self.get_mode()
+        log_path = os.path.join(mode.appdata_dir, "cout.log")
+        if os.path.isfile(log_path):
+            try:
+                os.startfile(log_path)
+            except OSError as e:
+                logger.error(f"Could not open log file '{log_path}': {e}")
+                self._notify(
+                    self.loc_manager.tr("Common.Error", "Error"),
+                    f"Could not open log file:\n{e}",
+                    icon_type="error",
+                )
+        else:
+            fmt = self.loc_manager.tr(
+                "Settings.Notify.FolderMissing",
+                "File does not exist yet:\n{0}",
+            )
+            self._notify(
+                self.loc_manager.tr("Common.Info", "Information"),
+                fmt.format(log_path),
+                icon_type="info",
+            )
+
+    def _on_disable_all_scripts_clicked(self):
+        """Moves all enabled Lua scripts to the disabled folder."""
+        mode = self.get_mode()
+        moved = bulk_toggle_scripts(mode, disable=True)
+        self._refresh_lua_lists()
+        if moved > 0:
+            self._notify(
+                self.loc_manager.tr("Settings.Header.Lua", "Lua Settings"),
+                f"{moved} script(s) moved to disabled (Safe Mode).",
+                icon_type="info",
+            )
+
+    def _on_enable_all_scripts_clicked(self):
+        """Moves all disabled Lua scripts back to the active scripts folder."""
+        mode = self.get_mode()
+        moved = bulk_toggle_scripts(mode, disable=False)
+        self._refresh_lua_lists()
+        if moved > 0:
+            self._notify(
+                self.loc_manager.tr("Settings.Header.Lua", "Lua Settings"),
+                f"{moved} script(s) re-enabled.",
+                icon_type="success",
+            )
 
     def _on_auto_close_toggled(self, checked: bool):
         """Called when the user toggles the auto-close switch."""
@@ -873,7 +1144,15 @@ class SettingsPage(QWidget):
         if path_or_url.lower().startswith(("http://", "https://")):
             webbrowser.open(path_or_url)
         elif os.path.isdir(path_or_url):
-            os.startfile(path_or_url)
+            try:
+                os.startfile(path_or_url)
+            except OSError as e:
+                logger.error(f"Could not open path '{path_or_url}': {e}")
+                self._notify(
+                    self.loc_manager.tr("Common.Error", "Error"),
+                    f"Could not open folder:\n{e}",
+                    icon_type="error",
+                )
         else:
             fmt = self.loc_manager.tr(
                 "Settings.Notify.FolderMissing", "Folder does not exist yet:\n{0}"
@@ -887,9 +1166,65 @@ class SettingsPage(QWidget):
     def _load_initial_settings(self):
         """Loads the active edition's YimMenu settings and sets the UI state.
         Signals are blocked so this never echoes writes back to the file."""
-        settings_file = self.get_mode().settings_file
+        mode = self.get_mode()
+        settings_file = mode.settings_file
+        is_legacy = mode.key == "legacy"
 
-        is_enabled = settings_manager.get_setting(
+        # In Enhanced (YimMenuV2), auto-reload and external console are not supported.
+        self.auto_reload_toggle.setInteractive(is_legacy)
+        self.debug_console_toggle.setInteractive(is_legacy)
+        self.auto_reload_label.setEnabled(True)
+        self.debug_console_label.setEnabled(True)
+
+        base_auto_reload = self.loc_manager.tr(
+            "Settings.Lua.AutoReload", "Auto-reload changed scripts"
+        )
+        base_debug_console = self.loc_manager.tr(
+            "Settings.Other.DebugConsole", "Enable External Debug Console"
+        )
+
+        if not is_legacy:
+            legacy_tooltip = self.loc_manager.tr(
+                "Settings.Notice.LegacyOnly", "Only available in YimMenu Legacy"
+            )
+            legacy_badge = self.loc_manager.tr(
+                "Settings.Badge.LegacyOnly", "Legacy only"
+            )
+            self.auto_reload_label.setText(f"{base_auto_reload} ({legacy_badge})")
+            self.debug_console_label.setText(f"{base_debug_console} ({legacy_badge})")
+            self.auto_reload_label.setProperty("unsupported", "true")
+            self.debug_console_label.setProperty("unsupported", "true")
+            self.auto_reload_label.setCursor(Qt.CursorShape.ForbiddenCursor)
+            self.debug_console_label.setCursor(Qt.CursorShape.ForbiddenCursor)
+            self.auto_reload_toggle.setToolTip(legacy_tooltip)
+            self.auto_reload_label.setToolTip(legacy_tooltip)
+            self.debug_console_toggle.setToolTip(legacy_tooltip)
+            self.debug_console_label.setToolTip(legacy_tooltip)
+        else:
+            self.auto_reload_label.setText(base_auto_reload)
+            self.debug_console_label.setText(base_debug_console)
+            self.auto_reload_label.setProperty("unsupported", "false")
+            self.debug_console_label.setProperty("unsupported", "false")
+            self.auto_reload_label.setCursor(Qt.CursorShape.ArrowCursor)
+            self.debug_console_label.setCursor(Qt.CursorShape.ArrowCursor)
+            auto_reload_tooltip = self.loc_manager.tr(
+                "Settings.Lua.Tooltip.AutoReload",
+                "Automatically re-apply changes when Lua script files are saved",
+            )
+            debug_tooltip = self.loc_manager.tr(
+                "Settings.Other.Tooltip.Debug",
+                "Show YimMenu's external console window for detailed logs and debugging",
+            )
+            self.auto_reload_toggle.setToolTip(auto_reload_tooltip)
+            self.auto_reload_label.setToolTip(auto_reload_tooltip)
+            self.debug_console_toggle.setToolTip(debug_tooltip)
+            self.debug_console_label.setToolTip(debug_tooltip)
+
+        for lbl in (self.auto_reload_label, self.debug_console_label):
+            lbl.style().unpolish(lbl)
+            lbl.style().polish(lbl)
+
+        is_enabled = is_legacy and settings_manager.get_setting(
             "lua.enable_auto_reload_changed_scripts",
             default=False,
             settings_file=settings_file,
@@ -898,7 +1233,7 @@ class SettingsPage(QWidget):
         self.auto_reload_toggle.setChecked(bool(is_enabled))
         self.auto_reload_toggle.blockSignals(False)
 
-        is_debug_enabled = settings_manager.get_setting(
+        is_debug_enabled = is_legacy and settings_manager.get_setting(
             "debug.external_console", default=False, settings_file=settings_file
         )
         self.debug_console_toggle.blockSignals(True)
@@ -918,6 +1253,35 @@ class SettingsPage(QWidget):
         self.sound_feedback_toggle.blockSignals(False)
 
         self._update_nobattleye_toggle_state()
+        self._update_open_folder_button()
+
+    def _update_open_folder_button(self):
+        """Updates the text and tooltip of the open folder and log buttons to match the active mode."""
+        mode = self.get_mode()
+        if mode.key == "enhanced":
+            text = self.loc_manager.tr(
+                "Settings.Btn.OpenYimV2Folder", "Open YimMenuV2 Folder"
+            )
+            tooltip = self.loc_manager.tr(
+                "Settings.Tooltip.OpenYimV2Folder",
+                "Open YimMenuV2 folder (%APPDATA%/YimMenuV2)",
+            )
+            log_text = self.loc_manager.tr(
+                "Settings.Btn.OpenV2Log", "Open YimMenuV2 Log"
+            )
+        else:
+            text = self.loc_manager.tr(
+                "Settings.Btn.OpenYimFolder", "Open YimMenu Folder"
+            )
+            tooltip = self.loc_manager.tr(
+                "Settings.Tooltip.OpenYimFolder",
+                "Open YimMenu folder (%APPDATA%/YimMenu)",
+            )
+            log_text = self.loc_manager.tr("Settings.Btn.OpenLog", "Open YimMenu Log")
+        self.btn_open_folder.setText(f"  {text}")
+        self.btn_open_folder.setToolTip(tooltip)
+        if hasattr(self, "btn_open_log"):
+            self.btn_open_log.setText(f"  {log_text}")
 
     def _write_yim_setting(self, key_path: str, value):
         """Writes into the active edition's settings.json. YimMenuV2's file is
@@ -942,10 +1306,14 @@ class SettingsPage(QWidget):
 
     def _on_auto_reload_toggled(self, checked: bool):
         """Called when the user clicks the auto-reload toggle."""
+        if self.get_mode().key != "legacy":
+            return
         self._write_yim_setting("lua.enable_auto_reload_changed_scripts", checked)
 
     def _on_debug_console_toggled(self, checked: bool):
         """Called when the user clicks the debug console toggle."""
+        if self.get_mode().key != "legacy":
+            return
         self._write_yim_setting("debug.external_console", checked)
 
     def _on_toggle_focus_changed(self, label: QLabel, has_focus: bool):
@@ -989,6 +1357,15 @@ class SettingsPage(QWidget):
         )
         self.disabled_scripts_list.addItems(scripts["disabled"])
         self.enabled_scripts_list.addItems(scripts["enabled"])
+
+        if hasattr(self, "btn_disable_all_scripts"):
+            self.btn_disable_all_scripts.setEnabled(
+                available and self.enabled_scripts_list.count() > 0
+            )
+        if hasattr(self, "btn_enable_all_scripts"):
+            self.btn_enable_all_scripts.setEnabled(
+                available and self.disabled_scripts_list.count() > 0
+            )
 
         item_count = max(
             self.disabled_scripts_list.count(), self.enabled_scripts_list.count()
@@ -1155,9 +1532,7 @@ class SettingsPage(QWidget):
                     action_callback=restart_application,
                 )
             else:
-                self._notify(
-                    title, message, icon_type="success"
-                )
+                self._notify(title, message, icon_type="success")
         else:
             self._notify(
                 self.loc_manager.tr("Common.Error", "Error"), message, icon_type="error"

@@ -12,259 +12,286 @@ from core.paths import USER_AGENT, YMU_LANG_DIR
 
 logger = logging.getLogger(__name__)
 
-REMOTE_LANG_URL = "https://raw.githubusercontent.com/NiiV3AU/YMU/main/translations.json"
+PRIMARY_LANG_URL = "https://ymu.pages.dev/translations.json"
+FALLBACK_LANG_URL = (
+    "https://api.github.com/repos/NiiV3AU/YMU/contents/translations.json"
+)
 LOCAL_FILE_PATH = os.path.join(YMU_LANG_DIR, "translations.json")
 
 FALLBACK_DATA = {
     "en_US": {
         "meta": {
-            'name': 'English (US)',
+            "name": "English (US)",
         },
-        'Sidebar': {
-            'Risks': 'Risks',
-            'Download': 'Download',
-            'Inject': 'Inject',
-            'Settings': 'Settings',
-            'Tooltip': {
-                'Risks': 'Show important warnings and information',
-                'ProjectPage': 'Open the YMU project page in your browser',
+        "Sidebar": {
+            "Risks": "Risks",
+            "Download": "Download",
+            "Inject": "Inject",
+            "Settings": "Settings",
+            "Tooltip": {
+                "Risks": "Show important warnings and information",
+                "ProjectPage": "Open the YMU project page in your browser",
             },
-            'Mode': {
-                'Legacy': 'Legacy',
-                'Enhanced': 'E&E',
-                'Tooltip': 'Switch between YimMenu (Legacy) and YimMenuV2 (Enhanced)',
-                'AutoDetected': 'Detected {0} — selected it automatically.\nUse the sidebar switch to change it.',
-            },
-        },
-        'Common': {
-            'Error': 'Error',
-            'Info': 'Information',
-            'UnexpectedError': 'An unexpected error occurred',
-            'Restart': 'Restart Now',
-            'Yes': 'Yes',
-            'No': 'No',
-            'RestartAdmin': 'Restart as Admin',
-            'Cancel': 'Cancel',
-        },
-        'Risk': {
-            'Title': 'ATTENTION',
-            'Info': 'Always use YMU and YimMenu with BattlEye DISABLED.\nUsing mods online carries a risk of being banned.',
-            'Btn': {
-                'YimOfficial': 'Official YimMenu GitHub Repo',
-                'YimLegacy': 'YimMenu (legacy) GitHub Repo',
-                'YimV2': 'YimMenuV2 (enhanced) GitHub Repo',
-                'FSL': "FSL's UnknownCheats Thread",
-            },
-            'Tooltip': {
-                'YimOfficial': 'Open the official YimMenu GitHub repository',
-                'YimLegacy': 'Open the YimMenu (legacy) GitHub repository',
-                'YimV2': 'Open the YimMenuV2 (enhanced) GitHub repository',
-                'FSL': 'Open the FSL thread on UnknownCheats for download & support',
+            "Mode": {
+                "Legacy": "Legacy",
+                "Enhanced": "E&E",
+                "Tooltip": "Switch between YimMenu (Legacy) and YimMenuV2 (Enhanced)",
+                "AutoDetected": "Detected {0} — selected it automatically.\nUse the sidebar switch to change it.",
             },
         },
-        'Download': {
-            'Status': {
-                'Initial': 'Select a channel to check for updates.',
-                'Checking': 'Checking for updates...',
-                'UpToDate': 'YimMenu is up-to-date.',
-                'NewVersion': 'A new version is available!',
-                'Error': 'An error occurred. Please try again.',
-                'Downloading': 'Downloading',
-                'Success': 'Download successful and verified!',
-                'Failed': 'Download failed. Check logs.',
-                'SuccessUnverified': 'Download successful (unverified)!',
+        "Common": {
+            "Error": "Error",
+            "Info": "Information",
+            "UnexpectedError": "An unexpected error occurred",
+            "Restart": "Restart Now",
+            "Yes": "Yes",
+            "No": "No",
+            "RestartAdmin": "Restart as Admin",
+            "Cancel": "Cancel",
+        },
+        "Risk": {
+            "Title": "ATTENTION",
+            "Info": "Always use YMU and YimMenu with BattlEye DISABLED.\nUsing mods online carries a risk of being banned.",
+            "Btn": {
+                "YimOfficial": "Official YimMenu GitHub Repo",
+                "YimLegacy": "YimMenu (legacy) GitHub Repo",
+                "YimV2": "YimMenuV2 (enhanced) GitHub Repo",
+                "FSL": "FSL's UnknownCheats Thread",
             },
-            'Btn': {
-                'Check': 'Check for Updates',
-                'Checking': 'Checking...',
-                'UpToDate': 'Up-to-date',
-                'Update': 'Update',
-                'Download': 'Download',
-                'Retry': 'Retry Check',
-                'Downloading': 'Downloading...',
-            },
-            'Notify': {
-                'NewVersion': 'A new version is ready to be downloaded.',
-                'CheckFailed': 'Failed to check for updates',
-                'SuccessTitle': 'Download Complete',
-                'SuccessMsg': 'DLL successfully downloaded and verified!',
-                'FailedTitle': 'Download Failed',
-                'FailedMsg': 'Verification failed. Please check the logs.',
-                'UpdateTitle': '{0} Update',
-                'SuccessMsgUnverified': 'DLL downloaded successfully, but could not be verified (no remote checksum).',
-            },
-            'Help': {
-                'Title': 'DLL & FSL Info',
-                'DllSteps': "1. Click on (Download)\n2. Wait for the download to finish\n3. The file is in the 'YMU/dll' folder\n\nIf the file gets deleted, add an exception\nin your antivirus or disable it temporarily.",
-                'FslSteps': "1. Download FSL (Link provided in the Risks tab)\n2. Open your GTA V directory\n3. Drop the WINMM.dll in the folder\n   (filename MUST be exactly 'WINMM.dll')\n4. Disable BattlEye in the Rockstar Games Launcher\n5. Done! ✅",
-            },
-            'Tooltip': {
-                'Help': 'Show help for DLL and FSL installation',
-                'Channel': 'Select the YimMenu version to download',
-                'ActiveChannel': 'Active edition — change it with the Legacy/Enhanced switch in the sidebar',
-            },
-            'Dialog': {
-                'UnverifiedTitle': 'Unverified DLL Download',
-                'UnverifiedPrompt': 'No SHA256 checksum was provided with this release.\n\nYMU cannot verify the integrity or authenticity of the file.\n\nDo you want to download it anyway?',
-                'DownloadAnyway': 'Download anyway',
-            },
-            'Error': {
-                'RateLimited': 'GitHub API rate limit reached. Please try again in {0} minutes.',
+            "Tooltip": {
+                "YimOfficial": "Open the official YimMenu GitHub repository",
+                "YimLegacy": "Open the YimMenu (legacy) GitHub repository",
+                "YimV2": "Open the YimMenuV2 (enhanced) GitHub repository",
+                "FSL": "Open the FSL thread on UnknownCheats for download & support",
             },
         },
-        'Inject': {
-            'Launcher': {
-                'Select': 'Select Launcher',
-                'CustomPath': 'Custom Path',
+        "Download": {
+            "Status": {
+                "Initial": "Select a channel to check for updates.",
+                "Checking": "Checking for updates...",
+                "UpToDate": "YimMenu is up-to-date.",
+                "NewVersion": "A new version is available!",
+                "Error": "An error occurred. Please try again.",
+                "Downloading": "Downloading",
+                "Success": "Download successful and verified!",
+                "Failed": "Download failed. Check logs.",
+                "SuccessUnverified": "Download successful (unverified)!",
             },
-            'Btn': {
-                'StartGta': 'Start GTA 5',
-                'InjectBase': 'Inject YimMenu',
-                'NoDll': 'No DLL found',
-                'InjectFile': 'Inject {0}',
+            "Btn": {
+                "Check": "Check for Updates",
+                "Checking": "Checking...",
+                "UpToDate": "Up-to-date",
+                "Update": "Update",
+                "Download": "Download",
+                "Retry": "Retry Check",
+                "Downloading": "Downloading...",
             },
-            'Notify': {
-                'AlreadyRunning': 'GTA 5 is already running!',
-                'SelectLauncher': 'Please select a launcher first.',
-                'SuccessTitle': 'Injection Successful',
-                'SuccessMsg': 'Successfully injected DLL!',
-                'CustomDllMissing': 'The configured custom DLL no longer exists:\n{0}',
-                'LaunchTimeout': "GTA V didn't start (or was closed before it loaded).\nYou can try launching again.",
+            "Notify": {
+                "NewVersion": "A new version is ready to be downloaded.",
+                "CheckFailed": "Failed to check for updates",
+                "SuccessTitle": "Download Complete",
+                "SuccessMsg": "DLL successfully downloaded and verified!",
+                "FailedTitle": "Download Failed",
+                "FailedMsg": "Verification failed. Please check the logs.",
+                "UpdateTitle": "{0} Update",
+                "SuccessMsgUnverified": "DLL downloaded successfully, but could not be verified (no remote checksum).",
             },
-            'Help': {
-                'Title': 'Injection Info',
-                'StartGtaSteps': "1. Select your launcher\n2. Press 'Start GTA 5'\n3. Read the next step ↗",
-                'TabInject': 'Inject DLL',
-                'InjectSteps': "1. Start GTA 5 (↖ Previous Step)\n2. Wait for the game's start screen/menu\n3. Click on 'Inject YimMenu'\n4. Wait for YimMenu to finish loading\n5. Done! ✅",
+            "Help": {
+                "Title": "DLL & FSL Info",
+                "DllSteps": "1. Click on [Download]\n2. Wait for the download to finish\n3. The file is in the '%LOCALAPPDATA%/YMU/dll' folder\n\nIf the file gets deleted, add an exception\nin your antivirus or disable it temporarily.",
+                "FslSteps": "1. Download FSL (Link provided in the Risks tab)\n2. Open your GTA V directory\n3. Drop the WINMM.dll in the folder\n   (filename MUST be exactly 'WINMM.dll')\n4. Disable BattlEye in the Rockstar Games Launcher\n5. Done!",
             },
-            'Tooltip': {
-                'Help': 'Show help for the injection process',
-                'Launcher': 'Select the launcher you use to start GTA V',
-                'Dll': 'Select the DLL to inject',
-                'NoDll': 'Download the {0} DLL on the Download tab first.',
+            "Tooltip": {
+                "Help": "Show help for DLL and FSL installation",
+                "Channel": "Select the YimMenu version to download",
+                "ActiveChannel": "Active edition — change it with the Legacy/Enhanced switch in the sidebar",
             },
-            'Error': {
-                'NoDllSelected': 'Error: No DLL selected or found for injection.',
-                'ProcessLost': 'GTA 5 process disappeared before injection.',
-                'InjectionFailed': 'Injection failed. See logs for details.',
-                'NoRockstarPath': 'Could not find Rockstar Games installation path.',
-                'CustomPathInvalid': 'The custom GTA V path is not set or no longer exists.\nSet it again on the Settings tab.',
-                'NoExeFound': "Executable not found at '{0}'",
-                'LaunchFailed': 'Error launching game. See logs for details.',
-                'AccessDenied': 'Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.',
-                'AccessDeniedAdmin': 'Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks tab) and make\nsure the Legacy/Enhanced switch matches your game.',
-                'VerificationFailedTitle': 'Injection Unconfirmed',
-                'VerificationFailed': "The DLL injection was triggered, but the module could not be verified in GTA V's memory.\n\nThis usually happens when BattlEye is active, an antivirus blocked it, or the game crashed.",
-                'RedownloadAction': 'Re-download DLL',
+            "Dialog": {
+                "UnverifiedTitle": "Unverified DLL Download",
+                "UnverifiedPrompt": "No SHA256 checksum was provided with this release.\n\nYMU cannot verify the integrity or authenticity of the file.\n\nDo you want to download it anyway?",
+                "DownloadAnyway": "Download anyway",
             },
-            'Label': {
-                'Custom': 'custom',
-            },
-            'BattlEye': {
-                'Title': 'BattlEye Is Running',
-                'Warn': 'BattlEye is active. Injecting while it runs can get your account banned and will often fail outright.\n\nThis is entirely your decision and at your own risk — disabling BattlEye in your launcher first is strongly recommended.',
-                'Proceed': 'Inject anyway',
-                'Learn': 'How to disable',
+            "Error": {
+                "RateLimited": "GitHub API rate limit reached. Please try again in {0} minutes.",
             },
         },
-        'Settings': {
-            'Header': {
-                'Appearance': 'Appearance',
-                'Injection': 'Injection',
-                'Lua': 'Lua Settings',
-                'Other': 'Other',
-                'Paths': 'Custom Paths',
+        "Inject": {
+            "Launcher": {
+                "Select": "Select Launcher",
+                "CustomPath": "Custom Path",
             },
-            'Inject': {
-                'AutoClose': 'Auto-Close after Injection',
-                'SoundFeedback': 'Sound Feedback on Success',
-                'Tooltip': {
-                    'AutoClose': 'Automatically close YMU once the DLL has been injected into the game',
-                    'SoundFeedback': 'Play an audible confirmation chime when injection or download completes successfully',
+            "Btn": {
+                "StartGta": "Start GTA 5",
+                "InjectBase": "Inject YimMenu",
+                "NoDll": "No DLL found",
+                "InjectFile": "Inject {0}",
+            },
+            "Notify": {
+                "AlreadyRunning": "GTA 5 is already running!",
+                "SelectLauncher": "Please select a launcher first.",
+                "SuccessTitle": "Injection Successful",
+                "SuccessMsg": "Successfully injected DLL!",
+                "CustomDllMissing": "The configured custom DLL no longer exists:\n{0}",
+                "LaunchTimeout": "GTA V didn't start (or was closed before it loaded).\nYou can try launching again.",
+            },
+            "Help": {
+                "Title": "Injection Info",
+                "StartGtaSteps": "1. Select your launcher\n2. Press [Start GTA 5]\n3. Read the next step ↗",
+                "TabInject": "Inject DLL",
+                "InjectSteps": "1. Start GTA 5 (↖ Previous Step)\n2. Wait for the game's start screen/menu\n3. Click on [Inject YimMenu]\n4. Wait for YimMenu to finish loading\n5. Done!",
+            },
+            "Tooltip": {
+                "Help": "Show help for the injection process",
+                "Launcher": "Select the launcher you use to start GTA V",
+                "Dll": "Select the DLL to inject",
+                "NoDll": "Download the {0} DLL on the Download tab first.",
+            },
+            "Error": {
+                "NoDllSelected": "Error: No DLL selected or found for injection.",
+                "ProcessLost": "GTA 5 process disappeared before injection.",
+                "InjectionFailed": "Injection failed. See logs for details.",
+                "NoRockstarPath": "Could not find Rockstar Games installation path.",
+                "CustomPathInvalid": "The custom GTA V path is not set or no longer exists.\nSet it again on the Settings tab.",
+                "NoExeFound": "Executable not found at '{0}'",
+                "LaunchFailed": "Error launching game. See logs for details.",
+                "AccessDenied": "Missing permissions to inject into GTA V.\nTry restarting YMU as Administrator.",
+                "AccessDeniedAdmin": "Injection was denied even with Administrator rights.\nThis is usually caused by BattlEye or a wrong game edition.\nDisable BattlEye in your launcher (see Risks tab) and make\nsure the Legacy/Enhanced switch matches your game.",
+                "VerificationFailedTitle": "Injection Unconfirmed",
+                "VerificationFailed": "The DLL injection was triggered, but the module could not be verified in GTA V's memory.\n\nThis usually happens when BattlEye is active, an antivirus blocked it, or the game crashed.",
+                "RedownloadAction": "Re-download DLL",
+            },
+            "Label": {
+                "Custom": "custom",
+            },
+            "BattlEye": {
+                "Title": "BattlEye Is Running",
+                "Warn": "BattlEye is active. Injecting while it runs can get your account banned and will often fail outright.\n\nThis is entirely your decision and at your own risk — disabling BattlEye in your launcher first is strongly recommended.",
+                "Proceed": "Inject anyway",
+                "Learn": "How to disable",
+            },
+        },
+        "Settings": {
+            "Header": {
+                "Appearance": "Appearance",
+                "Injection": "Injection",
+                "Lua": "Lua Settings",
+                "Maintenance": "Maintenance",
+                "Other": "Other",
+                "Paths": "Custom Paths",
+            },
+            "Inject": {
+                "AutoClose": "Auto-Close after Injection",
+                "SoundFeedback": "Sound Feedback on Success",
+                "Tooltip": {
+                    "AutoClose": "Automatically close YMU once the DLL has been injected into the game",
+                    "SoundFeedback": "Play an audible confirmation chime when injection or download completes successfully",
                 },
             },
-            'Label': {
-                'Language': 'Language',
+            "Label": {
+                "Language": "Language",
             },
-            'Theme': {
-                'Dark': 'Dark',
-                'Light': 'Light',
+            "Theme": {
+                "Dark": "Dark",
+                "Light": "Light",
             },
-            'Lua': {
-                'AutoReload': 'Auto-reload changed scripts',
-                'ListDisabled': 'Disabled',
-                'ListEnabled': 'Enabled',
-                'Tooltip': {
-                    'AutoReload': 'Automatically re-apply changes when Lua script files are saved',
-                    'Enable': 'Enable selected script(s)',
-                    'Disable': 'Disable selected script(s)',
-                    'Refresh': 'Refresh script lists',
+            "Lua": {
+                "AutoReload": "Auto-reload changed scripts",
+                "ListDisabled": "Disabled",
+                "ListEnabled": "Enabled",
+                "Btn": {
+                    "DisableAll": "Disable All",
+                    "EnableAll": "Enable All",
                 },
-                'NoScriptsDir': "The {0} folder hasn't been created yet.\nInject and run YimMenu once to generate it.",
+                "Tooltip": {
+                    "AutoReload": "Automatically re-apply changes when Lua script files are saved",
+                    "Enable": "Enable selected script(s)",
+                    "Disable": "Disable selected script(s)",
+                    "Refresh": "Refresh script lists",
+                    "DisableAll": "Disable all scripts at once (Safe Mode)",
+                    "EnableAll": "Re-enable all disabled scripts",
+                },
+                "NoScriptsDir": "The {0} folder hasn't been created yet.\nInject and run YimMenu once to generate it.",
             },
-            'Other': {
-                'DebugConsole': 'Enable External Debug Console',
-                'Tooltip': {
-                    'Debug': "Show YimMenu's external console window for detailed logs and debugging",
+            "Other": {
+                "DebugConsole": "Enable External Debug Console",
+                "Tooltip": {
+                    "Debug": "Show YimMenu's external console window for detailed logs and debugging",
                 },
             },
-            'Btn': {
-                'OpenScripts': 'Open Scripts Folder',
-                'DiscoverLua': 'Discover Lua Scripts',
-                'OpenYimFolder': 'Open YimMenu Folder',
-                'OpenYmuFolder': 'Open YMU Folder',
-                'ReportBug': 'Report a Bug',
-                'RequestFeature': 'Request a Feature',
-                'CheckUpdates': 'Check for YMU Updates',
-                'UpToDate': 'YMU is up-to-date',
+            "Btn": {
+                "OpenScripts": "Open Scripts Folder",
+                "DiscoverLua": "Discover Lua Scripts",
+                "OpenYimFolder": "Open YimMenu Folder",
+                "OpenYimV2Folder": "Open YimMenuV2 Folder",
+                "OpenYmuFolder": "Open YMU Folder",
+                "OpenLog": "Open YimMenu Log",
+                "OpenV2Log": "Open YimMenuV2 Log",
+                "ResetCaches": "Clear Pointer Caches",
+                "ReportBug": "Report a Bug",
+                "RequestFeature": "Request a Feature",
+                "CheckUpdates": "Check for YMU Updates",
+                "UpToDate": "YMU is up-to-date",
             },
-            'Tooltip': {
-                'OpenScripts': 'Open the folder where your Lua scripts are located',
-                'DiscoverLua': 'Open the official YimMenu-Lua GitHub organization to find new scripts',
-                'OpenYimFolder': 'Open YimMenu folder (%APPDATA%/YimMenu)',
-                'OpenYmuFolder': 'Open YMU folder (%APPDATA%/YMU)',
-                'ReportBug': 'Open the bug report page on GitHub in your browser',
-                'RequestFeature': 'Open the feature request page on GitHub in your browser',
-                'Language': 'Select application language (requires restart)',
-                'UpdateLang': 'Check for translation updates',
+            "Tooltip": {
+                "OpenScripts": "Open the folder where your Lua scripts are located",
+                "DiscoverLua": "Open the official YimMenu-Lua GitHub organization to find new scripts",
+                "OpenYimFolder": "Open YimMenu folder (%APPDATA%/YimMenu)",
+                "OpenYimV2Folder": "Open YimMenuV2 folder (%APPDATA%/YimMenuV2)",
+                "OpenYmuFolder": "Open YMU folder (%APPDATA%/YMU)",
+                "OpenLog": "Open the active edition's cout.log in your text editor",
+                "ResetCaches": "Deletes cached binary offsets. Recommended after game updates if the menu crashes on launch.",
+                "ReportBug": "Open the bug report page on GitHub in your browser",
+                "RequestFeature": "Open the feature request page on GitHub in your browser",
+                "Language": "Select application language (requires restart)",
+                "UpdateLang": "Check for translation updates",
             },
-            'Update': {
-                'Title': 'YMU Updates',
-                'UpToDate': 'Your YMU is already up-to-date.',
-                'AvailableTitle': 'Update Available',
-                'AvailableMsg': 'Update {0} is available!',
-                'Prompt': 'Do you want to open the download page in your browser?',
-                'CheckTitle': 'Check for YMU Updates',
-                'ErrorTitle': 'Update Error',
-                'Ahead': 'You are running a newer version than the latest release.',
+            "Update": {
+                "Title": "YMU Updates",
+                "UpToDate": "Your YMU is already up-to-date.",
+                "AvailableTitle": "Update Available",
+                "AvailableMsg": "Update {0} is available!",
+                "Prompt": "Do you want to open the download page in your browser?",
+                "CheckTitle": "Check for YMU Updates",
+                "ErrorTitle": "Update Error",
+                "Ahead": "You are running a newer version than the latest release.",
             },
-            'Notify': {
-                'RestartRequired': 'Please restart YMU to apply the new language.',
-                'LangUpdated': 'Translations were successfully downloaded.\nRestart YMU to see the updated Language List in Settings.',
-                'LangTitle': 'Language Changed',
-                'LangUpToDate': 'Translations are already up-to-date.',
-                'V2FileMissing': 'YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.',
-                'FolderMissing': 'Folder does not exist yet:\n{0}',
-                'NoGtaDirFound': 'Could not find your GTA V directory. Please browse and select your GTA V install folder first.',
-                'BattlEyeDisabledTitle': 'BattlEye Disabled',
-                'BattlEyeDisabledMsg': 'Added -nobattleye to commandline.txt in your GTA V directory.',
-                'BattlEyeRestoredTitle': 'BattlEye Restored',
-                'BattlEyeRestoredMsg': 'Removed -nobattleye from commandline.txt.',
+            "Notify": {
+                "RestartRequired": "Please restart YMU to apply the new language.",
+                "LangUpdated": "Translations were successfully downloaded.\nRestart YMU to see the updated Language List in Settings.",
+                "LangTitle": "Language Changed",
+                "LangUpToDate": "Translations are already up-to-date.",
+                "V2FileMissing": "YimMenuV2 has no settings.json yet.\nInject and run it once, then try again.",
+                "FolderMissing": "Folder does not exist yet:\n{0}",
+                "NoGtaDirFound": "Could not find your GTA V directory. Please browse and select your GTA V install folder first.",
+                "BattlEyeDisabledTitle": "BattlEye Disabled",
+                "BattlEyeDisabledMsg": "Added -nobattleye to commandline.txt in your GTA V directory.",
+                "BattlEyeRestoredTitle": "BattlEye Restored",
+                "BattlEyeRestoredMsg": "Removed -nobattleye from commandline.txt.",
+                "CachesClearedTitle": "Caches Cleared",
+                "CachesClearedMsg": "{0} cache file(s) cleared successfully.",
+                "NoCachesMsg": "No cache files found to clear.",
             },
-            'Paths': {
-                'GtaDir': 'GTA V install folder',
-                'CustomDll': 'Custom menu DLL',
-                'Browse': 'Browse',
-                'Clear': 'Clear',
-                'AutoDetect': 'Auto-detected',
-                'DefaultDll': 'Use downloaded DLL',
-                'ErrorNotFound': 'Path does not exist.',
-                'ErrorNoGta': 'No GTA V executable found in this folder.',
-                'ErrorNotDll': 'Please select a .dll file.',
-                'ErrorWriteCommandline': 'Could not modify commandline.txt. Please check file permissions.',
-                'NoBattlEye': 'Disable BattlEye (commandline.txt)',
-                'Tooltip': {
-                    'NoBattlEye': 'Adds or removes -nobattleye in commandline.txt in your GTA V directory to run without BattlEye',
+            "Notice": {
+                "LegacyOnly": "Only available in YimMenu Legacy",
+            },
+            "Paths": {
+                "GtaDir": "GTA V install folder",
+                "CustomDll": "Custom menu DLL",
+                "Browse": "Browse",
+                "Clear": "Clear",
+                "AutoDetect": "Auto-detected",
+                "DefaultDll": "Use downloaded DLL",
+                "ErrorNotFound": "Path does not exist.",
+                "ErrorNoGta": "No GTA V executable found in this folder.",
+                "ErrorNotDll": "Please select a .dll file.",
+                "ErrorWriteCommandline": "Could not modify commandline.txt. Please check file permissions.",
+                "NoBattlEye": "Disable BattlEye (commandline.txt)",
+                "FslDetected": "FSL (WINMM.dll): Detected",
+                "FslMissing": "FSL (WINMM.dll): Not found (Recommended for online)",
+                "FslHelp": "FSL Info",
+                "Tooltip": {
+                    "NoBattlEye": "Adds or removes -nobattleye in commandline.txt in your GTA V directory to run without BattlEye",
+                    "Fsl": "Free Save Launcher (FSL) provides local GTA Online saves and BattlEye bypass. Click to open UnknownCheats thread.",
                 },
             },
         },
@@ -327,7 +354,9 @@ class LocalizationManager(QObject):
 
     def get_language_name(self, locale_code: str) -> str:
         with self._lock:
-            return self.data.get(locale_code, {}).get("meta", {}).get("name", locale_code)
+            return (
+                self.data.get(locale_code, {}).get("meta", {}).get("name", locale_code)
+            )
 
     def load_local_file(self):
         if not os.path.exists(LOCAL_FILE_PATH):
@@ -353,47 +382,66 @@ class LocalizationManager(QObject):
 
     def _update_from_remote_thread(self):
         """Internal method, runs in thread."""
-        logger.info(f"Checking for translation updates from: {REMOTE_LANG_URL}")
         tmp_path = LOCAL_FILE_PATH + ".tmp"
         try:
+            urls = [PRIMARY_LANG_URL, FALLBACK_LANG_URL]
+            response = None
+            last_error: Exception | None = None
             headers = {"User-Agent": USER_AGENT}
-            response = requests.get(REMOTE_LANG_URL, headers=headers, timeout=10)
-            if response.status_code == 200:
-                remote_data = response.json()
-                if isinstance(remote_data, dict):
-                    local_raw = self._read_local_raw_data()
-                    if local_raw is not None and local_raw == remote_data:
-                        logger.info("Local translations are already up-to-date.")
-                        msg = self.tr(
-                            "Settings.Notify.LangUpToDate",
-                            "Translations are already up-to-date.",
-                        )
-                        self.update_finished.emit(True, msg, False)
-                    else:
-                        logger.info("New translations detected. Updating local file...")
-                        os.makedirs(os.path.dirname(LOCAL_FILE_PATH), exist_ok=True)
-                        with open(tmp_path, "w", encoding="utf-8") as f:
-                            json.dump(remote_data, f, indent=4, ensure_ascii=False)
-                        os.replace(tmp_path, LOCAL_FILE_PATH)
-                        with self._lock:
-                            self.data = self._deep_merge(FALLBACK_DATA, remote_data)
-                        msg = self.tr(
-                            "Settings.Notify.LangUpdated",
-                            "Translations updated successfully!",
-                        )
-                        self.update_finished.emit(True, msg, True)
-                else:
-                    logger.warning("Remote JSON is valid but not a dictionary.")
-                    self.update_finished.emit(
-                        False, "Invalid data format received.", False
+
+            for url in urls:
+                try:
+                    logger.info(f"Checking for translation updates from: {url}")
+                    req_headers = dict(headers)
+                    if "api.github.com" in url:
+                        req_headers["Accept"] = "application/vnd.github.raw+json"
+                    resp = requests.get(url, headers=req_headers, timeout=10)
+                    if resp.status_code == 200:
+                        response = resp
+                        break
+                    logger.warning(
+                        f"Translation fetch from {url} returned HTTP {resp.status_code}"
                     )
+                except (requests.RequestException, OSError) as e:
+                    logger.warning(f"Failed to fetch translations from {url}: {e}")
+                    last_error = e
+
+            if response is None or response.status_code != 200:
+                err_msg = (
+                    str(last_error)
+                    if last_error
+                    else f"HTTP Error: {response.status_code if response else 'Unavailable'}"
+                )
+                logger.warning(f"Remote translations unavailable: {err_msg}")
+                self.update_finished.emit(False, err_msg, False)
+                return
+
+            remote_data = response.json()
+            if isinstance(remote_data, dict):
+                local_raw = self._read_local_raw_data()
+                if local_raw is not None and local_raw == remote_data:
+                    logger.info("Local translations are already up-to-date.")
+                    msg = self.tr(
+                        "Settings.Notify.LangUpToDate",
+                        "Translations are already up-to-date.",
+                    )
+                    self.update_finished.emit(True, msg, False)
+                else:
+                    logger.info("New translations detected. Updating local file...")
+                    os.makedirs(os.path.dirname(LOCAL_FILE_PATH), exist_ok=True)
+                    with open(tmp_path, "w", encoding="utf-8") as f:
+                        json.dump(remote_data, f, indent=4, ensure_ascii=False)
+                    os.replace(tmp_path, LOCAL_FILE_PATH)
+                    with self._lock:
+                        self.data = self._deep_merge(FALLBACK_DATA, remote_data)
+                    msg = self.tr(
+                        "Settings.Notify.LangUpdated",
+                        "Translations updated successfully!",
+                    )
+                    self.update_finished.emit(True, msg, True)
             else:
-                logger.warning(
-                    f"Remote translations not found. Status Code: {response.status_code}"
-                )
-                self.update_finished.emit(
-                    False, f"HTTP Error: {response.status_code}", False
-                )
+                logger.warning("Remote JSON is valid but not a dictionary.")
+                self.update_finished.emit(False, "Invalid data format received.", False)
 
         except (requests.RequestException, OSError, ValueError) as e:
             logger.warning(f"Could not check for translation updates: {e}")
@@ -413,24 +461,23 @@ class LocalizationManager(QObject):
         # method so static type checkers don't flag an LSP violation.
         keys = key_path.split(".")
         with self._lock:
-            value = self.data.get(self.active_locale, {})
-        try:
-            for k in keys:
-                value = value[k]
-            if isinstance(value, str):
-                return value
-        except (KeyError, TypeError):
-            pass
-
-        if self.active_locale != "en_US":
-            with self._lock:
-                fallback = self.data.get("en_US", {})
             try:
+                value = self.data.get(self.active_locale, {})
                 for k in keys:
-                    fallback = fallback[k]
-                if isinstance(fallback, str):
-                    return fallback
+                    value = value[k]
+                if isinstance(value, str):
+                    return value
             except (KeyError, TypeError):
                 pass
+
+            if self.active_locale != "en_US":
+                try:
+                    fallback = self.data.get("en_US", {})
+                    for k in keys:
+                        fallback = fallback[k]
+                    if isinstance(fallback, str):
+                        return fallback
+                except (KeyError, TypeError):
+                    pass
 
         return default if default else f"[{key_path}]"

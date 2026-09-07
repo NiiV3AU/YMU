@@ -1,4 +1,6 @@
 import logging
+import re
+import time
 
 from core import release_service
 from core.paths import LOCAL_VERSION
@@ -20,15 +22,20 @@ STATUS_UP_TO_DATE = "UP_TO_DATE"
 STATUS_AHEAD = "AHEAD"
 
 
+def parse_version_tuple(v: str) -> tuple[int, int, int]:
+    """Parse a semantic or tagged version string like 'v1.2.3' into a 3-tuple (major, minor, patch)."""
+    base = re.split(r"[-+]", str(v).strip())[0]
+    cleaned = re.sub(r"^[^\d]*", "", base)
+    nums = [int(n) for n in re.findall(r"\d+", cleaned)]
+    nums += [0] * max(0, 3 - len(nums))
+    return (nums[0], nums[1], nums[2])
+
+
 def check_for_updates(*args, **kwargs):
     """
     Returns tuple: (STATUS_CODE, DATA)
     DATA is either the remote version string or the error message/object.
     """
-    import time
-
-    from packaging.version import parse
-
     current_time = time.time()
 
     if REPO in _update_cache:
@@ -48,8 +55,8 @@ def check_for_updates(*args, **kwargs):
 
         remote_version = latest_release.version_tag
 
-        local = parse(LOCAL_VERSION)
-        remote = parse(remote_version)
+        local = parse_version_tuple(LOCAL_VERSION)
+        remote = parse_version_tuple(remote_version)
 
         result = None
         if remote > local:

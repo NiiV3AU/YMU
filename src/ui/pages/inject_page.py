@@ -22,6 +22,7 @@ from core.paths import YMU_DLL_DIR, resource_path
 from ui.utils import play_success_sound, restart_as_admin
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
+from ui.widgets.notifications import NotificationManager
 
 if TYPE_CHECKING:
     from core.worker_manager import WorkerManager
@@ -202,8 +203,9 @@ class InjectPage(QWidget):
 
     def _notify(self, title: str, message: str, **kwargs):
         win = self.window()
-        if win and hasattr(win, "notification_manager"):
-            win.notification_manager.show(title, message, **kwargs)
+        mgr = getattr(win, "notification_manager", None)
+        if isinstance(mgr, NotificationManager):
+            mgr.show(title, message, **kwargs)
 
     def hideEvent(self, event):
         """Called every time the page is hidden."""
@@ -357,7 +359,7 @@ class InjectPage(QWidget):
 
     def show_inject_info_dialog(self):
         start_gta_default = (
-            "1. Select your launcher\n2. Press 'Start GTA 5'\n3. Read the next step ↗"
+            "1. Select your launcher\n2. Press [Start GTA 5]\n3. Read the next step ↗"
         )
         start_gta_text = self.loc_manager.tr(
             "Inject.Help.StartGtaSteps", start_gta_default
@@ -366,7 +368,7 @@ class InjectPage(QWidget):
         inject_default = (
             "1. Start GTA 5 (↖ Previous Step)\n"
             "2. Wait for the game's start screen/menu\n"
-            "3. Click on 'Inject YimMenu'\n"
+            "3. Click on [Inject YimMenu]\n"
             "4. Wait for YimMenu to finish loading\n"
             "5. Done! ✅"
         )

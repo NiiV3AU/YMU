@@ -2,6 +2,7 @@
 .ruff_cache/
 dist/
 docs/
+PROJECT_STRUCTURE.md
 __pycache__/
 *.py[cod]
 *$py.class

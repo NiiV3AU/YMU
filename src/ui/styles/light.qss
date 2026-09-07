@@ -74,6 +74,15 @@ QPushButton:disabled {
     color: #A6ACB4;
 }
 
+QLabel {
+    background-color: transparent;
+}
+
+QLabel:disabled,
+QLabel[unsupported="true"] {
+    color: #A6ACB4;
+}
+
 /* --- DIALOGS (InfoDialog & QMessageBox) --- */
 QDialog#InfoDialog, QMessageBox {
     background-color: #FFFFFF;

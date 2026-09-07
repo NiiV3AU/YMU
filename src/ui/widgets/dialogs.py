@@ -1,7 +1,6 @@
 # dialogs.py - Reusable modal dialogs.
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
-    QApplication,
     QDialog,
     QHBoxLayout,
     QLabel,
@@ -9,6 +8,7 @@ from PySide6.QtWidgets import (
     QStackedWidget,
     QTabBar,
     QVBoxLayout,
+    QWidget,
 )
 
 
@@ -41,19 +41,27 @@ class InfoDialog(QDialog):
             formatted_content = tab_content.replace("\n", "<br>")
             html_text = (
                 f"<html><body>"
-                f"<div align='center' style='font-family:{font_family}; font-size:14px; color:{text_color};'>"
+                f"<div align='left' style='font-family:{font_family}; font-size:14px; color:{text_color}; line-height:140%;'>"
                 f"{formatted_content}"
                 f"</div></body></html>"
             )
 
             content_label = QLabel(html_text)
             content_label.setTextFormat(Qt.TextFormat.RichText)
-            content_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            content_label.setAlignment(
+                Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignVCenter
+            )
             content_label.setWordWrap(True)
             content_label.setOpenExternalLinks(True)
-            content_label.setContentsMargins(10, 20, 10, 20)
 
-            self.content_stack.addWidget(content_label)
+            page_widget = QWidget()
+            page_layout = QHBoxLayout(page_widget)
+            page_layout.setContentsMargins(30, 20, 30, 20)
+            page_layout.addStretch()
+            page_layout.addWidget(content_label)
+            page_layout.addStretch()
+
+            self.content_stack.addWidget(page_widget)
 
         self.tab_bar.currentChanged.connect(self._on_tab_changed)
 
@@ -71,5 +79,4 @@ class InfoDialog(QDialog):
 
     def _on_tab_changed(self, index):
         self.content_stack.setCurrentIndex(index)
-        QApplication.processEvents()
-        self.adjustSize()
+        QTimer.singleShot(0, self.adjustSize)

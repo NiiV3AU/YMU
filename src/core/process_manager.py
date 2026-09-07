@@ -1,18 +1,16 @@
 # process_manager.py - Handles finding the GTA5.exe process and injecting the DLL.
 
+import base64
 import ctypes
 import logging
 import os
 import shutil
 import tempfile
 import time
+from ctypes import wintypes
 from typing import TYPE_CHECKING
 
-import psutil
 import pyinjector
-import win32api
-import win32con
-import win32process
 
 if TYPE_CHECKING:
     from core.menu_modes import MenuMode
@@ -52,12 +50,204 @@ def _classify_injector_error(e: pyinjector.InjectorError) -> Exception:
     return InjectionError("unknown", str(e))
 
 
+# Windows API Constants & Structures for process management
+TH32CS_SNAPPROCESS = 0x00000002
+PROCESS_QUERY_INFORMATION = 0x0400
+PROCESS_QUERY_LIMITED_INFORMATION = 0x1000
+PROCESS_VM_READ = 0x0010
+SYNCHRONIZE = 0x00100000
+WAIT_TIMEOUT = 0x00000102
+WAIT_OBJECT_0 = 0x00000000
+STILL_ACTIVE = 259
+LIST_MODULES_ALL = 0x03
+INVALID_HANDLE_VALUE = wintypes.HANDLE(-1).value
+SEE_MASK_NOCLOSEPROCESS = 0x00000040
+
+
+class PROCESSENTRY32W(ctypes.Structure):
+    _fields_ = [
+        ("dwSize", wintypes.DWORD),
+        ("cntUsage", wintypes.DWORD),
+        ("th32ProcessID", wintypes.DWORD),
+        ("th32DefaultHeapID", ctypes.c_size_t),
+        ("th32ModuleID", wintypes.DWORD),
+        ("cntThreads", wintypes.DWORD),
+        ("th32ParentProcessID", wintypes.DWORD),
+        ("pcPriClassBase", ctypes.c_long),
+        ("dwFlags", wintypes.DWORD),
+        ("szExeFile", ctypes.c_wchar * 260),
+    ]
+
+
+class SHELLEXECUTEINFOW(ctypes.Structure):
+    _fields_ = [
+        ("cbSize", wintypes.DWORD),
+        ("fMask", wintypes.ULONG),
+        ("hwnd", wintypes.HWND),
+        ("lpVerb", wintypes.LPCWSTR),
+        ("lpFile", wintypes.LPCWSTR),
+        ("lpParameters", wintypes.LPCWSTR),
+        ("lpDirectory", wintypes.LPCWSTR),
+        ("nShow", ctypes.c_int),
+        ("hInstApp", wintypes.HINSTANCE),
+        ("lpIDList", ctypes.c_void_p),
+        ("lpClass", wintypes.LPCWSTR),
+        ("hkeyClass", wintypes.HKEY),
+        ("dwHotKey", wintypes.DWORD),
+        ("hIconOrMonitor", wintypes.HANDLE),
+        ("hProcess", wintypes.HANDLE),
+    ]
+
+
+# Win32 API DLL Instances & Explicit Function Prototypes
+kernel32 = ctypes.windll.kernel32
+shell32 = ctypes.windll.shell32
+psapi = ctypes.windll.psapi
+
+kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+kernel32.CloseHandle.restype = wintypes.BOOL
+
+kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+kernel32.OpenProcess.restype = wintypes.HANDLE
+
+kernel32.WaitForSingleObject.argtypes = [wintypes.HANDLE, wintypes.DWORD]
+kernel32.WaitForSingleObject.restype = wintypes.DWORD
+
+kernel32.GetExitCodeProcess.argtypes = [
+    wintypes.HANDLE,
+    ctypes.POINTER(wintypes.DWORD),
+]
+kernel32.GetExitCodeProcess.restype = wintypes.BOOL
+
+kernel32.GetShortPathNameW.argtypes = [
+    wintypes.LPCWSTR,
+    wintypes.LPWSTR,
+    wintypes.DWORD,
+]
+kernel32.GetShortPathNameW.restype = wintypes.DWORD
+
+kernel32.GetLastError.argtypes = []
+kernel32.GetLastError.restype = wintypes.DWORD
+
+kernel32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+kernel32.TerminateProcess.restype = wintypes.BOOL
+
+kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+
+kernel32.Process32FirstW.argtypes = [
+    wintypes.HANDLE,
+    ctypes.POINTER(PROCESSENTRY32W),
+]
+kernel32.Process32FirstW.restype = wintypes.BOOL
+
+kernel32.Process32NextW.argtypes = [
+    wintypes.HANDLE,
+    ctypes.POINTER(PROCESSENTRY32W),
+]
+kernel32.Process32NextW.restype = wintypes.BOOL
+
+kernel32.QueryFullProcessImageNameW.argtypes = [
+    wintypes.HANDLE,
+    wintypes.DWORD,
+    wintypes.LPWSTR,
+    ctypes.POINTER(wintypes.DWORD),
+]
+kernel32.QueryFullProcessImageNameW.restype = wintypes.BOOL
+
+shell32.ShellExecuteExW.argtypes = [ctypes.POINTER(SHELLEXECUTEINFOW)]
+shell32.ShellExecuteExW.restype = wintypes.BOOL
+
+shell32.IsUserAnAdmin.argtypes = []
+shell32.IsUserAnAdmin.restype = wintypes.BOOL
+
+psapi.EnumProcessModulesEx.argtypes = [
+    wintypes.HANDLE,
+    ctypes.c_void_p,
+    wintypes.DWORD,
+    ctypes.POINTER(wintypes.DWORD),
+    wintypes.DWORD,
+]
+psapi.EnumProcessModulesEx.restype = wintypes.BOOL
+
+psapi.GetModuleFileNameExW.argtypes = [
+    wintypes.HANDLE,
+    wintypes.HMODULE,
+    wintypes.LPWSTR,
+    wintypes.DWORD,
+]
+psapi.GetModuleFileNameExW.restype = wintypes.DWORD
+
+
 def is_admin() -> bool:
     """True if the current process runs with Administrator privileges."""
     try:
-        return bool(ctypes.windll.shell32.IsUserAnAdmin())
+        return bool(shell32.IsUserAnAdmin())
     except (AttributeError, OSError):
         return False
+
+
+def _iter_processes() -> list[tuple[int, str]]:
+    """Return (pid, exe_name) for all active processes via Toolhelp32 snapshot.
+
+    Eagerly materializes the process list and closes the snapshot handle immediately
+    in finally, preventing handle leaks when callers break or return early.
+    """
+    h_snap = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
+    if not h_snap or h_snap in (-1, INVALID_HANDLE_VALUE):
+        return []
+    processes: list[tuple[int, str]] = []
+    try:
+        pe = PROCESSENTRY32W()
+        pe.dwSize = ctypes.sizeof(PROCESSENTRY32W)
+        if kernel32.Process32FirstW(h_snap, ctypes.byref(pe)):
+            while True:
+                processes.append((pe.th32ProcessID, pe.szExeFile))
+                if not kernel32.Process32NextW(h_snap, ctypes.byref(pe)):
+                    break
+    finally:
+        kernel32.CloseHandle(h_snap)
+    return processes
+
+
+def _get_process_image_path(pid: int) -> str | None:
+    """Return the full executable image path for a PID using QueryFullProcessImageNameW."""
+    h_proc = kernel32.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, False, pid)
+    if not h_proc:
+        return None
+    try:
+        buf = ctypes.create_unicode_buffer(1024)
+        size = wintypes.DWORD(len(buf))
+        if kernel32.QueryFullProcessImageNameW(h_proc, 0, buf, ctypes.byref(size)):
+            return buf.value
+    finally:
+        kernel32.CloseHandle(h_proc)
+    return None
+
+
+def pid_exists(pid: int) -> bool:
+    """Checks whether a process with the given PID is currently running."""
+    if pid <= 0:
+        return False
+
+    h_proc = kernel32.OpenProcess(
+        PROCESS_QUERY_LIMITED_INFORMATION | SYNCHRONIZE, False, pid
+    )
+    if not h_proc:
+        # ERROR_ACCESS_DENIED (5) indicates the process exists but is protected
+        return kernel32.GetLastError() == 5
+    try:
+        res = kernel32.WaitForSingleObject(h_proc, 0)
+        if res == WAIT_TIMEOUT:
+            return True
+        if res == WAIT_OBJECT_0:
+            return False
+        exit_code = wintypes.DWORD()
+        if kernel32.GetExitCodeProcess(h_proc, ctypes.byref(exit_code)):
+            return exit_code.value == STILL_ACTIVE
+        return True
+    finally:
+        kernel32.CloseHandle(h_proc)
 
 
 def find_gta_pid(
@@ -83,39 +273,16 @@ def find_gta_pid(
     """
     targets = tuple(t.lower() for t in target_executables)
     try:
-        for p in psutil.process_iter(["pid", "name"]):
-            try:
-                name = p.info.get("name")
-                if name and name.lower() in targets:
-                    logger.info(f"Found process by name: '{name}' with PID: {p.pid}")
-                    return p.pid
-
-                # Fallback to exe / cmdline only if name is missing/empty
-                if not name:
-                    exe = p.exe()
-                    if exe and os.path.basename(exe).lower() in targets:
-                        logger.info(
-                            f"Found process by executable path: '{exe}' with PID: {p.pid}"
-                        )
-                        return p.pid
-
-                    cmdline = p.cmdline()
-                    if cmdline and len(cmdline) > 0:
-                        exe_in_cmd = cmdline[0].lower()
-                        if any(exe_in_cmd.endswith(target) for target in targets):
-                            logger.info(
-                                f"Found process by command line: '{cmdline[0]}' with PID: {p.pid}"
-                            )
-                            return p.pid
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                continue
-
+        for pid, name in _iter_processes():
+            if name and name.lower() in targets:
+                logger.info(f"Found process by name: '{name}' with PID: {pid}")
+                return pid
     except Exception:
         logger.exception(
             "An unexpected error occurred while searching for the game process"
         )
 
-    logger.warning(f"No process matching {targets} found.")
+    logger.debug(f"No process matching {targets} found.")
     return None
 
 
@@ -131,15 +298,11 @@ def is_battleye_running() -> bool:
     block an otherwise valid injection.
     """
     try:
-        for p in psutil.process_iter(["name"]):
-            try:
-                name = p.info["name"]
-                if name and name.lower() in BATTLEYE_EXECUTABLES:
-                    logger.info(f"BattlEye process detected: {name}")
-                    return True
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                continue
-    except (psutil.Error, OSError) as e:
+        for _pid, name in _iter_processes():
+            if name and name.lower() in BATTLEYE_EXECUTABLES:
+                logger.info(f"BattlEye process detected: {name}")
+                return True
+    except OSError as e:
         logger.debug(f"BattlEye check failed, assuming not running: {e}")
     return False
 
@@ -222,51 +385,76 @@ def is_dll_loaded_in_process(
 
     Polls for up to `timeout` seconds to account for module load time during heavy game load.
     """
-    if not psutil.pid_exists(pid):
+    if not pid_exists(pid):
         logger.warning(f"Process PID {pid} is not running. Cannot verify module.")
         return False
 
     target = os.path.basename(dll_name_or_path).lower()
     start = time.time()
-    can_open_process = False
+    can_query_modules = False
 
     while time.time() - start < timeout:
-        if not psutil.pid_exists(pid):
+        if not pid_exists(pid):
             logger.warning(f"Process PID {pid} terminated during module verification.")
             return False
 
-        h_proc = None
+        h_proc = kernel32.OpenProcess(
+            PROCESS_QUERY_INFORMATION | PROCESS_VM_READ,
+            False,
+            pid,
+        )
+        if not h_proc:
+            err = kernel32.GetLastError()
+            if err == 5:  # ERROR_ACCESS_DENIED
+                logger.warning(
+                    f"OpenProcess for PID {pid} returned ERROR_ACCESS_DENIED; assuming injection succeeded."
+                )
+                return True
+            time.sleep(0.2)
+            continue
+
         try:
-            h_proc = win32api.OpenProcess(
-                win32con.PROCESS_QUERY_INFORMATION | win32con.PROCESS_VM_READ,
-                False,
-                pid,
-            )
-            can_open_process = True
-            modules = win32process.EnumProcessModulesEx(
-                h_proc, win32process.LIST_MODULES_ALL
-            )
-            for m in modules:
-                try:
-                    mod_path = win32process.GetModuleFileNameEx(h_proc, m)
-                    if os.path.basename(mod_path).lower() == target:
+            cb_needed = wintypes.DWORD()
+            initial_count = 1024
+            modules = (wintypes.HMODULE * initial_count)()
+            cb = ctypes.sizeof(modules)
+            hmodule_size = ctypes.sizeof(wintypes.HMODULE)
+
+            if psapi.EnumProcessModulesEx(
+                h_proc, modules, cb, ctypes.byref(cb_needed), LIST_MODULES_ALL
+            ):
+                can_query_modules = True
+                if cb_needed.value > cb:
+                    mod_count = cb_needed.value // hmodule_size
+                    modules = (wintypes.HMODULE * mod_count)()
+                    cb = ctypes.sizeof(modules)
+                    if not psapi.EnumProcessModulesEx(
+                        h_proc, modules, cb, ctypes.byref(cb_needed), LIST_MODULES_ALL
+                    ):
+                        continue
+
+                count = cb_needed.value // hmodule_size
+                buf = ctypes.create_unicode_buffer(1024)
+                for i in range(count):
+                    h_mod = modules[i]
+                    if (
+                        psapi.GetModuleFileNameExW(h_proc, h_mod, buf, len(buf))
+                        and os.path.basename(buf.value).lower() == target
+                    ):
                         logger.info(
-                            f"Verified module '{target}' in memory of PID {pid}: {mod_path}"
+                            f"Verified module '{target}' in memory of PID {pid}: {buf.value}"
                         )
                         return True
-                except (OSError, win32api.error):
-                    continue
-        except (OSError, win32api.error) as e:
+        except OSError as e:
             logger.debug(f"Could not inspect modules for PID {pid}: {e}")
         finally:
-            if h_proc:
-                win32api.CloseHandle(h_proc)
+            kernel32.CloseHandle(h_proc)
 
         time.sleep(0.2)
 
-    if not can_open_process:
+    if not can_query_modules:
         # If the process is gone, this is a crash/exit, NOT insufficient rights
-        if not psutil.pid_exists(pid):
+        if not pid_exists(pid):
             return False
 
         # Fail open ONLY if the process is confirmed still alive but restricted
@@ -308,7 +496,7 @@ def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
             f"{dll_path}"
         )
         raise InjectionError("bad_architecture", f"machine=0x{machine:04x}")
-    if not psutil.pid_exists(pid):
+    if not pid_exists(pid):
         logger.error(f"Target process (PID {pid}) is gone. Cannot inject.")
         raise InjectionError("process_gone", f"PID {pid}")
     try:
@@ -322,7 +510,7 @@ def inject_dll(pid: int, dll_path: str, **kwargs) -> bool:
         )
 
         if not is_dll_loaded_in_process(pid, inject_path, timeout=2.5):
-            if not psutil.pid_exists(pid):
+            if not pid_exists(pid):
                 logger.error(
                     f"Target process (PID {pid}) crashed during or after injection."
                 )
@@ -358,7 +546,7 @@ def is_process_running(pid: int) -> bool:
     :param pid: The Process ID to check.
     :return: True if the process is running, otherwise False.
     """
-    return psutil.pid_exists(pid)
+    return pid_exists(pid)
 
 
 def get_gta_directory(mode: "MenuMode | None" = None) -> str | None:
@@ -382,13 +570,9 @@ def get_gta_directory(mode: "MenuMode | None" = None) -> str | None:
     # Check running process
     pid = find_gta_pid(mode.target_executables)
     if pid:
-        try:
-            p = psutil.Process(pid)
-            exe_path = p.exe()
-            if exe_path and os.path.isfile(exe_path):
-                return os.path.dirname(exe_path)
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+        exe_path = _get_process_image_path(pid)
+        if exe_path and os.path.isfile(exe_path):
+            return os.path.dirname(exe_path)
 
     # Check registry
     reg_dir = menu_modes.get_install_dir(mode)
@@ -425,11 +609,115 @@ def is_nobattleye_enabled(gta_dir: str | None) -> bool:
         return False
 
 
+def _elevated_write_file(path: str, content: str, encoding: str) -> bool:
+    """Writes content to path via an elevated PowerShell process (triggers Windows UAC prompt)."""
+    temp_fd, temp_path = tempfile.mkstemp(suffix=".txt")
+    process_running = False
+    try:
+        with os.fdopen(temp_fd, "w", encoding=encoding) as f:
+            f.write(content)
+
+        escaped_src = temp_path.replace("'", "''")
+        escaped_dst = path.replace("'", "''")
+        ps_script = f"Copy-Item -LiteralPath '{escaped_src}' -Destination '{escaped_dst}' -Force"
+        encoded_cmd = base64.b64encode(ps_script.encode("utf-16le")).decode("ascii")
+        params = f"-NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand {encoded_cmd}"
+
+        sei = SHELLEXECUTEINFOW()
+        sei.cbSize = ctypes.sizeof(SHELLEXECUTEINFOW)
+        sei.fMask = SEE_MASK_NOCLOSEPROCESS
+        sei.hwnd = None
+        sei.lpVerb = "runas"
+        sei.lpFile = "powershell.exe"
+        sei.lpParameters = params
+        sei.nShow = 0  # SW_HIDE
+
+        if not shell32.ShellExecuteExW(ctypes.byref(sei)):
+            logger.warning(f"Elevated write to {path} cancelled or failed.")
+            return False
+
+        if not sei.hProcess:
+            return False
+
+        process_running = True
+        try:
+            wait_res = kernel32.WaitForSingleObject(sei.hProcess, 10000)
+            if wait_res == WAIT_TIMEOUT:
+                logger.warning(
+                    f"Elevated write to {path} timed out; terminating process."
+                )
+                kernel32.TerminateProcess(sei.hProcess, 1)
+                kernel32.WaitForSingleObject(sei.hProcess, 1000)
+                process_running = False
+                return False
+
+            process_running = False
+            exit_code = wintypes.DWORD()
+            kernel32.GetExitCodeProcess(sei.hProcess, ctypes.byref(exit_code))
+            return exit_code.value == 0
+        finally:
+            kernel32.CloseHandle(sei.hProcess)
+    except OSError as e:
+        logger.error(f"Error during elevated write: {e}")
+        return False
+    finally:
+        if not process_running and os.path.isfile(temp_path):
+            try:
+                os.remove(temp_path)
+            except OSError:
+                pass
+
+
+def _elevated_delete_file(path: str) -> bool:
+    """Deletes path via an elevated PowerShell process (triggers Windows UAC prompt)."""
+    try:
+        escaped_path = path.replace("'", "''")
+        ps_script = f"Remove-Item -LiteralPath '{escaped_path}' -Force"
+        encoded_cmd = base64.b64encode(ps_script.encode("utf-16le")).decode("ascii")
+        params = f"-NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand {encoded_cmd}"
+
+        sei = SHELLEXECUTEINFOW()
+        sei.cbSize = ctypes.sizeof(SHELLEXECUTEINFOW)
+        sei.fMask = SEE_MASK_NOCLOSEPROCESS
+        sei.hwnd = None
+        sei.lpVerb = "runas"
+        sei.lpFile = "powershell.exe"
+        sei.lpParameters = params
+        sei.nShow = 0  # SW_HIDE
+
+        if not shell32.ShellExecuteExW(ctypes.byref(sei)):
+            logger.warning(f"Elevated delete of {path} cancelled or failed.")
+            return False
+
+        if not sei.hProcess:
+            return False
+
+        try:
+            wait_res = kernel32.WaitForSingleObject(sei.hProcess, 10000)
+            if wait_res == WAIT_TIMEOUT:
+                logger.warning(
+                    f"Elevated delete of {path} timed out; terminating process."
+                )
+                kernel32.TerminateProcess(sei.hProcess, 1)
+                kernel32.WaitForSingleObject(sei.hProcess, 1000)
+                return False
+
+            exit_code = wintypes.DWORD()
+            kernel32.GetExitCodeProcess(sei.hProcess, ctypes.byref(exit_code))
+            return exit_code.value == 0
+        finally:
+            kernel32.CloseHandle(sei.hProcess)
+    except OSError as e:
+        logger.error(f"Error during elevated delete: {e}")
+        return False
+
+
 def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
     """Adds or removes -nobattleye in commandline.txt inside gta_dir.
 
     Preserves other existing commandline arguments. If -nobattleye was
     the only argument when disabling, deletes commandline.txt cleanly.
+    Falls back to a Windows UAC prompt if admin rights are required.
     """
     if not gta_dir or not os.path.isdir(gta_dir):
         return False
@@ -449,13 +737,27 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
                 return False
 
         write_enc = "utf-16" if enc == "utf-16" else "utf-8"
+        new_content = existing
+        if new_content and not new_content.endswith("\n"):
+            new_content += "\n"
+        new_content += "-nobattleye\n"
+
         try:
             with open(path, "w", encoding=write_enc) as f:
-                if existing and not existing.endswith("\n"):
-                    existing += "\n"
-                f.write(existing + "-nobattleye\n")
+                f.write(new_content)
             logger.info(f"Added -nobattleye to {path}")
             return True
+        except PermissionError:
+            logger.info(
+                f"Permission denied writing {path}; requesting UAC elevation..."
+            )
+            if _elevated_write_file(path, new_content, write_enc):
+                logger.info(f"Added -nobattleye to {path} via elevated prompt")
+                return True
+            logger.error(
+                "Could not write to commandline.txt (elevation failed or denied)"
+            )
+            return False
         except OSError as e:
             logger.error(f"Could not write to commandline.txt: {e}")
             return False
@@ -478,13 +780,33 @@ def set_nobattleye_enabled(gta_dir: str, enable: bool) -> bool:
         try:
             if cleaned_lines:
                 write_enc = "utf-16" if enc == "utf-16" else "utf-8"
+                new_content = "\n".join(cleaned_lines) + "\n"
                 with open(path, "w", encoding=write_enc) as f:
-                    f.write("\n".join(cleaned_lines) + "\n")
+                    f.write(new_content)
                 logger.info(f"Removed -nobattleye from {path}")
             else:
                 os.remove(path)
                 logger.info(f"Removed empty commandline.txt at {path}")
             return True
+        except PermissionError:
+            logger.info(
+                f"Permission denied modifying {path}; requesting UAC elevation..."
+            )
+            if cleaned_lines:
+                write_enc = "utf-16" if enc == "utf-16" else "utf-8"
+                new_content = "\n".join(cleaned_lines) + "\n"
+                if _elevated_write_file(path, new_content, write_enc):
+                    logger.info(f"Removed -nobattleye from {path} via elevated prompt")
+                    return True
+            elif _elevated_delete_file(path):
+                logger.info(
+                    f"Deleted empty commandline.txt at {path} via elevated prompt"
+                )
+                return True
+            logger.error(
+                "Could not modify/delete commandline.txt (elevation failed or denied)"
+            )
+            return False
         except OSError as e:
             logger.error(f"Could not update/delete commandline.txt: {e}")
             return False

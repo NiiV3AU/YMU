@@ -1,8 +1,11 @@
 # paths.py - Defines, creates, and manages all application file paths.
+import logging
 import os
 import sys
 
-LOCAL_VERSION = "v1.1.10"
+logger = logging.getLogger(__name__)
+
+LOCAL_VERSION = "v1.1.11"
 APP_URL = "https://github.com/NiiV3AU/YMU"
 USER_AGENT = f"YMU/{LOCAL_VERSION} (+{APP_URL})"
 
@@ -22,12 +25,64 @@ def _create_path(path: str):
 
 
 APPDATA_PATH = get_required_env("APPDATA")
+LOCALAPPDATA_PATH = os.environ.get("LOCALAPPDATA") or os.path.join(
+    os.environ.get("USERPROFILE", ""), "AppData", "Local"
+)
 
 YMU_APPDATA_DIR = _create_path(os.path.join(APPDATA_PATH, "YMU"))
-YMU_DLL_DIR = _create_path(os.path.join(YMU_APPDATA_DIR, "dll"))
+YMU_LOCAL_DIR = _create_path(os.path.join(LOCALAPPDATA_PATH, "YMU"))
+YMU_DLL_DIR = _create_path(os.path.join(YMU_LOCAL_DIR, "dll"))
 YMU_LOG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "ymu.log")
 YMU_CONFIG_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "config.json")
 YMU_CACHE_FILE_PATH = os.path.join(YMU_APPDATA_DIR, "cache.json")
+
+
+def migrate_legacy_dll_dir() -> None:
+    """Migrates legacy DLLs from %APPDATA%/YMU/dll to %LOCALAPPDATA%/YMU/dll."""
+    import shutil
+
+    legacy_dir = os.path.join(YMU_APPDATA_DIR, "dll")
+    if not os.path.isdir(legacy_dir):
+        return
+
+    logger.info("Migrating legacy DLL directory: %s -> %s", legacy_dir, YMU_DLL_DIR)
+    try:
+        for item in os.listdir(legacy_dir):
+            src = os.path.join(legacy_dir, item)
+            dst = os.path.join(YMU_DLL_DIR, item)
+            if not os.path.isfile(src):
+                continue
+            if os.path.exists(dst):
+                logger.warning(
+                    "Legacy DLL migration: destination file '%s' already exists; removing duplicate source '%s'",
+                    dst,
+                    src,
+                )
+                try:
+                    os.remove(src)
+                except OSError as e:
+                    logger.warning(
+                        "Could not remove duplicate source DLL '%s': %s", src, e
+                    )
+            else:
+                logger.info("Migrating legacy DLL: %s -> %s", src, dst)
+                shutil.move(src, dst)
+
+        remaining = os.listdir(legacy_dir)
+        if not remaining:
+            os.rmdir(legacy_dir)
+            logger.info("Removed empty legacy DLL directory: %s", legacy_dir)
+        else:
+            logger.warning(
+                "Legacy DLL directory '%s' not empty after migration: %s",
+                legacy_dir,
+                remaining,
+            )
+    except OSError as e:
+        logger.warning("Error during legacy DLL migration: %s", e)
+
+
+_migrate_legacy_dll_dir = migrate_legacy_dll_dir
 
 # YimMenu directories are intentionally NOT created here: their absence is
 # how YMU detects that an edition is not installed yet.

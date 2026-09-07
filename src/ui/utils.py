@@ -5,9 +5,16 @@ import subprocess
 import sys
 
 from PySide6.QtCore import QEvent, QObject, Qt
-from PySide6.QtGui import QColor, QIcon, QPainter, QPixmap
+from PySide6.QtGui import (
+    QColor,
+    QFocusEvent,
+    QIcon,
+    QKeyEvent,
+    QPainter,
+    QPixmap,
+)
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
 
 from core.paths import resource_path
 
@@ -65,6 +72,17 @@ def _strip_nuitka_env(env: dict[str, str] | None = None) -> dict[str, str]:
     return target
 
 
+def _get_main_window() -> QWidget | None:
+    """Finds and returns the application's main window if present."""
+    for widget in QApplication.topLevelWidgets():
+        if isinstance(widget, QMainWindow) or widget.__class__.__name__ == "MainWindow":
+            return widget
+    for widget in QApplication.topLevelWidgets():
+        if widget.isWindow() and not widget.parent():
+            return widget
+    return None
+
+
 def restart_application():
     """Restarts the application.
 
@@ -76,9 +94,6 @@ def restart_application():
     """
     logger.info("Restart requested via UI. Relaunching...")
     old_pid = os.getpid()
-
-    for widget in QApplication.topLevelWidgets():
-        widget.hide()
 
     is_compiled = (
         "__compiled__" in globals()
@@ -96,8 +111,8 @@ def restart_application():
         script_path = os.path.abspath(sys.argv[0])
         args = [sys.executable, script_path, "--wait-for-pid", str(old_pid)]
 
-    if IS_WINDOWS:
-        try:
+    try:
+        if IS_WINDOWS:
             logger.info(
                 f"Restarting executable at: {executable} (waiting for PID {old_pid})"
             )
@@ -108,11 +123,26 @@ def restart_application():
                 else subprocess.CREATE_NEW_PROCESS_GROUP
             )
             subprocess.Popen(args, creationflags=creationflags, env=clean_env)
-        except OSError as e:
-            logger.error(f"Failed to restart via subprocess.Popen: {e}")
-    else:
-        subprocess.Popen(args, env=clean_env)
+        else:
+            subprocess.Popen(args, env=clean_env)
+    except OSError as e:
+        logger.error(f"Failed to restart via subprocess.Popen: {e}")
+        main_win = _get_main_window()
+        if main_win:
+            main_win.show()
+            main_win.activateWindow()
+            main_win.raise_()
+            from PySide6.QtWidgets import QMessageBox
 
+            QMessageBox.warning(
+                main_win,
+                "Restart Failed",
+                f"Failed to restart application:\n{e}",
+            )
+        return
+
+    for widget in QApplication.topLevelWidgets():
+        widget.hide()
     QApplication.quit()
     sys.exit(0)
 
@@ -120,12 +150,14 @@ def restart_application():
 def restart_as_admin():
     """Relaunches YMU elevated via ShellExecute 'runas', which triggers the UAC prompt."""
     import ctypes
+    from ctypes import wintypes
 
     logger.info("Requesting restart with Admin privileges...")
     old_pid = os.getpid()
 
-    for widget in QApplication.topLevelWidgets():
-        widget.hide()
+    main_window = _get_main_window()
+    if main_window:
+        main_window.hide()
 
     is_compiled = (
         "__compiled__" in globals()
@@ -141,27 +173,41 @@ def restart_as_admin():
     else:
         executable = sys.executable
         clean_script = os.path.abspath(sys.argv[0])
-        params = f'\"{clean_script}\" --wait-for-pid {old_pid}'
+        params = f'"{clean_script}" --wait-for-pid {old_pid}'
 
     logger.info(f"Target executable for Admin restart: {executable}")
     try:
-        result = ctypes.windll.shell32.ShellExecuteW(
-            None, "runas", executable, params, None, 1
-        )
-        logger.info(f"ShellExecute returned code: {result}")
-        if result > 32:
+        shell32 = ctypes.windll.shell32
+        shell32.ShellExecuteW.argtypes = [
+            wintypes.HWND,
+            wintypes.LPCWSTR,
+            wintypes.LPCWSTR,
+            wintypes.LPCWSTR,
+            wintypes.LPCWSTR,
+            ctypes.c_int,
+        ]
+        shell32.ShellExecuteW.restype = wintypes.HINSTANCE
+
+        result = shell32.ShellExecuteW(None, "runas", executable, params, None, 1)
+        res_code = int(result) if result else 0
+        logger.info(f"ShellExecute returned code: {res_code}")
+        if res_code > 32:
             logger.info("UAC prompt triggered successfully. Exiting.")
             QApplication.quit()
             sys.exit(0)
         else:
-            logger.error(f"Failed to start as Admin. Error code: {result}")
-            for widget in QApplication.topLevelWidgets():
-                widget.show()
+            logger.error(f"Failed to start as Admin. Error code: {res_code}")
+            if main_window:
+                main_window.show()
+                main_window.activateWindow()
+                main_window.raise_()
 
     except (OSError, AttributeError) as e:
         logger.error(f"Exception during restart_as_admin: {e}")
-        for widget in QApplication.topLevelWidgets():
-            widget.show()
+        if main_window:
+            main_window.show()
+            main_window.activateWindow()
+            main_window.raise_()
 
 
 class FocusStealingFilter(QObject):
@@ -179,7 +225,7 @@ class FocusStealingFilter(QObject):
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
         etype = event.type()
-        if etype == QEvent.Type.KeyPress:
+        if etype == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
             if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
                 self._keyboard_nav_active = True
         elif etype == QEvent.Type.MouseButtonPress:
@@ -191,7 +237,7 @@ class FocusStealingFilter(QObject):
         elif (
             etype == QEvent.Type.FocusIn
             and isinstance(watched, QWidget)
-            and hasattr(event, "reason")
+            and isinstance(event, QFocusEvent)
             and event.reason() == Qt.FocusReason.ActiveWindowFocusReason
             and not self._keyboard_nav_active
         ):

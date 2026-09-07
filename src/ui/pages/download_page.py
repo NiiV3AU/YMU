@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING
 
 from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtWidgets import (
-    QApplication,
     QFrame,
     QHBoxLayout,
     QLabel,
@@ -22,6 +21,7 @@ from core.paths import YMU_DLL_DIR, resource_path
 from ui.utils import play_success_sound
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
+from ui.widgets.notifications import NotificationManager
 
 if TYPE_CHECKING:
     from core.worker_manager import WorkerManager
@@ -172,8 +172,9 @@ class DownloadPage(QWidget):
 
     def _notify(self, title: str, message: str, **kwargs):
         win = self.window()
-        if win and hasattr(win, "notification_manager"):
-            win.notification_manager.show(title, message, **kwargs)
+        mgr = getattr(win, "notification_manager", None)
+        if isinstance(mgr, NotificationManager):
+            mgr.show(title, message, **kwargs)
 
     def update_download_progress(self, percentage: int):
         self.download_button.set_progress(percentage / 100.0)
@@ -182,9 +183,9 @@ class DownloadPage(QWidget):
         """Creates and displays the info dialog for the download page."""
 
         dll_info_default = (
-            "1. Click on (Download)\n"
+            "1. Click on [Download]\n"
             "2. Wait for the download to finish\n"
-            "3. The file is in the 'YMU/dll' folder\n\n"
+            "3. The file is in the '%LOCALAPPDATA%/YMU/dll' folder\n\n"
             "If the file gets deleted, add an exception\n"
             "in your antivirus or disable it temporarily."
         )
@@ -328,6 +329,11 @@ class DownloadPage(QWidget):
                 "Download.Error.RateLimited",
                 "GitHub API rate limit reached. Please try again in {0} minutes.",
             ).format(error.wait_minutes)
+        elif isinstance(error, release_service.FileLockedException):
+            err_msg = self.loc_manager.tr(
+                "Download.Error.FileLocked",
+                "YimMenu.dll is currently in use by GTA V or another process. Please close GTA V and try again.",
+            )
         else:
             err_msg = f"{self.loc_manager.tr('Download.Notify.CheckFailed', 'Failed to check for updates')}: {error}"
 
@@ -382,7 +388,7 @@ class DownloadPage(QWidget):
             self.loc_manager.tr("Download.Btn.Downloading", "Downloading...")
         )
         self.download_button.stop_animation()
-        QApplication.processEvents()
+        self.download_button.update()
 
         # Capture the release and current mode on the GUI thread so a later mode
         # switch cannot swap it out from under the running download.

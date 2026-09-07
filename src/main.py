@@ -6,36 +6,50 @@ import platform
 import sys
 from logging.handlers import RotatingFileHandler
 
-try:
-    import win32gui
-
-    IS_WINDOWS = True
-except (ImportError, AttributeError):
-    IS_WINDOWS = False
+IS_WINDOWS = sys.platform == "win32"
 
 # Single-instance guard via Windows Named Mutex and relaunch synchronization.
 if IS_WINDOWS:
     import ctypes
+    from ctypes import wintypes
 
-    ctypes.windll.kernel32.OpenProcess.argtypes = [
-        ctypes.c_uint32,
-        ctypes.c_int,
-        ctypes.c_uint32,
+    kernel32 = ctypes.windll.kernel32
+    user32 = ctypes.windll.user32
+
+    kernel32.OpenProcess.argtypes = [
+        wintypes.DWORD,
+        wintypes.BOOL,
+        wintypes.DWORD,
     ]
-    ctypes.windll.kernel32.OpenProcess.restype = ctypes.c_void_p
-    ctypes.windll.kernel32.WaitForSingleObject.argtypes = [
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+
+    kernel32.WaitForSingleObject.argtypes = [
+        wintypes.HANDLE,
+        wintypes.DWORD,
+    ]
+    kernel32.WaitForSingleObject.restype = wintypes.DWORD
+
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
+
+    kernel32.CreateMutexW.argtypes = [
         ctypes.c_void_p,
-        ctypes.c_uint32,
+        wintypes.BOOL,
+        wintypes.LPCWSTR,
     ]
-    ctypes.windll.kernel32.WaitForSingleObject.restype = ctypes.c_uint32
-    ctypes.windll.kernel32.CloseHandle.argtypes = [ctypes.c_void_p]
-    ctypes.windll.kernel32.CloseHandle.restype = ctypes.c_int
-    ctypes.windll.kernel32.CreateMutexW.argtypes = [
-        ctypes.c_void_p,
-        ctypes.c_int,
-        ctypes.c_wchar_p,
-    ]
-    ctypes.windll.kernel32.CreateMutexW.restype = ctypes.c_void_p
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+
+    kernel32.GetLastError.argtypes = []
+    kernel32.GetLastError.restype = wintypes.DWORD
+
+    user32.FindWindowW.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR]
+    user32.FindWindowW.restype = wintypes.HWND
+
+    user32.ShowWindow.argtypes = [wintypes.HWND, ctypes.c_int]
+    user32.ShowWindow.restype = wintypes.BOOL
+
+    user32.SetForegroundWindow.argtypes = [wintypes.HWND]
+    user32.SetForegroundWindow.restype = wintypes.BOOL
 
     # If launched as part of a restart, wait for the old process to fully exit first.
     is_restart = "--wait-for-pid" in sys.argv
@@ -47,13 +61,13 @@ if IS_WINDOWS:
                 import time
 
                 PROCESS_SYNCHRONIZE = 0x00100000
-                h_proc = ctypes.windll.kernel32.OpenProcess(
-                    PROCESS_SYNCHRONIZE, False, old_pid
-                )
+                h_proc = kernel32.OpenProcess(PROCESS_SYNCHRONIZE, False, old_pid)
                 if h_proc:
-                    # Wait up to 3000ms for old process to exit
-                    ctypes.windll.kernel32.WaitForSingleObject(h_proc, 3000)
-                    ctypes.windll.kernel32.CloseHandle(h_proc)
+                    try:
+                        # Wait up to 3000ms for old process to exit
+                        kernel32.WaitForSingleObject(h_proc, 3000)
+                    finally:
+                        kernel32.CloseHandle(h_proc)
                 else:
                     time.sleep(0.05)
         except (ValueError, OSError, AttributeError) as e:
@@ -66,20 +80,21 @@ if IS_WINDOWS:
         ERROR_ALREADY_EXISTS = 183
         max_attempts = 20 if is_restart else 1
         for attempt in range(max_attempts):
-            _single_instance_mutex = ctypes.windll.kernel32.CreateMutexW(
-                None, False, MUTEX_NAME
-            )
-            if ctypes.windll.kernel32.GetLastError() != ERROR_ALREADY_EXISTS:
+            h_mutex = kernel32.CreateMutexW(None, False, MUTEX_NAME)
+            if kernel32.GetLastError() != ERROR_ALREADY_EXISTS:
+                _single_instance_mutex = h_mutex
                 break
+            if h_mutex:
+                kernel32.CloseHandle(h_mutex)
             if is_restart and attempt < max_attempts - 1:
                 import time
 
                 time.sleep(0.05)
         else:
-            hwnd = win32gui.FindWindow(None, WINDOW_TITLE)
-            if hwnd != 0:
-                win32gui.ShowWindow(hwnd, 9)
-                win32gui.SetForegroundWindow(hwnd)
+            hwnd = user32.FindWindowW(None, WINDOW_TITLE)
+            if hwnd:
+                user32.ShowWindow(hwnd, 9)
+                user32.SetForegroundWindow(hwnd)
             sys.exit(0)
     except (OSError, AttributeError) as e:
         logging.getLogger(__name__).error(f"Error during instance check: {e}")
@@ -93,6 +108,7 @@ from core.paths import (
     LOCAL_VERSION,
     YMU_APPDATA_DIR,
     YMU_LOG_FILE_PATH,
+    migrate_legacy_dll_dir,
     resource_path,
 )
 from core.worker_manager import WorkerManager
@@ -170,6 +186,7 @@ def cleanup_updater():
 
 
 def main():
+    migrate_legacy_dll_dir()
     try:
         script_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
         old_ymu_path = os.path.join(script_dir, "ymu")

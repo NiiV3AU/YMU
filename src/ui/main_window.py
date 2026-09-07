@@ -163,7 +163,7 @@ class MainWindow(QMainWindow):
             self.setWindowOpacity(1.0)
 
     def setup_sidebar(self, layout: QVBoxLayout):
-        self.button_group = QButtonGroup()
+        self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
         self.button_group.buttonClicked.connect(
             lambda: QTimer.singleShot(
@@ -216,7 +216,7 @@ class MainWindow(QMainWindow):
         btn_inject = StatefulButton(
             f"  {self.loc_manager.tr('Sidebar.Inject')}",
             theme_manager=self.theme_manager,
-            icon_path=resource_path(os.path.join("assets", "icons", "crosshair.svg")),
+            icon_path=resource_path(os.path.join("assets", "icons", "syringe.svg")),
             **sidebar_colors,
         )
         btn_inject.setCheckable(True)

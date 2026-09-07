@@ -57,6 +57,10 @@ class RateLimitException(Exception):
             self.wait_minutes = None
 
 
+class FileLockedException(PermissionError):
+    """Raised when the target DLL is locked by another process (e.g. GTA V)."""
+
+
 _cache_lock = threading.Lock()
 CACHE_TTL_SECONDS = 300.0  # 5 minutes
 
@@ -168,6 +172,23 @@ class ReleaseProvider(abc.ABC):
         raise NotImplementedError
 
 
+def extract_checksum_from_release(text: str | None) -> str | None:
+    """Extracts a SHA256 checksum from release notes text.
+
+    Prefers patterns with explicit keywords (e.g. SHA-256 or checksum),
+    and falls back to any standalone 64-character hex string.
+    """
+    if not text:
+        return None
+    match = re.search(r"(?i)(?:sha[-_]?256|checksum)[^\w\n]*([a-f0-9]{64})", text)
+    if match:
+        return match.group(1)
+    fallback = re.search(r"\b([a-f0-9]{64})\b", text, re.IGNORECASE)
+    if fallback:
+        return fallback.group(1)
+    return None
+
+
 class GitHubAPIProvider(ReleaseProvider):
     """Implementation of the ReleaseProvider that uses the GitHub API with persistent ETag caching."""
 
@@ -257,12 +278,7 @@ class GitHubAPIProvider(ReleaseProvider):
                 download_url = data.get("html_url", "")
                 asset_name = version_tag or "release"
 
-            checksum = None
-            if release_notes:
-                # Searches for a 64-character hex string (SHA256)
-                match = re.search(r"\b[a-fA-F0-9]{64}\b", release_notes)
-                if match:
-                    checksum = match.group(0)
+            checksum = extract_checksum_from_release(release_notes)
 
             if checksum is None:
                 logger.warning(
@@ -393,12 +409,25 @@ def download_and_verify_release(
         else:
             logger.warning("No remote checksum provided. Skipping integrity check.")
 
-        os.replace(tmp_path, download_path)
+        try:
+            os.replace(tmp_path, download_path)
+        except PermissionError as e:
+            winerror = getattr(e, "winerror", None)
+            if winerror in (5, 32) or isinstance(e, PermissionError):
+                logger.error(
+                    f"Target file '{download_path}' is locked by another process (winerror={winerror}): {e}"
+                )
+                raise FileLockedException(
+                    f"Target file '{download_path}' is locked by another process (GTA V)."
+                ) from e
+            raise
         return (True, is_verified)
 
     except requests.exceptions.RequestException as e:
         logger.error(f"Error downloading the file: {e}")
         return (False, False)
+    except FileLockedException:
+        raise
     except OSError as e:
         logger.error(f"Error writing the file: {e}")
         return (False, False)
@@ -411,6 +440,9 @@ def download_and_verify_release(
                 os.remove(tmp_path)
             except OSError:
                 pass
+
+
+download_and_verify_dll = download_and_verify_release
 
 
 if __name__ == "__main__":

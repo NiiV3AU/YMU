@@ -6,6 +6,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
 [![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
 [![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
+[![Changelog](https://img.shields.io/badge/Changelog-CHANGELOG.md-gray?style=for-the-badge&logo=markdown&logoColor=white&labelColor=181717)](CHANGELOG.md)
 [![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
 [![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/707a8d841a39c42eacb1900d025cbcc08243ddd62c571bb107e0a9de5930ec8d)
 
@@ -73,7 +74,10 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 ## 🖼️ Project Evolution
 
 <details>
-<summary><b>A look back at older versions & the full changelog</b></summary>
+<summary><b>A visual look back at earlier versions (v1.0.0 – v1.0.9)</b></summary>
+
+> [!NOTE]
+> For the complete, chronological release history and technical change notes, see **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### v1.0.9
 
@@ -112,30 +116,6 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
   <img src="https://github.com/NiiV3AU/YMU/assets/86131759/e98c1a92-0bff-45d2-a2a2-218fa32fa416" alt="YMU v1.0.0 SHA256 Tab" width="38%"/>
 </div>
 
----
-
-### Full Changelog
-
-- **NEW** in `v1.1.10` ↦ 🩹 **Hotfix:** Resolved Nuitka onefile environment leakage causing SSL/HTTPS failures and corrupted temporary directories during in-app restarts.
-- **NEW** in `v1.1.9` ↦ ⚡ **Quality of Life & Precision:** Real-time in-memory module verification, auto-close after successful injection, audio feedback chimes, one-click `-nobattleye` commandline helper, full keyboard navigation & focus overhaul, and hardened notification lifecycle.
-- **NEW** in `v1.1.8` ↦ 🛡️ **Reliability & Clarity:** Fixed injection failing when the install path contains accented or non-Latin characters (e.g. `Müller` or a Cyrillic user name), plus plain-language injection errors with one-click fixes, a non-blocking BattlEye warning, a pre-injection DLL check, and a Start button that recovers when a launch never completes.
-- **NEW** in `v1.1.7` ↦ ⚙️ **Customizability & Fixes:** Reliable GTA V Enhanced detection with a Legacy/Enhanced switch, custom game-path and custom-DLL support, remembered launcher/DLL selections, and a refreshed light theme.
-- **NEW** in `v1.1.6` ↦ 🌍 **Localization & Performance:** Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
-- **NEW** in `v1.1.5` ↦ 💥 **The Modern UI Update:** Complete rewrite from the ground up with a professional architecture, a brand new user interface, and major UX improvements.
-- **NEW** in `v1.1.4` ↦ added Buttons (YimMenu GitHub Repo & FSL's UC-Thread) in Download Tab + updated "more info"-Windows in Download- & Inject-Tab
-- **NEW** in `v1.1.3` ↦ New Lua list in Settings-Tab
-- **NEW** in `v1.1.2` ↦ fixed progressbar freezing
-- **NEW** in `v1.1.0` & `v1.1.1` ↦ Small bug fixes
-- **NEW** in `v1.0.9` ↦ Log-System (Debugger) for better troubleshooting (PATH:ymu/ymu.log) + Caching for better performance added
-- **NEW** in `v1.0.8` ↦ New Buttons in Settings-Tab for Troubleshooting
-- **NEW** in `v1.0.7` ↦ Reworked code for Starting GTA5
-- **NEW** in `v1.0.6` ↦ New "Start GTA5"-Button in Inject-Tab + visual updates in Inject and Settings-Tab
-- **NEW** in `v1.0.5` ↦ New "Debug Console"-Switch in Settings-Tab + "Open in Browser"-Button in Changelog Window
-- **NEW** in `v1.0.4` ↦ GUI: Theme selection (light & dark) + Settings-Tab: auto reload all lua scripts (YimMenu Config)
-- **NEW** in `v1.0.3` ↦ Self-Updater in new Settings-Tab + small GUI changes and code improvements
-- **NEW** in `v1.0.2` ↦ Changelog of YimMenu in Download/Update-Tab
-- **NEW** in `v1.0.1` ↦ Injection in the new Inject-Tab
-
 </details>
 
 ---
@@ -158,7 +138,7 @@ YMU uses [**uv**](https://docs.astral.sh/uv/) for Python and dependency manageme
 uv sync
 ```
 
-That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), [psutil](https://pypi.org/project/psutil/), [pyinjector](https://pypi.org/project/pyinjector/), [pywin32](https://pypi.org/project/pywin32/), and [packaging](https://pypi.org/project/packaging/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
+That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), and [pyinjector](https://pypi.org/project/pyinjector/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building. System and process interactions rely strictly on native Windows APIs via `ctypes` to eliminate false-positive antivirus flags.
 
 > **Not using uv?** Dependencies are declared in `pyproject.toml`, so plain pip works as well:
 > `python -m venv .venv && .venv\Scripts\activate`, then install the runtime dependencies and `pip install nuitka` to build.
@@ -171,7 +151,7 @@ uv run python src/main.py
 
 ### Creating the Executable (.exe)
 
-This project uses **Nuitka** (instead of PyInstaller) to create a high-performance, compact executable. From the project root, run:
+This project uses **Nuitka** to create a high-performance, compact executable. From the project root, run:
 
 ```bash
 uv run python -m nuitka --onefile --standalone --enable-plugin=pyside6 --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --output-filename=YMU.exe src/main.py
@@ -189,7 +169,7 @@ This creates `YMU.exe` in the `dist` folder.
 - **`--include-data-dir`**: Bundles the application `assets` and UI stylesheets (`src/ui/styles`).
 - **`--assume-yes-for-downloads`**: Lets Nuitka fetch its C toolchain non-interactively.
 
-> The official release build (see `.github/workflows/ymu_manual_release.yaml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe`.
+> The official release build (see `.github/workflows/ymu_manual_release.yaml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe` and strip unnecessary qt-plugins.
 
 </details>
 
@@ -198,7 +178,7 @@ This creates `YMU.exe` in the `dist` folder.
 ## ⭐ Support the Project
 
 > [!IMPORTANT]
-> **Show your support by giving this Project a ⭐. Thanks <3!**
+> **Show your support by giving this repository a ⭐. Thanks <3!**
 
 ---
 
@@ -219,5 +199,5 @@ This creates `YMU.exe` in the `dist` folder.
 | **Localization**  | [**@TommyLam120**](https://github.com/TommyLam120) (zh_TW)                                                          |
 | **Menu**          | [**YimMenu**](https://yim.gta.menu/)                                                                                |
 | **Logo**          | [**Made with Figma**](https://figma.com)                                                                            |
-| **Icons**         | [**Feather**](https://feathericons.com/)                                                                            |
+| **Icons**         | [**Lucide**](https://lucide.dev/)                                                                                   |
 | **Fonts**         | [**Manrope**](https://fonts.google.com/specimen/Manrope) & [**JetBrains Mono**](https://www.jetbrains.com/lp/mono/) |
