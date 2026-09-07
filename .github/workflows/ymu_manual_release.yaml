@@ -171,9 +171,3 @@ jobs:
             YMU.exe
             YMU.exe.sha256
 
-      - name: Trigger Cloudflare Pages Deploy Hook (optional)
-        if: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK != '' }}
-        env:
-          CLOUDFLARE_DEPLOY_HOOK: ${{ secrets.CLOUDFLARE_DEPLOY_HOOK }}
-        run: |
-          curl -s -X POST "${CLOUDFLARE_DEPLOY_HOOK}"
