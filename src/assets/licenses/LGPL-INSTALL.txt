@@ -1,0 +1,29 @@
+PySide6 / Qt6 Relinking and Replacement Instructions
+===================================================
+
+YimMenuUpdater (YMU) dynamically links against PySide6 and Qt6 libraries under the
+terms of the GNU Lesser General Public License, version 3.0 (LGPL v3.0).
+
+Under section 4(d) and section 6 of the LGPLv3, users are entitled to relink or
+recombine YMU with modified versions of the PySide6 / Qt libraries.
+
+1. Running from Source
+----------------------
+YMU source code is available at:
+https://github.com/NiiV3AU/YMU
+
+You can install or replace PySide6 with any compatible or custom build:
+    uv venv
+    uv pip install pyside6==<your-version>
+    uv run python src/main.py
+
+2. Standalone / Packaged Executable (YMU.exe)
+---------------------------------------------
+When distributed as a frozen standalone package (compiled via Nuitka or PyInstaller):
+- Qt dynamic link libraries (.dll files such as Qt6Core.dll, Qt6Gui.dll, Qt6Widgets.dll)
+  and shiboken6 runtime libraries are packaged alongside the binary or extracted to the
+  runtime directory.
+- Users can replace these shared .dll files with their own interface-compatible versions
+  of Qt 6 / PySide6.
+- Alternatively, users may clone the repository and recompile the standalone binary
+  against custom PySide6 libraries using the build instructions in the repository.
