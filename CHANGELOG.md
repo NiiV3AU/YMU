@@ -1,353 +1,342 @@
 # Changelog
 
-All notable changes to the YimMenuUpdater (YMU) project will be documented in this file.
+All notable changes to this project will be documented in this file.
 
-## [v1.1.11] - 2026-09-07
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### Systems Engineering, Antivirus Hardening & UX Polish
+## [Unreleased]
 
-> Eliminates antivirus false positives via native Win32 process enumeration, hardens handle lifecycles and UAC operations, migrates DLL storage to %LOCALAPPDATA%, adds a dedicated maintenance suite (cache cleaner, bulk Lua toggling, FSL detection), handles locked DLL files gracefully, and introduces refreshed Lucide icons with comprehensive UI/UX refinements.
+## [1.2.0] - 2026-10-04
 
-#### Features & Improvements
+### Added
 
-- Eliminated antivirus false-positive alerts by replacing `psutil` with native Win32 `ctypes` process snapshots.
-- Pruned external dependencies down to PySide6, Requests, and Pyinjector; implemented native regex version parsing.
-- Migrated downloaded DLL storage from `%APPDATA%\YMU\dll` to `%LOCALAPPDATA%\YMU\dll` with an explicit bootstrap migration on startup.
-- Added asynchronous in-place UAC elevation to edit or remove `-nobattleye` in `commandline.txt` for protected game installations without freezing the Qt GUI thread or restarting YMU.
-- Added a Maintenance card in Settings featuring a smart pointer cache cleaner and direct access to YimMenu/YimMenuV2 logs.
-- Added one-click Lua bulk actions ("Disable All (Safe Mode)" and "Enable All") in Settings, consolidated natively in `lua_manager`.
-- Added an FSL (Free Save Launcher) status indicator in Settings detecting `WINMM.dll` or `version.dll` with an UnknownCheats shortcut.
-- Added edition-aware UI separation for YimMenu (Legacy) vs YimMenuV2 (Enhanced): visually dims unsupported options with 40% opacity, sets forbidden cursors, appends `(Legacy only)` badges, and dynamically updates folder/log button labels.
-- Upgraded all icons across the application to modern Lucide icons, including a new syringe icon for the Inject tab.
-- Harmonized step-by-step help dialogs with left-aligned centered text and clear `[Button]` bracket notation.
-- Added explicit Windows file lock detection (`FileLockedException` for WinError 5/32), notifying users cleanly when `YimMenu.dll` is locked by a running GTA V process.
-- Maintained 100% translation key parity across all 15 supported languages, adding missing notification keys and fixing encoding artifacts in German translations.
+- Full Right-to-Left (RTL) layout support, automatically mirroring interface orientation and navigation for RTL locales.
+- Complete Arabic (`ar_SA`) translation with gaming-appropriate terminology, expanding YMU to 16 supported languages.
+- Direct keyboard editing, copy/paste, and auto-quote-stripping in custom GTA V and DLL path inputs.
+- Bundled open-source license notices (`THIRD-PARTY-NOTICES.md`) and integrated offline license viewer in the About dialog.
 
-#### Fixes
+### Changed
 
-- Hardened Win32 API calls with explicit 64-bit argument and return type definitions across `kernel32`, `shell32`, and `psapi`.
-- Eliminated kernel handle leaks by wrapping Toolhelp32 snapshots, elevated process handles, and single-instance mutex retry handles in strict `try...finally` blocks.
-- Secured elevated UAC helper commands using PowerShell `-EncodedCommand` with `-LiteralPath`, eliminating shell metacharacter injection vectors.
-- Eliminated Qt event loop re-entrancy risks by removing legacy `QApplication.processEvents()` calls in favor of direct widget repaints.
-- Fixed a memory leak in `AnimatedButton` by reusing a persistent `QPropertyAnimation` instance instead of instantiating new objects on every animation trigger.
-- Protected internal settings cache from mutation pollution with dedicated thread locking and deep copies.
-- Corrected Qt object parenting for `QButtonGroup` and `QTimer` instances across `MainWindow` and `SettingsPage`.
-- Fixed horizontal layout overflow and unwanted scrollbars in the Settings page.
-- Optimized Nuitka compilation: unpacked binaries cache in LocalAppData and pruned over 20 MB of unneeded dependencies (Qt translations, QtNetwork, Direct2D, unused image decoders, PDF/TLS plugins) while Python's native OpenSSL stack handles all HTTPS traffic.
+- Replaced external injection dependency with native Windows Win32 injection, supporting non-ASCII/Unicode paths (CJK, Cyrillic, Umlauts) and displaying exact error codes.
+- Redesigned Settings layout with a balanced grid, unified 44px control sizing, and improved visual hierarchy.
+- Modernized typography with the bundled Rubik typeface across all dialogs and controls.
+- Updated bundled Lucide icon pack to v1.52.0 with refreshed action icons.
+- Warn when legacy `version.dll` is detected in the game folder, advising to replace it with `WINMM.dll`.
+- Startup automatically cleans up obsolete temporary runtime directories from previous versions in `%LOCALAPPDATA%\YMU`.
 
-## [v1.1.10] - 2026-09-03
+### Fixed
 
-### In-App Restart Hotfix
+- Fixed BattlEye toggle file-write safety, preventing `commandline.txt` truncation or character corruption across all text encodings.
+- Fixed notification toasts overflowing the window or clipping content in verbose languages.
+- Fixed dialog action buttons clipping labels in verbose translations by sizing buttons dynamically to text length.
+- Fixed application exit coordination to ensure background workers and windows terminate cleanly without hanging.
+- Fixed configuration loading to reliably handle UTF-8 BOM signatures and malformed values without resetting settings.
+- Fixed asset loading failure when launching YMU from a different working directory.
+- Fixed onefile build packaging to exclude redundant Qt libraries and image formats, reducing executable size.
 
-> Targeted hotfix resolving an issue where restarting YMU from within the application caused SSL and network connection failures.
+### Security
 
-#### Fixes
+- Eliminated remote memory use-after-free risk during injection timeouts.
+- Upgraded bundled urllib3 dependency to >=2.8.0 to mitigate GHSA-gh4c-6fx4-qh6g (CVE-2026-97688).
 
-- Purged `NUITKA_*` environment variables before spawning new instances in `restart_application` and `restart_as_admin`.
-- Prevented newly spawned child processes from inheriting expiring temporary payload paths during in-app restarts, which previously caused missing SSL DLLs (`libcrypto-3.dll`) and network request failures.
-- Hardened subprocess restart parameters and PID handover on Windows.
+## [1.1.11] - 2026-09-07
 
-## [v1.1.9] - 2026-09-03
+### Added
 
-### Quality of Life & Precision
+- Maintenance section in Settings with an offset cache cleaner and direct access to game log files.
+- One-click bulk actions to enable or disable all Lua scripts (Safe Mode).
+- Status indicator in Settings detecting FSL installations.
+- Clear visual distinction between YimMenu (Legacy) and YimMenuV2 (Enhanced), disabling options not supported by the active edition.
+- Modern Lucide icon pack across the entire application.
+- Friendly notification when `YimMenu.dll` cannot be overwritten because GTA V is currently running.
+- In-place administrator prompt when editing `-nobattleye` in protected game folders, without freezing the GUI or restarting YMU.
 
-> Real-time in-memory module verification, auto-close after successful injection, audio feedback chimes, one-click -nobattleye commandline helper, full keyboard navigation & focus overhaul, and hardened notification lifecycle.
+### Changed
 
-#### Features & Improvements
+- Moved downloaded DLL storage to `%LOCALAPPDATA%\YMU\dll` (automatically migrated on first launch).
+- Replaced external process inspection with native Windows APIs, significantly reducing antivirus false positives.
+- Streamlined dependencies to keep the application lightweight.
+- Improved layout and text clarity in all step-by-step help dialogs.
 
-- Added real-time in-memory module verification for injected DLLs to confirm successful injection in process memory.
-- Implemented automatic application close option after successful injection.
-- Added audio feedback chimes for successful actions and notifications.
-- Introduced one-click BattlEye disabling toggle modifying `commandline.txt` with `-nobattleye`.
-- Overhauled keyboard navigation, focus traversal, and accessibility across all tabs and dialogs.
-- Symmetrically aligned notification margins and hardened toast stack lifecycle management.
-- Refactored project architecture into clean `core` and `ui` packages.
-- Achieved 100% translation parity across 15 supported languages.
+### Fixed
 
-#### Fixes
+- Fixed an animation memory leak on interactive buttons.
+- Fixed rare UI freezing when launching external tools.
+- ~~Optimized build packaging to prune over 20 MB of unneeded dependencies.~~ _(Note: Exclusion syntax was non-functional in v1.1.11; will be resolved in v1.2.0)_
 
-- Resolved injection false-positive crash detections.
-- Handled mutex release latency and process restart edge cases in development environments.
-- Improved download stream integrity, rate limiting, and network retry handling.
+### Security
 
-## [v1.1.8] - 2026-07-21
+- Secured background administrator commands against command-injection edge cases.
 
-### Reliability & Clarity
+## [1.1.10] - 2026-09-03
 
-> Fixes injection failing when your install path contains accented or non-ASCII characters (e.g. "Müller" or a Cyrillic user name), plus plain-language injection errors with one-click fixes, a non-blocking BattlEye warning, a pre-injection DLL check, and a Start button that recovers when a launch never completes.
+### Fixed
 
-#### Features & Improvements
+- Fixed network and SSL connection errors that occurred when restarting YMU from within the application (e.g. after changing languages).
 
-- Added plain-language injection diagnostics with one-click fixes (re-download DLL or troubleshooting guides) instead of generic error codes.
-- Introduced non-blocking BattlEye warning dialog offering options to proceed, learn how to disable BattlEye, or cancel.
-- Added pre-injection validation verifying that the DLL is a valid 64-bit PE binary before attempting injection.
-- Added Korean (`ko_KR`) localization and restructured Chinese translations (`zh_CN`, `zh_TW`).
-- Added a 60-second recovery timeout that resets and re-enables the "Start GTA" button if the game fails to launch.
-- Enriched logging with a UTF-8 console handler, startup admin status, and detailed injection diagnostics.
+## [1.1.9] - 2026-09-03
 
-#### Fixes
+### Added
 
-- Resolved injection failure when the installation path contains accented or non-ASCII characters (bypassing Pyinjector's ANSI `LoadLibraryA` limitation via 8.3 short paths or ASCII staging).
+- Real-time injection verification confirming that the DLL is actively loaded in GTA V process memory.
+- Option to automatically close YMU once injection completes successfully.
+- Audio feedback chimes for successful downloads and injections.
+- One-click toggle in Settings to automatically add or remove `-nobattleye` in `commandline.txt`.
+- Full keyboard navigation support and focus indicators across all tabs and dialogs.
 
-## [v1.1.7] - 2026-07-08
+### Changed
 
-### Compatibility, Customizability & Bugfixes
+- Reorganized project internals into modular core and UI packages.
+- Updated all 15 supported languages for complete feature parity.
 
-> GTA V Enhanced is reliably detected again and launches through YMU, complemented by a Legacy/Enhanced switch, custom install paths, custom DLL injection, remembered selections, and a refreshed light theme.
+### Fixed
 
-#### Features & Improvements
+- Fixed false-positive crash reports during injection.
+- Improved network download reliability and retry handling on unstable connections.
+- Fixed notification toast alignment and stacking behavior.
 
-- Added edition switcher toggle between GTA V Legacy and GTA V Enhanced with per-mode configurations and injection targets.
-- Added support for custom GTA V installation directories and custom DLL file selection.
-- Persisted user choices for launcher and DLL dropdown selections across application restarts.
-- Redesigned light theme with an elevated color palette, refined hierarchy, and soft card drop-shadows.
-- Switched to passive update checks pointing to GitHub releases, replacing the bundled self-updater.
-- Migrated project packaging and dependency management to `uv` with Python 3.12.
-- Implemented thread-safe configuration store (`YmuConfig`) using atomic file writes and v1 configuration migration.
-- Moved background tasks to `QThreadPool` with an exclusive-task guard.
+## [1.1.8] - 2026-07-21
 
-#### Fixes
+### Added
 
-- Restored reliable detection and launching for GTA V Enhanced Edition.
-- Prevented elevation loop when running into Access Denied errors.
-- Closed race condition in update checks when switching editions.
+- Plain-language injection diagnostics with one-click action buttons (e.g. re-download DLL or open troubleshooting help) instead of technical error codes.
+- Warning dialog when BattlEye is detected, explaining how to proceed or disable it.
+- Pre-injection file integrity check to ensure the downloaded DLL is complete and valid.
+- Korean (`ko_KR`) translation and improved Simplified/Traditional Chinese localizations.
+- Automatic 60-second timeout that re-enables the "Start GTA" button if the game fails to open.
 
-## [v1.1.6] - 2025-12-17
+### Fixed
 
-### Localization, Performance & Bugfixes
+- Fixed injection failures when GTA V is installed in a folder path containing accented, umlaut, or non-ASCII characters (such as Cyrillic or special user folder names).
 
-> Added full support for GTA V Enhanced Edition, support for 12 languages, and migrated to Nuitka for a significantly smaller and faster executable.
+## [1.1.7] - 2026-07-08
 
-#### Features & Improvements
+### Added
 
-- Migrated compiler toolchain from PyInstaller to Nuitka, reducing executable binary size by ~50% and improving launch performance.
-- Added full support for GTA V Enhanced Edition, including process detection and registry lookup.
-- Implemented dynamic localization engine supporting 12 languages with remote translation fetching from GitHub.
-- Added hot-swapping language support with dynamic UI resizing and "Restart Now" prompts.
-- Added standardized User-Agent header containing the repository URL to all network requests.
+- Edition switcher allowing seamless toggling between GTA V Legacy and GTA V Enhanced with independent settings.
+- Support for custom GTA V installation folders and manual DLL file selection.
+- Settings persistence: Launcher choices and dropdown selections are remembered across restarts.
+- Refreshed light theme with improved contrast and visual hierarchy.
 
-#### Fixes
+### Changed
 
-- Resolved self-restart failures and icon/SSL extraction errors previously caused by PyInstaller temp folders.
-- Fixed FSL UnknownCheats thread hyperlink in the interface.
-- Replaced hardcoded string constants in update checking routines.
-- Hardened DLL injection logic and admin elevation restart flows.
+- Replaced the external self-updater with a passive update checker notifying of new GitHub releases.
+- Configuration system updated to use atomic file saves to prevent corrupted settings.
 
-## [v1.1.5] - 2025-08-31
+### Fixed
 
-### The Modern UI Update
+- Fixed detection and launch issues for GTA V Enhanced Edition.
+- Prevented infinite administrator elevation prompts on permission errors.
+- Fixed rare race conditions when switching game editions during an update check.
 
-> Complete rewrite from the ground up with a modern PySide6 architecture, brand-new user interface, non-blocking notifications, and initial GTA V Enhanced Edition support.
+## [1.1.6] - 2025-12-17
 
-#### Features & Improvements
+### Added
 
-- Completely overhauled application from CustomTkinter to a modular, object-oriented PySide6 (Qt) architecture.
-- Designed brand-new modern interface with custom widgets, smooth animations, and refined layout spacing.
-- Implemented asynchronous non-blocking toast notification system.
-- Added multithreaded `WorkerManager` to run downloads and background tasks without locking the GUI.
-- Added preliminary support for GTA V Enhanced Edition via YimMenuV2.
-- Cleaned codebase to achieve zero linting and static analysis errors.
+- Support for GTA V Enhanced Edition, including automatic game process detection and registry discovery.
+- Multilingual support for 12 languages with in-app language switching and OTA translation updates.
 
-## [v1.1.4] - 2024-10-12
+### Changed
 
-### Buttons & Information Overhaul
+- Switched build system to Nuitka, cutting executable size in half and accelerating startup time.
 
-> Added direct repository and UC-thread buttons in the Download tab, expanded informational help dialogs, and added a top banner notice.
+### Fixed
 
-#### Features & Improvements
+- Fixed application restart failures and temporary file extraction errors.
+- Fixed broken community links in the interface.
+- Improved injection stability and administrator elevation handling.
 
-- Added quick-access buttons in the Download tab linking directly to the YimMenu GitHub repository and UnknownCheats thread.
-- Added prominent animated banner label at the top of the interface warning users to disable BattlEye.
-- Updated and enlarged "More Info" dialog windows across both the Download and Inject tabs.
-- Polished button hover interactions and status messages.
+## [1.1.5] - 2025-08-31
 
-## [v1.1.3] - 2024-09-01
+### Added
 
-### Lua Script Manager
+- Brand-new modern Qt (PySide6) interface featuring smooth animations, redesigned controls, and card layouts.
+- Non-blocking toast notification system for alerts and status messages.
+- Background task manager ensuring downloads and checks never freeze the interface.
+- Initial preview support for GTA V Enhanced Edition (YimMenuV2).
 
-> Introduced an interactive Lua script manager in the Settings tab to monitor installed scripts, open script folders, and discover new community extensions.
+### Changed
 
-#### Features & Improvements
+- Completely rewrote the codebase from CustomTkinter to PySide6 for superior responsiveness and native feel.
 
-- Added Lua script manager in the Settings tab displaying counts and filenames of installed scripts.
-- Visual status indicators differentiating active (green) and disabled (yellow) Lua scripts.
-- Clickable script labels to immediately open the local Lua scripts directory in Windows Explorer.
-- Added "Refresh" button to reload installed Lua scripts dynamically.
-- Repositioned the "Discover Luas" shortcut button below the newly introduced script manager.
-- Added informative "Lua Settings Info" helper dialog window.
+## [1.1.4] - 2024-10-12
 
-## [v1.1.2] - 2024-08-29
+### Added
 
-### Progress Bar Bugfix
+- Direct quick-access buttons to the YimMenu GitHub repository and UnknownCheats community thread in the Download tab.
+- Notice banner at the top of the window reminding users about BattlEye requirements.
+- Expanded and clarified "More Info" help dialogs across Download and Inject tabs.
 
-> Targeted bugfix resolving a UI freeze where the progress bar hung during DLL downloads.
+### Changed
 
-#### Fixes
+- Polished button hover states and status messages.
 
-- Fixed progress bar freezing during DLL downloads by properly updating progress states.
-- Cleaned up dependency specifications and internal version strings.
+## [1.1.3] - 2024-09-01
 
-## [v1.1.1] - 2024-08-10
+### Added
 
-### Launcher Path Caching Bugfix
+- Interactive Lua script manager in Settings to view installed scripts, active counts, and filenames.
+- Visual status indicators for active (green) and disabled (yellow) Lua scripts.
+- One-click shortcut to open the local Lua scripts directory directly in Windows Explorer.
+- "Refresh" button to re-scan installed Lua scripts without restarting YMU.
+- Lua settings information dialog explaining how script loading works.
 
-> Resolved launcher detection and Rockstar Games Launcher path resolution failures caused by improper caching.
+## [1.1.2] - 2024-08-29
 
-#### Fixes
+### Fixed
 
-- Removed erroneous `@cache` decorators from `get_launcher()` and `get_rgl_path()` to ensure dynamic path and selection evaluation.
-- Updated GitHub Actions release workflows.
+- Fixed an issue where the progress bar froze during DLL downloads.
 
-## [v1.1.0] - 2024-07-26
+## [1.1.1] - 2024-08-10
 
-### Epic Games Launcher Compatibility
+### Fixed
 
-> Resolved launch and startup issues for users running Grand Theft Auto V through the Epic Games Store.
+- Fixed game launch failures where changes to selected launchers or Rockstar Games Launcher paths were not detected.
 
-#### Fixes
+## [1.1.0] - 2024-07-26
 
-- Fixed game launch failures when using the Epic Games Store launcher option.
-- Improved error handling during launcher process initialization.
+### Fixed
 
-## [v1.0.9] - 2024-07-13
+- Fixed game launching for GTA V installations on the Epic Games Store.
+- Improved error handling when initializing launcher processes.
 
-### Logging System & Performance Caching
+## [1.0.9] - 2024-07-13
 
-> Added a dedicated logging system for diagnostics and troubleshooting, along with temporary response caching for improved performance.
+### Added
 
-#### Features & Improvements
+- Diagnostic logging system (`ymu/ymu.log`) to assist with troubleshooting and support requests.
+- Network request caching to reduce unnecessary GitHub API calls and speed up checks.
+- Automatic cleanup of temporary network caches upon exit.
 
-- Added file and console logging system (`ymu/ymu.log`) to facilitate debugging and issue reporting.
-- Integrated `requests_cache` with an SQLite backend to cache network requests and reduce redundant GitHub API queries.
-- Implemented automatic temporary cache deletion upon application exit.
-- Added issue templates and updated GitHub bug report and feature request URLs.
-- Standardized UI section headers and dialog styling.
+### Changed
 
-## [v1.0.8] - 2024-07-06
+- Standardized section headers and dialog styling across the interface.
 
-### Troubleshooting & Community Integration
+## [1.0.8] - 2024-07-06
 
-> Added dedicated troubleshooting and feedback buttons in the Settings tab along with fixes for Rockstar Games Launcher detection.
+### Added
 
-#### Features & Improvements
+- Support and community shortcut buttons in Settings: "Report a Bug", "Request a Feature", and "Join Discord".
 
-- Added troubleshooting shortcut buttons in the Settings tab: "Report a Bug", "Request a Feature", and "Join Discord".
-- Created GitHub issue templates for structured bug reports and feature suggestions.
-- Refined button hover assets and light theme asset variations.
+### Changed
 
-#### Fixes
+- Refined button hover styling and light theme assets.
 
-- Fixed Rockstar Games Launcher detection and registry query handling.
+### Fixed
 
-## [v1.0.7] - 2024-07-05
+- Fixed Rockstar Games Launcher detection from the Windows registry.
 
-### Launcher Protocol Redesign
+## [1.0.7] - 2024-07-05
 
-> Reworked GTA V launch mechanisms with direct Steam, Epic Games, and Rockstar Games Launcher detection, replacing desktop shortcut scanning.
+### Added
 
-#### Features & Improvements
+- Launcher dropdown to select your platform (Steam, Epic Games, or Rockstar Games Launcher).
+- Direct protocol launching for Steam and Epic Games Store, replacing desktop shortcut scanning.
+- Automated release builds via GitHub Actions.
 
-- Replaced desktop `.url` shortcut scanning with direct launcher protocols (Steam URI `steam://run/271590`, Epic Games URI, and Rockstar Games Launcher registry path lookup).
-- Added launcher dropdown selection menu to specify the game platform.
-- Increased main window height to 440px to accommodate launcher controls.
-- Added automated GitHub Actions release workflow.
+### Fixed
 
-#### Fixes
+- Added clear error message when Rockstar Games Launcher is selected but not installed.
 
-- Added clear error feedback when Rockstar Games Launcher installation cannot be found.
+## [1.0.6] - 2024-07-02
 
-## [v1.0.6] - 2024-07-02
+### Added
 
-### Game Launching & Layout Polish
+- "Start GTA 5" button in the Inject tab to launch the game directly from YMU.
+- Combined help dialog explaining game launching and DLL injection workflows.
 
-> Introduced a Start GTA 5 launcher button in the Inject tab along with structured card frames, border highlights, and folder reorganization.
+### Changed
 
-#### Features & Improvements
+- Reorganized Settings and Inject tabs into structured card frames with interactive hover highlights.
+- Automatically migrated downloaded DLL storage to `ymu/dll/`.
 
-- Added "Start GTA 5" button to the Inject tab to initiate the game directly from YMU.
-- Reorganized Settings and Inject tabs into clean card frames with interactive hover borders.
-- Automatically migrated legacy `dll/` directory to `ymu/dll/`.
-- Added combined info dialog covering both game launching and DLL injection.
+## [1.0.5] - 2024-06-21
 
-## [v1.0.5] - 2024-06-21
+### Added
 
-### Debug Console Toggle & Release Browser
+- "Enable External Debug Console" toggle in Settings to control YimMenu's console window.
+- "Open in Browser" button in the Changelog window to open release notes on GitHub.
 
-> Added an external debug console switch in Settings and a button to open release notes directly in the browser.
+### Changed
 
-#### Features & Improvements
+- Polished toggle switch colors and hover effects.
 
-- Added "Enable External Debug Console" toggle in Settings, modifying YimMenu's `settings.json` directly.
-- Added "Open in Browser" button in the Changelog window to open GitHub releases in the default web browser.
-- Polished switch button colors, hover states, and asset paths.
+## [1.0.4] - 2024-06-16
 
-## [v1.0.4] - 2024-06-16
+### Added
 
-### Theme Selection & Lua Auto-Reload
+- Theme selection supporting Dark and Light modes.
+- "Enable Auto Reload for Lua-Scripts" toggle in Settings.
+- "Discover Luas" shortcut button to find community scripts.
+- Interactive hover animations and color transitions on UI controls.
 
-> Introduced light and dark theme selection, hover animations for interactive controls, and an auto-reload Lua scripts toggle.
+## [1.0.3] - 2024-06-11
 
-#### Features & Improvements
+### Added
 
-- Added theme selection supporting both Dark and Light modes.
-- Added "Enable Auto Reload for Lua-Scripts" toggle modifying YimMenu configuration.
-- Added "Discover Luas" shortcut button in the Settings tab.
-- Added interactive border and color transitions when hovering over interactive elements.
-- Refined splash screen loading sequence.
+- Dedicated Settings tab with built-in updater.
+- "Open YimMenu Folder" shortcut button in Settings.
 
-## [v1.0.3] - 2024-06-11
+### Changed
 
-### Self-Updater & UI Polish
+- Centered all popup windows on screen with automatic focus.
+- Improved button states and visual feedback during injection.
 
-> Introduced the built-in self-updater in the new Settings tab, centered dialog windows, and improved hover feedback.
+## [1.0.2] - 2024-06-09
 
-#### Features & Improvements
+### Added
 
-- Introduced in-app self-updater located in a newly created Settings tab.
-- Added "Open YimMenu Folder" shortcut button in Settings.
-- Improved injection button state handling and user feedback.
-- Centered all popup windows (`CTkToplevel`) on screen with instant focus.
-- Refined accent colors across themes.
+- In-app YimMenu changelog viewer.
+- Official application icon (`ymu.ico`) and startup splash screen.
 
-## [v1.0.2] - 2024-06-09
+### Changed
 
-### YimMenu Changelog & Tab Consolidation
+- Consolidated separate "Download" and "Update" tabs into a unified tab.
+- Replaced manual SHA-256 tab with automatic background integrity verification.
 
-> Integrated the YimMenu changelog viewer, consolidated the Download and Update tabs, and added a splash screen and application icon.
+### Fixed
 
-#### Features & Improvements
+- Fixed an issue where background processes occasionally remained open after exiting YMU.
 
-- Consolidated separate "Download" and "Update" tabs into a unified "Download/Update" tab.
-- Removed legacy SHA256 tab in favor of automated hash verification.
-- Integrated YimMenu changelog viewer with clickable dialog.
-- Added startup splash screen and official application icon (`ymu.ico`).
-- Added initial `requirements.txt` specifying project dependencies.
+## [1.0.1] - 2024-06-02
 
-#### Fixes
+### Added
 
-- Fixed process termination issue where YMU did not close completely on exit.
+- Dedicated "Inject" tab to inject `YimMenu.dll` directly into a running GTA V process.
+- Visual injection progress feedback and step-by-step injection guide dialog.
 
-## [v1.0.1] - 2024-06-02
+## [1.0.0] - 2024-05-31
 
-### DLL Injection & Dedicated Inject Tab
+### Added
 
-> Added process injection support using PyInjector with a dedicated Inject tab to inject YimMenu directly into Grand Theft Auto V.
+- Initial release of YimMenuUpdater (YMU).
+- Automated download of nightly `YimMenu.dll` releases from GitHub.
+- SHA-256 checksum verification to ensure downloaded file integrity.
+- Real-time download progress bar and status indicators.
+- Clean, dark-themed desktop interface.
 
-#### Features & Improvements
-
-- Added dedicated "Inject" tab in the GUI.
-- Integrated `pyinjector` for direct DLL injection into running `GTA5.exe` processes.
-- Added injection progress indicator and instructional "How-To" injection guide dialog.
-
-## [v1.0.0] - 2024-05-31
-
-### Initial Release
-
-> Initial release of YimMenuUpdater featuring automated DLL downloads, progress tracking, and SHA-256 integrity verification.
-
-#### Features
-
-- Automated download of nightly `YimMenu.dll` binaries from GitHub releases.
-- Dedicated SHA-256 verification tab to compute local DLL hash and compare against official release checksums.
-- Real-time download progress bar and status percentage indicators.
-- Dark-themed CustomTkinter graphical interface.
+[Unreleased]: https://github.com/NiiV3AU/YMU/compare/v1.1.11...HEAD
+[1.2.0]: https://github.com/NiiV3AU/YMU/compare/v1.1.11...v1.2.0
+[1.1.11]: https://github.com/NiiV3AU/YMU/compare/v1.1.10...v1.1.11
+[1.1.10]: https://github.com/NiiV3AU/YMU/compare/v1.1.9...v1.1.10
+[1.1.9]: https://github.com/NiiV3AU/YMU/compare/v1.1.8...v1.1.9
+[1.1.8]: https://github.com/NiiV3AU/YMU/compare/v1.1.7...v1.1.8
+[1.1.7]: https://github.com/NiiV3AU/YMU/compare/v1.1.6...v1.1.7
+[1.1.6]: https://github.com/NiiV3AU/YMU/compare/v1.1.5...v1.1.6
+[1.1.5]: https://github.com/NiiV3AU/YMU/compare/v1.1.4...v1.1.5
+[1.1.4]: https://github.com/NiiV3AU/YMU/compare/v1.1.3...v1.1.4
+[1.1.3]: https://github.com/NiiV3AU/YMU/compare/v1.1.2...v1.1.3
+[1.1.2]: https://github.com/NiiV3AU/YMU/compare/v1.1.1...v1.1.2
+[1.1.1]: https://github.com/NiiV3AU/YMU/compare/v1.1.0...v1.1.1
+[1.1.0]: https://github.com/NiiV3AU/YMU/compare/v1.0.9...v1.1.0
+[1.0.9]: https://github.com/NiiV3AU/YMU/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/NiiV3AU/YMU/compare/v1.0.7...v1.0.8
+[1.0.7]: https://github.com/NiiV3AU/YMU/compare/v1.0.6...v1.0.7
+[1.0.6]: https://github.com/NiiV3AU/YMU/compare/v1.0.5...v1.0.6
+[1.0.5]: https://github.com/NiiV3AU/YMU/compare/v1.0.4...v1.0.5
+[1.0.4]: https://github.com/NiiV3AU/YMU/compare/v1.0.3...v1.0.4
+[1.0.3]: https://github.com/NiiV3AU/YMU/compare/v1.0.2...v1.0.3
+[1.0.2]: https://github.com/NiiV3AU/YMU/compare/v1.0.1...v1.0.2
+[1.0.1]: https://github.com/NiiV3AU/YMU/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/NiiV3AU/YMU/releases/tag/v1.0.0

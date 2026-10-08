@@ -4,10 +4,11 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 
 <div align="center">
 
-[![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
 [![Latest Release](https://img.shields.io/github/v/release/NiiV3AU/YMU?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases/latest)
-[![Changelog](https://img.shields.io/badge/Changelog-CHANGELOG.md-gray?style=for-the-badge&logo=markdown&logoColor=white&labelColor=181717)](CHANGELOG.md)
 [![Downloads](https://img.shields.io/github/downloads/NiiV3AU/YMU/total?style=for-the-badge&logo=github&logoColor=white&labelColor=181717&color=gray)](https://github.com/NiiV3AU/YMU/releases)
+[![Changelog](https://img.shields.io/badge/Changelog-CHANGELOG.md-gray?style=for-the-badge&logo=markdown&logoColor=white&labelColor=181717)](CHANGELOG.md)
+<br>
+[![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
 [![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/0e6f442e56b757e387c2d22c2885136868a4b8d0d7856e7eb620bc1df32ebab2)
 
 ![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
@@ -24,17 +25,17 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 - **Automated DLL Management:** Download and update YimMenu with a single click, protected by SHA-256 integrity verification.
 - **Smart Safety Checks:** Automatic 64-bit architecture validation and non-blocking BattlEye service detection with clear risk guidance.
 - **Integrated Game Launcher:** Start GTA V directly via Steam, Epic Games, Rockstar Games Launcher, or a custom directory.
-- **Resilient Injection Engine:** Built-in UTF-8 and ANSI path sanitization ensures reliable injection even on Windows accounts with special characters or accents.
+- **Native Injection Engine:** High-performance Win32 Ctypes injection with UTF-8/ANSI path handling and in-memory module verification.
 - **Lua Script Manager:** Easily enable, disable, and organize scripts on the fly, with direct access to scripts folders and auto-reload settings.
-- **Multi-Language Support:** Available in 15 languages with over-the-air translation updates directly within the app.
-- **Modern UI/UX:** A clean, responsive interface featuring both dark and light modes.
+- **Multi-Language Support:** Available in 16 languages with over-the-air translation updates directly within the app.
+- **Modern UI/UX:** A clean, responsive interface featuring both dark and light modes, fluid transitions, and full RTL layout support.
 
 ---
 
 ## 🛡️ Safety & Transparency
 
 - **Full source, in the open:** Every line of YMU lives here on GitHub. Don't just trust it; read it, or build the `.exe` yourself and compare.
-- **Verified downloads:** YMU fetches YimMenu DLLs only from their official repositories and verifies each download's SHA-256 against the publisher's published hash before it is used.
+- **Verified downloads:** YMU fetches YimMenu DLLs only from their official repositories and verifies each download's SHA-256 against published checksums when provided by upstream releases.
 - **Microsoft SmartScreen:** Because YMU isn't code-signed, a fresh release may trigger a SmartScreen prompt until it builds up enough reputation. You can always cross-check the published `YMU.exe` hash against its VirusTotal report.
 
 > [!WARNING]
@@ -131,16 +132,30 @@ Download and run `YMU.exe` directly from the latest release. No installer requir
 
 ### Set up the environment
 
-YMU uses [**uv**](https://docs.astral.sh/uv/) for Python and dependency management. From the project root, a single command installs the right Python (`3.12`), every runtime dependency, **and** the build toolchain (Nuitka lives in the `dev` group):
+YMU uses [**uv**](https://docs.astral.sh/uv/) for Python and dependency management. From the project root, a single command installs the right Python (`3.12`), every runtime dependency, **and** the build toolchain (Nuitka, ruff, ty, and pyrefly live in the `dev` group):
 
 ```bash
-uv sync
+uv sync --locked
 ```
 
-That's it, no manual package installs. For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/), [requests](https://pypi.org/project/requests/), and [pyinjector](https://pypi.org/project/pyinjector/) as runtime dependencies, plus [Nuitka](https://pypi.org/project/Nuitka/) for building. System and process interactions rely strictly on native Windows APIs via `ctypes` to eliminate false-positive antivirus flags.
+Configure local git hooks to ensure commit and pre-commit checks run locally:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/) and [requests](https://pypi.org/project/requests/) as runtime dependencies, [ruff](https://docs.astral.sh/ruff/), [ty](https://docs.astral.sh/ty/), and [pyrefly](https://github.com/facebook/pyrefly) for linting and type checking, plus [Nuitka](https://pypi.org/project/Nuitka/) for building.
 
 > **Not using uv?** Dependencies are declared in `pyproject.toml`, so plain pip works as well:
 > `python -m venv .venv && .venv\Scripts\activate`, then install the runtime dependencies and `pip install nuitka` to build.
+
+### Running Tests
+
+The test suite runs entirely in an isolated `%TEMP%` sandbox (configured via `tests/_harness.py` and `YMU_SANDBOX_DIR`), ensuring your personal `%APPDATA%\YMU` and `%LOCALAPPDATA%\YMU` files are never touched or modified by tests:
+
+```bash
+uv run python -m unittest discover -s tests
+```
 
 ### Run from source
 
@@ -168,7 +183,16 @@ This creates `YMU.exe` in the `dist` folder.
 - **`--include-data-dir`**: Bundles the application `assets` and UI stylesheets (`src/ui/styles`).
 - **`--assume-yes-for-downloads`**: Lets Nuitka fetch its C toolchain non-interactively.
 
-> The official release build (see `.github/workflows/ymu_manual_release.yaml`) runs the same command with extra flags that stamp version/company metadata onto the `.exe` and strip unnecessary qt-plugins.
+> **Local vs. Release Builds:** The official release build (see `.github/workflows/ymu_manual_release.yaml`) applies additional optimizations including link-time optimization (`--lto=yes`), DLL exclusions, and embedded version/copyright metadata. Because compiler LTO and embedded build timestamps yield different binary outputs, a locally built executable will not match the official release binary byte-for-byte, but the source code and build recipes are completely reproducible.
+
+### Verifying Release Checksums
+
+To verify the integrity of a downloaded release binary against the published `YMU.exe.sha256`:
+
+```powershell
+certutil -hashfile YMU.exe SHA256
+```
+
 
 </details>
 
@@ -193,10 +217,16 @@ This creates `YMU.exe` in the `dist` folder.
 
 ## Credits
 
-| **Core & Vision** | [**@xesdoog**](https://github.com/xesdoog) (Early Development)                                                      |
-| :---------------- | :------------------------------------------------------------------------------------------------------------------ |
-| **Localization**  | [**@TommyLam120**](https://github.com/TommyLam120) (zh_TW)                                                          |
-| **Menu**          | [**YimMenu**](https://yim.gta.menu/)                                                                                |
-| **Logo**          | [**Made with Figma**](https://figma.com)                                                                            |
-| **Icons**         | [**Lucide**](https://lucide.dev/)                                                                                   |
-| **Fonts**         | [**Manrope**](https://fonts.google.com/specimen/Manrope) & [**JetBrains Mono**](https://www.jetbrains.com/lp/mono/) |
+| **Core & Vision** | [**@xesdoog**](https://github.com/xesdoog) (Early Development) |
+| :---------------- | :------------------------------------------------------------- |
+| **Localization**  | [**@TommyLam120**](https://github.com/TommyLam120) (zh_TW)     |
+| **Menu**          | [**YimMenu**](https://yim.gta.menu/)                           |
+| **Logo**          | [**Made with Figma**](https://figma.com)                       |
+| **Icons**         | [**Lucide**](https://lucide.dev/)                              |
+| **Font**          | [**Rubik**](https://fonts.google.com/specimen/Rubik)           |
+
+---
+
+## 📄 License
+
+This project is licensed under the [PolyForm Shield License 1.0.0](LICENSE.md). Free for non-commercial and permitted use.
