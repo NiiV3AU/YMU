@@ -1,6 +1,6 @@
-<!-- @license lucide-static v1.41.0 - ISC -->
+<!-- @license lucide-static v1.52.0 - ISC -->
 <svg
-  class="lucide lucide-compass"
+  class="lucide lucide-circle-check"
   xmlns="http://www.w3.org/2000/svg"
   width="24"
   height="24"
@@ -12,5 +12,5 @@
   stroke-linejoin="round"
 >
   <circle cx="12" cy="12" r="10" />
-  <path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z" />
+  <path d="m16 9-5.5 5.5L8 12" />
 </svg>

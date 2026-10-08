@@ -1,4 +1,5 @@
-<!-- @license lucide-static v1.41.0 - ISC -->
+<!-- @license lucide-static v1.52.0 - ISC -->
+<!-- YMU local patch: stroke hardcoded to #8B8B8B (upstream: currentColor) for QSS combo-box arrows, which cannot recolor SVGs -->
 <svg
   class="lucide lucide-chevron-down"
   xmlns="http://www.w3.org/2000/svg"
