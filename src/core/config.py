@@ -38,9 +38,10 @@ DEFAULTS = {
 
 
 class YmuConfig(QObject):
-    """Thread-safe, atomic JSON config store for all YMU-own settings."""
+    """Thread-safe, crash-resistant JSON config store for all YMU-own settings."""
 
     changed = Signal(str, object)  # (dot-key, new value)
+    save_failed = Signal(str, str)  # (dot-key, error message)
 
     def __init__(self, config_path: str = YMU_CONFIG_FILE_PATH):
         super().__init__()
@@ -54,11 +55,12 @@ class YmuConfig(QObject):
         data = None
         if os.path.exists(self._path):
             try:
-                with open(self._path, "r", encoding="utf-8") as f:
+                with open(self._path, encoding="utf-8-sig") as f:
                     data = json.load(f)
                 if not isinstance(data, dict):
                     raise TypeError("config root is not a JSON object")
-            except (OSError, json.JSONDecodeError, TypeError) as e:
+                self._validate_schema(data)
+            except (OSError, json.JSONDecodeError, TypeError, UnicodeDecodeError) as e:
                 logger.error(f"Config file unreadable ({e}). Backing up and resetting.")
                 self._backup_corrupt_file()
                 data = None
@@ -71,6 +73,20 @@ class YmuConfig(QObject):
         if self._migrate(data):
             self._write_locked(data)
         return data
+
+    def _validate_schema(self, data: dict) -> None:
+        """Validates that known configuration keys have the expected types.
+        Raises TypeError if any value has an invalid type."""
+        for key in ("theme", "locale", "mode"):
+            if key in data and not isinstance(data[key], str):
+                raise TypeError(f"'{key}' must be a string, got {type(data[key]).__name__}")
+        if "paths" in data:
+            if not isinstance(data["paths"], dict):
+                raise TypeError(f"'paths' must be a dict, got {type(data['paths']).__name__}")
+            for pkey in ("gta_dir", "custom_dll"):
+                value = data["paths"].get(pkey)
+                if value is not None and not isinstance(value, str):
+                    raise TypeError(f"'paths.{pkey}' must be a string, got {type(value).__name__}")
 
     def _backup_corrupt_file(self):
         try:
@@ -104,12 +120,14 @@ class YmuConfig(QObject):
     # --- persistence ---
 
     def _write_locked(self, data: dict) -> bool:
-        """Atomic write. Caller must hold the lock (or be in __init__)."""
+        """Atomically writes configuration to disk with fsync durability. Caller must hold the lock (or be in __init__)."""
         tmp_path = self._path + ".tmp"
         try:
             os.makedirs(os.path.dirname(self._path), exist_ok=True)
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
+                f.flush()
+                os.fsync(f.fileno())
             os.replace(tmp_path, self._path)
             return True
         except OSError as e:
@@ -137,7 +155,9 @@ class YmuConfig(QObject):
 
     def set(self, key_path: str, value: Any) -> bool:
         """Writes a (nested) setting and persists atomically."""
+        err_msg = ""
         with self._lock:
+            backup_data = copy.deepcopy(self._data)
             keys = key_path.split(".")
             d = self._data
             for key in keys[:-1]:
@@ -146,9 +166,17 @@ class YmuConfig(QObject):
                 d = d[key]
             d[keys[-1]] = value
             success = self._write_locked(self._data)
+            if not success:
+                self._data = backup_data
+                err_msg = f"Failed to persist setting '{key_path}' to disk."
+                logger.error(
+                    f"YMU config: failed to persist '{key_path}' = '{value}'; reverted in-memory state."
+                )
         if success:
             logger.info(f"YMU config: set '{key_path}' = '{value}'")
             self.changed.emit(key_path, value)
+        else:
+            self.save_failed.emit(key_path, err_msg)
         return success
 
     def get_all(self) -> dict:

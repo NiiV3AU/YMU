@@ -87,6 +87,9 @@ MODES: dict[str, MenuMode] = {LEGACY.key: LEGACY, ENHANCED.key: ENHANCED}
 
 def get_mode(key: str) -> MenuMode:
     """Returns the mode for a config key, falling back to Legacy."""
+    if not isinstance(key, str) or key not in MODES:
+        logger.warning("Unknown menu mode key '%s'; falling back to Legacy mode.", key)
+        return LEGACY
     return MODES.get(key, LEGACY)
 
 
@@ -105,14 +108,14 @@ def get_install_dir(mode: MenuMode) -> str | None:
                 winreg.HKEY_LOCAL_MACHINE, subkey, 0, winreg.KEY_READ
             ) as regkey:
                 path, _ = winreg.QueryValueEx(regkey, "InstallFolder")
-            if path:
+            if path and isinstance(path, str):
                 path = path.strip('"').strip()
                 if os.path.isdir(path):
                     logger.info(
                         f"Found {mode.display_name} install dir via registry: {path}"
                     )
                     return path
-        except OSError:
+        except (OSError, ValueError, TypeError):
             continue
     return None
 

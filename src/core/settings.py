@@ -45,15 +45,19 @@ def _read_json_safely(settings_file: str) -> dict | None:
                 if cached_mtime == mtime:
                     return copy.deepcopy(cached_data)
 
-        with open(settings_file, "r", encoding="utf-8-sig") as f:
-            data = json.load(f)
+        try:
+            with open(settings_file, encoding="utf-8-sig") as f:
+                data = json.load(f)
+        except UnicodeDecodeError:
+            with open(settings_file, encoding="mbcs") as f:
+                data = json.load(f)
         if not isinstance(data, dict):
             raise TypeError("settings root is not a JSON object")
 
         with _cache_lock:
             _cache[settings_file] = (mtime, data)
         return copy.deepcopy(data)
-    except (json.JSONDecodeError, TypeError, OSError) as e:
+    except (json.JSONDecodeError, TypeError, OSError, UnicodeDecodeError) as e:
         logger.warning(f"Failed to read {settings_file}: {e}")
         return None
 
@@ -83,10 +87,10 @@ def set_setting(
     settings_file: str = SETTINGS_FILE_PATH,
     create_if_missing: bool = True,
 ) -> bool:
-    """
-    Writes a nested setting. Ensures parent keys exist.
-    With create_if_missing=False the file is never created from scratch —
-    used for YimMenuV2, whose settings schema YMU does not own.
+    """Writes a nested setting. Ensures parent keys exist.
+    With create_if_missing=False the file is never created from scratch and
+    corrupt unreadable files are not overwritten — used for YimMenuV2, whose
+    settings schema YMU does not own.
     """
     with _write_lock:
         if not create_if_missing and not os.path.exists(settings_file):
@@ -96,13 +100,18 @@ def set_setting(
             return False
 
         data = _read_json_safely(settings_file)
-        if data is None:
-            # File exists but is corrupt. Create a .bak before proceeding.
+        if data is None and os.path.exists(settings_file):
+            # File exists but is corrupt. Create a .bak before refusing to overwrite.
             try:
                 shutil.copyfile(settings_file, settings_file + ".bak")
                 logger.info(f"Corrupt settings backed up to {settings_file}.bak")
             except OSError as e:
                 logger.error(f"Could not back up corrupt settings: {e}")
+            logger.error(
+                f"Refusing to overwrite unreadable settings in '{settings_file}' to prevent data loss."
+            )
+            return False
+        elif data is None:
             data = {}
 
         keys = key_path.split(".")
@@ -123,6 +132,8 @@ def set_setting(
             os.makedirs(os.path.dirname(settings_file), exist_ok=True)
             with open(temp_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=4)
+                f.flush()
+                os.fsync(f.fileno())
 
             os.replace(temp_file, settings_file)
             with _cache_lock:

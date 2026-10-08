@@ -62,22 +62,32 @@ class FileLockedException(PermissionError):
 
 
 _cache_lock = threading.Lock()
+_in_memory_cache: dict | None = None
 CACHE_TTL_SECONDS = 300.0  # 5 minutes
 
 
 def _read_cache() -> dict:
+    global _in_memory_cache
+    if _in_memory_cache is not None:
+        return _in_memory_cache.copy()
+
     if not os.path.exists(YMU_CACHE_FILE_PATH):
+        _in_memory_cache = {}
         return {}
     try:
-        with open(YMU_CACHE_FILE_PATH, "r", encoding="utf-8") as f:
+        with open(YMU_CACHE_FILE_PATH, encoding="utf-8") as f:
             data = json.load(f)
-            return data if isinstance(data, dict) else {}
-    except (json.JSONDecodeError, OSError) as e:
+            _in_memory_cache = data if isinstance(data, dict) else {}
+            return _in_memory_cache.copy()
+    except (json.JSONDecodeError, OSError, UnicodeDecodeError) as e:
         logger.warning(f"Failed to read API cache: {e}")
+        _in_memory_cache = {}
         return {}
 
 
 def _write_cache(cache_data: dict) -> None:
+    global _in_memory_cache
+    _in_memory_cache = cache_data.copy()
     tmp_path = YMU_CACHE_FILE_PATH + ".tmp"
     try:
         os.makedirs(os.path.dirname(YMU_CACHE_FILE_PATH), exist_ok=True)
@@ -94,6 +104,13 @@ def _write_cache(cache_data: dict) -> None:
                 pass
 
 
+def clear_memory_cache() -> None:
+    """Clears the in-memory release API cache."""
+    global _in_memory_cache
+    with _cache_lock:
+        _in_memory_cache = None
+
+
 def get_cached_release(
     repo: str, max_age: float = CACHE_TTL_SECONDS
 ) -> tuple[ReleaseData | None, str | None, bool]:
@@ -108,6 +125,8 @@ def get_cached_release(
 
         etag = entry.get("etag")
         timestamp = entry.get("timestamp", 0)
+        if not isinstance(timestamp, (int, float)):
+            timestamp = 0
         rel_dict = entry.get("release_data")
         if not isinstance(rel_dict, dict):
             return (None, etag, False)
@@ -175,17 +194,33 @@ class ReleaseProvider(abc.ABC):
 def extract_checksum_from_release(text: str | None) -> str | None:
     """Extracts a SHA256 checksum from release notes text.
 
-    Prefers patterns with explicit keywords (e.g. SHA-256 or checksum),
-    and falls back to any standalone 64-character hex string.
+    Requires explicit keywords (e.g. SHA-256, checksum, hash) or
+    a standard sha256sum format line (<hash> [*]<filename>).
+    Arbitrary standalone 64-hex strings (such as Git commit hashes)
+    are intentionally ignored to prevent false checksum mismatch errors.
     """
     if not text:
         return None
-    match = re.search(r"(?i)(?:sha[-_]?256|checksum)[^\w\n]*([a-f0-9]{64})", text)
+
+    # 1. Look for explicit keyword indicators: sha-256, sha256, checksum, hash
+    match = re.search(r"(?i)(?:sha[-_]?256|checksum|hash)[\s:=]+([a-f0-9]{64})", text)
     if match:
-        return match.group(1)
-    fallback = re.search(r"\b([a-f0-9]{64})\b", text, re.IGNORECASE)
-    if fallback:
-        return fallback.group(1)
+        return match.group(1).lower()
+
+    # 2. Look for standard sha256sum line: <hash>  <filename> or <hash> *<filename>
+    sum_match = re.search(
+        r"(?m)^([a-f0-9]{64})\s+[*]?\S+\.(?:dll|exe|zip|bin)\b", text, re.IGNORECASE
+    )
+    if sum_match:
+        return sum_match.group(1).lower()
+
+    # 3. Look for reverse format: <filename>[:= ]+<hash>
+    rev_match = re.search(
+        r"(?i)\b\S+\.(?:dll|exe|zip|bin)[\s:=]+([a-f0-9]{64})\b", text
+    )
+    if rev_match:
+        return rev_match.group(1).lower()
+
     return None
 
 
@@ -207,9 +242,13 @@ class GitHubAPIProvider(ReleaseProvider):
         }
 
     def get_latest_release(self, force_refresh: bool = False) -> ReleaseData | None:
-        """
-        Fetches the latest release from the GitHub API and parses the data.
+        """Fetches the latest release from the GitHub API and parses the data.
         Uses persistent disk caching and ETag conditional requests to avoid rate limits.
+
+        :param force_refresh: If True, bypasses disk caching and ETag validation.
+        :return: A ReleaseData object or None if no release exists.
+        :raises RateLimitException: If GitHub API returns HTTP 403 with rate limit exceeded.
+        :raises requests.RequestException: If network communication fails.
         """
         cached_data, cached_etag, is_fresh = get_cached_release(self.repository)
 
@@ -270,7 +309,11 @@ class GitHubAPIProvider(ReleaseProvider):
 
             if self.asset_extension:
                 for asset in assets:
-                    if asset.get("name", "").endswith(self.asset_extension):
+                    if (
+                        asset.get("name", "")
+                        .lower()
+                        .endswith(self.asset_extension.lower())
+                    ):
                         download_url = asset.get("browser_download_url")
                         asset_name = asset.get("name")
                         break
@@ -329,14 +372,18 @@ def get_local_sha256(dll_path: str) -> str | None:
     Calculates the SHA256 checksum of the locally available DLL.
     :param dll_path: The path to the local DLL file.
     """
-    if os.path.exists(dll_path):
-        sha256_hash = hashlib.sha256()
-        with open(dll_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        checksum = sha256_hash.hexdigest()
-        logger.debug(f"Calculated local checksum for {dll_path}: {checksum}")
-        return checksum
+    if os.path.isfile(dll_path):
+        try:
+            sha256_hash = hashlib.sha256()
+            with open(dll_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+            checksum = sha256_hash.hexdigest()
+            logger.debug(f"Calculated local checksum for {dll_path}: {checksum}")
+            return checksum
+        except OSError as e:
+            logger.warning(f"Could not read local DLL at {dll_path}: {e}")
+            return None
     else:
         logger.warning(
             f"Local file not found at {dll_path}, cannot calculate checksum."
@@ -347,46 +394,84 @@ def get_local_sha256(dll_path: str) -> str | None:
 def download_and_verify_release(
     release_data: ReleaseData,
     progress_signal: ProgressReporter | None = None,
-    **kwargs,
 ) -> tuple[bool, bool]:
-    """
-    Downloads a release file to a temporary file, verifies its integrity,
+    """Downloads a release file to a temporary file, verifies its integrity,
     and moves it atomically to the final destination.
 
     :return: A tuple of (success, is_verified).
              - (True, True): downloaded and SHA256 verified
              - (True, False): downloaded successfully, but unverified (no remote checksum)
              - (False, False): download or verification failed
+    :raises FileLockedException: If the destination file is locked by a running process.
     """
-    download_path = os.path.join(YMU_DLL_DIR, release_data.asset_name)
+    raw_name = release_data.asset_name
+    if (
+        not raw_name
+        or "/" in raw_name
+        or "\\" in raw_name
+        or not re.match(r"^[A-Za-z0-9._-]+$", raw_name)
+        or raw_name in (".", "..")
+    ):
+        logger.error(
+            f"Unsafe or invalid asset name rejected: {release_data.asset_name!r}"
+        )
+        return (False, False)
+
+    safe_name = raw_name
+
+    download_path = os.path.join(YMU_DLL_DIR, safe_name)
     tmp_path = download_path + ".tmp"
     try:
         headers = {"User-Agent": USER_AGENT}
         response = requests.get(
             release_data.download_url, stream=True, timeout=30, headers=headers
         )
-        response.raise_for_status()
-
         try:
-            total_size = int(response.headers.get("content-length", 0))
-        except (ValueError, TypeError):
-            total_size = 0
-        downloaded_size = 0
+            response.raise_for_status()
 
-        os.makedirs(os.path.dirname(download_path), exist_ok=True)
+            try:
+                cl_header = (
+                    response.headers.get("Content-Length")
+                    or response.headers.get("content-length")
+                    or 0
+                )
+                total_size = int(cl_header)
+            except (ValueError, TypeError):
+                total_size = 0
+            downloaded_size = 0
+            last_percentage = -1
+            start_time = time.monotonic()
 
-        with open(tmp_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-                downloaded_size += len(chunk)
-                if total_size > 0 and progress_signal is not None:
-                    percentage = int((downloaded_size / total_size) * 100)
-                    if isinstance(progress_signal, SupportsEmit):
-                        progress_signal.emit(percentage)
-                    else:
-                        progress_signal(percentage)
+            os.makedirs(os.path.dirname(download_path), exist_ok=True)
 
-        logger.info(f"Download of '{release_data.asset_name}' complete.")
+            with open(tmp_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if time.monotonic() - start_time > 120:
+                        raise requests.exceptions.ReadTimeout(
+                            "Download exceeded 120s deadline"
+                        )
+                    f.write(chunk)
+                    downloaded_size += len(chunk)
+                    if total_size > 0 and progress_signal is not None:
+                        percentage = min(100, max(0, int((downloaded_size / total_size) * 100)))
+                        if percentage != last_percentage:
+                            last_percentage = percentage
+                            if isinstance(progress_signal, SupportsEmit):
+                                progress_signal.emit(percentage)
+                            else:
+                                progress_signal(percentage)
+
+            if total_size > 0 and downloaded_size < int(total_size * 0.999):
+                calculated_hash = get_local_sha256(tmp_path) if release_data.checksum else None
+                if not (release_data.checksum and calculated_hash and calculated_hash.lower() == release_data.checksum.lower()):
+                    logger.error(
+                        f"Download incomplete for '{safe_name}': received {downloaded_size} of {total_size} bytes."
+                    )
+                    return (False, False)
+        finally:
+            response.close()
+
+        logger.info(f"Download of '{safe_name}' complete.")
 
         is_verified = False
         if release_data.checksum:
@@ -413,13 +498,16 @@ def download_and_verify_release(
             os.replace(tmp_path, download_path)
         except PermissionError as e:
             winerror = getattr(e, "winerror", None)
-            if winerror in (5, 32) or isinstance(e, PermissionError):
+            if winerror in (5, 32):
                 logger.error(
                     f"Target file '{download_path}' is locked by another process (winerror={winerror}): {e}"
                 )
                 raise FileLockedException(
                     f"Target file '{download_path}' is locked by another process (GTA V)."
                 ) from e
+            logger.error(
+                f"Permission denied replacing '{download_path}' (winerror={winerror}): {e}"
+            )
             raise
         return (True, is_verified)
 
@@ -440,9 +528,6 @@ def download_and_verify_release(
                 os.remove(tmp_path)
             except OSError:
                 pass
-
-
-download_and_verify_dll = download_and_verify_release
 
 
 if __name__ == "__main__":

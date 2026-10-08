@@ -12,15 +12,30 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+def _is_safe_filename(filename: str) -> bool:
+    """Checks if the script filename is safe and contains no traversal attempts."""
+    if not filename or not isinstance(filename, str):
+        return False
+    if os.path.basename(filename) != filename:
+        return False
+    return not any(sep in filename for sep in ("/", "\\", ".."))
+
+
 def _get_lua_files(directory: str) -> list[str]:
     """Helper function to find all .lua files in a directory."""
     if not os.path.isdir(directory):
         return []
 
+    try:
+        entries = os.listdir(directory)
+    except OSError as e:
+        logger.warning("Could not list Lua script directory %s: %s", directory, e)
+        return []
+
     return [
         f
-        for f in os.listdir(directory)
-        if f.endswith(".lua") and os.path.isfile(os.path.join(directory, f))
+        for f in entries
+        if f.lower().endswith(".lua") and os.path.isfile(os.path.join(directory, f))
     ]
 
 
@@ -34,18 +49,14 @@ def get_scripts(scripts_dir: str, disabled_dir: str) -> dict[str, list[str]]:
     Returns a dictionary with lists of enabled and disabled lua scripts,
     with the '.lua' suffix removed for display.
     """
-    # Only create the 'disabled' subfolder if the scripts folder itself exists;
-    # otherwise a missing edition directory would be silently created and the
-    # "not installed" hint in the UI could never appear.
-    if os.path.isdir(scripts_dir):
-        os.makedirs(disabled_dir, exist_ok=True)
-
     enabled_scripts_full = _get_lua_files(scripts_dir)
-
     disabled_scripts_full = _get_lua_files(disabled_dir)
 
-    enabled_display = [s.removesuffix(".lua") for s in sorted(enabled_scripts_full)]
-    disabled_display = [s.removesuffix(".lua") for s in sorted(disabled_scripts_full)]
+    def _strip_lua_ext(name: str) -> str:
+        return name[:-4] if name.lower().endswith(".lua") else name
+
+    enabled_display = [_strip_lua_ext(s) for s in sorted(enabled_scripts_full)]
+    disabled_display = [_strip_lua_ext(s) for s in sorted(disabled_scripts_full)]
 
     logger.debug(f"Found enabled scripts: {enabled_display}")
     logger.debug(f"Found disabled scripts: {disabled_display}")
@@ -55,6 +66,10 @@ def get_scripts(scripts_dir: str, disabled_dir: str) -> dict[str, list[str]]:
 
 def enable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
     """Moves a script from the 'disabled' folder to the 'scripts' folder."""
+    if not _is_safe_filename(filename):
+        logger.error(f"Cannot enable script with unsafe name: '{filename}'")
+        return False
+
     actual_filename = f"{filename}.lua"
 
     src = os.path.join(disabled_dir, actual_filename)
@@ -67,6 +82,7 @@ def enable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
         return False
 
     try:
+        os.makedirs(scripts_dir, exist_ok=True)
         shutil.move(src, dest)
         logger.info(f"Enabled script: {actual_filename}")
         return True
@@ -77,6 +93,10 @@ def enable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
 
 def disable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
     """Moves a script from the 'scripts' folder to the 'disabled' folder."""
+    if not _is_safe_filename(filename):
+        logger.error(f"Cannot disable script with unsafe name: '{filename}'")
+        return False
+
     actual_filename = f"{filename}.lua"
 
     src = os.path.join(scripts_dir, actual_filename)
@@ -89,6 +109,7 @@ def disable_script(scripts_dir: str, disabled_dir: str, filename: str) -> bool:
         return False
 
     try:
+        os.makedirs(disabled_dir, exist_ok=True)
         shutil.move(src, dest)
         logger.info(f"Disabled script: {actual_filename}")
         return True
