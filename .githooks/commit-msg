@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+# commit-msg - keeps commit subjects within the project's style.
+#
+# Conventional Commits prefix, imperative mood, no filler. A subject line that
+# explains *why* the change was needed belongs in the body, not the subject.
+
+set -uo pipefail
+
+msg_file="$1"
+subject=$(head -1 "$msg_file")
+
+if [ -z "$subject" ]; then
+    echo "commit-msg: empty subject line"
+    exit 1
+fi
+
+# Conventional Commits: type(scope): description
+# The scope may list several areas separated by ", " (e.g. "core, ui"), which
+# is the convention this repository already uses.
+if ! printf '%s' "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-z0-9._/-]+(, [a-z0-9._/-]+)*\))?!?: .+'; then
+    echo "commit-msg: subject does not follow Conventional Commits"
+    echo "  got:      $subject"
+    echo "  expected: type(scope): description"
+    echo "  e.g.      fix(core): guard against UnicodeDecodeError in config load"
+    exit 1
+fi
+
+# Subject must stay short enough to be readable in git log --oneline.
+if [ "${#subject}" -gt 72 ]; then
+    echo "commit-msg: subject is ${#subject} chars, limit is 72"
+    echo "  $subject"
+    exit 1
+fi
+
+# Trailing period reads as a sentence; commit subjects are not sentences.
+case "$subject" in
+    *.)
+        echo "commit-msg: subject ends with a period"
+        exit 1
+        ;;
+esac
+
+# Process scaffolding that leaks into subjects and tells a reader nothing about
+# the change itself: "batch 1", "part 2", "wip", "temp", "asdf".
+if printf '%s' "$subject" | grep -qiE '\((batch|part|part[0-9]|chunk)[ _-]?[0-9]*\)|\b(wip|todo|fixup|temp|asdf|foobar|test123)\b'; then
+    echo "commit-msg: subject contains process scaffolding"
+    echo "  $subject"
+    echo "  describe the change, not the order in which it was produced."
+    exit 1
+fi
+
+exit 0

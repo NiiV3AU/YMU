@@ -11,28 +11,66 @@ name: YMU Manual Release
 on:
   workflow_dispatch:
 
+concurrency:
+  group: ymu-release
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: windows-latest
     name: Build YMU on Windows
+    timeout-minutes: 90
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
       version: ${{ steps.meta.outputs.version }}
       year: ${{ steps.meta.outputs.year }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@v10.0.1
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
         with:
           python-version: "3.12"
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --locked
 
       - name: Lint with Ruff
         run: uv run ruff check src
+
+      - name: Type check with ty
+        run: uv run ty check src
+
+      - name: Type check with pyrefly
+        run: uv run pyrefly check
+
+      - name: Verify Version Sync
+        run: |
+          $pyproject = Get-Content pyproject.toml -Raw
+          if ($pyproject -match 'version\s*=\s*"([^"]+)"') {
+            $pyprojectVersion = $Matches[1]
+          } else {
+            Write-Error "Could not find version in pyproject.toml"
+            exit 1
+          }
+          $pathsContent = Get-Content src/core/paths.py -Raw
+          if ($pathsContent -match 'LOCAL_VERSION\s*=\s*"v?([^"]+)"') {
+            $pathsVersion = $Matches[1]
+          } else {
+            Write-Error "Could not find LOCAL_VERSION in src/core/paths.py"
+            exit 1
+          }
+          if ($pyprojectVersion -ne $pathsVersion) {
+            Write-Error "Version mismatch: pyproject.toml ($pyprojectVersion) != src/core/paths.py ($pathsVersion)"
+            exit 1
+          }
+          $changelog = Get-Content CHANGELOG.md -Raw
+          if ($changelog -notmatch "##\s+\[v?$pathsVersion\]") {
+            Write-Error "CHANGELOG.md does not have section for version $pathsVersion"
+            exit 1
+          }
+          Write-Host "[OK] Versions match across pyproject.toml, paths.py, and CHANGELOG.md: $pathsVersion"
 
       - name: Get build metadata
         id: meta
@@ -51,12 +89,45 @@ jobs:
 
       - name: Build Executable
         run: |
-          uv run python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/{COMPANY}/{PRODUCT}/{VERSION}" --enable-plugin=pyside6 --noinclude-qt-translations --noinclude-qt-plugins=tls --noinclude-dlls="*pdf*,*Qt6Network*,*direct2d*,*jpeg*,*webp*,*tiff*,*icns*,*tga*" --nofollow-import-to=PySide6.QtNetwork --noinclude-unittest-mode=nofollow --noinclude-pydoc-mode=nofollow --noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow --standalone --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/main.py
+          uv run python -m nuitka --onefile --onefile-tempdir-spec="{CACHE_DIR}/{COMPANY}/{PRODUCT}/{VERSION}" --enable-plugin=pyside6 --noinclude-qt-translations --noinclude-qt-plugins=tls --noinclude-dlls=*pdf* --noinclude-dlls=*Qt6Network* --noinclude-dlls=*direct2d* --noinclude-dlls=*jpeg* --noinclude-dlls=*webp* --noinclude-dlls=*tiff* --noinclude-dlls=*icns* --noinclude-dlls=*tga* --noinclude-dlls=*offscreen* --noinclude-dlls=*minimal* --noinclude-dlls=*qgif* --noinclude-dlls=*qwbmp* --nofollow-import-to=PySide6.QtNetwork --noinclude-unittest-mode=nofollow --noinclude-pydoc-mode=nofollow --noinclude-pytest-mode=nofollow --noinclude-setuptools-mode=nofollow --standalone --windows-icon-from-ico=src/assets/icons/ymu.ico --include-data-dir=src/assets=assets --include-data-dir=src/ui/styles=ui/styles --windows-console-mode=disable --assume-yes-for-downloads --output-dir=dist --company-name="YMU" --product-name="YMU" --file-version="${{ steps.meta.outputs.version }}" --product-version="${{ steps.meta.outputs.version }}" --file-description="YimMenuUpdater" --copyright="github.com/NiiV3AU/YMU - ${{ steps.meta.outputs.year }}" --output-filename=YMU.exe --lto=yes src/main.py 2>&1 | Tee-Object -FilePath nuitka_build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify DLL Exclusions
+        run: |
+          $expectedExclusions = @(
+            'qt6pdf.dll',
+            'qt6network.dll',
+            'qdirect2d.dll',
+            'qjpeg.dll',
+            'qwebp.dll',
+            'qtiff.dll',
+            'qicns.dll',
+            'qtga.dll',
+            'qpdf.dll',
+            'qoffscreen.dll',
+            'qminimal.dll',
+            'qgif.dll',
+            'qwbmp.dll'
+          )
+          if (Test-Path nuitka_build.log) {
+            $logContent = Get-Content nuitka_build.log -Raw
+            $warnings = [regex]::Matches($logContent, "missing expected file '([^']+)'") | ForEach-Object { Split-Path $_.Groups[1].Value -Leaf }
+            $missing = @($expectedExclusions | Where-Object { $warnings -notcontains $_ })
+            if ($missing.Count -eq 0) {
+              Write-Host "::notice title=Nuitka Pruned DLLs::All $($expectedExclusions.Count) expected DLL exclusions verified in Onefile build."
+              Write-Host "[OK] All $($expectedExclusions.Count) pruned DLL exclusions confirmed: $($expectedExclusions -join ', ')"
+            } else {
+              Write-Host "::warning title=Nuitka Pruned DLLs::DLL exclusion verification incomplete ($($expectedExclusions.Count - $missing.Count)/$($expectedExclusions.Count) verified). Missing in warnings: $($missing -join ', ')"
+            }
+          } else {
+            Write-Host "::warning title=Nuitka Pruned DLLs::nuitka_build.log not found, DLL exclusion check skipped."
+          }
 
       - name: Generate Checksum for Executable
         run: |
           # Use the native Windows command to generate the SHA256 checksum
           certutil -hashfile dist\YMU.exe SHA256 > dist\YMU.exe.sha256
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           # Optional: Display the checksum in the logs
           cat dist\YMU.exe.sha256
 
@@ -67,7 +138,7 @@ jobs:
           echo "short_sha=$(git rev-parse --short HEAD)" >> $env:GITHUB_OUTPUT
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ymu-build-artifacts
           path: |
@@ -77,15 +148,16 @@ jobs:
   publish_release:
     runs-on: ubuntu-latest
     name: Create GitHub Release
+    timeout-minutes: 60
     needs: build
     permissions:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Download Artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: ymu-build-artifacts
 
@@ -98,7 +170,7 @@ jobs:
           echo "Release version: v${VERSION}"
 
       - name: Ensure tag does not already exist
-        uses: actions/github-script@v9
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
             const tag = "${{ steps.version.outputs.new_version }}";
@@ -117,8 +189,12 @@ jobs:
       - name: Read Checksum File
         id: read_sha
         run: |
-          # Read the checksum content and remove extra lines/text from certutil's output
-          sha_content=$(grep -v "SHA256" YMU.exe.sha256 | grep -v "CertUtil")
+          # Extract exactly 64-hex characters from certutil output in a locale-agnostic way
+          sha_content=$(grep -oiE '[0-9a-f]{64}' YMU.exe.sha256 | head -1)
+          if [[ ! "$sha_content" =~ ^[0-9a-fA-F]{64}$ ]]; then
+            echo "Error: Invalid or empty SHA256 checksum extracted: '$sha_content'"
+            exit 1
+          fi
           echo "build_sha=${sha_content}" >> $GITHUB_OUTPUT
           echo "Checksum content: ${sha_content}"
 
@@ -137,13 +213,14 @@ jobs:
           if os.path.exists(changelog_file) and tag:
               with open(changelog_file, "r", encoding="utf-8") as f:
                   content = f.read()
-              pattern = rf"(##\s+\[{re.escape(tag)}\][\s\S]*?)(?=\n##\s+\[|\Z)"
+              clean_tag = tag.removeprefix("v")
+              pattern = rf"(##\s+\[v?{re.escape(clean_tag)}\][\s\S]*?)(?=\n##\s+\[|\Z)"
               match = re.search(pattern, content)
               if match:
                   notes = match.group(1).strip()
 
           if not notes:
-              notes = f"## [{tag}]\n\nRelease notes for {tag} will be updated shortly."
+              raise RuntimeError(f"Release notes for {tag} not found in {changelog_file}")
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
               delimiter = "CHANGELOG_DELIMITER"
@@ -151,7 +228,7 @@ jobs:
           EOF
 
       - name: Create and Upload Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: YMU ${{ steps.version.outputs.new_version }}
           tag_name: ${{ steps.version.outputs.new_version }}
@@ -170,4 +247,4 @@ jobs:
           files: |
             YMU.exe
             YMU.exe.sha256
-
+            THIRD-PARTY-NOTICES.md

@@ -1,0 +1,32 @@
+# Auto-detect text files and normalize line endings to LF
+* text=auto eol=lf
+
+# Explicit source and configuration files
+*.py text eol=lf
+*.json text eol=lf
+*.qss text eol=lf
+*.md text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+*.svg text eol=lf
+
+# Shell scripts and git hooks must always use LF
+.githooks/* text eol=lf
+*.sh text eol=lf
+
+# Binary assets (do not modify line endings)
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.dll binary
+*.exe binary
+*.bin binary
+*.zip binary
+*.tar.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.webp binary
+*.webm binary

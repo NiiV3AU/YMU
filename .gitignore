@@ -2,7 +2,21 @@
 .ruff_cache/
 dist/
 docs/
-PROJECT_STRUCTURE.md
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Local-only development tooling. Neither directory ships in the release build
+# (Nuitka only includes src/), so both stay untracked and remain a personal
+# working aid rather than repository content.
+tests/
+scripts/
+# Build logs and diagnostics
+nuitka_build.log
+*.log
+
+# Test, coverage, and tool caches
+.pytest_cache/
+.coverage
+htmlcov/
+*.tmp

@@ -1,10 +1,72 @@
 [project]
 name = "ymu"
-version = "1.1.11"
+version = "1.2.0"
 description = "The smart launcher for YimMenu: Always updated, always ready."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["pyinjector>=1.3.0", "pyside6>=6.11.2", "requests>=2.34.2"]
+dependencies = ["pyside6>=6.11.2", "requests>=2.34.2", "urllib3>=2.8.0"]
 
 [dependency-groups]
-dev = ["nuitka>=4.2.1", "ruff>=0.16.6"]
+dev = ["nuitka>=4.2.2", "pyrefly>=1.3.2", "ruff>=0.16.10", "ty>=0.0.85"]
+
+[tool.ruff]
+target-version = "py312"
+src = ["src"]
+
+[tool.ruff.lint]
+select = [
+    "E",     # pycodestyle errors
+    "W",     # pycodestyle warnings
+    "F",     # Pyflakes
+    "I",     # isort
+    "B",     # flake8-bugbear
+    "UP",    # pyupgrade (Python 3.12 modern idioms)
+    "SIM",   # flake8-simplify
+    "RUF",   # Ruff-specific rules
+    "C4",    # flake8-comprehensions
+    "TID",   # flake8-tidy-imports
+    "PIE",   # flake8-pie
+    "PGH",   # pygrep-hooks
+    "RSE",   # flake8-raise
+    "RET",   # flake8-return
+    "SLOT",  # flake8-slots
+    "ASYNC", # flake8-async
+    "YTT",   # flake8-2020
+    "PLE",   # Pylint errors
+    "PLW",   # Pylint warnings
+    "PERF",  # Perflint
+    "TC",    # flake8-type-checking
+    "LOG",   # flake8-logging
+    "A",     # flake8-builtins
+    "Q",     # flake8-quotes
+]
+ignore = [
+    "E501",    # line-too-long (visual wrapping handled via VS Code Soft-Wrap; code formatting by ruff format)
+    "SIM105",  # use contextlib.suppress (explicit try-except-pass in cleanup blocks is preferred)
+    "RET505",  # unnecessary else after return (preserves readable symmetric branching)
+    "PLW0603", # global statement (legitimate singleton state in get_config)
+    "ISC001",  # single-line-implicit-string-concatenation (recommended to disable by Ruff formatter)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/main.py" = [
+    "E402",
+] # Module-level imports must follow Win32 single-instance mutex check
+
+[tool.ruff.lint.isort]
+known-first-party = ["core", "ui"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[tool.ty.environment]
+python-version = "3.12"
+python-platform = "win32"
+root = ["src"]
+
+[tool.pyrefly]
+project-includes = ["src/**/*.py"]
+check-unannotated-defs = true
+permissive-ignores = true

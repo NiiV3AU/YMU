@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# pre-commit - blocks commits that would leave the working tree dirty.
+#
+# Rationale: the recurring failure mode during the 1.2.0 cycle was committing
+# with leftover files - a forgotten gitignore entry, a stray cache directory, a
+# deleted module still tracked. This hook turns that from a post-hoc discovery
+# into an immediate refusal.
+#
+# Install once per clone:
+#   git config core.hooksPath .githooks
+#
+# Bypass deliberately (git commit --no-verify) only for partial commits.
+
+set -uo pipefail
+
+fail=0
+
+# 1. Untracked files that are not ignored. Staged and unstaged changes are
+# allowed on purpose: partial commits and cherry-pick --no-commit workflows
+# legitimately present a dirty tree, and this hook must not block them.
+if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    echo "pre-commit: untracked files that are not ignored:"
+    git ls-files --others --exclude-standard | sed 's/^/  /'
+    echo "  git add them, or add a pattern to .gitignore if they are local-only."
+    fail=1
+fi
+
+# 2. Lint and type check the sources that actually ship.
+if command -v uv >/dev/null 2>&1; then
+    if ! uv run ruff check src >/dev/null 2>&1; then
+        echo "pre-commit: ruff check src failed"
+        uv run ruff check src
+        fail=1
+    fi
+    if ! uv run ty check src >/dev/null 2>&1; then
+        echo "pre-commit: ty check src failed"
+        uv run ty check src
+        fail=1
+    fi
+    if ! uv run pyrefly check >/dev/null 2>&1; then
+        echo "pre-commit: pyrefly check failed"
+        uv run pyrefly check
+        fail=1
+    fi
+else
+    echo "pre-commit: uv not found, refusing to commit without checks"
+    fail=1
+fi
+
+if [ "$fail" -ne 0 ]; then
+    echo
+    echo "pre-commit: commit refused."
+    exit 1
+fi
+
+exit 0
