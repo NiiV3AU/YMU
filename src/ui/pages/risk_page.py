@@ -27,23 +27,23 @@ class RiskPage(QWidget):
         self.loc_manager = loc_manager
 
         title_text = self.loc_manager.tr("Risk.Title", "ATTENTION")
-        title_label = QLabel(title_text)
-        title_label.setObjectName("RiskTitleLabel")
+        self.title_label = QLabel(title_text)
+        self.title_label.setObjectName("RiskTitleLabel")
 
         info_text = self.loc_manager.tr(
             "Risk.Info",
             "Always use YMU and YimMenu with BattlEye DISABLED.\nUsing mods online carries a risk of being banned.",
         )
-        info_label = QLabel(info_text)
-        info_label.setObjectName("RiskInfoLabel")
-        info_label.setWordWrap(True)
+        self.info_label = QLabel(info_text)
+        self.info_label.setObjectName("RiskInfoLabel")
+        self.info_label.setWordWrap(True)
 
         link_button_colors = {
             "color_normal": ("#8B8B8B", "#555555"),
             "color_hover": ("#E0E0E0", "#121212"),
         }
 
-        yim_official_repo_button = StatefulButton(
+        self.yim_official_repo_button = StatefulButton(
             f"  {self.loc_manager.tr('Risk.Btn.YimOfficial', 'Official YimMenu GitHub Repo')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
@@ -51,55 +51,55 @@ class RiskPage(QWidget):
             ),
             **link_button_colors,
         )
-        yim_official_repo_button.setObjectName("LinkButton")
-        yim_official_repo_button.setToolTip(
+        self.yim_official_repo_button.setObjectName("LinkButton")
+        self.yim_official_repo_button.setToolTip(
             self.loc_manager.tr(
                 "Risk.Tooltip.YimOfficial",
                 "Open the official YimMenu GitHub repository",
             )
         )
-        yim_official_repo_button.clicked.connect(
+        self.yim_official_repo_button.clicked.connect(
             lambda: webbrowser.open("https://github.com/YimMenu/YimMenu")
         )
 
-        yim_repo_button = StatefulButton(
-            f"  {self.loc_manager.tr('Risk.Btn.YimLegacy', 'YimMenu (legacy) GitHub Repo')}",
+        self.yim_repo_button = StatefulButton(
+            f"  {self.loc_manager.tr('Risk.Btn.YimLegacy', 'YimMenu (Legacy) GitHub Repo')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
                 os.path.join("assets", "icons", "external-link.svg")
             ),
             **link_button_colors,
         )
-        yim_repo_button.setObjectName("LinkButton")
-        yim_repo_button.setToolTip(
+        self.yim_repo_button.setObjectName("LinkButton")
+        self.yim_repo_button.setToolTip(
             self.loc_manager.tr(
-                "Risk.Tooltip.YimLegacy", "Open the YimMenu (legacy) GitHub repository"
+                "Risk.Tooltip.YimLegacy", "Open the YimMenu (Legacy) GitHub repository"
             )
         )
-        yim_repo_button.clicked.connect(
+        self.yim_repo_button.clicked.connect(
             lambda: webbrowser.open("https://github.com/Mr-X-GTA/YimMenu")
         )
 
-        yimv2_repo_button = StatefulButton(
-            f"  {self.loc_manager.tr('Risk.Btn.YimV2', 'YimMenuV2 (enhanced) GitHub Repo')}",
+        self.yimv2_repo_button = StatefulButton(
+            f"  {self.loc_manager.tr('Risk.Btn.YimV2', 'YimMenuV2 (Enhanced) GitHub Repo')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
                 os.path.join("assets", "icons", "external-link.svg")
             ),
             **link_button_colors,
         )
-        yimv2_repo_button.setObjectName("LinkButton")
-        yimv2_repo_button.setToolTip(
+        self.yimv2_repo_button.setObjectName("LinkButton")
+        self.yimv2_repo_button.setToolTip(
             self.loc_manager.tr(
-                "Risk.Tooltip.YimV2", "Open the YimMenuV2 (enhanced) GitHub repository"
+                "Risk.Tooltip.YimV2", "Open the YimMenuV2 (Enhanced) GitHub repository"
             )
         )
-        yimv2_repo_button.clicked.connect(
+        self.yimv2_repo_button.clicked.connect(
             lambda: webbrowser.open("https://github.com/YimMenu/YimMenuV2")
         )
 
         fsl_label = self.loc_manager.tr("Risk.Btn.FSL", "FSL's UC-Thread")
-        fsl_thread_button = StatefulButton(
+        self.fsl_thread_button = StatefulButton(
             f"  {fsl_label}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
@@ -107,34 +107,38 @@ class RiskPage(QWidget):
             ),
             **link_button_colors,
         )
-        fsl_thread_button.setObjectName("LinkButton")
-        fsl_thread_button.setToolTip(
+        self.fsl_thread_button.setObjectName("LinkButton")
+        self.fsl_thread_button.setToolTip(
             self.loc_manager.tr(
                 "Risk.Tooltip.FSL",
                 "Open the FSL thread on UnknownCheats for download & support",
             )
         )
-        fsl_thread_button.clicked.connect(
+        self.fsl_thread_button.clicked.connect(
             lambda: webbrowser.open(
                 "https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html"
             )
         )
 
-        card_frame = QFrame()
-        card_frame.setObjectName("CardFrame")
+        self.card_frame = QFrame()
+        self.card_frame.setObjectName("CardFrame")
 
-        card_layout = QVBoxLayout(card_frame)
-        card_layout.setSpacing(15)
-        card_layout.addWidget(title_label)
-        card_layout.addWidget(info_label)
+        card_layout = QVBoxLayout(self.card_frame)
+        card_layout.setSpacing(16)
+        card_layout.addWidget(self.title_label)
+        card_layout.addWidget(self.info_label)
         card_layout.addSpacing(10)
-        card_layout.addWidget(yim_official_repo_button)
-        card_layout.addWidget(yim_repo_button)
-        card_layout.addWidget(yimv2_repo_button)
-        card_layout.addWidget(fsl_thread_button)
+        card_layout.addWidget(self.yim_official_repo_button)
+        card_layout.addWidget(self.yim_repo_button)
+        card_layout.addWidget(self.yimv2_repo_button)
+        card_layout.addWidget(self.fsl_thread_button)
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(60, 0, 60, 0)
+        main_layout.setContentsMargins(40, 0, 40, 0)
         main_layout.addStretch()
-        main_layout.addWidget(card_frame)
+        main_layout.addWidget(self.card_frame)
         main_layout.addStretch()
+
+        self.setTabOrder(self.yim_official_repo_button, self.yim_repo_button)
+        self.setTabOrder(self.yim_repo_button, self.yimv2_repo_button)
+        self.setTabOrder(self.yimv2_repo_button, self.fsl_thread_button)

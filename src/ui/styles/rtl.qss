@@ -1,0 +1,41 @@
+/***************************************************************************
+ * YMU DESIGN SYSTEM (RTL Overrides)                                       *
+ * Loaded dynamically in addition to dark/light themes when RTL is active. *
+ ***************************************************************************/
+
+/* --- SIDEBAR --- */
+QWidget#Sidebar {
+    border-left: 1px solid {BORDER_COLOR};
+    border-right: none;
+}
+
+/* NOTE: No alignment overrides here on purpose. Qt auto-mirrors the
+ * base left alignment with the layout direction (it already renders
+ * right under RTL). An explicit right alignment would double-mirror
+ * button content back to the left. Physical properties (borders,
+ * margins, paddings) below are NOT auto-mirrored, so they still need
+ * explicit overrides. */
+
+/* --- LIST HEADERS --- */
+QLabel#DisabledListHeader,
+QLabel#EnabledListHeader {
+    margin-left: 0px;
+    margin-right: 6px;
+}
+
+/* --- COMBOBOX ARROW --- */
+QComboBox::down-arrow {
+    padding-left: 10px;
+    padding-right: 0px;
+}
+
+/* --- CONTEXT MENU ICONS (RTL) --- */
+QMenu::icon {
+    padding-left: 8px;
+    padding-right: 6px;
+}
+
+/* --- TYPOGRAPHY (RTL / Arabic Optimization) --- */
+QWidget {
+    font-family: "Rubik", "Segoe UI Arabic", "Segoe UI", "Tahoma", sans-serif;
+}

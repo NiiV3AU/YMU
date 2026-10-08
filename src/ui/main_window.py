@@ -1,11 +1,9 @@
-# main_window.py - Main application window with sidebar navigation.
 import logging
 import os
-import webbrowser
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QSize, QTimer, Signal
-from PySide6.QtGui import QColor
+from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtGui import QCloseEvent, QColor
 from PySide6.QtWidgets import (
     QApplication,
     QButtonGroup,
@@ -14,7 +12,6 @@ from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QMainWindow,
-    QStackedWidget,
     QVBoxLayout,
     QWidget,
 )
@@ -22,14 +19,19 @@ from PySide6.QtWidgets import (
 from core import menu_modes, update_checker
 from core.config import get_config
 from core.menu_modes import get_mode
-from core.paths import resource_path
+from core.paths import WINDOW_TITLE, resource_path
 from ui.pages.download_page import DownloadPage
 from ui.pages.inject_page import InjectPage
 from ui.pages.risk_page import RiskPage
 from ui.pages.settings_page import SettingsPage
-from ui.widgets.buttons import StatefulButton
-from ui.widgets.notifications import NotificationManager
-from ui.widgets.toggle_switch import ToggleSwitch
+from ui.widgets import (
+    AboutDialog,
+    AnimatedStackedWidget,
+    NotificationManager,
+    SidebarIndicator,
+    StatefulButton,
+    ToggleSwitch,
+)
 
 if TYPE_CHECKING:
     from core.worker_manager import WorkerManager
@@ -47,6 +49,7 @@ class MainWindow(QMainWindow):
         theme_manager: "ThemeManager",
         worker_manager: "WorkerManager",
         loc_manager: "LocalizationManager",
+        auto_check: bool = True,
     ):
         super().__init__()
         self._is_ready_to_show = False
@@ -55,31 +58,35 @@ class MainWindow(QMainWindow):
         self.worker_manager = worker_manager
         self.loc_manager = loc_manager
         self.config = get_config()
+        self.config.save_failed.connect(self._on_config_save_failed)
         self.current_mode = get_mode(self.config.get("mode", "legacy"))
         self._autodetect_message: str | None = None
         self._maybe_autodetect_edition()
         self.notification_manager = NotificationManager(self, self.theme_manager)
 
-        self.setWindowTitle("YimMenuUpdater | NV3")
-        self.setFixedSize(QSize(780, 520))
+        self.setWindowTitle(WINDOW_TITLE)
+        self.setFixedSize(QSize(860, 520))
 
-        main_widget = QWidget()
-        main_layout = QHBoxLayout(main_widget)
+        self.main_widget = QWidget()
+        main_layout = QHBoxLayout(self.main_widget)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        sidebar_widget = QWidget()
-        sidebar_widget.setObjectName("Sidebar")
-        sidebar_layout = QVBoxLayout(sidebar_widget)
-        sidebar_widget.setFixedWidth(200)
+        self.sidebar_widget = QWidget()
+        self.sidebar_widget.setObjectName("Sidebar")
+        sidebar_layout = QVBoxLayout(self.sidebar_widget)
+        self.sidebar_widget.setFixedWidth(200)
 
-        self.content_stack = QStackedWidget()
+        self.content_stack = AnimatedStackedWidget(
+            duration=240, orientation=Qt.Orientation.Vertical
+        )
 
-        main_layout.addWidget(sidebar_widget)
+        main_layout.addWidget(self.sidebar_widget)
         main_layout.addWidget(self.content_stack, stretch=1)
-        self.setCentralWidget(main_widget)
+        self.setCentralWidget(self.main_widget)
 
-        get_active_mode = lambda: self.current_mode
+        def get_active_mode():
+            return self.current_mode
 
         self.risk_page = RiskPage(
             theme_manager=self.theme_manager, loc_manager=self.loc_manager
@@ -89,6 +96,7 @@ class MainWindow(QMainWindow):
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
             get_mode=get_active_mode,
+            auto_check=auto_check,
         )
         self.inject_page = InjectPage(
             theme_manager=self.theme_manager,
@@ -119,6 +127,24 @@ class MainWindow(QMainWindow):
         self.theme_manager.themeChanged.connect(self._apply_card_shadows)
         self._apply_card_shadows(self.theme_manager.current_theme)
 
+        self.loc_manager.layout_direction_changed.connect(
+            self._on_layout_direction_changed
+        )
+
+    def _on_layout_direction_changed(self, new_direction: Qt.LayoutDirection):
+        """Synchronizes global layout direction and theme overrides on language changes."""
+        if QApplication.layoutDirection() != new_direction:
+            QApplication.setLayoutDirection(new_direction)
+        if self.layoutDirection() != new_direction:
+            self.setLayoutDirection(new_direction)
+        is_rtl = new_direction == Qt.LayoutDirection.RightToLeft
+        self.theme_manager.set_rtl(is_rtl)
+        self.notification_manager.reposition_notifications()
+        self._update_mode_labels()
+        if hasattr(self, "sidebar_indicator"):
+            self.sidebar_indicator.sync_to_current()
+            self.sidebar_indicator.update()
+
     def _apply_card_shadows(self, theme: str):
         """Gives every card a soft drop shadow in the light theme, where flat
         light fills lack depth. In the dark theme the shadow would be invisible
@@ -144,6 +170,10 @@ class MainWindow(QMainWindow):
         focused = QApplication.focusWidget()
         if focused:
             focused.clearFocus()
+        if hasattr(self, "sidebar_indicator"):
+            self.sidebar_indicator.sync_to_current()
+            self.sidebar_indicator.show()
+            self.sidebar_indicator.lower()
         self.update()
 
         if self._autodetect_message:
@@ -176,6 +206,16 @@ class MainWindow(QMainWindow):
             )
         )
 
+        sidebar_parent = layout.parentWidget()
+        if sidebar_parent:
+            self.sidebar_indicator = SidebarIndicator(
+                sidebar_parent, self.theme_manager
+            )
+            self.sidebar_indicator.lower()
+            self.button_group.buttonClicked.connect(
+                lambda btn: self.sidebar_indicator.move_to_button(btn, animate=True)
+            )
+
         sidebar_colors = {
             "color_normal": ("#8B8B8B", "#555555"),
             "color_hover": ("#E0E0E0", "#121212"),
@@ -186,7 +226,7 @@ class MainWindow(QMainWindow):
             f"  {self.loc_manager.tr('Sidebar.Risks')}",
             theme_manager=self.theme_manager,
             icon_path=resource_path(
-                os.path.join("assets", "icons", "alert-triangle.svg")
+                os.path.join("assets", "icons", "triangle-alert.svg")
             ),
             **sidebar_colors,
         )
@@ -221,6 +261,7 @@ class MainWindow(QMainWindow):
         )
         btn_inject.setCheckable(True)
         btn_inject.setObjectName("SidebarButton")
+        self.btn_inject = btn_inject
 
         btn_settings = StatefulButton(
             f"  {self.loc_manager.tr('Sidebar.Settings')}",
@@ -230,6 +271,7 @@ class MainWindow(QMainWindow):
         )
         btn_settings.setCheckable(True)
         btn_settings.setObjectName("SidebarButton")
+        self.btn_settings = btn_settings
 
         layout.addWidget(btn_risks)
         self.button_group.addButton(btn_risks)
@@ -243,22 +285,30 @@ class MainWindow(QMainWindow):
 
         self._setup_mode_switch(layout)
 
-        footer_button = StatefulButton(
+        self.footer_button = StatefulButton(
             f"YMU {update_checker.LOCAL_VERSION}\n© NiiV3AU",
             theme_manager=self.theme_manager,
         )
-        footer_button.setObjectName("SidebarFooter")
-        footer_button.clicked.connect(lambda: webbrowser.open("https://ymu.pages.dev/"))
-        footer_button.setToolTip(
+        self.footer_button.setObjectName("SidebarFooter")
+        self.footer_button.clicked.connect(self.show_about_dialog)
+        self.footer_button.setToolTip(
             self.loc_manager.tr(
-                "Sidebar.Tooltip.ProjectPage",
-                "Open the YMU project page in your browser",
+                "About.Tooltip",
+                "View project information, dependencies, and open-source licenses",
             )
         )
 
-        layout.addWidget(footer_button)
+        layout.addWidget(self.footer_button)
+
+        self.setTabOrder(btn_risks, btn_download)
+        self.setTabOrder(btn_download, btn_inject)
+        self.setTabOrder(btn_inject, btn_settings)
+        self.setTabOrder(btn_settings, self.mode_toggle)
+        self.setTabOrder(self.mode_toggle, self.footer_button)
 
         btn_risks.setChecked(True)
+        if hasattr(self, "sidebar_indicator"):
+            self.sidebar_indicator.move_to_button(btn_risks, animate=False)
 
         btn_risks.clicked.connect(
             lambda: self.content_stack.setCurrentWidget(self.risk_page)
@@ -272,6 +322,15 @@ class MainWindow(QMainWindow):
         btn_settings.clicked.connect(
             lambda: self.content_stack.setCurrentWidget(self.settings_page)
         )
+
+    def show_about_dialog(self):
+        """Displays the modal About and Open Source Licenses dialog."""
+        dialog = AboutDialog(
+            theme_manager=self.theme_manager,
+            loc_manager=self.loc_manager,
+            parent=self,
+        )
+        dialog.exec()
 
     def show_download_page(self):
         """Navigate to the Download page as if the sidebar button was clicked,
@@ -287,7 +346,6 @@ class MainWindow(QMainWindow):
     def _setup_mode_switch(self, layout: QVBoxLayout):
         """Builds the Legacy/Enhanced edition switch at the bottom of the sidebar."""
         mode_frame = QFrame()
-        mode_frame.setObjectName("ModeSwitchFrame")
         mode_layout = QHBoxLayout(mode_frame)
         mode_layout.setContentsMargins(10, 4, 10, 4)
 
@@ -298,7 +356,9 @@ class MainWindow(QMainWindow):
             self.loc_manager.tr("Sidebar.Mode.Enhanced", "E&E")
         )
 
-        self.mode_toggle = ToggleSwitch(variant="sidebar")
+        self.mode_toggle = ToggleSwitch(
+            variant="sidebar", theme_manager=self.theme_manager
+        )
         self.mode_toggle.setToolTip(
             self.loc_manager.tr(
                 "Sidebar.Mode.Tooltip",
@@ -322,7 +382,12 @@ class MainWindow(QMainWindow):
         self.mode_toggle.toggled.connect(self._on_mode_toggled)
         # Label colours depend on the theme, and inline styles do not restyle
         # automatically, so refresh them whenever the theme changes.
-        self.theme_manager.themeChanged.connect(lambda _t: self._update_mode_labels())
+        self.theme_manager.themeChanged.connect(
+            self._on_theme_changed_update_mode_labels
+        )
+
+    def _on_theme_changed_update_mode_labels(self, _theme: str | None = None):
+        self._update_mode_labels()
 
     def _update_mode_labels(self):
         """Highlights the active edition so the current mode is unambiguous.
@@ -331,10 +396,10 @@ class MainWindow(QMainWindow):
         The bold/normal weight change is kept as a second, colour-independent
         cue."""
         if self.theme_manager.current_theme == "light":
-            active = "font-weight: bold; color: #1A1D21;"
+            active = "font-weight: 600; color: #1A1D21;"
             inactive = "color: #A6ACB4;"
         else:
-            active = "font-weight: bold; color: #FFFFFF;"
+            active = "font-weight: 600; color: #FFFFFF;"
             inactive = "color: #777777;"
         is_enhanced = self.current_mode.key == "enhanced"
         self.mode_legacy_label.setStyleSheet(inactive if is_enhanced else active)
@@ -379,3 +444,24 @@ class MainWindow(QMainWindow):
             ).format(new_mode.display_name)
         elif len(detected) > 1:
             logger.info("Both GTA V editions detected; keeping the saved mode.")
+
+    def _on_config_save_failed(self, key_path: str, error_msg: str) -> None:
+        logger.error(f"Failed to persist config key '{key_path}' to disk: {error_msg}")
+        self.notification_manager.show(
+            self.loc_manager.tr("Common.Error", "Error"),
+            self.loc_manager.tr(
+                "Common.Notify.ConfigSaveFailed",
+                "Failed to save setting to disk.",
+            ),
+            icon_type="error",
+        )
+
+    def closeEvent(self, event: QCloseEvent):
+        """Cleanly handle application window closing."""
+        logger.info("MainWindow closeEvent received; shutting down background workers.")
+        if not self.worker_manager.cleanup(timeout_ms=1000):
+            logger.warning(
+                "WorkerManager did not finish all background tasks within closeEvent budget."
+            )
+        self.hide()
+        event.accept()

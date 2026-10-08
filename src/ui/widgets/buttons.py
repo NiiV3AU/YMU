@@ -13,6 +13,7 @@ from PySide6.QtCore import (
 from PySide6.QtGui import (
     QColor,
     QEnterEvent,
+    QFocusEvent,
     QLinearGradient,
     QPainter,
     QPainterPath,
@@ -53,6 +54,11 @@ class StatefulButton(QPushButton):
         self.theme_manager.themeChanged.connect(self.updateThemeColors)
         self.updateThemeColors(self.theme_manager.current_theme)
 
+    def setIconPath(self, icon_path: str):
+        """Updates the icon path and refreshes the themed icons."""
+        self.icon_path = icon_path
+        self.updateThemeColors(self.theme_manager.current_theme)
+
     def updateThemeColors(self, theme: str):
         """Selects the correct colors from the tuples and recreates the icons."""
         if not self.icon_path:
@@ -86,7 +92,7 @@ class StatefulButton(QPushButton):
             return
         if self.isChecked():
             self.setIcon(self._icon_checked)
-        elif self.underMouse():
+        elif self.underMouse() or self.hasFocus():
             self.setIcon(self._icon_hover)
         else:
             self.setIcon(self._icon_normal)
@@ -97,6 +103,14 @@ class StatefulButton(QPushButton):
 
     def leaveEvent(self, event: QEvent):
         super().leaveEvent(event)
+        self.updateIcon()
+
+    def focusInEvent(self, event: QFocusEvent):
+        super().focusInEvent(event)
+        self.updateIcon()
+
+    def focusOutEvent(self, event: QFocusEvent):
+        super().focusOutEvent(event)
         self.updateIcon()
 
     def setChecked(self, checked):
@@ -122,7 +136,6 @@ class AnimatedButton(StatefulButton):
         self.progress_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
 
         self._shimmer_animation = QPropertyAnimation(self, b"offset", self)
-        self.current_animation = self._shimmer_animation
         self._finished_connected = False
 
     def updateThemeColors(self, theme: str):
@@ -148,7 +161,8 @@ class AnimatedButton(StatefulButton):
             fill_color = QColor("#28A745")
             fill_color.setAlphaF(0.3)
             fill_width = self.width() * self._progress
-            fill_rect = QRectF(0, 0, fill_width, self.height())
+            fill_x = float(self.width() - fill_width) if self.isRightToLeft() else 0.0
+            fill_rect = QRectF(fill_x, 0.0, fill_width, float(self.height()))
             painter.setBrush(fill_color)
             painter.setPen(Qt.PenStyle.NoPen)
             painter.drawRect(fill_rect)
@@ -185,19 +199,21 @@ class AnimatedButton(StatefulButton):
         return self._progress
 
     def _set_progress(self, value: float):
-        self._progress = value
-        self._progress_changed.emit(value)
+        clamped = max(0.0, min(100.0, float(value)))
+        self._progress = clamped
+        self._progress_changed.emit(clamped)
         self.update()
 
     progress = Property(float, _get_progress, _set_progress, notify=_progress_changed)
 
     def set_progress(self, value: float):
         """Animates the progress bar to the target value."""
+        target = max(0.0, min(100.0, float(value)))
         if self.progress_animation.state() == QPropertyAnimation.State.Running:
             self.progress_animation.stop()
 
         self.progress_animation.setStartValue(self.progress)
-        self.progress_animation.setEndValue(value)
+        self.progress_animation.setEndValue(target)
         self.progress_animation.start()
 
     def reset_progress(self):
@@ -244,7 +260,6 @@ class AnimatedButton(StatefulButton):
         self._shimmer_animation.setEndValue(2.0)
         self._is_animating = True
         self._shimmer_animation.start()
-        self.current_animation = self._shimmer_animation
 
     def stop_animation(self):
         self._is_animating = False

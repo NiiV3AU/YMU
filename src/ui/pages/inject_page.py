@@ -7,9 +7,11 @@ from typing import TYPE_CHECKING, cast
 
 from PySide6.QtCore import QSize, Qt, QTimer
 from PySide6.QtWidgets import (
+    QAbstractItemView,
     QComboBox,
     QFrame,
     QHBoxLayout,
+    QListView,
     QMessageBox,
     QVBoxLayout,
     QWidget,
@@ -19,7 +21,11 @@ from core import menu_modes, process_manager
 from core.config import get_config
 from core.menu_modes import MenuMode
 from core.paths import YMU_DLL_DIR, resource_path
-from ui.utils import play_success_sound, restart_as_admin
+from ui.utils import (
+    adjust_combobox_to_contents,
+    play_success_sound,
+    restart_as_admin,
+)
 from ui.widgets.buttons import AnimatedButton, StatefulButton
 from ui.widgets.dialogs import InfoDialog
 from ui.widgets.notifications import NotificationManager
@@ -72,24 +78,31 @@ class InjectPage(QWidget):
         self._launch_started_at = 0.0
         self.dll_to_inject = None
 
-        info_button = StatefulButton(
+        self.info_button = StatefulButton(
             "",
             theme_manager=self.theme_manager,
-            icon_path=resource_path(os.path.join("assets", "icons", "help-circle.svg")),
+            icon_path=resource_path(os.path.join("assets", "icons", "circle-help.svg")),
             color_normal=("#8B8B8B", "#777777"),
             color_hover=("#E0E0E0", "#121212"),
         )
-        info_button.setObjectName("InfoButton")
+        self.info_button.setObjectName("InfoButton")
 
-        info_button.setToolTip(
+        self.info_button.setToolTip(
             self.loc_manager.tr(
                 "Inject.Tooltip.Help", "Show help for the injection process"
             )
         )
-        info_button.setIconSize(QSize(20, 20))
+        self.info_button.setIconSize(QSize(20, 20))
 
         self.launcher_select = QComboBox()
-        self.launcher_select.setFixedWidth(175)
+        self.launcher_select.setSizeAdjustPolicy(
+            QComboBox.SizeAdjustPolicy.AdjustToContents
+        )
+        self.launcher_select.view().setVerticalScrollMode(
+            QAbstractItemView.ScrollMode.ScrollPerPixel
+        )
+        if isinstance(launcher_view := self.launcher_select.view(), QListView):
+            launcher_view.setUniformItemSizes(True)
         self.launcher_select.setToolTip(
             self.loc_manager.tr(
                 "Inject.Tooltip.Launcher", "Select the launcher you use to start GTA V"
@@ -99,6 +112,12 @@ class InjectPage(QWidget):
         self._rebuild_launcher_options()
 
         self.dll_select = QComboBox()
+        self.dll_select.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+        self.dll_select.view().setVerticalScrollMode(
+            QAbstractItemView.ScrollMode.ScrollPerPixel
+        )
+        if isinstance(dll_view := self.dll_select.view(), QListView):
+            dll_view.setUniformItemSizes(True)
         self.dll_select.setToolTip(
             self.loc_manager.tr("Inject.Tooltip.Dll", "Select the DLL to inject")
         )
@@ -106,7 +125,7 @@ class InjectPage(QWidget):
         self.dll_select.setVisible(False)
 
         self.start_gta_button = AnimatedButton(
-            self.loc_manager.tr("Inject.Btn.StartGta", "Start GTA 5"),
+            self.loc_manager.tr("Inject.Btn.StartGta", "Start GTA V"),
             theme_manager=self.theme_manager,
         )
         self.start_gta_button.setEnabled(False)
@@ -119,12 +138,12 @@ class InjectPage(QWidget):
 
         header_layout = QHBoxLayout()
         header_layout.addStretch()
-        header_layout.addWidget(info_button)
+        header_layout.addWidget(self.info_button)
 
-        controls_frame = QFrame()
-        controls_frame.setObjectName("CardFrame")
-        controls_layout = QVBoxLayout(controls_frame)
-        controls_layout.setSpacing(15)
+        self.controls_frame = QFrame()
+        self.controls_frame.setObjectName("CardFrame")
+        controls_layout = QVBoxLayout(self.controls_frame)
+        controls_layout.setSpacing(16)
         controls_layout.addWidget(
             self.launcher_select, alignment=Qt.AlignmentFlag.AlignCenter
         )
@@ -140,7 +159,7 @@ class InjectPage(QWidget):
 
         centering_controls_layout = QHBoxLayout()
         centering_controls_layout.addStretch()
-        centering_controls_layout.addWidget(controls_frame)
+        centering_controls_layout.addWidget(self.controls_frame)
         centering_controls_layout.addStretch()
 
         main_layout = QVBoxLayout(self)
@@ -150,13 +169,18 @@ class InjectPage(QWidget):
         main_layout.addLayout(centering_controls_layout)
         main_layout.addStretch()
 
-        info_button.clicked.connect(self.show_inject_info_dialog)
+        self.info_button.clicked.connect(self.show_inject_info_dialog)
         self.start_gta_button.clicked.connect(self.handle_start_gta_click)
         self.inject_button.clicked.connect(self.handle_inject_click)
         self.launcher_select.currentIndexChanged.connect(
             self._on_launcher_selection_changed
         )
         self.dll_select.currentIndexChanged.connect(self._on_dll_selection_changed)
+
+        self.setTabOrder(self.launcher_select, self.dll_select)
+        self.setTabOrder(self.dll_select, self.start_gta_button)
+        self.setTabOrder(self.start_gta_button, self.inject_button)
+        self.setTabOrder(self.inject_button, self.info_button)
 
         self.process_checker_timer = QTimer(self)
         self.process_checker_timer.setInterval(3000)
@@ -199,6 +223,7 @@ class InjectPage(QWidget):
             # The saved launcher is no longer available — discard it for good.
             get_config().set("inject.launcher", None)
         combo.setCurrentIndex(max(0, idx))
+        adjust_combobox_to_contents(combo, min_width=160)
         combo.blockSignals(False)
 
     def _notify(self, title: str, message: str, **kwargs):
@@ -216,6 +241,7 @@ class InjectPage(QWidget):
     def on_mode_changed(self, mode: MenuMode):
         """Slot: the sidebar switch changed the active edition.
         The old PID belongs to the other edition's executable, so reset."""
+        self._mode = mode
         self.gta_pid = None
         self._set_state(self.STATE_IDLE)
         self._update_dll_selector()
@@ -279,6 +305,7 @@ class InjectPage(QWidget):
         custom_dll = get_config().get("paths.custom_dll")
         if custom_dll:
             if os.path.isfile(custom_dll):
+                self._warned_missing_custom_dll = False
                 label = "{} ({})".format(
                     os.path.basename(custom_dll).removesuffix(".dll"),
                     self.loc_manager.tr("Inject.Label.Custom", "custom"),
@@ -295,6 +322,8 @@ class InjectPage(QWidget):
                     ).format(custom_dll),
                     icon_type="info",
                 )
+        else:
+            self._warned_missing_custom_dll = False
 
         names = list(self._dll_paths.keys())
         self.dll_select.blockSignals(True)
@@ -336,6 +365,7 @@ class InjectPage(QWidget):
             self.dll_to_inject = self._dll_paths[current_name]
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
             self.inject_button.setText(fmt.format(current_name))
+            adjust_combobox_to_contents(self.dll_select, min_width=160)
 
         self.dll_select.blockSignals(False)
         self._update_ui_for_state()
@@ -359,23 +389,23 @@ class InjectPage(QWidget):
 
     def show_inject_info_dialog(self):
         start_gta_default = (
-            "1. Select your launcher\n2. Press [Start GTA 5]\n3. Read the next step ↗"
+            "1. Select your launcher\n2. Press [Start GTA V]\n3. Read the next step ↗"
         )
         start_gta_text = self.loc_manager.tr(
             "Inject.Help.StartGtaSteps", start_gta_default
         )
 
         inject_default = (
-            "1. Start GTA 5 (↖ Previous Step)\n"
+            "1. Start GTA V (↖ Previous Step)\n"
             "2. Wait for the game's start screen/menu\n"
             "3. Click on [Inject YimMenu]\n"
             "4. Wait for YimMenu to finish loading\n"
-            "5. Done! ✅"
+            "5. Done!"
         )
         inject_text = self.loc_manager.tr("Inject.Help.InjectSteps", inject_default)
 
         content = {
-            self.loc_manager.tr("Inject.Btn.StartGta", "Start GTA 5"): start_gta_text,
+            self.loc_manager.tr("Inject.Btn.StartGta", "Start GTA V"): start_gta_text,
             self.loc_manager.tr("Inject.Help.TabInject", "Inject DLL"): inject_text,
         }
 
@@ -394,7 +424,7 @@ class InjectPage(QWidget):
             self._notify(
                 self.loc_manager.tr("Common.Info", "Information"),
                 self.loc_manager.tr(
-                    "Inject.Notify.AlreadyRunning", "GTA 5 is already running!"
+                    "Inject.Notify.AlreadyRunning", "GTA V is already running!"
                 ),
                 icon_type="info",
             )
@@ -438,92 +468,109 @@ class InjectPage(QWidget):
             None,
         )
         if not executable_path:
-            msg = self.loc_manager.tr(
-                "Inject.Error.NoExeFound", "Executable not found at '{0}'"
-            ).format(path)
-            logger.error(msg)
-            raise FileNotFoundError(msg)
+            logger.error(f"Executable not found at '{path}'")
+            raise FileNotFoundError("no_exe_found", path)
         try:
             os.startfile(executable_path)
             return "Success"
         except OSError as e:
             logger.exception(f"Failed to start {executable_path}")
-            msg = self.loc_manager.tr(
-                "Inject.Error.LaunchFailed",
-                "Error launching game. See logs for details.",
-            )
-            raise RuntimeError(msg) from e
+            raise RuntimeError("launch_failed") from e
 
-    def _launch_game_logic(
-        self, launcher: str, mode: MenuMode, custom_dir, progress_signal=None
-    ):
+    def _launch_game_logic(self, launcher: str, mode: MenuMode, custom_dir: str | None):
         """Contains the actual logic for launching the game for a given
         edition. `launcher` is a stable key (see LAUNCHER_* constants)."""
-        logger.info(
-            f"Attempting to launch {mode.display_name} via '{launcher}' launcher."
-        )
-
-        if launcher == self.LAUNCHER_STEAM:
-            uri = mode.steam_uri
-        elif launcher == self.LAUNCHER_EPIC:
-            uri = menu_modes.EPIC_LAUNCH_URI
-        else:
-            uri = None
-
-        if uri:
-            try:
-                webbrowser.open(uri)
-                logger.info(f"Successfully sent launch command to '{launcher}'.")
-                return f"Launch command sent to {launcher}."
-            except Exception as e:
-                logger.exception(f"Failed to open URI for {launcher}")
-                raise RuntimeError(f"Could not send command to {launcher}.") from e
-
-        elif launcher == self.LAUNCHER_ROCKSTAR:
-            path = menu_modes.get_install_dir(mode)
-            if not path:
-                msg = self.loc_manager.tr(
-                    "Inject.Error.NoRockstarPath",
-                    "Could not find Rockstar Games installation path.",
-                )
-                logger.error(msg)
-                raise FileNotFoundError(msg)
-            return self._start_game_from_dir(path, mode)
-
-        elif launcher == self.LAUNCHER_CUSTOM:
-            if not custom_dir or not os.path.isdir(custom_dir):
-                msg = self.loc_manager.tr(
-                    "Inject.Error.CustomPathInvalid",
-                    "The custom GTA V path is not set or no longer exists.\n"
-                    "Set it again on the Settings page.",
-                )
-                logger.error(msg)
-                raise FileNotFoundError(msg)
-            return self._start_game_from_dir(custom_dir, mode)
-
-        else:
-            logger.error(
-                f"Logic Error: Attempted to launch with unhandled launcher: {launcher}"
+        mode_key = getattr(mode, "key", str(mode))
+        try:
+            logger.info(
+                f"Attempting to launch {mode.display_name} via '{launcher}' launcher."
             )
-            raise ValueError(f"Internal Error: Unhandled launcher {launcher}")
+
+            if launcher == self.LAUNCHER_STEAM:
+                uri = mode.steam_uri
+            elif launcher == self.LAUNCHER_EPIC:
+                uri = menu_modes.EPIC_LAUNCH_URI
+            else:
+                uri = None
+
+            if uri:
+                try:
+                    webbrowser.open(uri)
+                    logger.info(f"Successfully sent launch command to '{launcher}'.")
+                    return f"Launch command sent to {launcher}."
+                except Exception as e:
+                    logger.exception(f"Failed to open URI for {launcher}")
+                    raise RuntimeError(f"Could not send command to {launcher}.") from e
+
+            elif launcher == self.LAUNCHER_ROCKSTAR:
+                path = menu_modes.get_install_dir(mode)
+                if not path:
+                    logger.error("Could not find Rockstar Games installation path.")
+                    raise FileNotFoundError("no_rockstar_path")
+                return self._start_game_from_dir(path, mode)
+
+            elif launcher == self.LAUNCHER_CUSTOM:
+                if not custom_dir or not os.path.isdir(custom_dir):
+                    logger.error(
+                        "The custom GTA V path is not set or no longer exists."
+                    )
+                    raise FileNotFoundError("custom_path_invalid")
+                return self._start_game_from_dir(custom_dir, mode)
+
+            else:
+                logger.error(
+                    f"Logic Error: Attempted to launch with unhandled launcher: {launcher}"
+                )
+                raise ValueError(f"Internal Error: Unhandled launcher {launcher}")
+        except Exception as e:
+            setattr(e, "mode_key", mode_key)  # noqa: B010
+            raise
 
     def on_launch_attempt_finished(self, result: str):
         """Callback for when the game launch task finishes."""
         logger.info(f"Launch attempt finished with result: {result}")
+        win = self.window()
+        if win:
+            settings_page = getattr(win, "settings_page", None)
+            if settings_page:
+                cached_dirs = getattr(settings_page, "_cached_gta_dir", None)
+                if isinstance(cached_dirs, dict):
+                    cached_dirs.clear()
 
     def _run_process_check(self):
         if self._state in [self.STATE_INJECTING]:
             return
+        current_mode_key = self.get_mode().key
         # run_exclusive prevents a timer tick from starting a second scan while
-        # one is still running (e.g. a slow psutil sweep under load).
+        # one is still running (e.g. a slow process sweep under load).
         self.worker_manager.run_exclusive(
-            "gta_scan",
-            process_manager.find_gta_pid,
+            f"gta_scan_{current_mode_key}",
+            self._scan_process_for_mode,
+            current_mode_key,
             self.get_mode().target_executables,
             on_finished=self.update_inject_button_status,
+            on_error=lambda e: logger.debug("Process scan failed: %s", e),
         )
 
-    def update_inject_button_status(self, pid: int | None):
+    def _scan_process_for_mode(
+        self, mode_key: str, executables: tuple[str, ...]
+    ) -> tuple[str, int | None]:
+        pid = process_manager.find_gta_pid(executables)
+        return mode_key, pid
+
+    def update_inject_button_status(self, result: tuple[str, int | None] | int | None):
+        if isinstance(result, tuple):
+            mode_key, pid = result
+            if mode_key != self.get_mode().key:
+                logger.debug(
+                    "Discarding stale gta_scan result for '%s'; active mode is '%s'.",
+                    mode_key,
+                    self.get_mode().key,
+                )
+                return
+        else:
+            pid = result
+
         # A scan started just before an inject click can finish mid-injection;
         # applying its result would flip STATE_INJECTING back to APP_RUNNING.
         if self._state == self.STATE_INJECTING:
@@ -573,20 +620,31 @@ class InjectPage(QWidget):
         # Re-validate process state after modal dialog closes
         if not self.gta_pid or not process_manager.is_process_running(self.gta_pid):
             self._set_state(self.STATE_IDLE)
-            self.on_task_error(process_manager.InjectionError("process_gone"))
+            err = process_manager.InjectionError(
+                "process_gone", mode_key=self.get_mode().key
+            )
+            self.on_task_error(err)
             return
 
         self._set_state(self.STATE_INJECTING)
-        # Capture PID and DLL on the GUI thread; the worker must not read
+        # Capture PID, DLL and active mode on the GUI thread; the worker must not read
         # mutable page state. run_exclusive guards against a double injection.
-        self.worker_manager.run_exclusive(
+        target_mode_key = self.get_mode().key
+        started = self.worker_manager.run_exclusive(
             "inject",
             self._inject_logic,
             self.gta_pid,
             self.dll_to_inject,
+            target_mode_key,
             on_finished=self.on_injection_complete,
             on_error=self.on_task_error,
         )
+        if not started:
+            logger.warning("Injection task could not be started (already running).")
+            if self.gta_pid:
+                self._set_state(self.STATE_APP_RUNNING)
+            else:
+                self._set_state(self.STATE_IDLE)
 
     def _confirm_battleye_override(self) -> bool:
         """BattlEye is active. Warn about the ban risk and let the user choose —
@@ -629,40 +687,34 @@ class InjectPage(QWidget):
             return False
         return clicked is proceed
 
-    def _inject_logic(self, pid, dll_to_inject, progress_signal=None):
+    def _inject_logic(self, pid: int, dll_to_inject: str, mode_key: str) -> str:
         """Contains the actual logic for injecting the DLL."""
-        if pid is None or not process_manager.is_process_running(pid):
-            raise process_manager.InjectionError("process_gone")
+        try:
+            if pid is None or not process_manager.is_process_running(pid):
+                raise process_manager.InjectionError("process_gone")
 
-        if not dll_to_inject:
-            msg = self.loc_manager.tr(
-                "Inject.Error.NoDllSelected",
-                "Error: No DLL selected or found for injection.",
-            )
-            raise ValueError(msg)
+            if not dll_to_inject:
+                raise process_manager.InjectionError("dll_missing")
 
-        if not process_manager.is_process_running(pid):
-            msg = self.loc_manager.tr(
-                "Inject.Error.ProcessLost",
-                "GTA 5 process disappeared before injection.",
-            )
-            raise RuntimeError(msg)
+            success = process_manager.inject_dll(pid, dll_to_inject)
 
-        success = process_manager.inject_dll(pid, dll_to_inject)
+            if success:
+                return mode_key
+            raise process_manager.InjectionError("unknown")
+        except Exception as e:
+            setattr(e, "mode_key", mode_key)  # noqa: B010
+            raise
 
-        if success:
-            return "Success"
-        else:
-            msg = self.loc_manager.tr(
-                "Inject.Error.InjectionFailed",
-                "Injection failed. See logs for details.",
-            )
-            raise RuntimeError(msg)
-
-    def on_injection_complete(self, result: str):
+    def on_injection_complete(self, mode_key: str):
         """Callback for when the injection task finishes."""
+        if mode_key != self.get_mode().key:
+            logger.warning(
+                f"Injection finished for mode '{mode_key}', but current mode is '{self.get_mode().key}'. Ignoring."
+            )
+            return
+
         self._set_state(self.STATE_INJECTED)
-        logger.info(f"Injection finished with result: {result}")
+        logger.info(f"Injection finished for mode: {mode_key}")
 
         self._notify(
             self.loc_manager.tr("Inject.Notify.SuccessTitle", "Injection Successful"),
@@ -684,7 +736,48 @@ class InjectPage(QWidget):
         if win:
             win.close()
 
+    def _launch_error_message(self, error: Exception) -> str | None:
+        """Translates launch-specific semantic exceptions on the GUI thread."""
+        tr = self.loc_manager.tr
+        if isinstance(error, FileNotFoundError):
+            args = error.args
+            if args:
+                code = args[0]
+                if code == "no_exe_found":
+                    path = args[1] if len(args) > 1 else ""
+                    return tr(
+                        "Inject.Error.NoExeFound", "Executable not found at '{0}'"
+                    ).format(path)
+                if code == "no_rockstar_path":
+                    return tr(
+                        "Inject.Error.NoRockstarPath",
+                        "Could not find Rockstar Games installation path.",
+                    )
+                if code == "custom_path_invalid":
+                    return tr(
+                        "Inject.Error.CustomPathInvalid",
+                        "The custom GTA V path is not set or no longer exists.\n"
+                        "Set it again on the Settings page.",
+                    )
+        if (
+            isinstance(error, RuntimeError)
+            and len(error.args) > 0
+            and error.args[0] == "launch_failed"
+        ):
+            return tr(
+                "Inject.Error.LaunchFailed",
+                "Error launching game. See logs for details.",
+            )
+        return None
+
     def on_task_error(self, error: Exception):
+        err_mode = getattr(error, "mode_key", None)
+        if err_mode and err_mode != self.get_mode().key:
+            logger.warning(
+                f"Task failed for mode '{err_mode}', but active mode is '{self.get_mode().key}'. Discarding stale error state."
+            )
+            return
+
         logger.error(f"A task failed in the background: {error}")
         if self.gta_pid:
             self._set_state(self.STATE_APP_RUNNING)
@@ -743,12 +836,20 @@ class InjectPage(QWidget):
                 action_text=action_text,
                 action_callback=restart_as_admin,
             )
-        else:
+            return
+        launch_msg = self._launch_error_message(error)
+        if launch_msg:
             self._notify(
-                self.loc_manager.tr("Common.Error", "An Error Occurred"),
-                str(error),
+                self.loc_manager.tr("Common.Error", "Launch Error"),
+                launch_msg,
                 icon_type="error",
             )
+            return
+        self._notify(
+            self.loc_manager.tr("Common.Error", "An Error Occurred"),
+            str(error),
+            icon_type="error",
+        )
 
     def _injection_error_message(
         self, error: "process_manager.InjectionError"

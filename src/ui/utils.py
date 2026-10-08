@@ -4,7 +4,7 @@ import os
 import subprocess
 import sys
 
-from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtCore import QEvent, QObject, QRectF, QSize, Qt
 from PySide6.QtGui import (
     QColor,
     QFocusEvent,
@@ -14,9 +14,15 @@ from PySide6.QtGui import (
     QPixmap,
 )
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget
+from PySide6.QtWidgets import (
+    QAbstractButton,
+    QApplication,
+    QComboBox,
+    QMainWindow,
+    QWidget,
+)
 
-from core.paths import resource_path
+from core.paths import is_compiled, resource_path
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +30,7 @@ IS_WINDOWS = sys.platform == "win32"
 
 ICON_LIGHT_PATH = resource_path(os.path.join("assets", "icons", "logo_light.ico"))
 ICON_DARK_PATH = resource_path(os.path.join("assets", "icons", "logo_dark.ico"))
+ICON_SVG_PATH = resource_path(os.path.join("assets", "icons", "ymu.svg"))
 
 
 def update_app_icon(app: QApplication, window):
@@ -40,24 +47,97 @@ def update_app_icon(app: QApplication, window):
             window.setWindowIcon(QIcon(ICON_LIGHT_PATH))
 
 
-def create_colored_icon(icon_path: str, color: QColor) -> QIcon:
-    """Loads an SVG file, recolors it, and returns it as a QIcon."""
+def create_colored_icon(
+    icon_path: str, color: QColor, target_size: QSize | None = None
+) -> QIcon:
+    """Loads an SVG file, recolors it with antialiasing and DPR awareness, and returns it as a QIcon."""
     renderer = QSvgRenderer(icon_path)
     if not renderer.isValid():
         return QIcon()
 
-    size = renderer.defaultSize()
-    pixmap = QPixmap(size)
+    base_size = target_size if target_size is not None else renderer.defaultSize()
+    icon = QIcon()
+    for dpr in (1.0, 2.0):
+        scaled_size = QSize(
+            int(base_size.width() * dpr), int(base_size.height() * dpr)
+        )
+        pixmap = QPixmap(scaled_size)
+        pixmap.fill(Qt.GlobalColor.transparent)
+        pixmap.setDevicePixelRatio(dpr)
+
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        renderer.render(painter, QRectF(0, 0, base_size.width(), base_size.height()))
+        painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
+        painter.fillRect(QRectF(0, 0, base_size.width(), base_size.height()), color)
+        painter.end()
+        icon.addPixmap(pixmap)
+
+    return icon
+
+
+def create_colored_pixmap(
+    icon_path: str, color: QColor, target_size: QSize | None = None, dpr: float = 1.0
+) -> QPixmap:
+    """Loads an SVG file, recolors it with the specified color, and returns it as a QPixmap."""
+    renderer = QSvgRenderer(icon_path)
+    if not renderer.isValid():
+        return QPixmap()
+
+    base_size = target_size if target_size is not None else renderer.defaultSize()
+    scaled_size = QSize(int(base_size.width() * dpr), int(base_size.height() * dpr))
+    pixmap = QPixmap(scaled_size)
     pixmap.fill(Qt.GlobalColor.transparent)
+    if dpr != 1.0:
+        pixmap.setDevicePixelRatio(dpr)
 
     painter = QPainter(pixmap)
-    renderer.render(painter)
+    painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+    renderer.render(painter, QRectF(0, 0, base_size.width(), base_size.height()))
 
     painter.setCompositionMode(QPainter.CompositionMode.CompositionMode_SourceIn)
-    painter.fillRect(pixmap.rect(), color)
+    painter.fillRect(QRectF(0, 0, base_size.width(), base_size.height()), color)
     painter.end()
 
-    return QIcon(pixmap)
+    return pixmap
+
+
+def adjust_button_to_text(
+    button: QAbstractButton,
+    min_width: int = 0,
+    padding: int = 40,
+) -> int:
+    """Dynamically sizes a button to fit its current text without clipping.
+
+    The padding argument must cover whatever the stylesheet adds around the
+    label: dark.qss sets `padding: 10px 18px` plus a 2px transparent border on
+    QPushButton, so 2 * (18 + 2) = 40. A hard-coded width clips the moment a
+    translation is longer than the string the width was chosen for.
+    """
+    button.ensurePolished()
+    button.adjustSize()
+    needed = button.sizeHint().width()
+    if needed > button.width() or min_width > button.width():
+        button.setFixedWidth(max(min_width, needed))
+    return button.width()
+
+
+def adjust_combobox_to_contents(
+    combo: QComboBox,
+    min_width: int = 150,
+    max_width: int = 340,
+    padding: int = 58,
+) -> int:
+    """Dynamically sizes a QComboBox to snugly fit its current items without clipping."""
+    combo.ensurePolished()
+    fm = combo.fontMetrics()
+    max_text_width = max(
+        (fm.horizontalAdvance(combo.itemText(i)) for i in range(combo.count())),
+        default=0,
+    )
+    target_width = max(min_width, min(max_width, max_text_width + padding))
+    combo.setFixedWidth(target_width)
+    return target_width
 
 
 def _strip_nuitka_env(env: dict[str, str] | None = None) -> dict[str, str]:
@@ -95,15 +175,11 @@ def restart_application():
     logger.info("Restart requested via UI. Relaunching...")
     old_pid = os.getpid()
 
-    is_compiled = (
-        "__compiled__" in globals()
-        or getattr(sys, "frozen", False)
-        or sys.argv[0].lower().endswith(".exe")
-    )
+    is_compiled_build = is_compiled()
 
     clean_env = _strip_nuitka_env()
 
-    if is_compiled:
+    if is_compiled_build:
         executable = os.path.abspath(sys.argv[0])
         args = [executable, "--wait-for-pid", str(old_pid)]
     else:
@@ -119,7 +195,7 @@ def restart_application():
             # In compiled GUI mode, detach from parent; in dev (python.exe) mode, keep console attached
             creationflags = (
                 (subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS)
-                if is_compiled
+                if is_compiled_build
                 else subprocess.CREATE_NEW_PROCESS_GROUP
             )
             subprocess.Popen(args, creationflags=creationflags, env=clean_env)
@@ -134,11 +210,15 @@ def restart_application():
             main_win.raise_()
             from PySide6.QtWidgets import QMessageBox
 
-            QMessageBox.warning(
-                main_win,
-                "Restart Failed",
-                f"Failed to restart application:\n{e}",
-            )
+            from ui.i18n.localization_manager import get_localization_manager
+
+            loc = getattr(main_win, "loc_manager", None) or get_localization_manager()
+            title = loc.tr("Common.Notify.RestartFailedTitle", "Restart Failed")
+            msg = loc.tr(
+                "Common.Notify.RestartFailedMsg",
+                "Failed to restart application:\n{0}",
+            ).format(e)
+            QMessageBox.warning(main_win, title, msg)
         return
 
     for widget in QApplication.topLevelWidgets():
@@ -159,15 +239,11 @@ def restart_as_admin():
     if main_window:
         main_window.hide()
 
-    is_compiled = (
-        "__compiled__" in globals()
-        or getattr(sys, "frozen", False)
-        or sys.argv[0].lower().endswith(".exe")
-    )
+    is_compiled_build = is_compiled()
 
     _strip_nuitka_env()
 
-    if is_compiled:
+    if is_compiled_build:
         executable = os.path.abspath(sys.argv[0])
         params = f"--wait-for-pid {old_pid}"
     else:

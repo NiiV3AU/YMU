@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class NotificationWidget(QFrame):
     """A single, animated notification widget in the style of a 'card'."""
 
-    closed = Signal()
+    closed = Signal(object)
 
     def __init__(
         self,
@@ -61,9 +61,10 @@ class NotificationWidget(QFrame):
         self.is_closing = False
 
         main_layout = QHBoxLayout(self)
-        main_layout.setContentsMargins(15, 12, 15, 12)
-        main_layout.setSpacing(15)
-        main_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
+        main_layout.setContentsMargins(16, 12, 16, 12)
+        main_layout.setSpacing(16)
+        main_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinimumSize)
+        self.setMaximumWidth(430)
 
         self.icon_label = QLabel()
         self.icon_label.setFixedSize(32, 32)
@@ -73,29 +74,35 @@ class NotificationWidget(QFrame):
         text_layout = QVBoxLayout()
         text_layout.setSpacing(4)
 
-        self.title_label = QLabel(title)
+        self.title_label = QLabel(title, self)
         self.title_label.setObjectName("NotificationTitle")
+        self.title_label.setTextFormat(Qt.TextFormat.PlainText)
+        self.title_label.setContentsMargins(2, 0, 2, 0)
 
-        self.message_label = QLabel(message)
+        self.message_label = QLabel(message, self)
         self.message_label.setObjectName("NotificationMessage")
         self.message_label.setWordWrap(True)
+        self.message_label.setTextFormat(Qt.TextFormat.PlainText)
+        self.message_label.setMinimumWidth(180)
+        self.message_label.setContentsMargins(2, 0, 2, 0)
 
         text_layout.addWidget(self.title_label)
         text_layout.addWidget(self.message_label)
 
-        if action_text and action_callback:
-            self.action_btn = QPushButton(action_text)
-            self.action_btn.setObjectName("NotificationActionButton")
-            self.action_btn.setCursor(Qt.CursorShape.PointingHandCursor)
-            self.action_btn.setMinimumWidth(100)
-            self.action_btn.clicked.connect(action_callback)
-            self.action_btn.clicked.connect(self.close_animation)
-            text_layout.addSpacing(5)
-            text_layout.addWidget(self.action_btn, 0, Qt.AlignmentFlag.AlignLeft)
+        self.action_btn = QPushButton(self)
+        self.action_btn.setObjectName("NotificationActionButton")
+        self.action_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.action_btn.setMinimumWidth(100)
+        self.action_btn.setVisible(False)
+        self._action_connected: bool = False
+        text_layout.addSpacing(6)
+        text_layout.addWidget(self.action_btn, 0, Qt.AlignmentFlag.AlignLeading)
 
         main_layout.addLayout(text_layout)
+        self._setup_action(action_text, action_callback)
 
         top_right_layout = QVBoxLayout()
+        top_right_layout.setContentsMargins(0, 4, 0, 0)
         self.close_button = StatefulButton(
             "",
             theme_manager=self.theme_manager,
@@ -123,8 +130,8 @@ class NotificationWidget(QFrame):
 
     def _set_icon(self, icon_type: str):
         icons = {
-            "success": os.path.join("assets", "icons", "check-circle.svg"),
-            "error": os.path.join("assets", "icons", "alert-triangle.svg"),
+            "success": os.path.join("assets", "icons", "circle-check.svg"),
+            "error": os.path.join("assets", "icons", "triangle-alert.svg"),
             "info": os.path.join("assets", "icons", "info.svg"),
         }
         icon_path = resource_path(icons.get(icon_type, icons["info"]))
@@ -153,14 +160,39 @@ class NotificationWidget(QFrame):
         if not parent:
             return
 
-        start_pos = QPoint(parent.width(), target_pos.y())
+        is_rtl = (
+            parent.layoutDirection() == Qt.LayoutDirection.RightToLeft
+            or self.layoutDirection() == Qt.LayoutDirection.RightToLeft
+        )
+        if is_rtl:
+            start_pos = QPoint(-self.width(), target_pos.y())
+        else:
+            start_pos = QPoint(parent.width(), target_pos.y())
         self.move(start_pos)
+        self.show()
         self.animate_to(target_pos)
 
         if duration > 0:
             self._close_timer.setInterval(duration)
             self._close_timer.timeout.connect(self.close_animation)
             self._close_timer.start()
+
+    def _setup_action(self, action_text: str | None, action_callback=None):
+        if getattr(self, "_action_connected", False):
+            try:
+                self.action_btn.clicked.disconnect()
+            except (RuntimeError, TypeError):
+                pass
+            self._action_connected = False
+
+        if action_text and action_callback:
+            self.action_btn.setText(action_text)
+            self.action_btn.clicked.connect(action_callback)
+            self.action_btn.clicked.connect(self.close_animation)
+            self._action_connected = True
+            self.action_btn.setVisible(True)
+        else:
+            self.action_btn.setVisible(False)
 
     def update_content(
         self,
@@ -177,23 +209,12 @@ class NotificationWidget(QFrame):
         self.title_label.setText(title)
         self.message_label.setText(message)
         self._set_icon(icon_type)
-
-        if action_text and hasattr(self, "action_btn"):
-            self.action_btn.setText(action_text)
-            if action_callback:
-                try:
-                    self.action_btn.clicked.disconnect()
-                except RuntimeError:
-                    pass
-                self.action_btn.clicked.connect(action_callback)
-                self.action_btn.clicked.connect(self.close_animation)
+        self._setup_action(action_text, action_callback)
 
         if duration > 0:
             self._close_timer.stop()
             self._close_timer.setInterval(duration)
             self._close_timer.start()
-
-        self.adjustSize()
 
     def close_animation(self):
         if self.is_closing:
@@ -219,7 +240,7 @@ class NotificationWidget(QFrame):
         self.current_animation.start()
 
     def _on_animation_finished(self):
-        self.closed.emit()
+        self.closed.emit(self)
         self.deleteLater()
 
 
@@ -269,6 +290,10 @@ class NotificationManager(QObject):
                     logger.info(f"Suppressed duplicate notification: '{title}'")
                     return
 
+        active_existing = [n for n in self.notifications if not n.is_closing]
+        if len(active_existing) >= 3:
+            active_existing[0].close_animation()
+
         notification = NotificationWidget(
             title=title,
             message=message,
@@ -279,36 +304,56 @@ class NotificationManager(QObject):
             action_callback=action_callback,
             tag=tag,
         )
-        notification.show()
-        notification.closed.connect(lambda: self._remove_notification(notification))
+        notification.closed.connect(self._remove_notification)
 
         self.notifications.append(notification)
-        self._reposition_notifications(is_new=True, new_duration=duration)
+        self.reposition_notifications(is_new=True, new_duration=duration)
 
-    def _reposition_notifications(self, is_new: bool = False, new_duration: int = 0):
+    def reposition_notifications(self, is_new: bool = False, new_duration: int = 0):
         """Calculates positions for all active notifications and triggers their animations."""
+        if not self.parent_widget or not self.parent_widget.isVisible():
+            return
         parent_width = self.parent_widget.width()
         parent_height = self.parent_widget.height()
+        if parent_height <= 0 or parent_width <= 0:
+            return
         current_y = parent_height - self.padding
 
         active_notifications = [
             n for n in self.notifications if not getattr(n, "is_closing", False)
         ]
 
+        is_rtl = (
+            self.parent_widget.layoutDirection() == Qt.LayoutDirection.RightToLeft
+            or self.parent_widget.isRightToLeft()
+        )
+
         for notification in reversed(active_notifications):
             notification.adjustSize()
             h = notification.height()
             current_y -= h
-            pos_x = parent_width - notification.width() - self.padding
+            if current_y < self.padding:
+                notification.close_animation()
+                continue
+            if is_rtl:
+                pos_x = self.padding
+            else:
+                pos_x = parent_width - notification.width() - self.padding
             target_pos = QPoint(pos_x, current_y)
             is_the_very_newest = is_new and notification is active_notifications[-1]
             if is_the_very_newest:
                 notification.start_fly_in(target_pos, new_duration)
-            elif notification.pos() != target_pos:
-                notification.animate_to(target_pos)
+            else:
+                if not notification.isVisible():
+                    notification.show()
+                if notification.pos() != target_pos:
+                    notification.animate_to(target_pos)
             current_y -= self.gap
 
     def _remove_notification(self, notification: NotificationWidget):
         if notification in self.notifications:
             self.notifications.remove(notification)
-        self._reposition_notifications()
+        self.reposition_notifications()
+
+    # Backward compatibility alias
+    _reposition_notifications = reposition_notifications
