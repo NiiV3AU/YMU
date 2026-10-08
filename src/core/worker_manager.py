@@ -1,8 +1,6 @@
 # worker_manager.py - Runs background tasks on a QThreadPool.
-# Tasks may run in parallel, so the UI never stalls behind a slow task (e.g. a
-# large download blocking process scans). Thread safety is favoured over
-# maximum parallelism: shared state is guarded and duplicate work is skipped
-# via run_exclusive().
+# Tasks run asynchronously on pooled worker threads so the UI never stalls behind
+# slow I/O or process scans. Tasks with identical keys are deduplicated via run_exclusive().
 import logging
 import threading
 from collections.abc import Callable
@@ -25,11 +23,20 @@ class WorkerSignals(QObject):
 class Worker(QRunnable):
     """A generic runnable that runs a target function in the thread pool."""
 
-    def __init__(self, target: Callable, *args, **kwargs):
+    def __init__(
+        self,
+        target: Callable,
+        *args,
+        pass_progress: bool = False,
+        cleanup_callback: Callable[[], None] | None = None,
+        **kwargs,
+    ):
         super().__init__()
         self.target = target
         self.args = args
         self.kwargs = kwargs
+        self.pass_progress = pass_progress
+        self.cleanup_callback = cleanup_callback
         self.signals = WorkerSignals()
         self.setAutoDelete(True)
 
@@ -37,14 +44,35 @@ class Worker(QRunnable):
     def run(self):
         """Executes the target function and emits signals on completion/error."""
         try:
-            result = self.target(
-                *self.args, progress_signal=self.signals.progress, **self.kwargs
-            )
-            self.signals.finished.emit(result)
+            call_kwargs = dict(self.kwargs)
+            if self.pass_progress:
+                call_kwargs["progress_signal"] = self.signals.progress
+            result = self.target(*self.args, **call_kwargs)
+            try:
+                self.signals.finished.emit(result)
+            except RuntimeError:
+                pass
         except Exception as e:
             target_name = getattr(self.target, "__name__", repr(self.target))
             logger.exception(f"Exception in worker thread for target {target_name}")
-            self.signals.error.emit(e)
+            try:
+                self.signals.error.emit(e)
+            except RuntimeError:
+                pass
+        except BaseException as e:
+            target_name = getattr(self.target, "__name__", repr(self.target))
+            logger.critical(f"BaseException in worker thread for target {target_name}: {e}")
+            try:
+                self.signals.error.emit(RuntimeError(f"Worker critical error: {type(e).__name__}: {e}"))
+            except RuntimeError:
+                pass
+            raise
+        finally:
+            if self.cleanup_callback:
+                try:
+                    self.cleanup_callback()
+                except Exception as e:
+                    logger.error(f"Exception in worker cleanup callback: {e}")
 
 
 class WorkerManager(QObject):
@@ -63,19 +91,40 @@ class WorkerManager(QObject):
         # process scan) is skipped while one is already running.
         self._active_keys: set[str] = set()
         self._keys_lock = threading.Lock()
+        self._is_shutting_down = False
+        self._shutdown_budget_ms = 5000
         logger.info(f"WorkerManager initialized with a pool of {max_threads} threads.")
 
     def run_task(
         self,
         target: Callable,
         *args,
+        pass_progress: bool = False,
+        cleanup_callback: Callable[[], None] | None = None,
         on_finished: Callable[[Any], None] | None = None,
         on_error: Callable[[Exception], None] | None = None,
         on_progress: Callable[[int], None] | None = None,
         **kwargs,
-    ):
-        """Queues a task on the pool. Callbacks fire on the GUI thread."""
-        worker = Worker(target, *args, **kwargs)
+    ) -> bool:
+        """Queues a task on the pool. Callbacks fire on the GUI thread.
+        Returns True if started, False if refused."""
+        if self._is_shutting_down:
+            logger.warning("WorkerManager is shutting down; refusing new task.")
+            if cleanup_callback:
+                try:
+                    cleanup_callback()
+                except Exception as e:
+                    logger.debug(f"Error in refused task cleanup_callback: {e}")
+            return False
+
+        pass_prog = pass_progress or (on_progress is not None)
+        worker = Worker(
+            target,
+            *args,
+            pass_progress=pass_prog,
+            cleanup_callback=cleanup_callback,
+            **kwargs,
+        )
         signals = worker.signals
 
         with self._signals_lock:
@@ -93,12 +142,14 @@ class WorkerManager(QObject):
         signals.error.connect(lambda _: self._release_signals(signals), conn)
 
         self._pool.start(worker)
+        return True
 
     def run_exclusive(
         self,
         key: str,
         target: Callable,
         *args,
+        pass_progress: bool = False,
         on_finished: Callable[[Any], None] | None = None,
         on_error: Callable[[Exception], None] | None = None,
         on_progress: Callable[[int], None] | None = None,
@@ -106,49 +157,65 @@ class WorkerManager(QObject):
     ) -> bool:
         """Like run_task, but refuses to start if a task with the same key is
         still running. Returns True if started, False if skipped."""
+        if self._is_shutting_down:
+            logger.warning(
+                f"WorkerManager is shutting down; refusing exclusive task '{key}'."
+            )
+            return False
+
         with self._keys_lock:
             if key in self._active_keys:
                 logger.debug(f"Skipping exclusive task '{key}' — already running.")
                 return False
             self._active_keys.add(key)
 
-        def release_and_call(cb):
-            def wrapped(value):
-                # Release the key before running the user callback so a
-                # callback that re-queues the same key is not blocked.
-                with self._keys_lock:
-                    self._active_keys.discard(key)
-                if cb:
-                    cb(value)
-
-            return wrapped
-
-        # Ensure the key is released even if no callback was provided.
-        def ensure_release(_):
+        def cleanup():
             with self._keys_lock:
                 self._active_keys.discard(key)
 
-        wrapped_finished = (
-            release_and_call(on_finished) if on_finished else ensure_release
-        )
-        wrapped_error = release_and_call(on_error) if on_error else ensure_release
-
-        self.run_task(
+        return self.run_task(
             target,
             *args,
-            on_finished=wrapped_finished,
-            on_error=wrapped_error,
+            pass_progress=pass_progress,
+            cleanup_callback=cleanup,
+            on_finished=on_finished,
+            on_error=on_error,
             on_progress=on_progress,
             **kwargs,
         )
-        return True
 
     def _release_signals(self, signals: WorkerSignals):
         with self._signals_lock:
             self._active_signals.discard(signals)
 
-    def cleanup(self):
+    def cleanup(self, timeout_ms: int = 5000) -> bool:
         """Waits for running tasks to finish when the application exits."""
+        if self._is_shutting_down:
+            if self._pool.activeThreadCount() == 0:
+                return True
+            wait_time = max(timeout_ms, self._shutdown_budget_ms)
+            done = self._pool.waitForDone(wait_time)
+            if not done:
+                logger.warning(
+                    f"Background tasks did not finish within {wait_time}ms during final shutdown. "
+                    f"Abandoned {self._pool.activeThreadCount()} task(s)."
+                )
+            return done
+
+        self._is_shutting_down = True
+        self._shutdown_budget_ms = timeout_ms
         logger.info("--- YMU shutting down, waiting for background tasks... ---")
-        self._pool.waitForDone(5000)
-        logger.info("--- YMU shut down successfully---")
+        self._pool.clear()
+        done = self._pool.waitForDone(timeout_ms)
+        with self._keys_lock:
+            self._active_keys.clear()
+        with self._signals_lock:
+            self._active_signals.clear()
+        if not done:
+            remaining = self._pool.activeThreadCount()
+            logger.warning(
+                f"Background tasks did not finish within {timeout_ms}ms during shutdown. Abandoned {remaining} task(s)."
+            )
+        else:
+            logger.info("--- YMU shut down successfully---")
+        return done
