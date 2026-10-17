@@ -596,7 +596,7 @@ def is_dll_loaded_in_process(
                     ):
                         continue
 
-                count = cb_needed.value // hmodule_size
+                count = min(cb_needed.value // hmodule_size, len(modules))
                 buf = ctypes.create_unicode_buffer(1024)
                 for i in range(count):
                     h_mod = modules[i]
@@ -608,7 +608,7 @@ def is_dll_loaded_in_process(
                             f"Verified module '{target}' in memory of PID {pid}: {buf.value}"
                         )
                         return True
-        except OSError as e:
+        except (OSError, IndexError) as e:
             logger.debug(f"Could not inspect modules for PID {pid}: {e}")
         finally:
             kernel32.CloseHandle(h_proc)

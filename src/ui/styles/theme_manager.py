@@ -2,12 +2,13 @@
 import logging
 import os
 
-from PySide6.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Qt, Signal
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
 
 from core.config import get_config
 from core.paths import resource_path
+from ui.utils import update_app_icon
 
 logger = logging.getLogger(__name__)
 
@@ -106,12 +107,19 @@ class ThemeManager(QObject):
             normalized = "dark"
         self.app.setStyleSheet(self.get_stylesheet(normalized))
         is_dark = normalized == "dark"
+        style_hints = self.app.styleHints()
+        if hasattr(style_hints, "setColorScheme"):
+            style_hints.setColorScheme(
+                Qt.ColorScheme.Dark if is_dark else Qt.ColorScheme.Light
+            )
         link_qcolor = QColor("#28A745" if is_dark else "#1A7F37")
         app_pal = self.app.palette()
         app_pal.setColor(QPalette.ColorRole.Link, link_qcolor)
         app_pal.setColor(QPalette.ColorRole.LinkVisited, link_qcolor)
         self.app.setPalette(app_pal)
         self.current_theme = normalized
+        if isinstance(self.app, QApplication):
+            update_app_icon(self.app, theme=normalized)
         self.config.set("theme", normalized)
         self.themeChanged.emit(normalized)
 

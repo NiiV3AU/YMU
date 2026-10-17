@@ -203,20 +203,26 @@ def extract_checksum_from_release(text: str | None) -> str | None:
         return None
 
     # 1. Look for explicit keyword indicators: sha-256, sha256, checksum, hash
-    match = re.search(r"(?i)(?:sha[-_]?256|checksum|hash)[\s:=]+([a-f0-9]{64})", text)
+    match = re.search(
+        r"(?i)(?:sha[-_]?256|checksum|hash)[\s:=*`]+([a-f0-9]{64})(?![a-f0-9])",
+        text,
+    )
     if match:
         return match.group(1).lower()
 
     # 2. Look for standard sha256sum line: <hash>  <filename> or <hash> *<filename>
     sum_match = re.search(
-        r"(?m)^([a-f0-9]{64})\s+[*]?\S+\.(?:dll|exe|zip|bin)\b", text, re.IGNORECASE
+        r"(?m)^[*`]*([a-f0-9]{64})[*`]*\s+[*`]*\S+\.(?:dll|exe|zip|bin)[*`]*(?:\s|$)",
+        text,
+        re.IGNORECASE,
     )
     if sum_match:
         return sum_match.group(1).lower()
 
     # 3. Look for reverse format: <filename>[:= ]+<hash>
     rev_match = re.search(
-        r"(?i)\b\S+\.(?:dll|exe|zip|bin)[\s:=]+([a-f0-9]{64})\b", text
+        r"(?i)\b\S+\.(?:dll|exe|zip|bin)[*`]*[\s:=*`]+([a-f0-9]{64})(?![a-f0-9])",
+        text,
     )
     if rev_match:
         return rev_match.group(1).lower()
@@ -476,6 +482,16 @@ def download_and_verify_release(
                         f"Download incomplete for '{safe_name}': received {downloaded_size} of {total_size} bytes."
                     )
                     return (False, False)
+
+            if downloaded_size == 0 or (
+                total_size <= 0
+                and not release_data.checksum
+                and downloaded_size < 512 * 1024
+            ):
+                logger.error(
+                    f"Downloaded payload for '{safe_name}' is unexpectedly small ({downloaded_size} bytes) without Content-Length or checksum."
+                )
+                return (False, False)
         finally:
             response.close()
 

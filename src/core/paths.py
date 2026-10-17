@@ -108,7 +108,13 @@ def is_compiled() -> bool:
         "__compiled__" in globals()
         or hasattr(builtins, "__compiled__")
         or getattr(sys, "frozen", False)
-        or (bool(sys.argv) and sys.argv[0].lower().endswith(".exe"))
+        or (
+            bool(sys.argv)
+            and sys.argv[0].lower().endswith(".exe")
+            and not os.path.basename(sys.argv[0])
+            .lower()
+            .startswith(("python", "pytest"))
+        )
     )
 
 

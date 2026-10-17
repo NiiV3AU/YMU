@@ -304,9 +304,10 @@ def main():
                 else:
                     families = QFontDatabase.applicationFontFamilies(font_id)
                     logger.info(f"Loaded application font '{font_file}': {families}")
-        assert "Rubik" in QFontDatabase.families(), (
-            "Bundled font 'Rubik' must be loaded in QFontDatabase"
-        )
+        if "Rubik" not in QFontDatabase.families():
+            logger.warning(
+                "Bundled font 'Rubik' could not be loaded; falling back to system default."
+            )
     else:
         logger.warning(f"Application font directory not found: {font_dir}")
     asset_path = resource_path(os.path.join("assets", "icons")).replace("\\", "/")
@@ -322,10 +323,11 @@ def main():
         loc_manager=loc_manager,
     )
     app.styleHints().colorSchemeChanged.connect(window.on_system_color_scheme_changed)
-    update_app_icon(app, window)
+    update_app_icon(app, window, theme=theme_manager.current_theme)
     window.show()
     QTimer.singleShot(100, window.show_when_ready)
     exit_code = app.exec()
+    app.removeEventFilter(focus_filter)
     if not worker_manager.cleanup():
         logger.warning(
             "WorkerManager did not finish all background tasks before process exit."

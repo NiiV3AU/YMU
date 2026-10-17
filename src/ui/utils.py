@@ -33,18 +33,93 @@ ICON_DARK_PATH = resource_path(os.path.join("assets", "icons", "logo_dark.ico"))
 ICON_SVG_PATH = resource_path(os.path.join("assets", "icons", "ymu.svg"))
 
 
-def update_app_icon(app: QApplication, window):
-    """Checks the system theme and sets the appropriate application icon."""
-    color_scheme = app.styleHints().colorScheme()
+def is_windows_dark_theme() -> bool:
+    """Detects whether the Windows system theme (Taskbar/Shell) is dark.
 
-    if color_scheme == Qt.ColorScheme.Dark:
-        logger.info("Dark Mode detected. Applying dark theme icon.")
-        if os.path.exists(ICON_DARK_PATH):
-            window.setWindowIcon(QIcon(ICON_DARK_PATH))
+    On Windows 10/11, 'SystemUsesLightTheme' in HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize
+    governs the taskbar, start menu, and shell appearance (0 = Dark, 1 = Light).
+    If unavailable or on non-Windows platforms, falls back to QApplication.styleHints().colorScheme().
+    """
+    if IS_WINDOWS:
+        try:
+            import winreg
+
+            key_path = r"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize"
+            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path) as key:
+                system_light, _ = winreg.QueryValueEx(key, "SystemUsesLightTheme")
+                return int(system_light) == 0
+        except (OSError, AttributeError, TypeError, ValueError):
+            pass
+
+    app = QApplication.instance()
+    if isinstance(app, QApplication):
+        return app.styleHints().colorScheme() != Qt.ColorScheme.Light
+    return True
+
+
+def update_app_icon(
+    app: QApplication,
+    window: QWidget | None = None,
+    theme: str | None = None,
+) -> None:
+    """Sets the application and window icons.
+
+    The taskbar icon strictly follows the Windows system theme (Taskbar/Shell),
+    as the taskbar is an OS component unaffected by the in-app Qt theme.
+    The window titlebar icon (<=24px) reflects the active window/in-app theme when specified.
+    """
+    # 1. Taskbar icon: strictly determined by the Windows system theme
+    windows_is_dark = is_windows_dark_theme()
+    if windows_is_dark:
+        logger.info("Windows dark theme active. Applying dark theme icon for taskbar.")
+        taskbar_icon_path = ICON_DARK_PATH
     else:
-        logger.info("Light Mode detected. Applying light theme icon.")
-        if os.path.exists(ICON_LIGHT_PATH):
-            window.setWindowIcon(QIcon(ICON_LIGHT_PATH))
+        logger.info(
+            "Windows light theme active. Applying light theme icon for taskbar."
+        )
+        taskbar_icon_path = ICON_LIGHT_PATH
+
+    if not os.path.exists(taskbar_icon_path):
+        taskbar_icon_path = resource_path(os.path.join("assets", "icons", "ymu.ico"))
+
+    taskbar_icon = (
+        QIcon(taskbar_icon_path) if os.path.exists(taskbar_icon_path) else QIcon()
+    )
+    app.setWindowIcon(taskbar_icon)
+
+    # 2. Window icon: titlebar (<=24px) reflects the in-app theme if provided,
+    # while taskbar/large sizes (>=32px) strictly match the Windows system theme.
+    if theme is not None:
+        titlebar_is_dark = theme.lower() != "light"
+        titlebar_icon_path = ICON_DARK_PATH if titlebar_is_dark else ICON_LIGHT_PATH
+        if not os.path.exists(titlebar_icon_path):
+            titlebar_icon_path = taskbar_icon_path
+    else:
+        titlebar_icon_path = taskbar_icon_path
+
+    titlebar_icon = (
+        QIcon(titlebar_icon_path)
+        if os.path.exists(titlebar_icon_path)
+        else taskbar_icon
+    )
+
+    combined_icon = QIcon()
+    for sz in (16, 20, 24):
+        pix = titlebar_icon.pixmap(sz, sz)
+        if not pix.isNull():
+            combined_icon.addPixmap(pix)
+    for sz in (32, 48, 64, 128, 256):
+        pix = taskbar_icon.pixmap(sz, sz)
+        if not pix.isNull():
+            combined_icon.addPixmap(pix)
+
+    final_window_icon = combined_icon if not combined_icon.isNull() else taskbar_icon
+
+    if window is not None:
+        window.setWindowIcon(final_window_icon)
+    for top_widget in app.topLevelWidgets():
+        if top_widget is not window:
+            top_widget.setWindowIcon(final_window_icon)
 
 
 def create_colored_icon(
@@ -298,27 +373,30 @@ class FocusStealingFilter(QObject):
         self._keyboard_nav_active = False
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        etype = event.type()
-        if etype == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
-            if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
-                self._keyboard_nav_active = True
-        elif etype == QEvent.Type.MouseButtonPress:
-            self._keyboard_nav_active = False
-            if not getattr(watched, "_is_animating", False):
-                focused_widget = QApplication.focusWidget()
-                if focused_widget:
-                    focused_widget.clearFocus()
-        elif (
-            etype == QEvent.Type.FocusIn
-            and isinstance(watched, QWidget)
-            and isinstance(event, QFocusEvent)
-            and event.reason() == Qt.FocusReason.ActiveWindowFocusReason
-            and not self._keyboard_nav_active
-        ):
-            watched.clearFocus()
-            return True
+        try:
+            etype = event.type()
+            if etype == QEvent.Type.KeyPress and isinstance(event, QKeyEvent):
+                if event.key() in (Qt.Key.Key_Tab, Qt.Key.Key_Backtab):
+                    self._keyboard_nav_active = True
+            elif etype == QEvent.Type.MouseButtonPress:
+                self._keyboard_nav_active = False
+                if not getattr(watched, "_is_animating", False):
+                    focused_widget = QApplication.focusWidget()
+                    if focused_widget:
+                        focused_widget.clearFocus()
+            elif (
+                etype == QEvent.Type.FocusIn
+                and isinstance(watched, QWidget)
+                and isinstance(event, QFocusEvent)
+                and event.reason() == Qt.FocusReason.ActiveWindowFocusReason
+                and not self._keyboard_nav_active
+            ):
+                watched.clearFocus()
+                return True
 
-        return super().eventFilter(watched, event)
+            return super().eventFilter(watched, event)
+        except RuntimeError:
+            return False
 
 
 def play_success_sound():

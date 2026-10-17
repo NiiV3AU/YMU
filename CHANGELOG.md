@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-10-04
+## [1.2.0] - 2026-10-17
 
 ### Added
 
@@ -24,21 +24,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated bundled Lucide icon pack to v1.52.0 with refreshed action icons.
 - Warn when legacy `version.dll` is detected in the game folder, advising to replace it with `WINMM.dll`.
 - Startup automatically cleans up obsolete temporary runtime directories from previous versions in `%LOCALAPPDATA%\YMU`.
+- Significantly reduced standalone executable size by pruning unused Qt modules and image plugins from the build bundle.
 
 ### Fixed
 
+- Fixed release checksum verification failing when release notes format SHA-256 hashes with Markdown bold or backtick code formatting.
+- Fixed premature success reporting on truncated or interrupted downloads lacking Content-Length headers.
+- Fixed process module enumeration errors during injection verification when the game is dynamically loading libraries.
+- Fixed application exit coordination and event filter lifecycle to ensure clean shutdown without `atexit` errors or hanging background workers.
 - Fixed BattlEye toggle file-write safety, preventing `commandline.txt` truncation or character corruption across all text encodings.
 - Fixed notification toasts overflowing the window or clipping content in verbose languages.
 - Fixed dialog action buttons clipping labels in verbose translations by sizing buttons dynamically to text length.
-- Fixed application exit coordination to ensure background workers and windows terminate cleanly without hanging.
 - Fixed configuration loading to reliably handle UTF-8 BOM signatures and malformed values without resetting settings.
 - Fixed asset loading failure when launching YMU from a different working directory.
-- Fixed onefile build packaging to exclude redundant Qt libraries and image formats, reducing executable size.
 
 ### Security
 
 - Eliminated remote memory use-after-free risk during injection timeouts.
-- Upgraded bundled urllib3 dependency to >=2.8.0 to mitigate GHSA-gh4c-6fx4-qh6g (CVE-2026-97688).
+- Upgraded bundled urllib3 dependency to >=2.8.0 to mitigate GHSA-gh4c-6fx4-qh6g (CVE-2026-97688) and GHSA-vxq7-64xx-v4gw (CVE-2026-97689).
 
 ## [1.1.11] - 2026-09-07
 

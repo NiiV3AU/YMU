@@ -125,6 +125,8 @@ class MainWindow(QMainWindow):
         # (Qt QSS has no box-shadow). Reapply whenever the theme changes.
         self.theme_manager.themeChanged.connect(self._apply_card_shadows)
         self._apply_card_shadows(self.theme_manager.current_theme)
+        self.theme_manager.themeChanged.connect(self._on_theme_changed_update_icon)
+        self._on_theme_changed_update_icon(self.theme_manager.current_theme)
 
         self.loc_manager.layout_direction_changed.connect(
             self._on_layout_direction_changed
@@ -479,11 +481,17 @@ class MainWindow(QMainWindow):
     def _show_settings_page(self) -> None:
         self.content_stack.setCurrentWidget(self.settings_page)
 
+    @Slot(str)
+    def _on_theme_changed_update_icon(self, theme: str) -> None:
+        app = QApplication.instance()
+        if isinstance(app, QApplication):
+            update_app_icon(app, self, theme=theme)
+
     @Slot()
     def on_system_color_scheme_changed(self) -> None:
         app = QApplication.instance()
         if isinstance(app, QApplication):
-            update_app_icon(app, self)
+            update_app_icon(app, self, theme=self.theme_manager.current_theme)
 
     def closeEvent(self, event: QCloseEvent):
         """Cleanly handle application window closing."""

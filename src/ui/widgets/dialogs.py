@@ -13,6 +13,7 @@ from PySide6.QtGui import (
     QFont,
     QFontMetrics,
     QGuiApplication,
+    QIcon,
     QPalette,
     QPixmap,
     QTextCursor,
@@ -67,6 +68,9 @@ class InfoDialog(QDialog):
         centering_layout.addWidget(self.tab_bar)
         centering_layout.addStretch()
         is_dark = theme_manager.current_theme == "dark"
+        icon_path = ICON_DARK_PATH if is_dark else ICON_LIGHT_PATH
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         text_color = "#E0E0E0" if is_dark else "#121212"
 
         is_rtl = (
@@ -86,10 +90,10 @@ class InfoDialog(QDialog):
 
         for tab_title, tab_content in content.items():
             self.tab_bar.addTab(tab_title)
-            normalized_content = tab_content.replace("\r\n", "\n")
+            lines = tab_content.replace("\r\n", "\n").split("\n")
             paragraphs = "".join(
-                f"<p dir='{dir_attr}' align='{text_align}' style='margin:0; padding:0; font-family:{font_family}; font-size:16px; color:{text_color}; line-height:140%;'>{html.escape(line) if line.strip() else '&nbsp;'}</p>"
-                for line in normalized_content.split("\n")
+                f"<p dir='{dir_attr}' align='{text_align}' style='margin:0; padding:0; font-family:{font_family}; font-size:16px; color:{text_color}; line-height:{'100%' if idx == len(lines) - 1 else '140%'};'>{html.escape(line) if line.strip() else '&nbsp;'}</p>"
+                for idx, line in enumerate(lines)
             )
             html_text = f"<html dir='{dir_attr}'><body dir='{dir_attr}'>{paragraphs}</body></html>"
 
@@ -110,12 +114,9 @@ class InfoDialog(QDialog):
             page_widget = QWidget()
             page_layout = QHBoxLayout(page_widget)
             page_layout.setContentsMargins(30, 20, 30, 20)
-            if is_rtl:
-                page_layout.addStretch()
-                page_layout.addWidget(content_label)
-            else:
-                page_layout.addWidget(content_label)
-                page_layout.addStretch()
+            page_layout.addStretch()
+            page_layout.addWidget(content_label)
+            page_layout.addStretch()
 
             self.content_stack.addWidget(page_widget)
 
@@ -330,6 +331,9 @@ class LicenseViewerDialog(QDialog):
         self.setMinimumSize(420, 320)
 
         is_dark = theme_manager.current_theme == "dark"
+        icon_path = ICON_DARK_PATH if is_dark else ICON_LIGHT_PATH
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         is_rtl = (
             self.isRightToLeft()
             or (parent is not None and parent.isRightToLeft())
@@ -587,6 +591,9 @@ class AboutDialog(QDialog):
         self.setMinimumSize(min_width, min_height)
 
         is_dark = theme_manager.current_theme == "dark"
+        icon_path = ICON_DARK_PATH if is_dark else ICON_LIGHT_PATH
+        if os.path.exists(icon_path):
+            self.setWindowIcon(QIcon(icon_path))
         is_rtl = (
             self.isRightToLeft()
             or (parent is not None and parent.isRightToLeft())

@@ -202,7 +202,8 @@ class AnimatedButton(StatefulButton):
         return self._progress
 
     def _set_progress(self, value: float):
-        clamped = max(0.0, min(100.0, float(value)))
+        raw = float(value)
+        clamped = max(0.0, min(1.0, raw / 100.0 if raw > 1.0 else raw))
         self._progress = clamped
         self._progress_changed.emit(clamped)
         self.update()
@@ -211,7 +212,8 @@ class AnimatedButton(StatefulButton):
 
     def set_progress(self, value: float):
         """Animates the progress bar to the target value."""
-        target = max(0.0, min(100.0, float(value)))
+        raw = float(value)
+        target = max(0.0, min(1.0, raw / 100.0 if raw > 1.0 else raw))
         if self.progress_animation.state() == QPropertyAnimation.State.Running:
             self.progress_animation.stop()
 

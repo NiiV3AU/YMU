@@ -118,3 +118,8 @@ assert-type-unspellable-subtype = true
 untyped-function-decorator = true
 untyped-class-decorator = true
 untyped-namedtuple = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "tests"]
+

@@ -94,7 +94,8 @@ class LuaScriptItemWidget(QWidget):
 
     def cleanup(self) -> None:
         self.item = None
-        self.action_btn.removeEventFilter(self)
+        with contextlib.suppress(RuntimeError):
+            self.action_btn.removeEventFilter(self)
         with contextlib.suppress(RuntimeError, TypeError):
             self.action_btn.clicked.disconnect(self._on_action_btn_clicked)
         if self.theme_manager is not None:
@@ -109,19 +110,22 @@ class LuaScriptItemWidget(QWidget):
 
     def enterEvent(self, event: QEnterEvent):
         super().enterEvent(event)
-        self.action_btn.show()
+        with contextlib.suppress(RuntimeError):
+            self.action_btn.show()
 
     def leaveEvent(self, event: QEvent):
         super().leaveEvent(event)
         pos = self.mapFromGlobal(QCursor.pos())
         if not self.rect().contains(pos):
-            self.action_btn.hide()
+            with contextlib.suppress(RuntimeError):
+                self.action_btn.hide()
 
     def eventFilter(self, watched: QObject, event: QEvent) -> bool:
-        if watched == self.action_btn and event.type() == QEvent.Type.Leave:
-            pos = self.mapFromGlobal(QCursor.pos())
-            if not self.rect().contains(pos):
-                self.action_btn.hide()
+        with contextlib.suppress(RuntimeError):
+            if watched == self.action_btn and event.type() == QEvent.Type.Leave:
+                pos = self.mapFromGlobal(QCursor.pos())
+                if not self.rect().contains(pos):
+                    self.action_btn.hide()
         return super().eventFilter(watched, event)
 
     def mousePressEvent(self, event: QMouseEvent):
