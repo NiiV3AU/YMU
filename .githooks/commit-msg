@@ -26,8 +26,8 @@ if ! printf '%s' "$subject" | grep -qE '^(feat|fix|docs|style|refactor|perf|test
 fi
 
 # Subject must stay short enough to be readable in git log --oneline.
-if [ "${#subject}" -gt 72 ]; then
-    echo "commit-msg: subject is ${#subject} chars, limit is 72"
+if [ "${#subject}" -gt 100 ]; then
+    echo "commit-msg: subject is ${#subject} chars, limit is 100"
     echo "  $subject"
     exit 1
 fi

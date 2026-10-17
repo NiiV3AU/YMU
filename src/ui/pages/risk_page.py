@@ -1,8 +1,8 @@
-# risk_page.py - Displays warnings, risks, and project repository links.
 import os
 import webbrowser
 from typing import TYPE_CHECKING
 
+from PySide6.QtCore import Slot
 from PySide6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
 from core.paths import resource_path
@@ -43,12 +43,12 @@ class RiskPage(QWidget):
             "color_hover": ("#E0E0E0", "#121212"),
         }
 
+        icon_path = resource_path(os.path.join("assets", "icons", "external-link.svg"))
+
         self.yim_official_repo_button = StatefulButton(
             f"  {self.loc_manager.tr('Risk.Btn.YimOfficial', 'Official YimMenu GitHub Repo')}",
             theme_manager=self.theme_manager,
-            icon_path=resource_path(
-                os.path.join("assets", "icons", "external-link.svg")
-            ),
+            icon_path=icon_path,
             **link_button_colors,
         )
         self.yim_official_repo_button.setObjectName("LinkButton")
@@ -58,16 +58,12 @@ class RiskPage(QWidget):
                 "Open the official YimMenu GitHub repository",
             )
         )
-        self.yim_official_repo_button.clicked.connect(
-            lambda: webbrowser.open("https://github.com/YimMenu/YimMenu")
-        )
+        self.yim_official_repo_button.clicked.connect(self._open_yim_official)
 
         self.yim_repo_button = StatefulButton(
             f"  {self.loc_manager.tr('Risk.Btn.YimLegacy', 'YimMenu (Legacy) GitHub Repo')}",
             theme_manager=self.theme_manager,
-            icon_path=resource_path(
-                os.path.join("assets", "icons", "external-link.svg")
-            ),
+            icon_path=icon_path,
             **link_button_colors,
         )
         self.yim_repo_button.setObjectName("LinkButton")
@@ -76,9 +72,7 @@ class RiskPage(QWidget):
                 "Risk.Tooltip.YimLegacy", "Open the YimMenu (Legacy) GitHub repository"
             )
         )
-        self.yim_repo_button.clicked.connect(
-            lambda: webbrowser.open("https://github.com/Mr-X-GTA/YimMenu")
-        )
+        self.yim_repo_button.clicked.connect(self._open_yim_legacy)
 
         self.yimv2_repo_button = StatefulButton(
             f"  {self.loc_manager.tr('Risk.Btn.YimV2', 'YimMenuV2 (Enhanced) GitHub Repo')}",
@@ -94,9 +88,7 @@ class RiskPage(QWidget):
                 "Risk.Tooltip.YimV2", "Open the YimMenuV2 (Enhanced) GitHub repository"
             )
         )
-        self.yimv2_repo_button.clicked.connect(
-            lambda: webbrowser.open("https://github.com/YimMenu/YimMenuV2")
-        )
+        self.yimv2_repo_button.clicked.connect(self._open_yim_v2)
 
         fsl_label = self.loc_manager.tr("Risk.Btn.FSL", "FSL's UC-Thread")
         self.fsl_thread_button = StatefulButton(
@@ -114,11 +106,7 @@ class RiskPage(QWidget):
                 "Open the FSL thread on UnknownCheats for download & support",
             )
         )
-        self.fsl_thread_button.clicked.connect(
-            lambda: webbrowser.open(
-                "https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html"
-            )
-        )
+        self.fsl_thread_button.clicked.connect(self._open_fsl)
 
         self.card_frame = QFrame()
         self.card_frame.setObjectName("CardFrame")
@@ -142,3 +130,21 @@ class RiskPage(QWidget):
         self.setTabOrder(self.yim_official_repo_button, self.yim_repo_button)
         self.setTabOrder(self.yim_repo_button, self.yimv2_repo_button)
         self.setTabOrder(self.yimv2_repo_button, self.fsl_thread_button)
+
+    @Slot()
+    def _open_yim_official(self) -> None:
+        webbrowser.open("https://github.com/YimMenu/YimMenu")
+
+    @Slot()
+    def _open_yim_legacy(self) -> None:
+        webbrowser.open("https://github.com/Mr-X-GTA/YimMenu")
+
+    @Slot()
+    def _open_yim_v2(self) -> None:
+        webbrowser.open("https://github.com/YimMenu/YimMenuV2")
+
+    @Slot()
+    def _open_fsl(self) -> None:
+        webbrowser.open(
+            "https://www.unknowncheats.me/forum/grand-theft-auto-v/616977-fsl-local-gtao-saves.html"
+        )

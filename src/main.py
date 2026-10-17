@@ -304,7 +304,9 @@ def main():
                 else:
                     families = QFontDatabase.applicationFontFamilies(font_id)
                     logger.info(f"Loaded application font '{font_file}': {families}")
-        assert "Rubik" in QFontDatabase.families(), "Bundled font 'Rubik' must be loaded in QFontDatabase"
+        assert "Rubik" in QFontDatabase.families(), (
+            "Bundled font 'Rubik' must be loaded in QFontDatabase"
+        )
     else:
         logger.warning(f"Application font directory not found: {font_dir}")
     asset_path = resource_path(os.path.join("assets", "icons")).replace("\\", "/")
@@ -319,13 +321,15 @@ def main():
         worker_manager=worker_manager,
         loc_manager=loc_manager,
     )
-    app.styleHints().colorSchemeChanged.connect(lambda: update_app_icon(app, window))
+    app.styleHints().colorSchemeChanged.connect(window.on_system_color_scheme_changed)
     update_app_icon(app, window)
     window.show()
     QTimer.singleShot(100, window.show_when_ready)
     exit_code = app.exec()
     if not worker_manager.cleanup():
-        logger.warning("WorkerManager did not finish all background tasks before process exit.")
+        logger.warning(
+            "WorkerManager did not finish all background tasks before process exit."
+        )
     # Explicitly keep reference to mutex until program exit
     del _single_instance_mutex
     sys.exit(exit_code)

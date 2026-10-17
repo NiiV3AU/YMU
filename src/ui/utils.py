@@ -58,9 +58,7 @@ def create_colored_icon(
     base_size = target_size if target_size is not None else renderer.defaultSize()
     icon = QIcon()
     for dpr in (1.0, 2.0):
-        scaled_size = QSize(
-            int(base_size.width() * dpr), int(base_size.height() * dpr)
-        )
+        scaled_size = QSize(int(base_size.width() * dpr), int(base_size.height() * dpr))
         pixmap = QPixmap(scaled_size)
         pixmap.fill(Qt.GlobalColor.transparent)
         pixmap.setDevicePixelRatio(dpr)

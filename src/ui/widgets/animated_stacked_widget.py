@@ -6,6 +6,7 @@ from PySide6.QtCore import (
     QPropertyAnimation,
     Qt,
     Signal,
+    Slot,
 )
 from PySide6.QtWidgets import QStackedWidget, QWidget
 
@@ -36,11 +37,16 @@ class AnimatedStackedWidget(QStackedWidget):
         self._anim_group = QParallelAnimationGroup(self)
         self._anim_group.finished.connect(self._on_animation_finished)
 
+        self._anim_curr = QPropertyAnimation(self)
+        self._anim_curr.setPropertyName(b"pos")
+        self._anim_next = QPropertyAnimation(self)
+        self._anim_next.setPropertyName(b"pos")
+        self._anim_group.addAnimation(self._anim_curr)
+        self._anim_group.addAnimation(self._anim_next)
+
         self._is_animating = False
         self._prev_index = -1
         self._next_index = -1
-        self._anim_curr: QPropertyAnimation | None = None
-        self._anim_next: QPropertyAnimation | None = None
 
     @property
     def duration(self) -> int:
@@ -69,12 +75,14 @@ class AnimatedStackedWidget(QStackedWidget):
     def is_animating(self) -> bool:
         return self._is_animating
 
+    @Slot(QWidget)
     def setCurrentWidget(self, widget: QWidget):
         """Switches to the given widget, animating if visible."""
         index = self.indexOf(widget)
         if index != -1:
             self.setCurrentIndex(index)
 
+    @Slot(int)
     def setCurrentIndex(self, index: int):
         """Switches to the page at index, animating if the widget is visible."""
         if index < 0 or index >= self.count():
@@ -127,28 +135,22 @@ class AnimatedStackedWidget(QStackedWidget):
         w_next.show()
         w_next.raise_()
 
-        # Safely empty previous animations without PySide clear() binding glitch
-        while self._anim_group.animationCount() > 0:
-            self._anim_group.takeAnimation(0)
-
-        self._anim_curr = QPropertyAnimation(w_curr, b"pos", self)
+        self._anim_curr.setTargetObject(w_curr)
         self._anim_curr.setDuration(self._duration)
         self._anim_curr.setEasingCurve(self._easing_curve)
         self._anim_curr.setStartValue(QPoint(0, 0))
         self._anim_curr.setEndValue(end_pos_curr)
 
-        self._anim_next = QPropertyAnimation(w_next, b"pos", self)
+        self._anim_next.setTargetObject(w_next)
         self._anim_next.setDuration(self._duration)
         self._anim_next.setEasingCurve(self._easing_curve)
         self._anim_next.setStartValue(start_pos_next)
         self._anim_next.setEndValue(QPoint(0, 0))
 
-        self._anim_group.addAnimation(self._anim_curr)
-        self._anim_group.addAnimation(self._anim_next)
-
         self.animationStarted.emit(curr_idx, index)
         self._anim_group.start()
 
+    @Slot()
     def _on_animation_finished(self):
         self._cleanup_transition()
         self.animationFinished.emit(self.currentIndex())

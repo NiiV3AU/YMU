@@ -8,6 +8,7 @@ from PySide6.QtCore import (
     QRectF,
     Qt,
     Signal,
+    Slot,
 )
 from PySide6.QtGui import QColor, QPainter, QPen
 from PySide6.QtWidgets import QWidget
@@ -56,13 +57,13 @@ class ToggleSwitch(QWidget):
         self._current_track_color = self._track_color_off
         self._knob_position = self._target_knob_position(self._checked)
 
-        self.animation_group = QParallelAnimationGroup()
+        self.animation_group = QParallelAnimationGroup(self)
 
-        self.color_animation = QPropertyAnimation(self, b"track_color")
+        self.color_animation = QPropertyAnimation(self, b"track_color", self)
         self.color_animation.setDuration(200)
         self.animation_group.addAnimation(self.color_animation)
 
-        self.knob_animation = QPropertyAnimation(self, b"knob_position")
+        self.knob_animation = QPropertyAnimation(self, b"knob_position", self)
         self.knob_animation.setDuration(200)
         self.knob_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
         self.animation_group.addAnimation(self.knob_animation)
@@ -83,10 +84,14 @@ class ToggleSwitch(QWidget):
             return
         self._checked = checked
 
+        if self.animation_group.state() == QParallelAnimationGroup.State.Running:
+            self.animation_group.stop()
+        self.color_animation.setStartValue(self._current_track_color)
         if checked:
             self.color_animation.setEndValue(self._track_color_on)
         else:
             self.color_animation.setEndValue(self._track_color_off)
+        self.knob_animation.setStartValue(self._knob_position)
         self.knob_animation.setEndValue(self._target_knob_position(checked))
 
         self.animation_group.start()
@@ -153,6 +158,7 @@ class ToggleSwitch(QWidget):
             return getattr(tm, "current_theme", "dark") == "light"
         return False
 
+    @Slot(str)
     def _on_theme_changed(self, theme: str):
         if self._variant != "sidebar":
             self._track_color_on = QColor("#218838" if theme == "light" else "#28A745")

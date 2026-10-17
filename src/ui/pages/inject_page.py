@@ -5,7 +5,7 @@ import time
 import webbrowser
 from typing import TYPE_CHECKING, cast
 
-from PySide6.QtCore import QSize, Qt, QTimer
+from PySide6.QtCore import QSize, Qt, QTimer, Slot
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -238,6 +238,7 @@ class InjectPage(QWidget):
         self.process_checker_timer.stop()
         logger.debug("InjectPage hidden, stopped process checker timer.")
 
+    @Slot(object)
     def on_mode_changed(self, mode: MenuMode):
         """Slot: the sidebar switch changed the active edition.
         The old PID belongs to the other edition's executable, so reset."""
@@ -370,6 +371,7 @@ class InjectPage(QWidget):
         self.dll_select.blockSignals(False)
         self._update_ui_for_state()
 
+    @Slot(int)
     def _on_dll_selection_changed(self, index):
         """Updates the DLL to inject and remembers the choice (edition/custom)."""
         name = self.dll_select.currentText()
@@ -381,12 +383,14 @@ class InjectPage(QWidget):
             get_config().set("inject.dll_choice", choice)
         self._update_ui_for_state()
 
+    @Slot()
     def _on_launcher_selection_changed(self):
         """Persists the choice and enables/disables the start button."""
         key = self.launcher_select.currentData()
-        get_config().set("inject.launcher", key if key else None)
+        get_config().set("inject.launcher", key or None)
         self._update_ui_for_state()
 
+    @Slot()
     def show_inject_info_dialog(self):
         start_gta_default = (
             "1. Select your launcher\n2. Press [Start GTA V]\n3. Read the next step ↗"
@@ -417,6 +421,7 @@ class InjectPage(QWidget):
         )
         dialog.exec()
 
+    @Slot()
     def handle_start_gta_click(self):
         if self._state != self.STATE_IDLE:
             return
@@ -526,6 +531,7 @@ class InjectPage(QWidget):
             setattr(e, "mode_key", mode_key)  # noqa: B010
             raise
 
+    @Slot(str)
     def on_launch_attempt_finished(self, result: str):
         """Callback for when the game launch task finishes."""
         logger.info(f"Launch attempt finished with result: {result}")
@@ -537,8 +543,13 @@ class InjectPage(QWidget):
                 if isinstance(cached_dirs, dict):
                     cached_dirs.clear()
 
+    @Slot(Exception)
+    def _on_process_scan_error(self, e: Exception) -> None:
+        logger.debug("Process scan failed: %s", e)
+
+    @Slot()
     def _run_process_check(self):
-        if self._state in [self.STATE_INJECTING]:
+        if self._state == self.STATE_INJECTING:
             return
         current_mode_key = self.get_mode().key
         # run_exclusive prevents a timer tick from starting a second scan while
@@ -549,7 +560,7 @@ class InjectPage(QWidget):
             current_mode_key,
             self.get_mode().target_executables,
             on_finished=self.update_inject_button_status,
-            on_error=lambda e: logger.debug("Process scan failed: %s", e),
+            on_error=self._on_process_scan_error,
         )
 
     def _scan_process_for_mode(
@@ -558,6 +569,7 @@ class InjectPage(QWidget):
         pid = process_manager.find_gta_pid(executables)
         return mode_key, pid
 
+    @Slot(object)
     def update_inject_button_status(self, result: tuple[str, int | None] | int | None):
         if isinstance(result, tuple):
             mode_key, pid = result
@@ -602,6 +614,7 @@ class InjectPage(QWidget):
         else:
             self._set_state(self.STATE_IDLE)
 
+    @Slot()
     def handle_inject_click(self):
         if self._state != self.STATE_APP_RUNNING:
             return
@@ -705,6 +718,7 @@ class InjectPage(QWidget):
             setattr(e, "mode_key", mode_key)  # noqa: B010
             raise
 
+    @Slot(str)
     def on_injection_complete(self, mode_key: str):
         """Callback for when the injection task finishes."""
         if mode_key != self.get_mode().key:
@@ -731,6 +745,7 @@ class InjectPage(QWidget):
             logger.info("Auto-close is enabled. Closing YMU in 1.5 seconds...")
             QTimer.singleShot(1500, self._auto_close_app)
 
+    @Slot()
     def _auto_close_app(self):
         win = self.window()
         if win:
@@ -770,6 +785,7 @@ class InjectPage(QWidget):
             )
         return None
 
+    @Slot(Exception)
     def on_task_error(self, error: Exception):
         err_mode = getattr(error, "mode_key", None)
         if err_mode and err_mode != self.get_mode().key:

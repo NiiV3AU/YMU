@@ -98,7 +98,7 @@ class ThemeManager(QObject):
 
     def apply_theme(self, theme: str):
         """Applies a theme and saves the selection."""
-        normalized = str(theme).lower()
+        normalized = theme.lower()
         if normalized not in self.themes:
             logger.warning(
                 f"Attempted to apply unknown theme '{theme}'; falling back to 'dark'."

@@ -1,8 +1,9 @@
-# lua_item.py - Custom row widget for Lua scripts with hover action button.
+import contextlib
+import logging
 import os
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QEvent, QObject, QSize, Qt, Signal
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, Signal, Slot
 from PySide6.QtGui import QCursor, QEnterEvent, QMouseEvent
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QListWidgetItem, QWidget
 
@@ -11,6 +12,8 @@ from ui.widgets.buttons import StatefulButton
 
 if TYPE_CHECKING:
     from ui.styles.theme_manager import ThemeManager
+
+logger = logging.getLogger(__name__)
 
 
 class LuaScriptItemWidget(QWidget):
@@ -81,15 +84,28 @@ class LuaScriptItemWidget(QWidget):
         self.action_btn.hide()
         self.action_btn.installEventFilter(self)
 
-        self.action_btn.clicked.connect(
-            lambda: self.actionClicked.emit(self.script_name)
-        )
+        self.action_btn.clicked.connect(self._on_action_btn_clicked)
 
         layout.addWidget(self.label, stretch=1)
         layout.addWidget(
             self.action_btn,
             alignment=Qt.AlignmentFlag.AlignTrailing | Qt.AlignmentFlag.AlignVCenter,
         )
+
+    def cleanup(self) -> None:
+        self.item = None
+        self.action_btn.removeEventFilter(self)
+        with contextlib.suppress(RuntimeError, TypeError):
+            self.action_btn.clicked.disconnect(self._on_action_btn_clicked)
+        if self.theme_manager is not None:
+            with contextlib.suppress(RuntimeError, TypeError):
+                self.theme_manager.themeChanged.disconnect(
+                    self.action_btn.updateThemeColors
+                )
+
+    @Slot()
+    def _on_action_btn_clicked(self) -> None:
+        self.actionClicked.emit(self.script_name)
 
     def enterEvent(self, event: QEnterEvent):
         super().enterEvent(event)

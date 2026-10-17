@@ -9,7 +9,7 @@ import time
 from typing import TYPE_CHECKING
 
 import requests
-from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtCore import QObject, Qt, Signal, Slot
 
 from core.config import get_config
 from core.paths import USER_AGENT, YMU_LANG_DIR, resource_path
@@ -24,24 +24,26 @@ FALLBACK_LANG_URL = (
     "https://api.github.com/repos/NiiV3AU/YMU/contents/translations.json"
 )
 
-SUPPORTED_LOCALES: frozenset[str] = frozenset({
-    "en_US",
-    "de_DE",
-    "nl_NL",
-    "fr_FR",
-    "es_ES",
-    "pt_BR",
-    "pl_PL",
-    "ru_RU",
-    "uk_UA",
-    "tr_TR",
-    "zh_Hans",
-    "zh_Hant",
-    "zh_TW",
-    "ja_JP",
-    "ko_KR",
-    "ar_SA",
-})
+SUPPORTED_LOCALES: frozenset[str] = frozenset(
+    {
+        "en_US",
+        "de_DE",
+        "nl_NL",
+        "fr_FR",
+        "es_ES",
+        "pt_BR",
+        "pl_PL",
+        "ru_RU",
+        "uk_UA",
+        "tr_TR",
+        "zh_Hans",
+        "zh_Hant",
+        "zh_TW",
+        "ja_JP",
+        "ko_KR",
+        "ar_SA",
+    }
+)
 
 # A local translations.json may add new locales at runtime, using POSIX underscore
 # format (language[_Script][_REGION]) with at least one subtag present.
@@ -750,10 +752,12 @@ class LocalizationManager(QObject):
                 except OSError:
                     pass
 
+    @Slot(object)
     def _on_remote_update_finished(self, result: tuple[bool, str, bool]):
         success, msg, updated = result
         self.update_finished.emit(success, msg, updated)
 
+    @Slot(Exception)
     def _on_remote_update_error(self, error: Exception):
         logger.warning(f"Could not check for translation updates: {error}")
         self.update_finished.emit(False, str(error), False)
@@ -796,7 +800,7 @@ class LocalizationManager(QObject):
                 except (KeyError, TypeError):
                     pass
 
-        return default if default else f"[{key_path}]"
+        return default or f"[{key_path}]"
 
 
 _instance: LocalizationManager | None = None

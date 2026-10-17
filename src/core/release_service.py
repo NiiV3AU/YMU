@@ -453,7 +453,9 @@ def download_and_verify_release(
                     f.write(chunk)
                     downloaded_size += len(chunk)
                     if total_size > 0 and progress_signal is not None:
-                        percentage = min(100, max(0, int((downloaded_size / total_size) * 100)))
+                        percentage = min(
+                            100, max(0, int((downloaded_size / total_size) * 100))
+                        )
                         if percentage != last_percentage:
                             last_percentage = percentage
                             if isinstance(progress_signal, SupportsEmit):
@@ -462,8 +464,14 @@ def download_and_verify_release(
                                 progress_signal(percentage)
 
             if total_size > 0 and downloaded_size < int(total_size * 0.999):
-                calculated_hash = get_local_sha256(tmp_path) if release_data.checksum else None
-                if not (release_data.checksum and calculated_hash and calculated_hash.lower() == release_data.checksum.lower()):
+                calculated_hash = (
+                    get_local_sha256(tmp_path) if release_data.checksum else None
+                )
+                if not (
+                    release_data.checksum
+                    and calculated_hash
+                    and calculated_hash.lower() == release_data.checksum.lower()
+                ):
                     logger.error(
                         f"Download incomplete for '{safe_name}': received {downloaded_size} of {total_size} bytes."
                     )

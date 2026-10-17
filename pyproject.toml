@@ -4,10 +4,17 @@ version = "1.2.0"
 description = "The smart launcher for YimMenu: Always updated, always ready."
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["pyside6>=6.11.2", "requests>=2.34.2", "urllib3>=2.8.0"]
+dependencies = ["pyside6>=6.12.0", "requests>=2.34.2", "urllib3>=2.8.0"]
 
 [dependency-groups]
-dev = ["nuitka>=4.2.2", "pyrefly>=1.3.2", "ruff>=0.16.10", "ty>=0.0.85"]
+dev = [
+    "nuitka>=4.3",
+    "pyrefly>=1.4.0",
+    "pytest>=9.1.1",
+    "pytest-qt>=4.5.0",
+    "ruff>=0.17.1",
+    "ty>=0.0.89",
+]
 
 [tool.ruff]
 target-version = "py312"
@@ -34,18 +41,26 @@ select = [
     "YTT",   # flake8-2020
     "PLE",   # Pylint errors
     "PLW",   # Pylint warnings
+    "PLC",   # Pylint conventions
     "PERF",  # Perflint
     "TC",    # flake8-type-checking
     "LOG",   # flake8-logging
     "A",     # flake8-builtins
     "Q",     # flake8-quotes
+    "T10",   # flake8-debugger (prevents committed breakpoints)
+    "ICN",   # flake8-import-conventions
+    "INP",   # flake8-no-pep420
+    "PYI",   # flake8-pyi
+    "DTZ",   # flake8-datetimez
+    "FA",    # flake8-future-annotations
+    "FURB",  # refurb (modern python idioms)
 ]
 ignore = [
     "E501",    # line-too-long (visual wrapping handled via VS Code Soft-Wrap; code formatting by ruff format)
     "SIM105",  # use contextlib.suppress (explicit try-except-pass in cleanup blocks is preferred)
     "RET505",  # unnecessary else after return (preserves readable symmetric branching)
     "PLW0603", # global statement (legitimate singleton state in get_config)
-    "ISC001",  # single-line-implicit-string-concatenation (recommended to disable by Ruff formatter)
+    "PLC0415", # import-outside-top-level (intentional lazy/conditional imports in paths.py and utils.py)
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -55,6 +70,9 @@ ignore = [
 
 [tool.ruff.lint.isort]
 known-first-party = ["core", "ui"]
+
+[tool.ruff.lint.flake8-type-checking]
+strict = true
 
 [tool.ruff.format]
 quote-style = "double"
@@ -66,7 +84,37 @@ python-version = "3.12"
 python-platform = "win32"
 root = ["src"]
 
+[tool.ty.analysis]
+return-type-inference = "always"
+strict-generic-narrowing = true
+
+[tool.ty.terminal]
+error-on-warning = true
+
+[tool.ty.rules]
+mismatched-sentinel-name = "error"
+blanket-ignore-comment = "error"
+disjoint-cast = "error"
+division-by-zero = "error"
+dynamic-function-decorator-return = "error"
+invalid-legacy-positional-parameter = "error"
+missing-direct-dependency = "error"
+possibly-missing-attribute = "error"
+possibly-missing-import = "error"
+possibly-unresolved-reference = "error"
+unsound-yield = "error"
+unsupported-dynamic-base = "error"
+
 [tool.pyrefly]
 project-includes = ["src/**/*.py"]
 check-unannotated-defs = true
 permissive-ignores = true
+strict-partial-subtyping = true
+treat-all-caps-as-final = true
+
+[tool.pyrefly.errors]
+uninitialized-instance-variable = true
+assert-type-unspellable-subtype = true
+untyped-function-decorator = true
+untyped-class-decorator = true
+untyped-namedtuple = true

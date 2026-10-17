@@ -6,6 +6,7 @@ from PySide6.QtCore import (
     QPropertyAnimation,
     QRectF,
     Qt,
+    Slot,
 )
 from PySide6.QtGui import QColor, QPainter, QPaintEvent
 from PySide6.QtWidgets import QAbstractButton, QWidget
@@ -44,6 +45,7 @@ class SidebarIndicator(QWidget):
 
         self.theme_manager.themeChanged.connect(self._on_theme_changed)
 
+    @Slot(str)
     def _on_theme_changed(self, theme: str):
         self.update()
 

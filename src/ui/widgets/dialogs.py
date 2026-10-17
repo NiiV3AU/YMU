@@ -7,7 +7,7 @@ import webbrowser
 from collections.abc import Callable
 
 import PySide6
-from PySide6.QtCore import QSize, Qt, QTimer, QUrl, qVersion
+from PySide6.QtCore import QSize, Qt, QTimer, QUrl, Slot, qVersion
 from PySide6.QtGui import (
     QColor,
     QFont,
@@ -133,9 +133,14 @@ class InfoDialog(QDialog):
         super().showEvent(event)
         self.adjustSize()
 
-    def _on_tab_changed(self, index):
+    @Slot(int)
+    def _on_tab_changed(self, index: int) -> None:
         self.content_stack.setCurrentIndex(index)
-        QTimer.singleShot(0, self.adjustSize)
+        QTimer.singleShot(0, self._adjust_size_deferred)
+
+    @Slot()
+    def _adjust_size_deferred(self) -> None:
+        self.adjustSize()
 
 
 class HoverableRichLabel(QLabel):
@@ -181,16 +186,18 @@ class HoverableRichLabel(QLabel):
             self._refresh()
         self.unsetCursor()
 
+    @Slot(str)
     def _on_link_hovered(self, url: str):
         if self._hovered_url != url:
             self._hovered_url = url
             self._refresh()
 
+    @Slot(str)
     def _on_link_activated(self, url: str):
         if self._on_link_activated_cb:
             self._on_link_activated_cb(url)
         else:
-            target = url.split("#")[0] if "#" in url else url
+            target = url.split("#", maxsplit=1)[0] if "#" in url else url
             if target:
                 webbrowser.open(target)
 
@@ -357,6 +364,7 @@ class LicenseViewerDialog(QDialog):
             "color_normal": ("#8B8B8B", "#555555"),
             "color_hover": ("#E0E0E0", "#121212"),
         }
+        self.online_url = online_url
         self.btn_open_online = None
         if online_url:
             self.btn_open_online = StatefulButton(
@@ -368,9 +376,7 @@ class LicenseViewerDialog(QDialog):
                 **link_colors,
             )
             self.btn_open_online.setObjectName("LinkButton")
-            self.btn_open_online.clicked.connect(
-                lambda _=False, u=online_url: webbrowser.open(u)
-            )
+            self.btn_open_online.clicked.connect(self._on_open_online_clicked)
             header_layout.addWidget(
                 self.btn_open_online, 0, Qt.AlignmentFlag.AlignVCenter
             )
@@ -423,8 +429,7 @@ class LicenseViewerDialog(QDialog):
                 "blockquote { border-left: 3px solid #28A745; margin: 8px 0; padding-left: 10px; color: #9E9E9E; } "
                 "code { font-family: Consolas, monospace; font-size: 12px; color: #28A745; }"
                 if is_dark
-                else
-                f"body {{ background-color: {body_bg}; color: {body_text}; font-family: {font_family}; }} "
+                else f"body {{ background-color: {body_bg}; color: {body_text}; font-family: {font_family}; }} "
                 "h1 { font-size: 18px; font-weight: 700; color: #121212; margin-top: 0; margin-bottom: 12px; } "
                 "h2 { font-size: 15px; font-weight: 700; color: #121212; margin-top: 16px; margin-bottom: 8px; } "
                 "h3 { font-size: 13px; font-weight: 600; color: #24292F; margin-top: 12px; margin-bottom: 6px; } "
@@ -485,6 +490,11 @@ class LicenseViewerDialog(QDialog):
         if self.btn_open_online:
             self.setTabOrder(self.btn_open_online, self.btn_close)
         self.btn_close.setFocus()
+
+    @Slot()
+    def _on_open_online_clicked(self) -> None:
+        if self.online_url:
+            webbrowser.open(self.online_url)
 
 
 LICENSE_METADATA = {
@@ -662,9 +672,7 @@ class AboutDialog(QDialog):
             **link_colors,
         )
         self.btn_website.setObjectName("LinkButton")
-        self.btn_website.clicked.connect(
-            lambda: webbrowser.open("https://ymu.pages.dev/")
-        )
+        self.btn_website.clicked.connect(self._on_website_clicked)
 
         self.btn_github = StatefulButton(
             f"  {loc_manager.tr('About.BtnGitHub', 'GitHub')}",
@@ -675,9 +683,7 @@ class AboutDialog(QDialog):
             **link_colors,
         )
         self.btn_github.setObjectName("LinkButton")
-        self.btn_github.clicked.connect(
-            lambda: webbrowser.open("https://github.com/NiiV3AU/YMU")
-        )
+        self.btn_github.clicked.connect(self._on_github_clicked)
 
         title_row.addWidget(self.btn_website)
         title_row.addWidget(self.btn_github)
@@ -729,67 +735,13 @@ class AboutDialog(QDialog):
         centering_layout.addStretch()
 
         self.content_stack = QStackedWidget()
-
-        def build_scrollable_page(
-            html_or_builder,
-            on_link_activated: Callable[[str], None] | None = None,
-        ) -> QScrollArea:
-            if callable(html_or_builder):
-                label = HoverableRichLabel(
-                    html_or_builder,
-                    is_rtl=is_rtl,
-                    text_color=text_color,
-                    on_link_activated=on_link_activated,
-                )
-            else:
-                label = QLabel(html_or_builder)
-                label.setTextFormat(Qt.TextFormat.RichText)
-                label.setWordWrap(True)
-                if on_link_activated:
-                    label.setOpenExternalLinks(False)
-                    label.linkActivated.connect(on_link_activated)
-                else:
-                    label.setOpenExternalLinks(True)
-                label.setLayoutDirection(
-                    Qt.LayoutDirection.RightToLeft
-                    if is_rtl
-                    else Qt.LayoutDirection.LeftToRight
-                )
-                label.setAlignment(
-                    (
-                        Qt.AlignmentFlag.AlignRight
-                        if is_rtl
-                        else Qt.AlignmentFlag.AlignLeft
-                    )
-                    | Qt.AlignmentFlag.AlignTop
-                )
-                label.setStyleSheet(f"color: {text_color}; background: transparent;")
-
-            container = QWidget()
-            container.setLayoutDirection(
-                Qt.LayoutDirection.RightToLeft
-                if is_rtl
-                else Qt.LayoutDirection.LeftToRight
-            )
-            layout = QVBoxLayout(container)
-            layout.setContentsMargins(18, 14, 18, 14)
-            layout.addWidget(label)
-            layout.addStretch()
-
-            scroll_area = QScrollArea()
-            scroll_area.setLayoutDirection(
-                Qt.LayoutDirection.RightToLeft
-                if is_rtl
-                else Qt.LayoutDirection.LeftToRight
-            )
-            scroll_area.setWidgetResizable(True)
-            scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-            scroll_area.setHorizontalScrollBarPolicy(
-                Qt.ScrollBarPolicy.ScrollBarAlwaysOff
-            )
-            scroll_area.setStyleSheet("background: transparent;")
-            scroll_area.setWidget(container)
-            return scroll_area
+        self._is_rtl = is_rtl
+        self._dir_attr = dir_attr
+        self._text_align = text_align
+        self._font_family = font_family
+        self._text_color = text_color
+        self._lrm = "&lrm;" if is_rtl else ""
+        self._card_style = f"margin-bottom:10px; padding:12px; border:1px solid {border_color}; border-radius:8px;"
 
         available_locales = (
             loc_manager.get_available_locales()
@@ -803,7 +755,7 @@ class AboutDialog(QDialog):
         )
         val_padding = "padding: 4px 0;"
 
-        lrm = "&lrm;" if is_rtl else ""
+        lrm = self._lrm
 
         # General Tab HTML
         desc_text = html.escape(
@@ -869,56 +821,7 @@ class AboutDialog(QDialog):
         </html>
         """
 
-        card_style = f"margin-bottom:10px; padding:12px; border:1px solid {border_color}; border-radius:8px;"
-
-        # Licenses Tab HTML builder supporting dynamic hover underline
-        def build_licenses_html(hovered_link: str = "") -> str:
-            def link(url: str, key: str, text: str | None = None) -> str:
-                label = text or url
-                href = f"{url}#{key}"
-                is_hovered = hovered_link in (href, key)
-                dec = "underline" if is_hovered else "none"
-                return f"<a href='{href}' style='color:#28A745; text-decoration:{dec};'>{label}</a>"
-
-            return f"""
-            <html dir='{dir_attr}'>
-            <body dir='{dir_attr}' align='{text_align}' style='font-family:{font_family}; color:{text_color}; font-size:14px; line-height:150%;'>
-              <p dir='{dir_attr}' align='{text_align}' style='margin:0 0 12px 0;'>
-                {loc_manager.tr("About.LicensesNotice", "YimMenuUpdater is source-available software built upon free and open-source libraries. We gratefully acknowledge the following projects:")}{lrm}
-              </p>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>YimMenuUpdater (YMU)</b><br>
-                License: {link("https://polyformproject.org/licenses/shield/1.0.0", "ymu-shield", "PolyForm Shield License 1.0.0")}{lrm}<br>
-                Copyright: © 2024-2026 NiiV3AU. Free for non-commercial and permitted use.{lrm}
-              </div>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>PySide6 / Qt6</b> (Official Python GUI Framework)<br>
-                License: {link("https://www.qt.io/licensing/", "pyside-lgpl", "GNU LGPL v3.0")}{lrm}<br>
-                Copyright: © The Qt Company Ltd. and other contributors.{lrm}
-              </div>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>Rubik Typeface</b> (UI Typography)<br>
-                License: {link("https://openfontlicense.org/open-font-license-official-text/", "rubik-ofl", "SIL Open Font License 1.1 (OFL)")}{lrm}<br>
-                Copyright: © 2015 The Rubik Project Authors (Hubert & Fischer, Meir Sadan).{lrm}
-              </div>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>Lucide Icons</b> (Application Icons)<br>
-                License: {link("https://opensource.org/license/isc-license-txt", "lucide-isc", "ISC License")}{lrm}<br>
-                Copyright: © Cole Bemis, Lucide Contributors.{lrm}
-              </div>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>requests</b> (HTTP Networking Client)<br>
-                License: {link("https://www.apache.org/licenses/LICENSE-2.0", "requests-apache", "Apache License 2.0")}{lrm}<br>
-                Copyright: © Kenneth Reitz.{lrm}
-              </div>
-              <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
-                <b>YimMenu & YimMenuV2</b> (Grand Theft Auto V Mod Menus)<br>
-                License: {link("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html", "yimmenu-gpl", "GNU General Public License v2.0 (GPLv2)")}{lrm}<br>
-                Copyright: © YimMenu Development Team.{lrm}
-              </div>
-            </body>
-            </html>
-            """
+        card_style = self._card_style
 
         # Credits Tab HTML
         credits_html = f"""
@@ -944,13 +847,13 @@ class AboutDialog(QDialog):
         </html>
         """
 
-        self.content_stack.addWidget(build_scrollable_page(general_html))
+        self.content_stack.addWidget(self._build_scrollable_page(general_html))
         self.content_stack.addWidget(
-            build_scrollable_page(
-                build_licenses_html, on_link_activated=self._handle_license_click
+            self._build_scrollable_page(
+                self._build_licenses_html, on_link_activated=self._handle_license_click
             )
         )
-        self.content_stack.addWidget(build_scrollable_page(credits_html))
+        self.content_stack.addWidget(self._build_scrollable_page(credits_html))
 
         self.tab_bar.currentChanged.connect(self.content_stack.setCurrentIndex)
         if self.tab_bar.count() > 0:
@@ -982,6 +885,7 @@ class AboutDialog(QDialog):
         self.setTabOrder(self.btn_website, self.btn_github)
         self.setTabOrder(self.btn_github, self.btn_close)
 
+    @Slot(str)
     def _handle_license_click(self, url: str) -> None:
         online_url, _, key = url.partition("#")
         meta = LICENSE_METADATA.get(key)
@@ -990,10 +894,16 @@ class AboutDialog(QDialog):
             files = meta.get("files")
             if isinstance(files, list):
                 for rel_path in files:
-                    abs_path = resource_path(str(rel_path))
-                    if not os.path.exists(abs_path) and rel_path == "assets/licenses/LICENSE-POLYFORM-SHIELD.md":
+                    abs_path = resource_path(rel_path)
+                    if (
+                        not os.path.exists(abs_path)
+                        and rel_path == "assets/licenses/LICENSE-POLYFORM-SHIELD.md"
+                    ):
                         abs_path = resource_path("LICENSE.md")
-                    if not os.path.exists(abs_path) and rel_path == "assets/licenses/OFL.txt":
+                    if (
+                        not os.path.exists(abs_path)
+                        and rel_path == "assets/licenses/OFL.txt"
+                    ):
                         abs_path = resource_path("assets/fonts/OFL.txt")
                     if os.path.exists(abs_path):
                         try:
@@ -1023,3 +933,122 @@ class AboutDialog(QDialog):
         if target:
             webbrowser.open(target)
 
+    def _build_scrollable_page(
+        self,
+        html_or_builder: str | Callable[[str], str],
+        on_link_activated: Callable[[str], None] | None = None,
+    ) -> QScrollArea:
+        is_rtl = self._is_rtl
+        text_color = self._text_color
+        if callable(html_or_builder):
+            label = HoverableRichLabel(
+                html_or_builder,
+                is_rtl=is_rtl,
+                text_color=text_color,
+                on_link_activated=on_link_activated,
+            )
+        else:
+            label = QLabel(html_or_builder)
+            label.setTextFormat(Qt.TextFormat.RichText)
+            label.setWordWrap(True)
+            if on_link_activated:
+                label.setOpenExternalLinks(False)
+                label.linkActivated.connect(on_link_activated)
+            else:
+                label.setOpenExternalLinks(True)
+            label.setLayoutDirection(
+                Qt.LayoutDirection.RightToLeft
+                if is_rtl
+                else Qt.LayoutDirection.LeftToRight
+            )
+            label.setAlignment(
+                (Qt.AlignmentFlag.AlignRight if is_rtl else Qt.AlignmentFlag.AlignLeft)
+                | Qt.AlignmentFlag.AlignTop
+            )
+            label.setStyleSheet(f"color: {text_color}; background: transparent;")
+
+        container = QWidget()
+        container.setLayoutDirection(
+            Qt.LayoutDirection.RightToLeft if is_rtl else Qt.LayoutDirection.LeftToRight
+        )
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(18, 14, 18, 14)
+        layout.addWidget(label)
+        layout.addStretch()
+
+        scroll_area = QScrollArea()
+        scroll_area.setLayoutDirection(
+            Qt.LayoutDirection.RightToLeft if is_rtl else Qt.LayoutDirection.LeftToRight
+        )
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        scroll_area.setStyleSheet("background: transparent;")
+        scroll_area.setWidget(container)
+        return scroll_area
+
+    @staticmethod
+    def _license_link(
+        url: str, key: str, hovered_link: str, text: str | None = None
+    ) -> str:
+        label = text or url
+        href = f"{url}#{key}"
+        is_hovered = hovered_link in (href, key)
+        dec = "underline" if is_hovered else "none"
+        return f"<a href='{href}' style='color:#28A745; text-decoration:{dec};'>{label}</a>"
+
+    def _build_licenses_html(self, hovered_link: str = "") -> str:
+        dir_attr = self._dir_attr
+        text_align = self._text_align
+        font_family = self._font_family
+        text_color = self._text_color
+        lrm = self._lrm
+        card_style = self._card_style
+        link = self._license_link
+        return f"""
+        <html dir='{dir_attr}'>
+        <body dir='{dir_attr}' align='{text_align}' style='font-family:{font_family}; color:{text_color}; font-size:14px; line-height:150%;'>
+          <p dir='{dir_attr}' align='{text_align}' style='margin:0 0 12px 0;'>
+            {self.loc_manager.tr("About.LicensesNotice", "YimMenuUpdater is source-available software built upon free and open-source libraries. We gratefully acknowledge the following projects:")}{lrm}
+          </p>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>YimMenuUpdater (YMU)</b><br>
+            License: {link("https://polyformproject.org/licenses/shield/1.0.0", "ymu-shield", hovered_link, "PolyForm Shield License 1.0.0")}{lrm}<br>
+            Copyright: © 2024-2026 NiiV3AU. Free for non-commercial and permitted use.{lrm}
+          </div>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>PySide6 / Qt6</b> (Official Python GUI Framework)<br>
+            License: {link("https://www.qt.io/licensing/", "pyside-lgpl", hovered_link, "GNU LGPL v3.0")}{lrm}<br>
+            Copyright: © The Qt Company Ltd. and other contributors.{lrm}
+          </div>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>Rubik Typeface</b> (UI Typography)<br>
+            License: {link("https://openfontlicense.org/open-font-license-official-text/", "rubik-ofl", hovered_link, "SIL Open Font License 1.1 (OFL)")}{lrm}<br>
+            Copyright: © 2015 The Rubik Project Authors (Hubert & Fischer, Meir Sadan).{lrm}
+          </div>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>Lucide Icons</b> (Application Icons)<br>
+            License: {link("https://opensource.org/license/isc-license-txt", "lucide-isc", hovered_link, "ISC License")}{lrm}<br>
+            Copyright: © Cole Bemis, Lucide Contributors.{lrm}
+          </div>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>requests</b> (HTTP Networking Client)<br>
+            License: {link("https://www.apache.org/licenses/LICENSE-2.0", "requests-apache", hovered_link, "Apache License 2.0")}{lrm}<br>
+            Copyright: © Kenneth Reitz.{lrm}
+          </div>
+          <div dir='{dir_attr}' align='{text_align}' style='{card_style}'>
+            <b>YimMenu & YimMenuV2</b> (Grand Theft Auto V Mod Menus)<br>
+            License: {link("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html", "yimmenu-gpl", hovered_link, "GNU General Public License v2.0 (GPLv2)")}{lrm}<br>
+            Copyright: © YimMenu Development Team.{lrm}
+          </div>
+        </body>
+        </html>
+        """
+
+    @Slot()
+    def _on_website_clicked(self) -> None:
+        webbrowser.open("https://ymu.pages.dev/")
+
+    @Slot()
+    def _on_github_clicked(self) -> None:
+        webbrowser.open("https://github.com/NiiV3AU/YMU")

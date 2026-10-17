@@ -79,14 +79,20 @@ class YmuConfig(QObject):
         Raises TypeError if any value has an invalid type."""
         for key in ("theme", "locale", "mode"):
             if key in data and not isinstance(data[key], str):
-                raise TypeError(f"'{key}' must be a string, got {type(data[key]).__name__}")
+                raise TypeError(
+                    f"'{key}' must be a string, got {type(data[key]).__name__}"
+                )
         if "paths" in data:
             if not isinstance(data["paths"], dict):
-                raise TypeError(f"'paths' must be a dict, got {type(data['paths']).__name__}")
+                raise TypeError(
+                    f"'paths' must be a dict, got {type(data['paths']).__name__}"
+                )
             for pkey in ("gta_dir", "custom_dll"):
                 value = data["paths"].get(pkey)
                 if value is not None and not isinstance(value, str):
-                    raise TypeError(f"'paths.{pkey}' must be a string, got {type(value).__name__}")
+                    raise TypeError(
+                        f"'paths.{pkey}' must be a string, got {type(value).__name__}"
+                    )
 
     def _backup_corrupt_file(self):
         try:

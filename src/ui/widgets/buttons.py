@@ -9,6 +9,7 @@ from PySide6.QtCore import (
     QRectF,
     Qt,
     Signal,
+    Slot,
 )
 from PySide6.QtGui import (
     QColor,
@@ -59,6 +60,7 @@ class StatefulButton(QPushButton):
         self.icon_path = icon_path
         self.updateThemeColors(self.theme_manager.current_theme)
 
+    @Slot(str)
     def updateThemeColors(self, theme: str):
         """Selects the correct colors from the tuples and recreates the icons."""
         if not self.icon_path:
@@ -136,8 +138,9 @@ class AnimatedButton(StatefulButton):
         self.progress_animation.setEasingCurve(QEasingCurve.Type.OutCubic)
 
         self._shimmer_animation = QPropertyAnimation(self, b"offset", self)
-        self._finished_connected = False
+        self._shimmer_animation.finished.connect(self.stop_animation)
 
+    @Slot(str)
     def updateThemeColors(self, theme: str):
         """Sets the appropriate shimmer color based on the current theme."""
         if theme == "light":
@@ -238,19 +241,10 @@ class AnimatedButton(StatefulButton):
         if self._shimmer_animation.state() == QPropertyAnimation.State.Running:
             self._shimmer_animation.stop()
 
-        if self._finished_connected:
-            try:
-                self._shimmer_animation.finished.disconnect(self.stop_animation)
-            except (RuntimeError, TypeError):
-                pass
-            self._finished_connected = False
-
         if duration:
             self._shimmer_animation.setDuration(duration)
             self._shimmer_animation.setLoopCount(1)
             self._shimmer_animation.setEasingCurve(QEasingCurve.Type.OutQuad)
-            self._shimmer_animation.finished.connect(self.stop_animation)
-            self._finished_connected = True
         else:
             self._shimmer_animation.setDuration(1200)
             self._shimmer_animation.setLoopCount(-1)
@@ -261,14 +255,9 @@ class AnimatedButton(StatefulButton):
         self._is_animating = True
         self._shimmer_animation.start()
 
+    @Slot()
     def stop_animation(self):
         self._is_animating = False
         if self._shimmer_animation.state() == QPropertyAnimation.State.Running:
             self._shimmer_animation.stop()
-        if self._finished_connected:
-            try:
-                self._shimmer_animation.finished.disconnect(self.stop_animation)
-            except (RuntimeError, TypeError):
-                pass
-            self._finished_connected = False
         self.update()

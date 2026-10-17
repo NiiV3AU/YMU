@@ -5,7 +5,7 @@ import threading
 import time
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QSize, Qt, QTimer
+from PySide6.QtCore import QSize, Qt, QTimer, Slot
 from PySide6.QtGui import QShowEvent
 from PySide6.QtWidgets import (
     QFrame,
@@ -149,11 +149,13 @@ class DownloadPage(QWidget):
             )
             self.trigger_update_check()
 
+    @Slot(object)
     def on_mode_changed(self, mode: MenuMode):
         """Slot: the sidebar switch changed the active edition."""
         self.channel_label.setText(mode.display_name)
         self.trigger_update_check()
 
+    @Slot()
     def _on_download_button_clicked(self):
         """This handler decides what happens when you click."""
         if self.is_download_ready:
@@ -173,10 +175,6 @@ class DownloadPage(QWidget):
             self.loc_manager.tr("Download.Btn.Checking", "Checking...")
         )
 
-        # Capture everything mode-dependent on the GUI thread and pass it to
-        # the worker as arguments. The worker reads no shared/mode state, so a
-        # mode switch mid-check cannot mix editions; the result carries its
-        # own mode key so the callback can discard it if it is stale.
         mode = self.get_mode()
         provider = release_service.GitHubAPIProvider(repository=mode.repo)
         local_dll_path = os.path.join(YMU_DLL_DIR, mode.dll_name)
@@ -195,7 +193,9 @@ class DownloadPage(QWidget):
             on_error=self._handle_worker_error,
         )
         if not started:
-            logger.info(f"Update check for '{mode.key}' already in progress; skipping duplicate.")
+            logger.info(
+                f"Update check for '{mode.key}' already in progress; skipping duplicate."
+            )
 
     def _notify(self, title: str, message: str, **kwargs):
         win = self.window()
@@ -203,9 +203,11 @@ class DownloadPage(QWidget):
         if isinstance(mgr, NotificationManager):
             mgr.show(title, message, **kwargs)
 
+    @Slot(int)
     def update_download_progress(self, percentage: int):
         self.download_button.set_progress(percentage / 100.0)
 
+    @Slot()
     def show_download_info_dialog(self):
         """Creates and displays the info dialog for the download page."""
 
@@ -302,6 +304,7 @@ class DownloadPage(QWidget):
             )
         return self.STATUS_UPDATE
 
+    @Slot(object)
     def _handle_update_check_result(self, result):
         mode_key, status, release_data, seq = result
         if seq != self._check_seq:
@@ -353,6 +356,7 @@ class DownloadPage(QWidget):
                 icon_type="info",
             )
 
+    @Slot(Exception)
     def _handle_worker_error(self, error: Exception):
         """Callback for any error originating from the worker."""
         err_seq = getattr(error, "seq", None)
@@ -461,20 +465,16 @@ class DownloadPage(QWidget):
 
     def _download_logic(self, release_data, mode_key: str, progress_signal=None):
         """Runs in the background and executes the download."""
-
-        def progress_callback(percentage):
-            if progress_signal:
-                progress_signal.emit(percentage)
-
         try:
             success, is_verified = release_service.download_and_verify_release(
-                release_data, progress_callback
+                release_data, progress_signal
             )
             return (mode_key, success, is_verified)
         except Exception as e:
             setattr(e, "mode_key", mode_key)  # noqa: B010
             raise
 
+    @Slot(object)
     def _handle_download_result(self, result: tuple[str, bool, bool]):
         mode_key, success, is_verified = result
         if mode_key != self.get_mode().key:
@@ -516,7 +516,8 @@ class DownloadPage(QWidget):
                 icon_type="success",
             )
 
-            QTimer.singleShot(400, lambda mk=mode_key: self._set_to_uptodate_state(mk))
+            self._pending_uptodate_mode_key = mode_key
+            QTimer.singleShot(400, self._on_download_success_timer)
         else:
             self.download_button.reset_progress()
             self._notify(
@@ -537,6 +538,10 @@ class DownloadPage(QWidget):
                 self.loc_manager.tr("Download.Btn.Update", "Update")
             )
             self.is_download_ready = True
+
+    @Slot()
+    def _on_download_success_timer(self) -> None:
+        self._set_to_uptodate_state(getattr(self, "_pending_uptodate_mode_key", None))
 
     def _set_to_uptodate_state(self, mode_key: str | None = None):
         """Helper method to set the final UI state."""

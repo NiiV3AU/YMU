@@ -3,7 +3,7 @@ import logging
 import os
 import subprocess
 
-from PySide6.QtCore import QSize, Qt
+from PySide6.QtCore import QSize, Qt, Slot
 from PySide6.QtGui import (
     QColor,
     QFocusEvent,
@@ -68,6 +68,19 @@ class PathLineEdit(QLineEdit):
 
         menu = self._create_context_menu()
         menu.exec(event.globalPos())
+        menu.deleteLater()
+
+    def _menu_icon(self, name: str, icon_color: QColor) -> QIcon:
+        icon_path = resource_path(os.path.join("assets", "icons", name))
+        if os.path.exists(icon_path):
+            pm = create_colored_pixmap(icon_path, icon_color, QSize(16, 16))
+            return QIcon(pm)
+        return QIcon()
+
+    def _tr(self, key: str, default: str) -> str:
+        if self.loc_manager and hasattr(self.loc_manager, "tr"):
+            return self.loc_manager.tr(key, default)
+        return default
 
     def _create_context_menu(self) -> QMenu:
         menu = QMenu(self)
@@ -81,35 +94,30 @@ class PathLineEdit(QLineEdit):
         )
         icon_color = QColor("#E0E0E0" if is_dark else "#1A1D21")
 
-        def _icon(name: str) -> QIcon:
-            icon_path = resource_path(os.path.join("assets", "icons", name))
-            if os.path.exists(icon_path):
-                pm = create_colored_pixmap(icon_path, icon_color, QSize(16, 16))
-                return QIcon(pm)
-            return QIcon()
-
-        def _tr(key: str, default: str) -> str:
-            if self.loc_manager and hasattr(self.loc_manager, "tr"):
-                return self.loc_manager.tr(key, default)
-            return default
-
         has_selection = self.hasSelectedText()
         is_read_only = self.isReadOnly()
         clipboard = QGuiApplication.clipboard()
         has_clipboard = bool(clipboard.text()) if clipboard else False
 
-        act_cut = menu.addAction(_icon("scissors.svg"), _tr("Context.Cut", "Cut"))
+        act_cut = menu.addAction(
+            self._menu_icon("scissors.svg", icon_color),
+            self._tr("Context.Cut", "Cut"),
+        )
         act_cut.setShortcut(QKeySequence.StandardKey.Cut)
         act_cut.setEnabled(has_selection and not is_read_only)
         act_cut.triggered.connect(self.cut)
 
-        act_copy = menu.addAction(_icon("copy.svg"), _tr("Context.Copy", "Copy"))
+        act_copy = menu.addAction(
+            self._menu_icon("copy.svg", icon_color),
+            self._tr("Context.Copy", "Copy"),
+        )
         act_copy.setShortcut(QKeySequence.StandardKey.Copy)
         act_copy.setEnabled(has_selection)
         act_copy.triggered.connect(self.copy)
 
         act_paste = menu.addAction(
-            _icon("clipboard-paste.svg"), _tr("Context.Paste", "Paste")
+            self._menu_icon("clipboard-paste.svg", icon_color),
+            self._tr("Context.Paste", "Paste"),
         )
         act_paste.setShortcut(QKeySequence.StandardKey.Paste)
         act_paste.setEnabled(has_clipboard and not is_read_only)
@@ -120,14 +128,15 @@ class PathLineEdit(QLineEdit):
         clean_path = self.text().strip().strip('"').strip("'")
         path_exists = bool(clean_path and os.path.exists(clean_path))
         act_explorer = menu.addAction(
-            _icon("folder-open.svg"),
-            _tr("Context.OpenExplorer", "Show in Explorer"),
+            self._menu_icon("folder-open.svg", icon_color),
+            self._tr("Context.OpenExplorer", "Show in Explorer"),
         )
         act_explorer.setEnabled(path_exists)
         act_explorer.triggered.connect(self._open_in_explorer)
 
         return menu
 
+    @Slot()
     def _open_in_explorer(self):
         clean_path = self.text().strip().strip('"').strip("'")
         if not clean_path or not os.path.exists(clean_path):
@@ -135,7 +144,9 @@ class PathLineEdit(QLineEdit):
 
         if os.path.isfile(clean_path):
             try:
-                subprocess.Popen(["explorer", f"/select,{os.path.normpath(clean_path)}"])
+                subprocess.Popen(
+                    ["explorer", f"/select,{os.path.normpath(clean_path)}"]
+                )
                 return
             except Exception as e:
                 logger.warning(f"Could not select file in explorer: {e}")

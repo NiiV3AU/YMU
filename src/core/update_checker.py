@@ -32,7 +32,7 @@ def _set_cached(result: tuple[str, str], ttl: float, current_time: float) -> Non
 
 def parse_version_tuple(v: str) -> tuple[int, int, int]:
     """Parse a semantic or tagged version string like 'v1.2.3', 'release-1.2.0', or '1.0' into a 3-tuple (major, minor, patch)."""
-    match = re.search(r"(\d+(?:\.\d+)*)", str(v).strip())
+    match = re.search(r"(\d+(?:\.\d+)*)", v.strip())
     if not match:
         return (0, 0, 0)
     nums = [int(n) for n in match.group(1).split(".")][:3]

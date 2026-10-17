@@ -6,7 +6,7 @@ import threading
 from collections.abc import Callable
 from typing import Any
 
-from PySide6.QtCore import QObject, QRunnable, Qt, QThreadPool, Signal, Slot
+from PySide6.QtCore import QObject, QRunnable, Qt, QThreadPool, QTimer, Signal, Slot
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,10 @@ class WorkerSignals(QObject):
     error = Signal(Exception)
     progress = Signal(int)
 
+    def __init__(self, exclusive_key: str | None = None, parent: QObject | None = None):
+        super().__init__(parent)
+        self.exclusive_key = exclusive_key
+
 
 class Worker(QRunnable):
     """A generic runnable that runs a target function in the thread pool."""
@@ -29,6 +33,8 @@ class Worker(QRunnable):
         *args,
         pass_progress: bool = False,
         cleanup_callback: Callable[[], None] | None = None,
+        exclusive_key: str | None = None,
+        manager: "WorkerManager | None" = None,
         **kwargs,
     ):
         super().__init__()
@@ -37,7 +43,9 @@ class Worker(QRunnable):
         self.kwargs = kwargs
         self.pass_progress = pass_progress
         self.cleanup_callback = cleanup_callback
-        self.signals = WorkerSignals()
+        self.exclusive_key = exclusive_key
+        self.manager = manager
+        self.signals = WorkerSignals(exclusive_key=exclusive_key)
         self.setAutoDelete(True)
 
     @Slot()
@@ -61,13 +69,19 @@ class Worker(QRunnable):
                 pass
         except BaseException as e:
             target_name = getattr(self.target, "__name__", repr(self.target))
-            logger.critical(f"BaseException in worker thread for target {target_name}: {e}")
+            logger.critical(
+                f"BaseException in worker thread for target {target_name}: {e}"
+            )
             try:
-                self.signals.error.emit(RuntimeError(f"Worker critical error: {type(e).__name__}: {e}"))
+                self.signals.error.emit(
+                    RuntimeError(f"Worker critical error: {type(e).__name__}: {e}")
+                )
             except RuntimeError:
                 pass
             raise
         finally:
+            if self.manager is not None and self.exclusive_key is not None:
+                self.manager._release_exclusive_key(self.exclusive_key)
             if self.cleanup_callback:
                 try:
                     self.cleanup_callback()
@@ -86,6 +100,7 @@ class WorkerManager(QObject):
         # otherwise autoDelete could collect it while a queued signal is in
         # flight.
         self._active_signals: set[WorkerSignals] = set()
+        self._retired_signals: list[WorkerSignals] = []
         self._signals_lock = threading.Lock()
         # Guards run_exclusive keys so a duplicate task (e.g. a timer-driven
         # process scan) is skipped while one is already running.
@@ -95,12 +110,17 @@ class WorkerManager(QObject):
         self._shutdown_budget_ms = 5000
         logger.info(f"WorkerManager initialized with a pool of {max_threads} threads.")
 
+    def _release_exclusive_key(self, key: str) -> None:
+        with self._keys_lock:
+            self._active_keys.discard(key)
+
     def run_task(
         self,
         target: Callable,
         *args,
         pass_progress: bool = False,
         cleanup_callback: Callable[[], None] | None = None,
+        exclusive_key: str | None = None,
         on_finished: Callable[[Any], None] | None = None,
         on_error: Callable[[Exception], None] | None = None,
         on_progress: Callable[[int], None] | None = None,
@@ -110,6 +130,8 @@ class WorkerManager(QObject):
         Returns True if started, False if refused."""
         if self._is_shutting_down:
             logger.warning("WorkerManager is shutting down; refusing new task.")
+            if exclusive_key is not None:
+                self._release_exclusive_key(exclusive_key)
             if cleanup_callback:
                 try:
                     cleanup_callback()
@@ -123,6 +145,8 @@ class WorkerManager(QObject):
             *args,
             pass_progress=pass_prog,
             cleanup_callback=cleanup_callback,
+            exclusive_key=exclusive_key,
+            manager=self,
             **kwargs,
         )
         signals = worker.signals
@@ -138,8 +162,8 @@ class WorkerManager(QObject):
         if on_progress:
             signals.progress.connect(on_progress, conn)
 
-        signals.finished.connect(lambda _: self._release_signals(signals), conn)
-        signals.error.connect(lambda _: self._release_signals(signals), conn)
+        signals.finished.connect(self._on_worker_finished, conn)
+        signals.error.connect(self._on_worker_error, conn)
 
         self._pool.start(worker)
         return True
@@ -169,24 +193,47 @@ class WorkerManager(QObject):
                 return False
             self._active_keys.add(key)
 
-        def cleanup():
-            with self._keys_lock:
-                self._active_keys.discard(key)
-
         return self.run_task(
             target,
             *args,
             pass_progress=pass_progress,
-            cleanup_callback=cleanup,
+            exclusive_key=key,
             on_finished=on_finished,
             on_error=on_error,
             on_progress=on_progress,
             **kwargs,
         )
 
+    @Slot(object)
+    def _on_worker_finished(self, result: object) -> None:
+        sender = self.sender()
+        if isinstance(sender, WorkerSignals):
+            if sender.exclusive_key:
+                self._release_exclusive_key(sender.exclusive_key)
+            self._release_signals(sender)
+
+    @Slot(Exception)
+    def _on_worker_error(self, error: Exception) -> None:
+        sender = self.sender()
+        if isinstance(sender, WorkerSignals):
+            if sender.exclusive_key:
+                self._release_exclusive_key(sender.exclusive_key)
+            self._release_signals(sender)
+
     def _release_signals(self, signals: WorkerSignals):
+        # Defer Python deallocation to the next event-loop tick so the C++
+        # WorkerSignals QObject is never deleted while QMetaCallEvent::placeMetaCall
+        # and QMetaSenderSwitcher are still on its C++ call stack.
         with self._signals_lock:
             self._active_signals.discard(signals)
+            self._retired_signals.append(signals)
+        signals.deleteLater()
+        QTimer.singleShot(0, self._flush_retired_signals)
+
+    @Slot()
+    def _flush_retired_signals(self) -> None:
+        with self._signals_lock:
+            self._retired_signals.clear()
 
     def cleanup(self, timeout_ms: int = 5000) -> bool:
         """Waits for running tasks to finish when the application exits."""
@@ -211,6 +258,7 @@ class WorkerManager(QObject):
             self._active_keys.clear()
         with self._signals_lock:
             self._active_signals.clear()
+            self._retired_signals.clear()
         if not done:
             remaining = self._pool.activeThreadCount()
             logger.warning(

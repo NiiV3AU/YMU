@@ -1,11 +1,12 @@
 # settings_page.py - Settings UI for theme, language, lua scripts, paths, and updates.
+import contextlib
 import logging
 import os
 import webbrowser
 from itertools import pairwise
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer
+from PySide6.QtCore import QEvent, QObject, QSize, Qt, QTimer, Slot
 from PySide6.QtGui import QColor, QKeyEvent
 from PySide6.QtWidgets import (
     QAbstractItemView,
@@ -131,22 +132,9 @@ class SettingsPage(QWidget):
         else:
             self.btn_dark_theme.setChecked(True)
 
-        self.theme_group.buttonClicked.connect(
-            lambda: QTimer.singleShot(
-                0,
-                lambda: [
-                    b.updateIcon()
-                    for b in self.theme_group.buttons()
-                    if isinstance(b, StatefulButton)
-                ],
-            )
-        )
-        self.btn_dark_theme.clicked.connect(
-            lambda: self.theme_manager.apply_theme("dark")
-        )
-        self.btn_light_theme.clicked.connect(
-            lambda: self.theme_manager.apply_theme("light")
-        )
+        self.theme_group.buttonClicked.connect(self._on_theme_button_clicked)
+        self.btn_dark_theme.clicked.connect(self._apply_dark_theme)
+        self.btn_light_theme.clicked.connect(self._apply_light_theme)
 
         theme_button_layout.addWidget(self.btn_dark_theme)
         theme_button_layout.addWidget(self.btn_light_theme)
@@ -579,44 +567,24 @@ class SettingsPage(QWidget):
         page_layout.setContentsMargins(0, 0, 0, 0)
         page_layout.addWidget(self.scroll_area)
 
-        self.btn_open_folder.clicked.connect(
-            lambda: self._open_link(self.get_mode().appdata_dir)
-        )
-        self.btn_open_ymu_folder.clicked.connect(
-            lambda: self._open_link(YMU_APPDATA_DIR)
-        )
+        self.btn_open_folder.clicked.connect(self._on_open_appdata_clicked)
+        self.btn_open_ymu_folder.clicked.connect(self._on_open_ymu_appdata_clicked)
 
-        self.btn_report_bug.clicked.connect(
-            lambda: self._open_link(
-                "https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.yaml"
-            )
-        )
-        self.btn_request_feature.clicked.connect(
-            lambda: self._open_link(
-                "https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.yaml"
-            )
-        )
+        self.btn_report_bug.clicked.connect(self._on_report_bug_clicked)
+        self.btn_request_feature.clicked.connect(self._on_request_feature_clicked)
         self.btn_check_for_updates.clicked.connect(self._handle_check_for_updates)
         self.btn_about.clicked.connect(self._show_about_dialog)
         self.auto_reload_toggle.toggled.connect(self._on_auto_reload_toggled)
         self.debug_console_toggle.toggled.connect(self._on_debug_console_toggled)
-        self.auto_reload_toggle.focusChanged.connect(
-            lambda has_focus: self._on_toggle_focus_changed(
-                self.auto_reload_label, has_focus
-            )
-        )
+        self.auto_reload_toggle.focusChanged.connect(self._on_any_toggle_focus_changed)
         self.debug_console_toggle.focusChanged.connect(
-            lambda has_focus: self._on_toggle_focus_changed(
-                self.debug_console_label, has_focus
-            )
+            self._on_any_toggle_focus_changed
         )
         self.btn_open_scripts_folder.clicked.connect(
-            lambda: self._open_link(self.get_mode().scripts_dir)
+            self._on_open_scripts_folder_clicked
         )
         self.btn_refresh_luas.clicked.connect(self._refresh_lua_lists)
-        self.btn_discover_luas.clicked.connect(
-            lambda: self._open_link("https://github.com/orgs/YimMenu-Lua/repositories")
-        )
+        self.btn_discover_luas.clicked.connect(self._on_discover_luas_clicked)
 
         # Unified keyboard tab chain connecting all frames in visual reading order
         tab_chain = [
@@ -658,6 +626,7 @@ class SettingsPage(QWidget):
         self._refresh_lua_lists()
         self._load_initial_settings()
 
+    @Slot(object)
     def on_mode_changed(self, mode: MenuMode):
         """Slot: the sidebar switch changed the active edition."""
         self._mode = mode
@@ -665,6 +634,7 @@ class SettingsPage(QWidget):
         self._refresh_lua_lists()
         self._load_initial_settings()
 
+    @Slot()
     def _show_about_dialog(self):
         """Opens the modal About and Open Source Licenses dialog."""
         dialog = AboutDialog(
@@ -727,7 +697,7 @@ class SettingsPage(QWidget):
         )
         self.btn_clear_gta.setObjectName("LinkButton")
         self.btn_browse_gta.clicked.connect(self._browse_gta_dir)
-        self.btn_clear_gta.clicked.connect(lambda: self._clear_path("paths.gta_dir"))
+        self.btn_clear_gta.clicked.connect(self._on_clear_gta_clicked)
 
         gta_row = QHBoxLayout()
         gta_row.addWidget(self.gta_dir_edit, stretch=1)
@@ -769,7 +739,7 @@ class SettingsPage(QWidget):
         )
         self.btn_clear_dll.setObjectName("LinkButton")
         self.btn_browse_dll.clicked.connect(self._browse_custom_dll)
-        self.btn_clear_dll.clicked.connect(lambda: self._clear_path("paths.custom_dll"))
+        self.btn_clear_dll.clicked.connect(self._on_clear_dll_clicked)
 
         dll_row = QHBoxLayout()
         dll_row.addWidget(self.custom_dll_edit, stretch=1)
@@ -796,11 +766,7 @@ class SettingsPage(QWidget):
             )
         )
         self.nobattleye_toggle.toggled.connect(self._on_nobattleye_toggled)
-        self.nobattleye_toggle.focusChanged.connect(
-            lambda has_focus: self._on_toggle_focus_changed(
-                self.nobattleye_label, has_focus
-            )
-        )
+        self.nobattleye_toggle.focusChanged.connect(self._on_any_toggle_focus_changed)
 
         nobattleye_row.addWidget(self.nobattleye_label, stretch=1)
         nobattleye_row.addWidget(self.nobattleye_toggle)
@@ -850,6 +816,14 @@ class SettingsPage(QWidget):
 
         return frame
 
+    @staticmethod
+    def _run_nobattleye_toggle(
+        mode_key: str, checked: bool, gta_dir: str
+    ) -> tuple[str, bool, str, bool]:
+        success = process_manager.set_nobattleye_enabled(gta_dir, checked)
+        return (mode_key, checked, gta_dir, success)
+
+    @Slot(bool)
     def _on_nobattleye_toggled(self, checked: bool):
         """Called when the user toggles the -nobattleye switch."""
         gta_dir = process_manager.get_gta_directory(self.get_mode())
@@ -873,90 +847,114 @@ class SettingsPage(QWidget):
 
         mode_val = self.get_mode()
         mode_key = getattr(mode_val, "key", str(mode_val))
+        self._nobattleye_toggle_ctx = (mode_key, gta_dir)
 
-        def _do_toggle():
-            return process_manager.set_nobattleye_enabled(gta_dir, checked)
-
-        def _on_finished(success: bool):
+        started = self.worker_manager.run_exclusive(
+            f"nobattleye_toggle_{mode_key}",
+            self._run_nobattleye_toggle,
+            mode_key,
+            checked,
+            gta_dir,
+            on_finished=self._on_nobattleye_toggle_finished,
+            on_error=self._on_nobattleye_toggle_error,
+        )
+        if not started:
             self.nobattleye_toggle.setEnabled(True)
-            curr_mode = self.get_mode()
-            curr_key = getattr(curr_mode, "key", str(curr_mode))
-            if curr_key != mode_key:
-                return
-            if success:
-                if checked:
-                    self._notify(
-                        self.loc_manager.tr(
-                            "Settings.Notify.BattlEyeDisabledTitle",
-                            "BattlEye Disabled",
-                        ),
-                        self.loc_manager.tr(
-                            "Settings.Notify.BattlEyeDisabledMsg",
-                            "Added -nobattleye to commandline.txt in your GTA V directory.",
-                        ),
-                        icon_type="success",
-                    )
-                else:
-                    self._notify(
-                        self.loc_manager.tr(
-                            "Settings.Notify.BattlEyeRestoredTitle",
-                            "BattlEye Restored",
-                        ),
-                        self.loc_manager.tr(
-                            "Settings.Notify.BattlEyeRestoredMsg",
-                            "Removed -nobattleye from commandline.txt.",
-                        ),
-                        icon_type="info",
-                    )
-            else:
-                current_state = process_manager.is_nobattleye_enabled(gta_dir)
-                self.nobattleye_toggle.blockSignals(True)
-                self.nobattleye_toggle.setChecked(current_state)
-                self.nobattleye_toggle.blockSignals(False)
-                action_text = None
-                action_cb = None
-                if not process_manager.is_admin():
-                    action_text = self.loc_manager.tr(
-                        "Common.RestartAdmin", "Restart as Admin"
-                    )
-                    action_cb = restart_as_admin
 
+    @Slot(object)
+    def _on_nobattleye_toggle_finished(
+        self, result: tuple[str, bool, str, bool]
+    ) -> None:
+        mode_key, checked, gta_dir, success = result
+        self.nobattleye_toggle.setEnabled(True)
+        curr_mode = self.get_mode()
+        curr_key = getattr(curr_mode, "key", str(curr_mode))
+        if curr_key != mode_key:
+            return
+        if success:
+            if checked:
                 self._notify(
-                    self.loc_manager.tr("Common.Error", "Error"),
                     self.loc_manager.tr(
-                        "Settings.Paths.ErrorWriteCommandline",
-                        "Could not modify commandline.txt. Please check file permissions or run as Administrator.",
+                        "Settings.Notify.BattlEyeDisabledTitle",
+                        "BattlEye Disabled",
                     ),
-                    icon_type="error",
-                    duration=8000 if action_text else 5000,
-                    action_text=action_text,
-                    action_callback=action_cb,
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeDisabledMsg",
+                        "Added -nobattleye to commandline.txt in your GTA V directory.",
+                    ),
+                    icon_type="success",
                 )
-
-        def _on_error(exc: Exception):
-            self.nobattleye_toggle.setEnabled(True)
-            curr_mode = self.get_mode()
-            curr_key = getattr(curr_mode, "key", str(curr_mode))
-            if curr_key != mode_key:
-                return
+            else:
+                self._notify(
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeRestoredTitle",
+                        "BattlEye Restored",
+                    ),
+                    self.loc_manager.tr(
+                        "Settings.Notify.BattlEyeRestoredMsg",
+                        "Removed -nobattleye from commandline.txt.",
+                    ),
+                    icon_type="info",
+                )
+        else:
             current_state = process_manager.is_nobattleye_enabled(gta_dir)
             self.nobattleye_toggle.blockSignals(True)
             self.nobattleye_toggle.setChecked(current_state)
             self.nobattleye_toggle.blockSignals(False)
+            action_text = None
+            action_cb = None
+            if not process_manager.is_admin():
+                action_text = self.loc_manager.tr(
+                    "Common.RestartAdmin", "Restart as Admin"
+                )
+                action_cb = restart_as_admin
+
             self._notify(
                 self.loc_manager.tr("Common.Error", "Error"),
-                str(exc),
+                self.loc_manager.tr(
+                    "Settings.Paths.ErrorWriteCommandline",
+                    "Could not modify commandline.txt. Please check file permissions or run as Administrator.",
+                ),
                 icon_type="error",
+                duration=8000 if action_text else 5000,
+                action_text=action_text,
+                action_callback=action_cb,
             )
 
-        started = self.worker_manager.run_exclusive(
-            f"nobattleye_toggle_{mode_key}",
-            _do_toggle,
-            on_finished=_on_finished,
-            on_error=_on_error,
+    @Slot(Exception)
+    def _on_nobattleye_toggle_error(self, exc: Exception) -> None:
+        self.nobattleye_toggle.setEnabled(True)
+        if not hasattr(self, "_nobattleye_toggle_ctx"):
+            return
+        mode_key, gta_dir = self._nobattleye_toggle_ctx
+        curr_mode = self.get_mode()
+        curr_key = getattr(curr_mode, "key", str(curr_mode))
+        if curr_key != mode_key:
+            return
+        current_state = process_manager.is_nobattleye_enabled(gta_dir)
+        self.nobattleye_toggle.blockSignals(True)
+        self.nobattleye_toggle.setChecked(current_state)
+        self.nobattleye_toggle.blockSignals(False)
+        self._notify(
+            self.loc_manager.tr("Common.Error", "Error"),
+            str(exc),
+            icon_type="error",
         )
-        if not started:
-            self.nobattleye_toggle.setEnabled(True)
+
+    @staticmethod
+    def _fetch_nobattleye_state(
+        mode_key: str, mode_val: MenuMode, cached: str | None
+    ) -> tuple[str, str | None, bool, FslStatus]:
+        gta_dir = (
+            cached
+            if cached is not None
+            else process_manager.get_gta_directory(mode_val)
+        )
+        is_enabled = (
+            process_manager.is_nobattleye_enabled(gta_dir) if gta_dir else False
+        )
+        status = get_fsl_status(gta_dir)
+        return mode_key, gta_dir, is_enabled, status
 
     def _update_nobattleye_toggle_state(self):
         """Refreshes the nobattleye toggle state and FSL status asynchronously via a background worker."""
@@ -964,39 +962,33 @@ class SettingsPage(QWidget):
         mode_key = getattr(mode_val, "key", str(mode_val))
         cached = self._cached_gta_dir.get(mode_key)
 
-        def _fetch():
-            gta_dir = (
-                cached
-                if cached is not None
-                else process_manager.get_gta_directory(mode_val)
-            )
-            is_enabled = (
-                process_manager.is_nobattleye_enabled(gta_dir) if gta_dir else False
-            )
-            status = get_fsl_status(gta_dir)
-            return gta_dir, is_enabled, status
-
-        def _on_finished(result: tuple[str | None, bool, FslStatus]):
-            gta_dir, is_enabled, status = result
-            if gta_dir:
-                self._cached_gta_dir[mode_key] = gta_dir
-            else:
-                self._cached_gta_dir.pop(mode_key, None)
-            curr_mode = self.get_mode()
-            curr_key = getattr(curr_mode, "key", str(curr_mode))
-            if curr_key == mode_key:
-                if hasattr(self, "nobattleye_toggle"):
-                    self.nobattleye_toggle.blockSignals(True)
-                    self.nobattleye_toggle.setChecked(is_enabled)
-                    self.nobattleye_toggle.blockSignals(False)
-                self._apply_fsl_status(status)
-
         self.worker_manager.run_exclusive(
             f"nobattleye_check_{mode_key}",
-            _fetch,
-            on_finished=_on_finished,
+            self._fetch_nobattleye_state,
+            mode_key,
+            mode_val,
+            cached,
+            on_finished=self._on_nobattleye_check_finished,
             on_error=self._on_task_error,
         )
+
+    @Slot(object)
+    def _on_nobattleye_check_finished(
+        self, result: tuple[str, str | None, bool, FslStatus]
+    ) -> None:
+        mode_key, gta_dir, is_enabled, status = result
+        if gta_dir:
+            self._cached_gta_dir[mode_key] = gta_dir
+        else:
+            self._cached_gta_dir.pop(mode_key, None)
+        curr_mode = self.get_mode()
+        curr_key = getattr(curr_mode, "key", str(curr_mode))
+        if curr_key == mode_key:
+            if hasattr(self, "nobattleye_toggle"):
+                self.nobattleye_toggle.blockSignals(True)
+                self.nobattleye_toggle.setChecked(is_enabled)
+                self.nobattleye_toggle.blockSignals(False)
+            self._apply_fsl_status(status)
 
     def _apply_fsl_status(self, status: FslStatus):
         """Updates the FSL detection status icon, label, and tooltip according to status."""
@@ -1079,11 +1071,7 @@ class SettingsPage(QWidget):
             bool(get_config().get("inject.auto_close", False))
         )
         self.auto_close_toggle.toggled.connect(self._on_auto_close_toggled)
-        self.auto_close_toggle.focusChanged.connect(
-            lambda has_focus: self._on_toggle_focus_changed(
-                self.auto_close_label, has_focus
-            )
-        )
+        self.auto_close_toggle.focusChanged.connect(self._on_any_toggle_focus_changed)
 
         auto_close_row.addWidget(self.auto_close_label, stretch=1)
         auto_close_row.addWidget(self.auto_close_toggle)
@@ -1107,9 +1095,7 @@ class SettingsPage(QWidget):
         )
         self.sound_feedback_toggle.toggled.connect(self._on_sound_feedback_toggled)
         self.sound_feedback_toggle.focusChanged.connect(
-            lambda has_focus: self._on_toggle_focus_changed(
-                self.sound_feedback_label, has_focus
-            )
+            self._on_any_toggle_focus_changed
         )
 
         sound_feedback_row.addWidget(self.sound_feedback_label, stretch=1)
@@ -1187,47 +1173,56 @@ class SettingsPage(QWidget):
         if event.type() == QEvent.Type.LayoutDirectionChange:
             self._update_lua_button_icons()
 
+    @staticmethod
+    def _run_clear_menu_caches(
+        mode_key: str, mode: MenuMode
+    ) -> tuple[str, int, list[str]]:
+        count, total = clear_menu_caches(mode)
+        return (mode_key, count, total)
+
+    @Slot()
     def _on_reset_caches_clicked(self):
         """Deletes binary pointer/pattern cache files for the active edition."""
         mode = self.get_mode()
         mode_key = getattr(mode, "key", str(mode))
 
-        def _do_clear():
-            return clear_menu_caches(mode)
-
-        def _on_finished(result: tuple[int, int]):
-            curr_mode = self.get_mode()
-            if getattr(curr_mode, "key", str(curr_mode)) != mode_key:
-                return
-            count, _ = result
-            if count > 0:
-                msg = self.loc_manager.tr(
-                    "Settings.Notify.CachesClearedMsg",
-                    "{0} cache file(s) cleared successfully.",
-                ).format(count)
-                self._notify(
-                    self.loc_manager.tr(
-                        "Settings.Notify.CachesClearedTitle", "Caches Cleared"
-                    ),
-                    msg,
-                    icon_type="success",
-                )
-            else:
-                self._notify(
-                    self.loc_manager.tr("Common.Info", "Information"),
-                    self.loc_manager.tr(
-                        "Settings.Notify.NoCachesMsg", "No cache files found to clear."
-                    ),
-                    icon_type="info",
-                )
-
         self.worker_manager.run_exclusive(
             f"clear_menu_caches_{mode_key}",
-            _do_clear,
-            on_finished=_on_finished,
+            self._run_clear_menu_caches,
+            mode_key,
+            mode,
+            on_finished=self._on_reset_caches_finished,
             on_error=self._on_task_error,
         )
 
+    @Slot(object)
+    def _on_reset_caches_finished(self, result: tuple[str, int, list[str]]):
+        mode_key, count, _ = result
+        curr_mode = self.get_mode()
+        if getattr(curr_mode, "key", str(curr_mode)) != mode_key:
+            return
+        if count > 0:
+            msg = self.loc_manager.tr(
+                "Settings.Notify.CachesClearedMsg",
+                "{0} cache file(s) cleared successfully.",
+            ).format(count)
+            self._notify(
+                self.loc_manager.tr(
+                    "Settings.Notify.CachesClearedTitle", "Caches Cleared"
+                ),
+                msg,
+                icon_type="success",
+            )
+        else:
+            self._notify(
+                self.loc_manager.tr("Common.Info", "Information"),
+                self.loc_manager.tr(
+                    "Settings.Notify.NoCachesMsg", "No cache files found to clear."
+                ),
+                icon_type="info",
+            )
+
+    @Slot()
     def _on_open_log_clicked(self):
         """Opens the active edition's cout.log file if it exists."""
         mode = self.get_mode()
@@ -1256,6 +1251,7 @@ class SettingsPage(QWidget):
                 icon_type="info",
             )
 
+    @Slot()
     def _on_disable_all_scripts_clicked(self):
         """Moves all enabled Lua scripts to the disabled folder."""
         mode = self.get_mode()
@@ -1271,6 +1267,7 @@ class SettingsPage(QWidget):
                 icon_type="info",
             )
 
+    @Slot()
     def _on_enable_all_scripts_clicked(self):
         """Moves all disabled Lua scripts back to the active scripts folder."""
         mode = self.get_mode()
@@ -1286,10 +1283,12 @@ class SettingsPage(QWidget):
                 icon_type="success",
             )
 
+    @Slot(bool)
     def _on_auto_close_toggled(self, checked: bool):
         """Called when the user toggles the auto-close switch."""
         get_config().set("inject.auto_close", checked)
 
+    @Slot(bool)
     def _on_sound_feedback_toggled(self, checked: bool):
         """Called when the user toggles the sound feedback switch."""
         get_config().set("inject.sound_feedback", checked)
@@ -1355,6 +1354,7 @@ class SettingsPage(QWidget):
         self.custom_dll_edit.setText(clean_path)
         return True
 
+    @Slot()
     def _on_gta_dir_editing_finished(self):
         """Slot for manual keyboard/paste entry in the GTA V directory field."""
         text = self.gta_dir_edit.text().strip().strip('"').strip("'")
@@ -1369,6 +1369,7 @@ class SettingsPage(QWidget):
         if not self._apply_gta_dir(text):
             self.gta_dir_edit.setText(current)
 
+    @Slot()
     def _on_custom_dll_editing_finished(self):
         """Slot for manual keyboard/paste entry in the custom DLL path field."""
         text = self.custom_dll_edit.text().strip().strip('"').strip("'")
@@ -1383,6 +1384,7 @@ class SettingsPage(QWidget):
         if not self._apply_custom_dll(text):
             self.custom_dll_edit.setText(current)
 
+    @Slot()
     def _browse_gta_dir(self):
         directory = QFileDialog.getExistingDirectory(
             self,
@@ -1392,6 +1394,7 @@ class SettingsPage(QWidget):
             return
         self._apply_gta_dir(directory)
 
+    @Slot()
     def _browse_custom_dll(self):
         file_path, _ = QFileDialog.getOpenFileName(
             self,
@@ -1419,6 +1422,7 @@ class SettingsPage(QWidget):
             icon_type="error",
         )
 
+    @Slot()
     def _open_risks_page(self):
         """Navigates to the Risks page in MainWindow."""
         main_win = self.window()
@@ -1610,6 +1614,7 @@ class SettingsPage(QWidget):
                     icon_type="error",
                 )
 
+    @Slot(bool)
     def _on_auto_reload_toggled(self, checked: bool):
         """Called when the user clicks the auto-reload toggle."""
         if self.get_mode().key != "legacy":
@@ -1620,6 +1625,7 @@ class SettingsPage(QWidget):
             toggle=getattr(self, "auto_reload_toggle", None),
         )
 
+    @Slot(bool)
     def _on_debug_console_toggled(self, checked: bool):
         """Called when the user clicks the debug console toggle."""
         if self.get_mode().key != "legacy":
@@ -1640,6 +1646,7 @@ class SettingsPage(QWidget):
         else:
             label.setStyleSheet("")
 
+    @Slot()
     def _refresh_lua_lists(self):
         """Fetches the active edition's script lists, updates UI, and plays a
         brief feedback animation."""
@@ -1652,7 +1659,12 @@ class SettingsPage(QWidget):
                 for i in range(lst.count()):
                     item = lst.item(i)
                     w = lst.itemWidget(item)
+                    if isinstance(w, LuaScriptItemWidget):
+                        with contextlib.suppress(RuntimeError, TypeError):
+                            w.actionClicked.disconnect()
+                        w.cleanup()
                     if w is not None:
+                        lst.removeItemWidget(item)
                         w.deleteLater()
                 lst.clear()
 
@@ -1728,7 +1740,9 @@ class SettingsPage(QWidget):
 
             if hasattr(self, "disabled_header_label"):
                 self.disabled_header_label.setText(
-                    f"{disabled_base} ({disabled_count})" if available else disabled_base
+                    f"{disabled_base} ({disabled_count})"
+                    if available
+                    else disabled_base
                 )
             if hasattr(self, "enabled_header_label"):
                 self.enabled_header_label.setText(
@@ -1752,7 +1766,7 @@ class SettingsPage(QWidget):
         except Exception:
             logger.exception("Failed to refresh Lua script lists")
         finally:
-            QTimer.singleShot(500, lambda: self.btn_refresh_luas.setEnabled(True))
+            QTimer.singleShot(500, self._enable_btn_refresh_luas)
 
     def _get_item_script_name(self, item: QListWidgetItem | None) -> str:
         """Retrieves script name from UserRole data or item text."""
@@ -1761,16 +1775,19 @@ class SettingsPage(QWidget):
         data = item.data(Qt.ItemDataRole.UserRole)
         return str(data) if data else item.text()
 
+    @Slot(QListWidgetItem)
     def _on_disabled_item_double_clicked(self, item: QListWidgetItem):
         name = self._get_item_script_name(item)
         if name:
             self._enable_single_script(name)
 
+    @Slot(QListWidgetItem)
     def _on_enabled_item_double_clicked(self, item: QListWidgetItem):
         name = self._get_item_script_name(item)
         if name:
             self._disable_single_script(name)
 
+    @Slot(str)
     def _enable_single_script(self, script_name: str):
         if not script_name:
             return
@@ -1780,6 +1797,7 @@ class SettingsPage(QWidget):
         )
         self._refresh_lua_lists()
 
+    @Slot(str)
     def _disable_single_script(self, script_name: str):
         if not script_name:
             return
@@ -1840,6 +1858,7 @@ class SettingsPage(QWidget):
                 return True
         return super().eventFilter(watched, event)
 
+    @Slot()
     def _handle_check_for_updates(self):
         """Starts the background task to check for YMU updates."""
         self.btn_check_for_updates.setEnabled(False)
@@ -1855,6 +1874,7 @@ class SettingsPage(QWidget):
             self.btn_check_for_updates.setEnabled(True)
             self.btn_check_for_updates.stop_animation()
 
+    @Slot(object)
     def _on_update_check_finished(self, result):
         self.btn_check_for_updates.stop_animation()
         self.btn_check_for_updates.setEnabled(True)
@@ -1872,14 +1892,7 @@ class SettingsPage(QWidget):
             self.btn_check_for_updates.setText(
                 self.loc_manager.tr("Settings.Btn.UpToDate", "YMU is up-to-date")
             )
-            QTimer.singleShot(
-                5000,
-                lambda: self.btn_check_for_updates.setText(
-                    self.loc_manager.tr(
-                        "Settings.Btn.CheckUpdates", "Check for YMU Updates"
-                    )
-                ),
-            )
+            QTimer.singleShot(5000, self._reset_check_updates_btn_text)
 
         elif status == update_checker.STATUS_UPDATE_AVAILABLE:
             title = self.loc_manager.tr(
@@ -1926,12 +1939,14 @@ class SettingsPage(QWidget):
                 icon_type="error",
             )
 
+    @Slot()
     def _on_fetch_lang_clicked(self):
         """Start the manual download and animation."""
         self.btn_update_lang.setEnabled(False)
         self.btn_update_lang.start_animation(duration=500)
         self.loc_manager.fetch_updates()
 
+    @Slot(bool, str, bool)
     def _on_lang_fetch_finished(
         self, success: bool, message: str, restart_needed: bool
     ):
@@ -1961,10 +1976,12 @@ class SettingsPage(QWidget):
                 self.loc_manager.tr("Common.Error", "Error"), message, icon_type="error"
             )
 
+    @Slot()
     def _on_language_index_changed(self):
         """Starts the debounce timer when language selection changes in the UI."""
         self._lang_debounce_timer.start()
 
+    @Slot()
     def _commit_language_change(self):
         index = self.lang_combo.currentIndex()
         if index < 0:
@@ -1994,6 +2011,7 @@ class SettingsPage(QWidget):
             tag="language_change",
         )
 
+    @Slot(Exception)
     def _on_task_error(self, error: Exception):
         """A generic callback to handle any errors from the worker tasks."""
         self.btn_check_for_updates.stop_animation()
@@ -2008,4 +2026,84 @@ class SettingsPage(QWidget):
             self.loc_manager.tr("Common.Error", "Error"),
             f"{self.loc_manager.tr('Common.UnexpectedError', 'An unexpected error occurred')}: {error}",
             icon_type="error",
+        )
+
+    @Slot()
+    def _on_theme_button_clicked(self) -> None:
+        QTimer.singleShot(0, self._update_theme_buttons_icons)
+
+    @Slot()
+    def _update_theme_buttons_icons(self) -> None:
+        for b in self.theme_group.buttons():
+            if isinstance(b, StatefulButton):
+                b.updateIcon()
+
+    @Slot()
+    def _apply_dark_theme(self) -> None:
+        self.theme_manager.apply_theme("dark")
+
+    @Slot()
+    def _apply_light_theme(self) -> None:
+        self.theme_manager.apply_theme("light")
+
+    @Slot(bool)
+    def _on_any_toggle_focus_changed(self, has_focus: bool) -> None:
+        sender = self.sender()
+        if not isinstance(sender, ToggleSwitch):
+            return
+        label_map = {
+            self.auto_reload_toggle: self.auto_reload_label,
+            self.debug_console_toggle: self.debug_console_label,
+            self.nobattleye_toggle: self.nobattleye_label,
+            self.auto_close_toggle: self.auto_close_label,
+            self.sound_feedback_toggle: self.sound_feedback_label,
+        }
+        label = label_map.get(sender)
+        if label:
+            self._on_toggle_focus_changed(label, has_focus)
+
+    @Slot()
+    def _on_open_appdata_clicked(self) -> None:
+        self._open_link(self.get_mode().appdata_dir)
+
+    @Slot()
+    def _on_open_ymu_appdata_clicked(self) -> None:
+        self._open_link(YMU_APPDATA_DIR)
+
+    @Slot()
+    def _on_report_bug_clicked(self) -> None:
+        self._open_link(
+            "https://github.com/NiiV3AU/YMU/issues/new?template=bug_report.yaml"
+        )
+
+    @Slot()
+    def _on_request_feature_clicked(self) -> None:
+        self._open_link(
+            "https://github.com/NiiV3AU/YMU/issues/new?template=feature_request.yaml"
+        )
+
+    @Slot()
+    def _on_open_scripts_folder_clicked(self) -> None:
+        self._open_link(self.get_mode().scripts_dir)
+
+    @Slot()
+    def _on_discover_luas_clicked(self) -> None:
+        self._open_link("https://github.com/orgs/YimMenu-Lua/repositories")
+
+    @Slot()
+    def _on_clear_gta_clicked(self) -> None:
+        self._clear_path("paths.gta_dir")
+
+    @Slot()
+    def _on_clear_dll_clicked(self) -> None:
+        self._clear_path("paths.custom_dll")
+
+    @Slot()
+    def _enable_btn_refresh_luas(self) -> None:
+        self.btn_refresh_luas.setEnabled(True)
+
+    @Slot()
+    def _reset_check_updates_btn_text(self) -> None:
+        self.btn_check_for_updates.setText(
+            self.loc_manager.tr("Settings.Btn.CheckUpdates", "Check for YMU Updates")
         )

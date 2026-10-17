@@ -12,6 +12,7 @@ from PySide6.QtCore import (
     Qt,
     QTimer,
     Signal,
+    Slot,
 )
 from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
@@ -94,7 +95,8 @@ class NotificationWidget(QFrame):
         self.action_btn.setCursor(Qt.CursorShape.PointingHandCursor)
         self.action_btn.setMinimumWidth(100)
         self.action_btn.setVisible(False)
-        self._action_connected: bool = False
+        self._action_callback = None
+        self.action_btn.clicked.connect(self._on_action_btn_clicked)
         text_layout.addSpacing(6)
         text_layout.addWidget(self.action_btn, 0, Qt.AlignmentFlag.AlignLeading)
 
@@ -126,7 +128,13 @@ class NotificationWidget(QFrame):
 
         self._close_timer = QTimer(self)
         self._close_timer.setSingleShot(True)
-        self.current_animation = None
+        self._close_timer.timeout.connect(self.close_animation)
+
+        self._pending_finished_slot = None
+        self.current_animation = QPropertyAnimation(self, b"pos", self)
+        self.current_animation.setDuration(350)
+        self.current_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self.current_animation.finished.connect(self._on_pos_animation_finished)
 
     def _set_icon(self, icon_type: str):
         icons = {
@@ -174,25 +182,23 @@ class NotificationWidget(QFrame):
 
         if duration > 0:
             self._close_timer.setInterval(duration)
-            self._close_timer.timeout.connect(self.close_animation)
             self._close_timer.start()
 
     def _setup_action(self, action_text: str | None, action_callback=None):
-        if getattr(self, "_action_connected", False):
-            try:
-                self.action_btn.clicked.disconnect()
-            except (RuntimeError, TypeError):
-                pass
-            self._action_connected = False
-
         if action_text and action_callback:
+            self._action_callback = action_callback
             self.action_btn.setText(action_text)
-            self.action_btn.clicked.connect(action_callback)
-            self.action_btn.clicked.connect(self.close_animation)
-            self._action_connected = True
             self.action_btn.setVisible(True)
         else:
+            self._action_callback = None
             self.action_btn.setVisible(False)
+
+    @Slot()
+    def _on_action_btn_clicked(self) -> None:
+        cb = self._action_callback
+        if callable(cb):
+            cb()
+        self.close_animation()
 
     def update_content(
         self,
@@ -216,6 +222,7 @@ class NotificationWidget(QFrame):
             self._close_timer.setInterval(duration)
             self._close_timer.start()
 
+    @Slot()
     def close_animation(self):
         if self.is_closing:
             return
@@ -231,14 +238,22 @@ class NotificationWidget(QFrame):
 
     def animate_to(self, target_pos: QPoint, finished_slot=None):
         """A generic animation method to move the widget."""
-        self.current_animation = QPropertyAnimation(self, b"pos")
-        self.current_animation.setDuration(350)
-        self.current_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        if self.current_animation.state() == QPropertyAnimation.State.Running:
+            self._pending_finished_slot = None
+            self.current_animation.stop()
+        self._pending_finished_slot = finished_slot
+        self.current_animation.setStartValue(self.pos())
         self.current_animation.setEndValue(target_pos)
-        if finished_slot:
-            self.current_animation.finished.connect(finished_slot)
         self.current_animation.start()
 
+    @Slot()
+    def _on_pos_animation_finished(self) -> None:
+        slot = self._pending_finished_slot
+        self._pending_finished_slot = None
+        if callable(slot):
+            slot()
+
+    @Slot()
     def _on_animation_finished(self):
         self.closed.emit(self)
         self.deleteLater()
@@ -350,6 +365,7 @@ class NotificationManager(QObject):
                     notification.animate_to(target_pos)
             current_y -= self.gap
 
+    @Slot(object)
     def _remove_notification(self, notification: NotificationWidget):
         if notification in self.notifications:
             self.notifications.remove(notification)

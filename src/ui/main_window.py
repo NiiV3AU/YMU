@@ -2,9 +2,10 @@ import logging
 import os
 from typing import TYPE_CHECKING
 
-from PySide6.QtCore import QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QSize, Qt, QTimer, Signal, Slot
 from PySide6.QtGui import QCloseEvent, QColor
 from PySide6.QtWidgets import (
+    QAbstractButton,
     QApplication,
     QButtonGroup,
     QFrame,
@@ -24,6 +25,7 @@ from ui.pages.download_page import DownloadPage
 from ui.pages.inject_page import InjectPage
 from ui.pages.risk_page import RiskPage
 from ui.pages.settings_page import SettingsPage
+from ui.utils import update_app_icon
 from ui.widgets import (
     AboutDialog,
     AnimatedStackedWidget,
@@ -85,9 +87,6 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.content_stack, stretch=1)
         self.setCentralWidget(self.main_widget)
 
-        def get_active_mode():
-            return self.current_mode
-
         self.risk_page = RiskPage(
             theme_manager=self.theme_manager, loc_manager=self.loc_manager
         )
@@ -95,20 +94,20 @@ class MainWindow(QMainWindow):
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
-            get_mode=get_active_mode,
+            get_mode=self.get_active_mode,
             auto_check=auto_check,
         )
         self.inject_page = InjectPage(
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
-            get_mode=get_active_mode,
+            get_mode=self.get_active_mode,
         )
         self.settings_page = SettingsPage(
             theme_manager=self.theme_manager,
             worker_manager=self.worker_manager,
             loc_manager=self.loc_manager,
-            get_mode=get_active_mode,
+            get_mode=self.get_active_mode,
         )
 
         self.mode_changed.connect(self.download_page.on_mode_changed)
@@ -131,6 +130,7 @@ class MainWindow(QMainWindow):
             self._on_layout_direction_changed
         )
 
+    @Slot(object)
     def _on_layout_direction_changed(self, new_direction: Qt.LayoutDirection):
         """Synchronizes global layout direction and theme overrides on language changes."""
         if QApplication.layoutDirection() != new_direction:
@@ -145,6 +145,7 @@ class MainWindow(QMainWindow):
             self.sidebar_indicator.sync_to_current()
             self.sidebar_indicator.update()
 
+    @Slot(str)
     def _apply_card_shadows(self, theme: str):
         """Gives every card a soft drop shadow in the light theme, where flat
         light fills lack depth. In the dark theme the shadow would be invisible
@@ -164,6 +165,7 @@ class MainWindow(QMainWindow):
                 card.setGraphicsEffect(effect)
             effect.setEnabled(theme == "light")
 
+    @Slot()
     def show_when_ready(self):
         """Signals that the app is initialized and triggers the first paint."""
         self._is_ready_to_show = True
@@ -195,16 +197,7 @@ class MainWindow(QMainWindow):
     def setup_sidebar(self, layout: QVBoxLayout):
         self.button_group = QButtonGroup(self)
         self.button_group.setExclusive(True)
-        self.button_group.buttonClicked.connect(
-            lambda: QTimer.singleShot(
-                0,
-                lambda: [
-                    b.updateIcon()
-                    for b in self.button_group.buttons()
-                    if isinstance(b, StatefulButton)
-                ],
-            )
-        )
+        self.button_group.buttonClicked.connect(self._on_sidebar_button_clicked)
 
         sidebar_parent = layout.parentWidget()
         if sidebar_parent:
@@ -212,9 +205,7 @@ class MainWindow(QMainWindow):
                 sidebar_parent, self.theme_manager
             )
             self.sidebar_indicator.lower()
-            self.button_group.buttonClicked.connect(
-                lambda btn: self.sidebar_indicator.move_to_button(btn, animate=True)
-            )
+            self.button_group.buttonClicked.connect(self._on_sidebar_indicator_move)
 
         sidebar_colors = {
             "color_normal": ("#8B8B8B", "#555555"),
@@ -310,19 +301,12 @@ class MainWindow(QMainWindow):
         if hasattr(self, "sidebar_indicator"):
             self.sidebar_indicator.move_to_button(btn_risks, animate=False)
 
-        btn_risks.clicked.connect(
-            lambda: self.content_stack.setCurrentWidget(self.risk_page)
-        )
-        btn_download.clicked.connect(
-            lambda: self.content_stack.setCurrentWidget(self.download_page)
-        )
-        btn_inject.clicked.connect(
-            lambda: self.content_stack.setCurrentWidget(self.inject_page)
-        )
-        btn_settings.clicked.connect(
-            lambda: self.content_stack.setCurrentWidget(self.settings_page)
-        )
+        btn_risks.clicked.connect(self._show_risk_page)
+        btn_download.clicked.connect(self._show_download_page)
+        btn_inject.clicked.connect(self._show_inject_page)
+        btn_settings.clicked.connect(self._show_settings_page)
 
+    @Slot()
     def show_about_dialog(self):
         """Displays the modal About and Open Source Licenses dialog."""
         dialog = AboutDialog(
@@ -332,12 +316,14 @@ class MainWindow(QMainWindow):
         )
         dialog.exec()
 
+    @Slot()
     def show_download_page(self):
         """Navigate to the Download page as if the sidebar button was clicked,
         so the page switch, the selected-button highlight and its icon all stay
         in sync. Used by the 'Re-download DLL' action on injection errors."""
         self.btn_download.click()
 
+    @Slot()
     def show_risks_page(self):
         """Navigate to the Risks page (which explains how to disable BattlEye),
         keeping the sidebar selection in sync."""
@@ -386,6 +372,7 @@ class MainWindow(QMainWindow):
             self._on_theme_changed_update_mode_labels
         )
 
+    @Slot(str)
     def _on_theme_changed_update_mode_labels(self, _theme: str | None = None):
         self._update_mode_labels()
 
@@ -405,6 +392,7 @@ class MainWindow(QMainWindow):
         self.mode_legacy_label.setStyleSheet(inactive if is_enhanced else active)
         self.mode_enhanced_label.setStyleSheet(active if is_enhanced else inactive)
 
+    @Slot(bool)
     def _on_mode_toggled(self, checked: bool):
         """Persists the new mode and notifies all pages."""
         key = "enhanced" if checked else "legacy"
@@ -445,6 +433,7 @@ class MainWindow(QMainWindow):
         elif len(detected) > 1:
             logger.info("Both GTA V editions detected; keeping the saved mode.")
 
+    @Slot(str, str)
     def _on_config_save_failed(self, key_path: str, error_msg: str) -> None:
         logger.error(f"Failed to persist config key '{key_path}' to disk: {error_msg}")
         self.notification_manager.show(
@@ -455,6 +444,46 @@ class MainWindow(QMainWindow):
             ),
             icon_type="error",
         )
+
+    def get_active_mode(self):
+        return self.current_mode
+
+    @Slot()
+    def _on_sidebar_button_clicked(self) -> None:
+        QTimer.singleShot(0, self._update_sidebar_icons)
+
+    @Slot()
+    def _update_sidebar_icons(self) -> None:
+        for b in self.button_group.buttons():
+            if isinstance(b, StatefulButton):
+                b.updateIcon()
+
+    @Slot(object)
+    def _on_sidebar_indicator_move(self, btn: object) -> None:
+        if hasattr(self, "sidebar_indicator") and isinstance(btn, QAbstractButton):
+            self.sidebar_indicator.move_to_button(btn, animate=True)
+
+    @Slot()
+    def _show_risk_page(self) -> None:
+        self.content_stack.setCurrentWidget(self.risk_page)
+
+    @Slot()
+    def _show_download_page(self) -> None:
+        self.content_stack.setCurrentWidget(self.download_page)
+
+    @Slot()
+    def _show_inject_page(self) -> None:
+        self.content_stack.setCurrentWidget(self.inject_page)
+
+    @Slot()
+    def _show_settings_page(self) -> None:
+        self.content_stack.setCurrentWidget(self.settings_page)
+
+    @Slot()
+    def on_system_color_scheme_changed(self) -> None:
+        app = QApplication.instance()
+        if isinstance(app, QApplication):
+            update_app_icon(app, self)
 
     def closeEvent(self, event: QCloseEvent):
         """Cleanly handle application window closing."""
