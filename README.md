@@ -9,7 +9,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 [![Changelog](https://img.shields.io/badge/Changelog-CHANGELOG.md-gray?style=for-the-badge&logo=markdown&logoColor=white&labelColor=181717)](CHANGELOG.md)
 <br>
 [![Website](https://img.shields.io/badge/Website-ymu.pages.dev-gray?style=for-the-badge&logo=cloudflare&logoColor=white&labelColor=F38020)](https://ymu.pages.dev/)
-[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/0e6f442e56b757e387c2d22c2885136868a4b8d0d7856e7eb620bc1df32ebab2)
+[![VirusTotal Scan](https://img.shields.io/badge/VirusTotal-View_Scan_Report-gray?style=for-the-badge&logo=virustotal&logoColor=white&labelColor=394EFF)](https://www.virustotal.com/gui/file/72389398346378578757e6fdba9693323f157af71b01c2b3284e8b26385a64d4)
 
 ![YMU Showcase](https://github.com/user-attachments/assets/a017affb-f48f-44fe-be75-222d2e3477dc?raw=true)
 
