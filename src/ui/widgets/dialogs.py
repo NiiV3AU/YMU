@@ -39,10 +39,9 @@ from ui.utils import (
     ICON_DARK_PATH,
     ICON_LIGHT_PATH,
     ICON_SVG_PATH,
-    adjust_button_to_text,
     create_colored_pixmap,
 )
-from ui.widgets.buttons import AnimatedButton, StatefulButton
+from ui.widgets.buttons import StatefulButton
 
 
 class InfoDialog(QDialog):
@@ -459,35 +458,17 @@ class LicenseViewerDialog(QDialog):
                 format_plain_license(text_content, text_color, is_dark)
             )
 
-        # Bottom Action Bar (Single Close button for clean 2 -> 1 color hierarchy)
-        bottom_layout = QHBoxLayout()
-        bottom_layout.setContentsMargins(0, 0, 0, 0)
-        bottom_layout.addStretch()
-
-        self.btn_close = AnimatedButton(
-            loc_manager.tr("About.BtnClose", "Close"),
-            theme_manager=theme_manager,
-        )
-        adjust_button_to_text(self.btn_close)
-        self.btn_close.clicked.connect(self.accept)
-        bottom_layout.addWidget(self.btn_close)
-
         # Main Layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(20, 16, 20, 16)
         main_layout.setSpacing(12)
         main_layout.addLayout(header_layout)
         main_layout.addWidget(self.text_browser, stretch=1)
-        main_layout.addLayout(bottom_layout)
 
         if self.btn_open_online:
             self.setTabOrder(self.btn_open_online, self.text_browser)
-            self.setTabOrder(self.text_browser, self.btn_close)
-            self.setTabOrder(self.btn_close, self.btn_open_online)
-        else:
-            self.setTabOrder(self.text_browser, self.btn_close)
-            self.setTabOrder(self.btn_close, self.text_browser)
-        self.btn_close.setFocus()
+            self.setTabOrder(self.text_browser, self.btn_open_online)
+        self.text_browser.setFocus()
 
     @Slot()
     def _on_open_online_clicked(self) -> None:
