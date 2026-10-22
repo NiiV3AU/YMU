@@ -84,7 +84,9 @@ class NotificationWidget(QFrame):
         self.message_label.setObjectName("NotificationMessage")
         self.message_label.setWordWrap(True)
         self.message_label.setTextFormat(Qt.TextFormat.PlainText)
-        self.message_label.setMinimumWidth(180)
+        # Leave enough room for long localized errors to wrap into a few lines
+        # instead of growing into a tall, narrow card.
+        self.message_label.setMinimumWidth(300)
         self.message_label.setContentsMargins(2, 0, 2, 0)
 
         text_layout.addWidget(self.title_label)
