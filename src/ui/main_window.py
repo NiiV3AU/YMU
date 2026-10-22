@@ -113,6 +113,9 @@ class MainWindow(QMainWindow):
         self.mode_changed.connect(self.download_page.on_mode_changed)
         self.mode_changed.connect(self.inject_page.on_mode_changed)
         self.mode_changed.connect(self.settings_page.on_mode_changed)
+        self.inject_page.injection_active_changed.connect(
+            self._on_injection_active_changed
+        )
 
         self.content_stack.addWidget(self.risk_page)
         self.content_stack.addWidget(self.download_page)
@@ -395,9 +398,20 @@ class MainWindow(QMainWindow):
         self.mode_enhanced_label.setStyleSheet(active if is_enhanced else inactive)
 
     @Slot(bool)
+    def _on_injection_active_changed(self, active: bool):
+        """Locks the edition switch while an injection is in flight."""
+        self.mode_toggle.setEnabled(not active)
+
+    @Slot(bool)
     def _on_mode_toggled(self, checked: bool):
         """Persists the new mode and notifies all pages."""
         key = "enhanced" if checked else "legacy"
+        if self.inject_page.is_injecting():
+            logger.warning("Blocked edition switch while an injection is running.")
+            self.mode_toggle.blockSignals(True)
+            self.mode_toggle.setChecked(self.current_mode.key == "enhanced")
+            self.mode_toggle.blockSignals(False)
+            return
         # A manual toggle is an explicit choice: stop auto-detecting from now on.
         self.config.set("mode_user_set", True)
         if key == self.current_mode.key:

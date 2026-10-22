@@ -5,7 +5,7 @@ import time
 import webbrowser
 from typing import TYPE_CHECKING, cast
 
-from PySide6.QtCore import QSize, Qt, QTimer, Slot
+from PySide6.QtCore import QSize, Qt, QTimer, Signal, Slot
 from PySide6.QtWidgets import (
     QAbstractItemView,
     QComboBox,
@@ -40,6 +40,8 @@ logger = logging.getLogger(__name__)
 
 
 class InjectPage(QWidget):
+    injection_active_changed = Signal(bool)
+
     STATE_IDLE = "IDLE"
     STATE_LAUNCHING = "LAUNCHING"
     STATE_APP_RUNNING = "APP_RUNNING"
@@ -82,7 +84,6 @@ class InjectPage(QWidget):
         # DLL selection changed).
         self._scan_serial = 0
         self._injected_dll_name: str | None = None
-        self._injection_dll_path: str | None = None
 
         self.info_button = StatefulButton(
             "",
@@ -260,13 +261,19 @@ class InjectPage(QWidget):
         if self.isVisible():
             self._run_process_check()
 
+    def is_injecting(self) -> bool:
+        return self._state == self.STATE_INJECTING
+
     def _set_state(self, new_state):
         """The only function that should ever change the state."""
         logger.debug(f"State changed: {self._state} -> {new_state}")
+        was_injecting = self._state == self.STATE_INJECTING
         if new_state != self.STATE_INJECTED:
             self._injected_dll_name = None
         self._state = new_state
         self._update_ui_for_state()
+        if was_injecting != (new_state == self.STATE_INJECTING):
+            self.injection_active_changed.emit(new_state == self.STATE_INJECTING)
 
     def _update_ui_for_state(self):
         """Updates the entire UI based on the current state."""
@@ -774,12 +781,10 @@ class InjectPage(QWidget):
             return
         self.gta_pid = target_pid
         target_dll = self.dll_to_inject if isinstance(self.dll_to_inject, str) else None
-        self._injection_dll_path = target_dll
 
         # Invalidate scans that started before this click; their result could
         # otherwise override the injection state once the task completes.
         self._scan_serial += 1
-        self._set_state(self.STATE_INJECTING)
         # Capture PID, DLL and active mode on the GUI thread; the worker must not read
         # mutable page state. run_exclusive guards against a double injection.
         target_mode_key = current_mode.key
@@ -794,8 +799,17 @@ class InjectPage(QWidget):
         )
         if not started:
             logger.warning("Injection task could not be started (already running).")
-            self._injection_dll_path = None
+            self._notify(
+                self.loc_manager.tr("Common.Error", "Error"),
+                self.loc_manager.tr(
+                    "Inject.Error.InjectionFailed",
+                    "Injection failed. See logs for details.",
+                ),
+                icon_type="error",
+            )
             self._set_state(self.STATE_APP_RUNNING)
+            return
+        self._set_state(self.STATE_INJECTING)
 
     def _confirm_battleye_override(self) -> bool:
         """BattlEye is active. Warn about the ban risk and let the user choose —
@@ -838,7 +852,9 @@ class InjectPage(QWidget):
             return False
         return clicked is proceed
 
-    def _inject_logic(self, pid: int, dll_to_inject: str, mode_key: str) -> str:
+    def _inject_logic(
+        self, pid: int, dll_to_inject: str, mode_key: str
+    ) -> tuple[str, str]:
         """Contains the actual logic for injecting the DLL."""
         try:
             if pid is None or not process_manager.is_process_running(pid):
@@ -850,24 +866,52 @@ class InjectPage(QWidget):
             success = process_manager.inject_dll(pid, dll_to_inject)
 
             if success:
-                return mode_key
+                return mode_key, dll_to_inject
             raise process_manager.InjectionError("unknown")
         except Exception as e:
             setattr(e, "mode_key", mode_key)  # noqa: B010
             raise
 
-    @Slot(str)
-    def on_injection_complete(self, mode_key: str):
-        """Callback for when the injection task finishes."""
-        injected_path = self._injection_dll_path
-        self._injection_dll_path = None
+    @Slot(object)
+    def on_injection_complete(self, result: object):
+        """Callback for when the injection task finishes.
+
+        The worker result carries its own (mode, DLL) identity, so a later
+        click or selector change can never make this completion describe a
+        different target.
+        """
+        if not (isinstance(result, tuple) and len(result) == 2):
+            logger.warning("Ignoring malformed injection result: %r", result)
+            if self._state == self.STATE_INJECTING:
+                self._set_state(
+                    self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE
+                )
+            return
+
+        mode_key, injected_path = result
+        if not (
+            isinstance(mode_key, str)
+            and isinstance(injected_path, str)
+            and injected_path
+        ):
+            logger.warning("Ignoring malformed injection result: %r", result)
+            if self._state == self.STATE_INJECTING:
+                self._set_state(
+                    self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE
+                )
+            return
+
         if mode_key != self.get_mode().key:
             logger.warning(
                 f"Injection finished for mode '{mode_key}', but current mode is '{self.get_mode().key}'. Ignoring."
             )
+            if self._state == self.STATE_INJECTING:
+                self._set_state(
+                    self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE
+                )
             return
 
-        if injected_path and self.dll_to_inject != injected_path:
+        if self.dll_to_inject != injected_path:
             logger.warning(
                 "Injection finished for '%s', but the selected DLL is now '%s'; "
                 "keeping the page ready for the new selection.",
@@ -878,9 +922,7 @@ class InjectPage(QWidget):
             self._set_state(self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE)
             return
 
-        self._injected_dll_name = (
-            os.path.basename(injected_path) if injected_path else None
-        )
+        self._injected_dll_name = os.path.basename(injected_path)
         self._set_state(self.STATE_INJECTED)
         logger.info(f"Injection finished for mode: {mode_key}")
 
