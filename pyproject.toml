@@ -8,12 +8,12 @@ dependencies = ["pyside6>=6.12.0", "requests>=2.34.2", "urllib3>=2.8.0"]
 
 [dependency-groups]
 dev = [
-    "nuitka>=4.3",
+    "nuitka>=4.3.1",
     "pyrefly>=1.4.0",
     "pytest>=9.1.1",
     "pytest-qt>=4.5.0",
     "ruff>=0.17.1",
-    "ty>=0.0.89",
+    "ty>=0.0.90",
 ]
 
 [tool.ruff]
