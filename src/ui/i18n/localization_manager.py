@@ -682,7 +682,7 @@ class LocalizationManager(QObject):
                 try:
                     logger.info(f"Checking for translation updates from: {url}")
                     req_headers = dict(headers)
-                    if "api.github.com" in url:
+                    if url == FALLBACK_LANG_URL:
                         req_headers["Accept"] = "application/vnd.github.raw+json"
                     with requests.get(url, headers=req_headers, timeout=10) as resp:
                         if resp.status_code == 200:

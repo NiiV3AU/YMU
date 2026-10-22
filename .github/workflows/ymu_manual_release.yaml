@@ -20,6 +20,8 @@ jobs:
     runs-on: windows-latest
     name: Build YMU on Windows
     timeout-minutes: 90
+    permissions:
+      contents: read
     outputs:
       full_sha: ${{ steps.var.outputs.full_sha }}
       version: ${{ steps.meta.outputs.version }}
