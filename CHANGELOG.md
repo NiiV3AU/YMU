@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.2.0] - 2026-10-17
+## [1.2.0] - 2026-10-22
 
 ### Added
 
@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Complete Arabic (`ar_SA`) translation with gaming-appropriate terminology, expanding YMU to 16 supported languages.
 - Direct keyboard editing, copy/paste, and auto-quote-stripping in custom GTA V and DLL path inputs.
 - Bundled open-source license notices (`THIRD-PARTY-NOTICES.md`) and integrated offline license viewer in the new About dialog.
+- Animated page transitions and a sliding sidebar indicator that follows the active section.
 
 ### Changed
 

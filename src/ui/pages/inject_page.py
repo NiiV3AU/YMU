@@ -77,6 +77,10 @@ class InjectPage(QWidget):
         self._state = self.STATE_IDLE
         self._launch_started_at = 0.0
         self.dll_to_inject = None
+        # Invalidates in-flight process scans whenever their result could no
+        # longer describe the current target (injection started, mode changed,
+        # DLL selection changed).
+        self._scan_serial = 0
 
         self.info_button = StatefulButton(
             "",
@@ -194,6 +198,7 @@ class InjectPage(QWidget):
         self._rebuild_launcher_options()
         self._update_dll_selector()
         self.process_checker_timer.start()
+        self._scan_serial += 1
         self._run_process_check()
         logger.debug(
             "InjectPage shown, started process checker timer and immediate scan."
@@ -247,6 +252,7 @@ class InjectPage(QWidget):
         The old PID belongs to the other edition's executable, so reset."""
         self._mode = mode
         self.gta_pid = None
+        self._scan_serial += 1
         self._set_state(self.STATE_IDLE)
         self._update_dll_selector()
         if self.isVisible():
@@ -297,6 +303,7 @@ class InjectPage(QWidget):
         dll_dir = YMU_DLL_DIR
         os.makedirs(dll_dir, exist_ok=True)
         mode = self.get_mode()
+        previous_dll = self.dll_to_inject
 
         self._dll_paths: dict[str, str] = {}
         self._edition_dll_name: str | None = None
@@ -374,18 +381,27 @@ class InjectPage(QWidget):
             adjust_combobox_to_contents(self.dll_select, min_width=160)
 
         self.dll_select.blockSignals(False)
+        if self.dll_to_inject != previous_dll and self._state == self.STATE_INJECTED:
+            # The injected module was the old selection; let the next scan
+            # verify the new one instead of keeping the button disabled.
+            self._scan_serial += 1
+            self._set_state(self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE)
         self._update_ui_for_state()
 
     @Slot(int)
     def _on_dll_selection_changed(self, index):
         """Updates the DLL to inject and remembers the choice (edition/custom)."""
         name = self.dll_select.currentText()
+        previous_dll = self.dll_to_inject
         if index > -1 and name in getattr(self, "_dll_paths", {}):
             fmt = self.loc_manager.tr("Inject.Btn.InjectFile", "Inject {0}")
             self.inject_button.setText(fmt.format(name))
             self.dll_to_inject = self._dll_paths[name]
             choice = "custom" if name == self._custom_dll_name else "edition"
             get_config().set("inject.dll_choice", choice)
+        if self.dll_to_inject != previous_dll and self._state == self.STATE_INJECTED:
+            self._scan_serial += 1
+            self._set_state(self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE)
         self._update_ui_for_state()
 
     @Slot()
@@ -559,12 +575,18 @@ class InjectPage(QWidget):
         current_mode = self.get_mode()
         current_mode_key = current_mode.key
 
-        candidate_dlls: list[str] = []
-        if self.dll_to_inject and isinstance(self.dll_to_inject, str):
-            candidate_dlls.append(os.path.basename(self.dll_to_inject))
-        mode_dll = getattr(current_mode, "dll_name", None)
-        if isinstance(mode_dll, str) and mode_dll and mode_dll not in candidate_dlls:
-            candidate_dlls.append(mode_dll)
+        # Probe exactly the DLL the user selected. Falling back to the edition
+        # DLL would report "already injected" for a custom DLL that is not
+        # actually loaded.
+        if isinstance(self.dll_to_inject, str) and self.dll_to_inject:
+            candidate_dlls = (os.path.basename(self.dll_to_inject),)
+        else:
+            mode_dll = getattr(current_mode, "dll_name", None)
+            candidate_dlls = (
+                (mode_dll,) if isinstance(mode_dll, str) and mode_dll else ()
+            )
+
+        scan_serial = self._scan_serial
 
         # run_exclusive prevents a timer tick from starting a second scan while
         # one is still running (e.g. a slow process sweep under load).
@@ -573,7 +595,8 @@ class InjectPage(QWidget):
             self._scan_process_for_mode,
             current_mode_key,
             current_mode.target_executables,
-            tuple(candidate_dlls),
+            candidate_dlls,
+            scan_serial,
             on_finished=self.update_inject_button_status,
             on_error=self._on_process_scan_error,
         )
@@ -583,59 +606,91 @@ class InjectPage(QWidget):
         mode_key: str,
         executables: tuple[str, ...],
         candidate_dlls: tuple[str, ...] = (),
-    ) -> tuple[str, int | None, bool]:
+        scan_serial: int = 0,
+    ) -> tuple[str, int | None, bool | None, int]:
         pid = process_manager.find_gta_pid(executables)
-        is_injected = False
+        is_injected: bool | None = None
         if pid is not None and candidate_dlls:
+            is_injected = False
             for dll_name in candidate_dlls:
-                if dll_name and process_manager.is_dll_loaded_in_process(
+                if not dll_name:
+                    continue
+                loaded = process_manager.is_dll_loaded_in_process(
                     pid, dll_name, timeout=0.0
-                ):
+                )
+                if loaded is True:
                     is_injected = True
                     break
-        return mode_key, pid, is_injected
+                if loaded is None:
+                    # Unverifiable is not the same as confirmed absent.
+                    is_injected = None
+        return mode_key, pid, is_injected, scan_serial
 
     @Slot(object)
-    def update_inject_button_status(
-        self,
-        result: tuple[str, int | None, bool]
-        | tuple[str, int | None]
-        | tuple[str, ...]
-        | int
-        | None,
-    ):
-        is_injected = False
+    def update_inject_button_status(self, result: object) -> None:
+        mode_key = self.get_mode().key
+        is_injected: bool | None = None
+        scan_serial: int | None = None
+        pid: int | None = None
+
         if isinstance(result, tuple):
-            if len(result) >= 3:
+            if len(result) >= 4:
                 mode_key = result[0]
                 pid = result[1] if isinstance(result[1], int) else None
-                is_injected = bool(result[2])
+                is_injected = result[2] if isinstance(result[2], bool) else None
+                scan_serial = result[3] if isinstance(result[3], int) else None
+            elif len(result) == 3:
+                mode_key = result[0]
+                pid = result[1] if isinstance(result[1], int) else None
+                is_injected = result[2] if isinstance(result[2], bool) else None
             elif len(result) == 2:
                 mode_key = result[0]
                 pid = result[1] if isinstance(result[1], int) else None
-            else:
-                mode_key = self.get_mode().key
-                pid = None
-            if mode_key != self.get_mode().key:
-                logger.debug(
-                    "Discarding stale gta_scan result for '%s'; active mode is '%s'.",
-                    mode_key,
-                    self.get_mode().key,
-                )
-                return
-        else:
+        elif isinstance(result, int) and not isinstance(result, bool):
             pid = result
+
+        if mode_key != self.get_mode().key:
+            logger.debug(
+                "Discarding stale gta_scan result for '%s'; active mode is '%s'.",
+                mode_key,
+                self.get_mode().key,
+            )
+            return
+        if scan_serial is not None and scan_serial != self._scan_serial:
+            logger.debug(
+                "Discarding stale gta_scan result (scan %s, current %s).",
+                scan_serial,
+                self._scan_serial,
+            )
+            return
 
         # A scan started just before an inject click can finish mid-injection;
         # applying its result would flip STATE_INJECTING back to APP_RUNNING.
         if self._state == self.STATE_INJECTING:
             return
+
+        previous_pid = self.gta_pid
         self.gta_pid = pid
 
-        if self.gta_pid is not None:
-            if is_injected:
-                self._set_state(self.STATE_INJECTED)
-            elif self._state != self.STATE_APP_RUNNING:
+        if pid is not None:
+            if is_injected is True:
+                if self._state != self.STATE_INJECTED:
+                    self._set_state(self.STATE_INJECTED)
+            elif is_injected is False:
+                if self._state == self.STATE_INJECTED and pid == previous_pid:
+                    # A single failed enumeration is not proof that the DLL
+                    # was unloaded; keep the confirmed injection state.
+                    logger.debug(
+                        "Module probe missed the injected DLL in PID %s; "
+                        "keeping STATE_INJECTED.",
+                        pid,
+                    )
+                    return
+                if self._state != self.STATE_APP_RUNNING:
+                    self._set_state(self.STATE_APP_RUNNING)
+            elif self._state in (self.STATE_IDLE, self.STATE_LAUNCHING):
+                # Verification is impossible (e.g. access denied), but the game
+                # is running: let the user attempt the injection.
                 self._set_state(self.STATE_APP_RUNNING)
         elif self._state == self.STATE_LAUNCHING:
             # Keep waiting through a normal (possibly slow) launch, but give up
@@ -656,7 +711,7 @@ class InjectPage(QWidget):
                     ),
                     icon_type="info",
                 )
-        else:
+        elif self._state != self.STATE_IDLE:
             self._set_state(self.STATE_IDLE)
 
     @Slot()
@@ -675,23 +730,32 @@ class InjectPage(QWidget):
             if not override:
                 return
 
-        # Re-validate process state after modal dialog closes
-        if not self.gta_pid or not process_manager.is_process_running(self.gta_pid):
+        # Re-resolve the PID after the modal dialog closes. The originally
+        # cached PID could have exited and been reused by an unrelated process
+        # while the user was deciding.
+        current_mode = self.get_mode()
+        target_pid = process_manager.find_gta_pid(current_mode.target_executables)
+        if target_pid is None:
+            self.gta_pid = None
             self._set_state(self.STATE_IDLE)
             err = process_manager.InjectionError(
-                "process_gone", mode_key=self.get_mode().key
+                "process_gone", mode_key=current_mode.key
             )
             self.on_task_error(err)
             return
+        self.gta_pid = target_pid
 
+        # Invalidate scans that started before this click; their result could
+        # otherwise override the injection state once the task completes.
+        self._scan_serial += 1
         self._set_state(self.STATE_INJECTING)
         # Capture PID, DLL and active mode on the GUI thread; the worker must not read
         # mutable page state. run_exclusive guards against a double injection.
-        target_mode_key = self.get_mode().key
+        target_mode_key = current_mode.key
         started = self.worker_manager.run_exclusive(
             "inject",
             self._inject_logic,
-            self.gta_pid,
+            target_pid,
             self.dll_to_inject,
             target_mode_key,
             on_finished=self.on_injection_complete,
@@ -699,10 +763,7 @@ class InjectPage(QWidget):
         )
         if not started:
             logger.warning("Injection task could not be started (already running).")
-            if self.gta_pid:
-                self._set_state(self.STATE_APP_RUNNING)
-            else:
-                self._set_state(self.STATE_IDLE)
+            self._set_state(self.STATE_APP_RUNNING)
 
     def _confirm_battleye_override(self) -> bool:
         """BattlEye is active. Warn about the ban risk and let the user choose —

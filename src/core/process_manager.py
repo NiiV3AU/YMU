@@ -600,7 +600,6 @@ def is_dll_loaded_in_process(
             if psapi.EnumProcessModulesEx(
                 h_proc, modules, cb, ctypes.byref(cb_needed), LIST_MODULES_ALL
             ):
-                can_query_modules = True
                 if cb_needed.value > cb:
                     mod_count = cb_needed.value // hmodule_size
                     modules = (wintypes.HMODULE * mod_count)()
@@ -612,6 +611,10 @@ def is_dll_loaded_in_process(
                             break
                         continue
 
+                # Only a successful enumeration proves module queries work.
+                # A failed retry must report "unverified" (None), never a
+                # confirmed-absent result.
+                can_query_modules = True
                 count = min(cb_needed.value // hmodule_size, len(modules))
                 buf = ctypes.create_unicode_buffer(1024)
                 for i in range(count):

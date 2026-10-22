@@ -53,53 +53,92 @@ class YmuConfig(QObject):
 
     def _load(self) -> dict:
         data = None
+        sanitized = False
         if os.path.exists(self._path):
             try:
                 with open(self._path, encoding="utf-8-sig") as f:
                     data = json.load(f)
                 if not isinstance(data, dict):
                     raise TypeError("config root is not a JSON object")
-                self._validate_schema(data)
             except (OSError, json.JSONDecodeError, TypeError, UnicodeDecodeError) as e:
                 logger.error(f"Config file unreadable ({e}). Backing up and resetting.")
                 self._backup_corrupt_file()
                 data = None
+            else:
+                sanitized = self._sanitize_schema(data)
+                if sanitized:
+                    self._backup_corrupt_file()
 
         if data is None:
             data = copy.deepcopy(DEFAULTS)
             self._write_locked(data)
             return data
 
-        if self._migrate(data):
+        if self._migrate(data) or sanitized:
             self._write_locked(data)
         return data
 
-    def _validate_schema(self, data: dict) -> None:
-        """Validates that known configuration keys have the expected types.
-        Raises TypeError if any value has an invalid type."""
+    def _sanitize_schema(self, data: dict) -> bool:
+        """Drops known settings with invalid types and restores their defaults.
+
+        Returns True when at least one value was dropped. Unknown keys are kept
+        untouched, and valid settings always survive a malformed entry. A truly
+        unreadable file is still backed up and reset in `_load`.
+        """
+        dropped: list[str] = []
+
+        def drop(container: dict, key: str, label: str) -> None:
+            if key in container:
+                del container[key]
+                dropped.append(label)
+
         for key in ("theme", "locale", "mode"):
             if key in data and not isinstance(data[key], str):
-                raise TypeError(
-                    f"'{key}' must be a string, got {type(data[key]).__name__}"
-                )
+                drop(data, key, key)
+        if "mode_user_set" in data and not isinstance(data["mode_user_set"], bool):
+            drop(data, "mode_user_set", "mode_user_set")
+        if "config_version" in data and (
+            not isinstance(data["config_version"], int)
+            or isinstance(data["config_version"], bool)
+        ):
+            drop(data, "config_version", "config_version")
+
         if "paths" in data:
-            if not isinstance(data["paths"], dict):
-                raise TypeError(
-                    f"'paths' must be a dict, got {type(data['paths']).__name__}"
-                )
-            for pkey in ("gta_dir", "custom_dll"):
-                value = data["paths"].get(pkey)
-                if value is not None and not isinstance(value, str):
-                    raise TypeError(
-                        f"'paths.{pkey}' must be a string, got {type(value).__name__}"
-                    )
+            paths = data["paths"]
+            if not isinstance(paths, dict):
+                drop(data, "paths", "paths")
+            else:
+                for key in ("gta_dir", "custom_dll"):
+                    value = paths.get(key)
+                    if value is not None and not isinstance(value, str):
+                        drop(paths, key, f"paths.{key}")
+
+        if "inject" in data:
+            inject = data["inject"]
+            if not isinstance(inject, dict):
+                drop(data, "inject", "inject")
+            else:
+                for key in ("launcher", "dll_choice"):
+                    value = inject.get(key)
+                    if value is not None and not isinstance(value, str):
+                        drop(inject, key, f"inject.{key}")
+                for key in ("auto_close", "sound_feedback"):
+                    if key in inject and not isinstance(inject[key], bool):
+                        drop(inject, key, f"inject.{key}")
+
+        if dropped:
+            logger.warning(
+                "Config contains invalid values; dropping %s and restoring defaults.",
+                ", ".join(sorted(dropped)),
+            )
+        return bool(dropped)
 
     def _backup_corrupt_file(self):
         try:
             shutil.copyfile(self._path, self._path + ".bak")
-            logger.info(f"Corrupt config backed up to {self._path}.bak")
+            logger.info(f"Invalid config backed up to {self._path}.bak")
         except OSError as e:
-            logger.error(f"Could not back up corrupt config: {e}")
+            logger.error(f"Could not back up invalid config: {e}")
 
     def _migrate(self, data: dict) -> bool:
         """Fills in missing defaults (covers flat v1.1.6 configs with only

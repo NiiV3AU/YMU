@@ -598,15 +598,6 @@ QPushButton#LinkButton:focus {
     color: #E0E0E0;
 }
 
-QDialog#InfoDialog QTabBar::tab:focus,
-QDialog#AboutDialog QTabBar::tab:focus {
-    color: #FFFFFF;
-    border: 1px solid #28A745;
-    border-bottom: 2px solid #28A745;
-    border-radius: 4px;
-    background-color: rgba(40, 167, 69, 0.15);
-}
-
 QDialog#LicenseViewerDialog QTextBrowser:focus,
 QDialog#LicenseViewerDialog QTextBrowser#LicenseTextBrowser:focus,
 QTextBrowser#LicenseTextBrowser:focus,
