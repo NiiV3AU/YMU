@@ -14,11 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full Right-to-Left (RTL) layout support, automatically mirroring interface orientation and navigation for RTL locales.
 - Complete Arabic (`ar_SA`) translation with gaming-appropriate terminology, expanding YMU to 16 supported languages.
 - Direct keyboard editing, copy/paste, and auto-quote-stripping in custom GTA V and DLL path inputs.
-- Bundled open-source license notices (`THIRD-PARTY-NOTICES.md`) and integrated offline license viewer in the About dialog.
+- Bundled open-source license notices (`THIRD-PARTY-NOTICES.md`) and integrated offline license viewer in the new About dialog.
 
 ### Changed
 
-- Replaced external injection dependency with native Windows Win32 injection, supporting non-ASCII/Unicode paths (CJK, Cyrillic, Umlauts) and displaying exact error codes.
+- Replaced external injection dependency (`pyinjector`) with native Windows Win32 injection, supporting non-ASCII/Unicode paths (CJK, Cyrillic, Umlauts) and displaying exact error codes.
 - Redesigned Settings layout with a balanced grid, unified 44px control sizing, and improved visual hierarchy.
 - Modernized typography with the bundled Rubik typeface across all dialogs and controls.
 - Updated bundled Lucide icon pack to v1.52.0 with refreshed action icons.
@@ -28,19 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Fixed release checksum verification failing when release notes format SHA-256 hashes with Markdown bold or backtick code formatting.
 - Fixed premature success reporting on truncated or interrupted downloads lacking Content-Length headers.
 - Fixed process module enumeration errors during injection verification when the game is dynamically loading libraries.
 - Fixed application exit coordination and event filter lifecycle to ensure clean shutdown without `atexit` errors or hanging background workers.
 - Fixed BattlEye toggle file-write safety, preventing `commandline.txt` truncation or character corruption across all text encodings.
 - Fixed notification toasts overflowing the window or clipping content in verbose languages.
-- Fixed dialog action buttons clipping labels in verbose translations by sizing buttons dynamically to text length.
 - Fixed configuration loading to reliably handle UTF-8 BOM signatures and malformed values without resetting settings.
-- Fixed asset loading failure when launching YMU from a different working directory.
 
 ### Security
 
-- Eliminated remote memory use-after-free risk during injection timeouts.
 - Upgraded bundled urllib3 dependency to >=2.8.0 to mitigate GHSA-gh4c-6fx4-qh6g (CVE-2026-97688) and GHSA-vxq7-64xx-v4gw (CVE-2026-97689).
 
 ## [1.1.11] - 2026-09-07
