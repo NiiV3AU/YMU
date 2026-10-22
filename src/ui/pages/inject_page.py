@@ -988,6 +988,10 @@ class InjectPage(QWidget):
             logger.warning(
                 f"Task failed for mode '{err_mode}', but active mode is '{self.get_mode().key}'. Discarding stale error state."
             )
+            if self._state == self.STATE_INJECTING:
+                self._set_state(
+                    self.STATE_APP_RUNNING if self.gta_pid else self.STATE_IDLE
+                )
             return
 
         logger.error(f"A task failed in the background: {error}")

@@ -113,9 +113,6 @@ class MainWindow(QMainWindow):
         self.mode_changed.connect(self.download_page.on_mode_changed)
         self.mode_changed.connect(self.inject_page.on_mode_changed)
         self.mode_changed.connect(self.settings_page.on_mode_changed)
-        self.inject_page.injection_active_changed.connect(
-            self._on_injection_active_changed
-        )
 
         self.content_stack.addWidget(self.risk_page)
         self.content_stack.addWidget(self.download_page)
@@ -123,6 +120,9 @@ class MainWindow(QMainWindow):
         self.content_stack.addWidget(self.settings_page)
 
         self.setup_sidebar(sidebar_layout)
+        self.inject_page.injection_active_changed.connect(
+            self._on_injection_active_changed
+        )
 
         # Cards get real elevation from a soft drop shadow in the light theme
         # (Qt QSS has no box-shadow). Reapply whenever the theme changes.
