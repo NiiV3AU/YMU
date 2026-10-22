@@ -22,7 +22,7 @@ We gratefully acknowledge the following components and their respective licenses
 - **Website:** https://openfontlicense.org/open-font-license-official-text/
 
 ## 3. Lucide Icons
-- **Project:** Lucide Icons (v1.52.0)
+- **Project:** Lucide Icons (v1.61.0)
 - **Copyright:** (C) Cole Bemis 2013-2022 (Feather), Lucide Contributors 2022-present
 - **License:** ISC License
 - **License Text:** [src/assets/licenses/LICENSE-ISC.txt](src/assets/licenses/LICENSE-ISC.txt)

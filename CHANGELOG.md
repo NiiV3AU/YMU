@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replaced external injection dependency (`pyinjector`) with native Windows Win32 injection, supporting non-ASCII/Unicode paths (CJK, Cyrillic, Umlauts) and displaying exact error codes.
 - Redesigned Settings layout with a balanced grid, unified 44px control sizing, and improved visual hierarchy.
 - Modernized typography with the bundled Rubik typeface across all dialogs and controls.
-- Updated bundled Lucide icon pack to v1.52.0 with refreshed action icons.
+- Updated bundled Lucide icon pack to v1.61.0 with refreshed action icons.
 - Warn when legacy `version.dll` is detected in the game folder, advising to replace it with `WINMM.dll`.
 - Startup automatically cleans up obsolete temporary runtime directories from previous versions in `%LOCALAPPDATA%\YMU`.
 - Significantly reduced standalone executable size by pruning unused Qt modules and image plugins from the build bundle.
