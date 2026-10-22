@@ -273,16 +273,17 @@ def _iter_processes() -> list[tuple[int, str]]:
     """
     h_snap = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
     if not h_snap or h_snap in (-1, INVALID_HANDLE_VALUE):
-        return []
+        raise OSError("CreateToolhelp32Snapshot failed")
     processes: list[tuple[int, str]] = []
     try:
         pe = PROCESSENTRY32W()
         pe.dwSize = ctypes.sizeof(PROCESSENTRY32W)
-        if kernel32.Process32FirstW(h_snap, ctypes.byref(pe)):
-            while True:
-                processes.append((pe.th32ProcessID, pe.szExeFile))
-                if not kernel32.Process32NextW(h_snap, ctypes.byref(pe)):
-                    break
+        if not kernel32.Process32FirstW(h_snap, ctypes.byref(pe)):
+            raise OSError(f"Process32FirstW failed ({kernel32.GetLastError()})")
+        while True:
+            processes.append((pe.th32ProcessID, pe.szExeFile))
+            if not kernel32.Process32NextW(h_snap, ctypes.byref(pe)):
+                break
     finally:
         kernel32.CloseHandle(h_snap)
     return processes
@@ -329,7 +330,7 @@ def pid_exists(pid: int) -> bool:
 
 
 def find_gta_pid(
-    target_executables: tuple[str, ...],
+    target_executables: tuple[str, ...], *, raise_on_error: bool = False
 ) -> int | None:
     """
     Scans for a GTA5 process matching one of the given executable names and
@@ -345,6 +346,8 @@ def find_gta_pid(
     Launcher.exe, the social-club service, ...) live in that same directory,
     so matching by directory would return one of those PIDs and inject into
     the wrong process instead of the game.
+    :param raise_on_error: Re-raise enumeration failures instead of treating
+        them as "no matching process", so callers can distinguish the two.
     :return: The process ID (PID) if found, otherwise None.
     """
     targets = tuple(t.lower() for t in target_executables)
@@ -357,6 +360,8 @@ def find_gta_pid(
         logger.exception(
             "An unexpected error occurred while searching for the game process"
         )
+        if raise_on_error:
+            raise
 
     logger.debug(f"No process matching {targets} found.")
     return None
