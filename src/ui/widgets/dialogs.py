@@ -492,7 +492,12 @@ class LicenseViewerDialog(QDialog):
         main_layout.addLayout(bottom_layout)
 
         if self.btn_open_online:
-            self.setTabOrder(self.btn_open_online, self.btn_close)
+            self.setTabOrder(self.btn_open_online, self.text_browser)
+            self.setTabOrder(self.text_browser, self.btn_close)
+            self.setTabOrder(self.btn_close, self.btn_open_online)
+        else:
+            self.setTabOrder(self.text_browser, self.btn_close)
+            self.setTabOrder(self.btn_close, self.text_browser)
         self.btn_close.setFocus()
 
     @Slot()
@@ -891,6 +896,7 @@ class AboutDialog(QDialog):
         self.setTabOrder(self.tab_bar, self.btn_website)
         self.setTabOrder(self.btn_website, self.btn_github)
         self.setTabOrder(self.btn_github, self.btn_close)
+        self.setTabOrder(self.btn_close, self.tab_bar)
 
     @Slot(str)
     def _handle_license_click(self, url: str) -> None:
@@ -984,6 +990,7 @@ class AboutDialog(QDialog):
         layout.addStretch()
 
         scroll_area = QScrollArea()
+        scroll_area.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         scroll_area.setLayoutDirection(
             Qt.LayoutDirection.RightToLeft if is_rtl else Qt.LayoutDirection.LeftToRight
         )

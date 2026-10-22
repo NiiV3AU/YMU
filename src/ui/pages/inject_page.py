@@ -183,7 +183,7 @@ class InjectPage(QWidget):
         self.setTabOrder(self.inject_button, self.info_button)
 
         self.process_checker_timer = QTimer(self)
-        self.process_checker_timer.setInterval(3000)
+        self.process_checker_timer.setInterval(1000)
         self.process_checker_timer.timeout.connect(self._run_process_check)
 
     def showEvent(self, event):
@@ -194,7 +194,10 @@ class InjectPage(QWidget):
         self._rebuild_launcher_options()
         self._update_dll_selector()
         self.process_checker_timer.start()
-        logger.debug("InjectPage shown, started process checker timer.")
+        self._run_process_check()
+        logger.debug(
+            "InjectPage shown, started process checker timer and immediate scan."
+        )
 
     def _rebuild_launcher_options(self):
         """(Re)builds the launcher dropdown. 'Custom Path' is offered only when a
@@ -246,6 +249,8 @@ class InjectPage(QWidget):
         self.gta_pid = None
         self._set_state(self.STATE_IDLE)
         self._update_dll_selector()
+        if self.isVisible():
+            self._run_process_check()
 
     def _set_state(self, new_state):
         """The only function that should ever change the state."""
@@ -551,28 +556,66 @@ class InjectPage(QWidget):
     def _run_process_check(self):
         if self._state == self.STATE_INJECTING:
             return
-        current_mode_key = self.get_mode().key
+        current_mode = self.get_mode()
+        current_mode_key = current_mode.key
+
+        candidate_dlls: list[str] = []
+        if self.dll_to_inject and isinstance(self.dll_to_inject, str):
+            candidate_dlls.append(os.path.basename(self.dll_to_inject))
+        mode_dll = getattr(current_mode, "dll_name", None)
+        if isinstance(mode_dll, str) and mode_dll and mode_dll not in candidate_dlls:
+            candidate_dlls.append(mode_dll)
+
         # run_exclusive prevents a timer tick from starting a second scan while
         # one is still running (e.g. a slow process sweep under load).
         self.worker_manager.run_exclusive(
             f"gta_scan_{current_mode_key}",
             self._scan_process_for_mode,
             current_mode_key,
-            self.get_mode().target_executables,
+            current_mode.target_executables,
+            tuple(candidate_dlls),
             on_finished=self.update_inject_button_status,
             on_error=self._on_process_scan_error,
         )
 
     def _scan_process_for_mode(
-        self, mode_key: str, executables: tuple[str, ...]
-    ) -> tuple[str, int | None]:
+        self,
+        mode_key: str,
+        executables: tuple[str, ...],
+        candidate_dlls: tuple[str, ...] = (),
+    ) -> tuple[str, int | None, bool]:
         pid = process_manager.find_gta_pid(executables)
-        return mode_key, pid
+        is_injected = False
+        if pid is not None and candidate_dlls:
+            for dll_name in candidate_dlls:
+                if dll_name and process_manager.is_dll_loaded_in_process(
+                    pid, dll_name, timeout=0.0
+                ):
+                    is_injected = True
+                    break
+        return mode_key, pid, is_injected
 
     @Slot(object)
-    def update_inject_button_status(self, result: tuple[str, int | None] | int | None):
+    def update_inject_button_status(
+        self,
+        result: tuple[str, int | None, bool]
+        | tuple[str, int | None]
+        | tuple[str, ...]
+        | int
+        | None,
+    ):
+        is_injected = False
         if isinstance(result, tuple):
-            mode_key, pid = result
+            if len(result) >= 3:
+                mode_key = result[0]
+                pid = result[1] if isinstance(result[1], int) else None
+                is_injected = bool(result[2])
+            elif len(result) == 2:
+                mode_key = result[0]
+                pid = result[1] if isinstance(result[1], int) else None
+            else:
+                mode_key = self.get_mode().key
+                pid = None
             if mode_key != self.get_mode().key:
                 logger.debug(
                     "Discarding stale gta_scan result for '%s'; active mode is '%s'.",
@@ -590,7 +633,9 @@ class InjectPage(QWidget):
         self.gta_pid = pid
 
         if self.gta_pid is not None:
-            if self._state != self.STATE_INJECTED:
+            if is_injected:
+                self._set_state(self.STATE_INJECTED)
+            elif self._state != self.STATE_APP_RUNNING:
                 self._set_state(self.STATE_APP_RUNNING)
         elif self._state == self.STATE_LAUNCHING:
             # Keep waiting through a normal (possibly slow) launch, but give up

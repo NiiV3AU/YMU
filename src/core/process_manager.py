@@ -556,9 +556,16 @@ def is_dll_loaded_in_process(
     start = time.time()
     can_query_modules = False
 
-    while time.time() - start < timeout:
+    while True:
         if not pid_exists(pid):
-            logger.warning(f"Process PID {pid} terminated during module verification.")
+            if timeout > 0:
+                logger.warning(
+                    f"Process PID {pid} terminated during module verification."
+                )
+            else:
+                logger.debug(
+                    f"Process PID {pid} terminated during module verification."
+                )
             return False
 
         h_proc = kernel32.OpenProcess(
@@ -569,10 +576,17 @@ def is_dll_loaded_in_process(
         if not h_proc:
             err = kernel32.GetLastError()
             if err == 5:  # ERROR_ACCESS_DENIED
-                logger.warning(
-                    f"OpenProcess for PID {pid} returned ERROR_ACCESS_DENIED; query rights restricted."
-                )
+                if timeout > 0:
+                    logger.warning(
+                        f"OpenProcess for PID {pid} returned ERROR_ACCESS_DENIED; query rights restricted."
+                    )
+                else:
+                    logger.debug(
+                        f"OpenProcess for PID {pid} returned ERROR_ACCESS_DENIED; query rights restricted."
+                    )
                 return None
+            if time.time() - start >= timeout:
+                break
             time.sleep(0.2)
             continue
 
@@ -594,6 +608,8 @@ def is_dll_loaded_in_process(
                     if not psapi.EnumProcessModulesEx(
                         h_proc, modules, cb, ctypes.byref(cb_needed), LIST_MODULES_ALL
                     ):
+                        if time.time() - start >= timeout:
+                            break
                         continue
 
                 count = min(cb_needed.value // hmodule_size, len(modules))
@@ -613,6 +629,8 @@ def is_dll_loaded_in_process(
         finally:
             kernel32.CloseHandle(h_proc)
 
+        if time.time() - start >= timeout:
+            break
         time.sleep(0.2)
 
     if not can_query_modules:
@@ -621,14 +639,22 @@ def is_dll_loaded_in_process(
             return False
 
         # Return None when the process is confirmed still alive but restricted
-        logger.warning(
-            f"Could not query modules for PID {pid} (insufficient query rights)."
-        )
+        if timeout > 0:
+            logger.warning(
+                f"Could not query modules for PID {pid} (insufficient query rights)."
+            )
+        else:
+            logger.debug(
+                f"Could not query modules for PID {pid} (insufficient query rights)."
+            )
         return None
 
-    logger.warning(
-        f"Module verification timed out: '{target}' was NOT found in PID {pid}'s module list."
-    )
+    if timeout > 0:
+        logger.warning(
+            f"Module verification timed out: '{target}' was NOT found in PID {pid}'s module list."
+        )
+    else:
+        logger.debug(f"Module '{target}' was not found in PID {pid}'s module list.")
     return False
 
 

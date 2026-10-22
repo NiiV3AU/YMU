@@ -219,8 +219,9 @@ QDialog#AboutDialog QTabBar::tab {
     background-color: transparent;
     color: #8B8B8B;
     padding: 8px 16px;
-    border: none;
-    border-bottom: 2px solid transparent; 
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px;
 }
 
 QDialog#InfoDialog QTabBar::tab:hover,
@@ -235,6 +236,15 @@ QDialog#AboutDialog QTabBar::tab:selected {
     color: #FFFFFF;
     font-weight: 600;
     border-bottom: 2px solid #28A745; /* @primary */
+}
+
+QDialog#InfoDialog QTabBar::tab:focus,
+QDialog#AboutDialog QTabBar::tab:focus {
+    color: #FFFFFF;
+    border: 1px solid #28A745;
+    border-bottom: 2px solid #28A745;
+    border-radius: 4px;
+    background-color: rgba(40, 167, 69, 0.15);
 }
 
 /* The tab bar's own background (not the tabs) — match the dialog surface. */
@@ -584,7 +594,24 @@ QPushButton#ThemeButton:checked:focus {
 
 QPushButton#LinkButton:focus {
     border: 1px solid #28A745;
+    background-color: #2C2C2C;
     color: #E0E0E0;
+}
+
+QDialog#InfoDialog QTabBar::tab:focus,
+QDialog#AboutDialog QTabBar::tab:focus {
+    color: #FFFFFF;
+    border: 1px solid #28A745;
+    border-bottom: 2px solid #28A745;
+    border-radius: 4px;
+    background-color: rgba(40, 167, 69, 0.15);
+}
+
+QDialog#LicenseViewerDialog QTextBrowser:focus,
+QDialog#LicenseViewerDialog QTextBrowser#LicenseTextBrowser:focus,
+QTextBrowser#LicenseTextBrowser:focus,
+QDialog#LicenseViewerDialog QPlainTextEdit:focus {
+    border: 1px solid #28A745;
 }
 
 QComboBox:focus,
