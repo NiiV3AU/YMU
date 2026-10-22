@@ -25,7 +25,7 @@ The modern, all-in-one launchpad for YimMenu. **Always updated, always ready.**
 - **Automated DLL Management:** Download and update YimMenu with a single click, protected by SHA-256 integrity verification.
 - **Smart Safety Checks:** Automatic 64-bit architecture validation and non-blocking BattlEye service detection with clear risk guidance.
 - **Integrated Game Launcher:** Start GTA V directly via Steam, Epic Games, Rockstar Games Launcher, or a custom directory.
-- **Native Injection Engine:** High-performance Win32 Ctypes injection with UTF-8/ANSI path handling and in-memory module verification.
+- **Native Injection Engine:** High-performance Win32 Ctypes injection with native UTF-16 (LoadLibraryW) path handling and in-memory module verification.
 - **Lua Script Manager:** Easily enable, disable, and organize scripts on the fly, with direct access to scripts folders and auto-reload settings.
 - **Multi-Language Support:** Available in 16 languages with over-the-air translation updates directly within the app.
 - **Modern UI/UX:** A clean, responsive interface featuring both dark and light modes, fluid transitions, and full RTL layout support.
@@ -154,7 +154,7 @@ For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/) a
 The test suite runs entirely in an isolated `%TEMP%` sandbox (configured via `tests/_harness.py` and `YMU_SANDBOX_DIR`), ensuring your personal `%APPDATA%\YMU` and `%LOCALAPPDATA%\YMU` files are never touched or modified by tests:
 
 ```bash
-uv run python -m unittest discover -s tests
+uv run pytest
 ```
 
 ### Run from source

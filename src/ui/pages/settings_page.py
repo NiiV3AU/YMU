@@ -826,7 +826,13 @@ class SettingsPage(QWidget):
     @Slot(bool)
     def _on_nobattleye_toggled(self, checked: bool):
         """Called when the user toggles the -nobattleye switch."""
-        gta_dir = process_manager.get_gta_directory(self.get_mode())
+        mode_val = self.get_mode()
+        mode_key = getattr(mode_val, "key", str(mode_val))
+        gta_dir = self._cached_gta_dir.get(mode_key)
+        if not gta_dir:
+            gta_dir = process_manager.get_gta_directory(mode_val)
+            if gta_dir:
+                self._cached_gta_dir[mode_key] = gta_dir
         if not gta_dir or not os.path.isdir(gta_dir):
             self.nobattleye_toggle.blockSignals(True)
             self.nobattleye_toggle.setChecked(False)
@@ -844,9 +850,6 @@ class SettingsPage(QWidget):
             return
 
         self.nobattleye_toggle.setEnabled(False)
-
-        mode_val = self.get_mode()
-        mode_key = getattr(mode_val, "key", str(mode_val))
         self._nobattleye_toggle_ctx = (mode_key, gta_dir)
 
         started = self.worker_manager.run_exclusive(

@@ -214,15 +214,20 @@ def adjust_combobox_to_contents(
 
 
 def _strip_nuitka_env(env: dict[str, str] | None = None) -> dict[str, str]:
-    """Removes Nuitka onefile environment variables to ensure child processes start a clean bootstrap."""
-    target = env if env is not None else os.environ.copy()
-    for key in list(target.keys()):
-        if key.startswith("NUITKA_"):
-            target.pop(key, None)
+    """Removes Nuitka onefile environment variables to ensure child processes start a clean bootstrap.
+
+    Returns a dict mapping removed environment variable names to their original values.
+    """
+    removed: dict[str, str] = {}
+    if env is not None:
+        for key in list(env.keys()):
+            if key.startswith("NUITKA_"):
+                removed[key] = env.pop(key)
     for key in list(os.environ.keys()):
         if key.startswith("NUITKA_"):
-            os.environ.pop(key, None)
-    return target
+            val = os.environ.pop(key)
+            removed.setdefault(key, val)
+    return removed
 
 
 def _get_main_window() -> QWidget | None:
@@ -250,7 +255,8 @@ def restart_application():
 
     is_compiled_build = is_compiled()
 
-    clean_env = _strip_nuitka_env()
+    removed_env = _strip_nuitka_env()
+    clean_env = os.environ.copy()
 
     if is_compiled_build:
         executable = os.path.abspath(sys.argv[0])
@@ -276,6 +282,7 @@ def restart_application():
             subprocess.Popen(args, env=clean_env)
     except OSError as e:
         logger.error(f"Failed to restart via subprocess.Popen: {e}")
+        os.environ.update(removed_env)
         main_win = _get_main_window()
         if main_win:
             main_win.show()
@@ -314,7 +321,7 @@ def restart_as_admin():
 
     is_compiled_build = is_compiled()
 
-    _strip_nuitka_env()
+    removed_env = _strip_nuitka_env()
 
     if is_compiled_build:
         executable = os.path.abspath(sys.argv[0])
@@ -346,6 +353,7 @@ def restart_as_admin():
             sys.exit(0)
         else:
             logger.error(f"Failed to start as Admin. Error code: {res_code}")
+            os.environ.update(removed_env)
             if main_window:
                 main_window.show()
                 main_window.activateWindow()
@@ -353,6 +361,7 @@ def restart_as_admin():
 
     except (OSError, AttributeError) as e:
         logger.error(f"Exception during restart_as_admin: {e}")
+        os.environ.update(removed_env)
         if main_window:
             main_window.show()
             main_window.activateWindow()

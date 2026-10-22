@@ -437,8 +437,8 @@ class LocalizationManager(QObject):
     @classmethod
     def _validate_translation_payload(cls, payload: object) -> bool:
         """Validates that a translation payload is a dict where every top-level key
-        matches a POSIX locale pattern and is in SUPPORTED_LOCALES, with valid metadata
-        (name: str, direction: 'ltr' | 'rtl') and recursive string leaves."""
+        matches a POSIX locale pattern, with valid metadata
+        (non-empty name: str, direction: 'ltr' | 'rtl') and recursive string leaves."""
         if not isinstance(payload, dict):
             logger.warning("Translation payload rejected: root is not a dictionary.")
             return False
@@ -460,12 +460,6 @@ class LocalizationManager(QObject):
                     locale_code,
                 )
                 return False
-            if locale_code not in SUPPORTED_LOCALES:
-                logger.warning(
-                    "Translation payload rejected: unsupported locale code '%s'.",
-                    locale_code,
-                )
-                return False
             if not isinstance(content, dict):
                 logger.warning(
                     "Translation payload rejected: content for '%s' is not a dictionary.",
@@ -479,9 +473,10 @@ class LocalizationManager(QObject):
                     locale_code,
                 )
                 return False
-            if not isinstance(meta.get("name"), str):
+            meta_name = meta.get("name")
+            if not isinstance(meta_name, str) or not meta_name.strip():
                 logger.warning(
-                    "Translation payload rejected: meta.name for '%s' is not a string.",
+                    "Translation payload rejected: meta.name for '%s' must be a non-empty string.",
                     locale_code,
                 )
                 return False

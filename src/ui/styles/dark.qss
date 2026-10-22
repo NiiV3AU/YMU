@@ -450,6 +450,18 @@ QWidget#ScrollContainer {
     background-color: #121212; /* @background */
 }
 
+QLabel#DisabledListHeader {
+    color: #e84555;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+QLabel#EnabledListHeader {
+    color: #28A745;
+    font-size: 14px;
+    font-weight: 600;
+}
+
 /* --- Lua Header Action Buttons --- */
 QPushButton#LuaHeaderAction {
     background-color: transparent;
