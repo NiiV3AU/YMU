@@ -7,7 +7,7 @@ import webbrowser
 from collections.abc import Callable
 
 import PySide6
-from PySide6.QtCore import QSize, Qt, QTimer, QUrl, Slot, qVersion
+from PySide6.QtCore import QSize, Qt, QUrl, Slot, qVersion
 from PySide6.QtGui import (
     QColor,
     QFont,
@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QFrame,
     QHBoxLayout,
     QLabel,
-    QLayout,
     QScrollArea,
     QStackedWidget,
     QTabBar,
@@ -47,7 +46,7 @@ from ui.widgets.buttons import AnimatedButton, StatefulButton
 
 
 class InfoDialog(QDialog):
-    """A reusable, modal dialog for showing information in tabs with dynamic resizing."""
+    """A reusable, modal dialog for showing information in fixed-size tabs."""
 
     def __init__(self, title: str, content: dict, theme_manager, parent=None):
         super().__init__(parent)
@@ -120,28 +119,18 @@ class InfoDialog(QDialog):
 
             self.content_stack.addWidget(page_widget)
 
-        self.tab_bar.currentChanged.connect(self._on_tab_changed)
+        self.tab_bar.currentChanged.connect(self.content_stack.setCurrentIndex)
 
         main_layout = QVBoxLayout(self)
-        main_layout.setSizeConstraint(QLayout.SizeConstraint.SetMinAndMaxSize)
         main_layout.addLayout(centering_layout)
         main_layout.addWidget(self.content_stack)
 
         if self.tab_bar.count() > 0:
             self.content_stack.setCurrentIndex(0)
 
-    def showEvent(self, event):
-        super().showEvent(event)
-        self.adjustSize()
-
-    @Slot(int)
-    def _on_tab_changed(self, index: int) -> None:
-        self.content_stack.setCurrentIndex(index)
-        QTimer.singleShot(0, self._adjust_size_deferred)
-
-    @Slot()
-    def _adjust_size_deferred(self) -> None:
-        self.adjustSize()
+        # All tab pages share one fixed size derived from the largest page, so
+        # switching tabs can never resize or reposition the dialog.
+        self.setFixedSize(self.sizeHint())
 
 
 class HoverableRichLabel(QLabel):
@@ -871,18 +860,6 @@ class AboutDialog(QDialog):
         if self.tab_bar.count() > 0:
             self.content_stack.setCurrentIndex(0)
 
-        # --- Bottom Close Button ---
-        self.btn_close = AnimatedButton(
-            loc_manager.tr("About.BtnClose", "Close"),
-            theme_manager=theme_manager,
-        )
-        adjust_button_to_text(self.btn_close)
-        self.btn_close.clicked.connect(self.accept)
-
-        bottom_layout = QHBoxLayout()
-        bottom_layout.addStretch()
-        bottom_layout.addWidget(self.btn_close)
-
         # Main Layout
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(20, 16, 20, 16)
@@ -890,13 +867,11 @@ class AboutDialog(QDialog):
         main_layout.addLayout(header_layout)
         main_layout.addLayout(centering_layout)
         main_layout.addWidget(self.content_stack, stretch=1)
-        main_layout.addLayout(bottom_layout)
 
         # Focus & Tab Chain
         self.setTabOrder(self.tab_bar, self.btn_website)
         self.setTabOrder(self.btn_website, self.btn_github)
-        self.setTabOrder(self.btn_github, self.btn_close)
-        self.setTabOrder(self.btn_close, self.tab_bar)
+        self.setTabOrder(self.btn_github, self.tab_bar)
 
     @Slot(str)
     def _handle_license_click(self, url: str) -> None:
