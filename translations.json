@@ -3641,7 +3641,7 @@
         "NoExeFound": "未在 '{0}' 找到可执行文件",
         "LaunchFailed": "启动游戏时出错，详情请查看日志。",
         "AccessDenied": "缺少注入 GTA V 的权限。\n请尝试以管理员身份重启 YMU。",
-        "AccessDeniedAdmin": "即使拥有管理员权限，注入仍被拒绝。\n这通常是由 BattlEye 或错误的游戏版本导致的。\n请在启动器中禁用 BattlEye（见“风险提示”）。\n并确保 Legacy/Enhanced 开关与游戏一致。",
+        "AccessDeniedAdmin": "即使拥有管理员权限，注入仍被拒绝。\n这通常是由 BattlEye 或错误的游戏版本导致的。\n请在启动器中禁用 BattlEye（见“风险提示”），\n并确保 Legacy/Enhanced 开关与游戏一致。",
         "CustomPathInvalid": "自定义 GTA V 路径未设置或已不存在。\n请在设置页面重新设置。",
         "VerificationFailedTitle": "注入未确认",
         "VerificationFailed": "已触发 DLL 注入，但无法在 GTA V 的内存中验证该模块。\n\n这通常是因为 BattlEye 正在运行、防病毒软件拦截，或游戏崩溃。",
@@ -3891,13 +3891,13 @@
       "Btn": {
         "YimOfficial": "YimMenu 官方 GitHub 儲存庫",
         "YimLegacy": "YimMenu (舊版) GitHub 儲存庫",
-        "YimV2": "YimMenuV2 (增強版) GitHub 儲存庫",
+        "YimV2": "YimMenuV2 (強化版) GitHub 儲存庫",
         "FSL": "FSL 的 UnknownCheats 討論串"
       },
       "Tooltip": {
         "YimOfficial": "開啟官方 YimMenu GitHub 儲存庫",
         "YimLegacy": "開啟 YimMenu (舊版) GitHub 儲存庫",
-        "YimV2": "開啟 YimMenuV2 (增強版) GitHub 儲存庫",
+        "YimV2": "開啟 YimMenuV2 (強化版) GitHub 儲存庫",
         "FSL": "開啟 UnknownCheats 上的 FSL 討論串，以下載並取得支援"
       }
     },
@@ -3930,12 +3930,12 @@
         "FailedTitle": "下載失敗",
         "FailedMsg": "驗證失敗，請檢查日誌。",
         "UpdateTitle": "{0} 更新",
-        "SuccessMsgUnverified": "DLL 下載成功，但無法驗證（未提供遠端校驗和）。"
+        "SuccessMsgUnverified": "DLL 下載成功，但無法驗證（未提供遠端雜湊值）。"
       },
       "Help": {
         "Title": "DLL 與 FSL 說明",
         "DllSteps": "1. 點擊 [下載]\n2. 等待下載完成\n3. 檔案位於 '%LOCALAPPDATA%/YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
-        "FslSteps": "1. 下載 FSL（「風險提示」頁面中提供連結）\n2. 開啟你的 GTA V 安裝目錄\n3. 將 WINMM.dll 放入該資料夾\n   （檔案名稱必須完全為 'WINMM.dll'）\n4. 在 Rockstar Games Launcher 中停用 BattlEye\n5. 完成！"
+        "FslSteps": "1. 下載 FSL（「風險提示」頁面中提供連結）\n2. 開啟你的 GTA V 安裝資料夾\n3. 將 WINMM.dll 放入該資料夾\n   （檔案名稱必須完全為 'WINMM.dll'）\n4. 在 Rockstar Games Launcher 中停用 BattlEye\n5. 完成！"
       },
       "Tooltip": {
         "Help": "顯示 DLL 與 FSL 安裝說明",
@@ -3944,7 +3944,7 @@
       },
       "Dialog": {
         "UnverifiedTitle": "未驗證的 DLL 下載",
-        "UnverifiedPrompt": "此版本未提供 SHA256 校驗和。\n\nYMU 無法驗證檔案的完整性或真實性。\n\n你仍然要下載嗎？",
+        "UnverifiedPrompt": "此版本未提供 SHA256 雜湊值。\n\nYMU 無法驗證檔案的完整性或真實性。\n\n你仍然要下載嗎？",
         "DownloadAnyway": "仍然下載"
       },
       "Error": {
@@ -3960,7 +3960,7 @@
       "Btn": {
         "StartGta": "啟動 GTA V",
         "InjectBase": "注入 YimMenu",
-        "NoDll": "未找到 DLL",
+        "NoDll": "找不到 DLL",
         "InjectFile": "注入 {0}"
       },
       "Notify": {
@@ -3978,20 +3978,20 @@
         "InjectSteps": "1. 啟動 GTA V（上一步）\n2. 等待遊戲進入開始畫面/選單\n3. 點擊 [注入 YimMenu]\n4. 等待 YimMenu 載入完成\n5. 完成！"
       },
       "Tooltip": {
-        "Help": "顯示注入過程的說明資訊",
+        "Help": "顯示注入流程的說明",
         "Launcher": "選擇你用來啟動 GTA V 的啟動器",
         "Dll": "選擇要注入的 DLL",
         "NoDll": "請先在下載頁面下載 {0} DLL。"
       },
       "Error": {
-        "NoDllSelected": "錯誤：未選擇或未找到用於注入的 DLL。",
+        "NoDllSelected": "錯誤：未選擇或找不到要注入的 DLL。",
         "ProcessLost": "注入前 GTA V 處理程序已結束。",
         "InjectionFailed": "注入失敗，詳情請查看日誌。",
         "NoRockstarPath": "找不到 Rockstar Games 安裝路徑。",
-        "NoExeFound": "未在 '{0}' 找到可執行檔",
+        "NoExeFound": "在 '{0}' 找不到可執行檔",
         "LaunchFailed": "啟動遊戲時發生錯誤，詳情請查看日誌。",
         "AccessDenied": "缺少注入 GTA V 的權限。\n請嘗試以系統管理員身份重新啟動 YMU。",
-        "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在啟動器中停用 BattlEye（見「風險提示」）。\n並確認 Legacy/Enhanced 開關與遊戲一致。",
+        "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在啟動器中停用 BattlEye（見「風險提示」），\n並確認 Legacy/Enhanced 開關與遊戲一致。",
         "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。",
         "VerificationFailedTitle": "注入未確認",
         "VerificationFailed": "已觸發 DLL 注入，但無法在 GTA V 的記憶體中驗證該模組。\n\n這通常是因為 BattlEye 正在執行、防毒軟體攔截，或遊戲崩潰。",
@@ -4101,23 +4101,23 @@
         "Prompt": "你想在瀏覽器中開啟下載頁面嗎？",
         "CheckTitle": "檢查 YMU 更新",
         "ErrorTitle": "更新錯誤",
-        "Ahead": "你執行的版本比最新發布版還要新。"
+        "Ahead": "你執行的版本比最新發佈版本還要新。"
       },
       "Notify": {
         "RestartRequired": "請重新啟動 YMU 以套用新語言。",
-        "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新的語言列表。",
+        "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新後的語言列表。",
         "LangTitle": "語言已變更",
         "LangUpToDate": "翻譯已是最新版本。",
         "FolderMissing": "資料夾尚不存在：\n{0}",
         "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。",
-        "NoGtaDirFound": "找不到 GTA V 目錄。請先瀏覽並選擇你的 GTA V 安裝資料夾。",
+        "NoGtaDirFound": "找不到 GTA V 資料夾。請先瀏覽並選擇你的 GTA V 安裝資料夾。",
         "BattlEyeDisabledTitle": "BattlEye 已停用",
-        "BattlEyeDisabledMsg": "已在 GTA V 目錄下的 commandline.txt 新增 -nobattleye。",
+        "BattlEyeDisabledMsg": "已在 GTA V 資料夾中的 commandline.txt 新增 -nobattleye。",
         "BattlEyeRestoredTitle": "BattlEye 已復原",
         "BattlEyeRestoredMsg": "已從 commandline.txt 中移除 -nobattleye。",
         "CachesClearedTitle": "快取已清除",
         "CachesClearedMsg": "已成功清除 {0} 個快取檔案。",
-        "NoCachesMsg": "未找到可清除的快取檔案。",
+        "NoCachesMsg": "找不到可清除的快取檔案。",
         "LuaSafeModeEnabled": "{0} 個腳本已停用（安全模式）。",
         "LuaSafeModeDisabled": "{0} 個腳本已重新啟用。",
         "SettingWriteFailed": "無法將設定儲存到 settings.json。",
@@ -4130,22 +4130,22 @@
         "Clear": "清除",
         "CustomDll": "自訂選單 DLL",
         "DefaultDll": "使用已下載的 DLL",
-        "ErrorNoGta": "此資料夾中未找到 GTA V 可執行檔。",
+        "ErrorNoGta": "此資料夾中找不到 GTA V 可執行檔。",
         "ErrorNotDll": "請選擇一個 .dll 檔案。",
         "ErrorNotFound": "路徑不存在。",
         "GtaDir": "GTA V 安裝資料夾",
         "ErrorWriteCommandline": "無法修改 commandline.txt。請檢查檔案權限。",
         "NoBattlEye": "停用 BattlEye（commandline.txt）",
         "Tooltip": {
-          "NoBattlEye": "在 GTA V 目錄下的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲",
+          "NoBattlEye": "在 GTA V 資料夾中的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲",
           "Fsl": "在「風險提示」頁面查看重要的 FSL 說明及下載連結",
           "FslDeprecated": "偵測到已過時的 version.dll！此舊檔案會導致遊戲崩潰。請將其刪除，並從 FSL 討論串下載並安裝最新的 WINMM.dll。"
         },
         "FslDetected": "FSL (WINMM.dll)：已偵測到",
-        "FslDeprecated": "FSL (version.dll)：已過時（存在崩潰風險）",
-        "FslMissing": "FSL (WINMM.dll)：未找到（可選：本機存檔）",
+        "FslDeprecated": "FSL (version.dll)：已過時（有崩潰風險）",
+        "FslMissing": "FSL (WINMM.dll)：找不到（可選：本機存檔）",
         "FslHelp": "FSL 說明",
-        "OpenLogFailed": "無法開啟日誌檔：\n{0}",
+        "OpenLogFailed": "無法開啟日誌檔案：\n{0}",
         "ErrorAccess": "無法存取資料夾：{0}"
       },
       "Notice": {
@@ -4157,7 +4157,7 @@
     },
     "About": {
       "Title": "關於 YMU",
-      "Subtitle": "YimMenu 智慧啟動器：時刻更新，時刻就緒。",
+      "Subtitle": "YimMenu 智慧啟動器：隨時更新，隨時就緒。",
       "Description": "適用於 YimMenu 與 YimMenuV2 的智慧啟動器、更新工具與注入器。",
       "TabGeneral": "一般",
       "TabLicenses": "開源授權",
@@ -4177,14 +4177,14 @@
       "FeatureLuaManagement": "<b>Lua 腳本管理器：</b>直接尋找腳本、批次安全模式操作，以及快速存取腳本資料夾。",
       "FeatureAccessibility": "<b>現代 UI/UX：</b>自適應深色/淺色主題、完整的 RTL 版面支援，以及 {0} 種本地化語言。",
       "LicensesNotice": "YimMenuUpdater 是基於自由及開源函式庫建構的原始碼公開軟體。我們衷心感謝以下專案：",
-      "CreditsLeadTitle": "主開發者與架構設計",
-      "CreditsLeadDesc": "YimMenuUpdater (YMU) 的建立者與維護者。",
+      "CreditsLeadTitle": "主要開發者與架構設計",
+      "CreditsLeadDesc": "YimMenuUpdater (YMU) 的創作者與維護者。",
       "CreditsModTitle": "模組選單開發",
       "CreditsModDesc": "開源 YimMenu (Legacy) 與 YimMenuV2 (Enhanced Edition) 模組選單的開發與維護。",
       "CreditsSaveTitle": "本機存檔",
       "CreditsSaveDesc": "為本機 GTA Online 存檔重新導向工具做出貢獻的 UnknownCheats 社群成員。",
       "CreditsTestTitle": "社群與 Beta 測試者",
-      "CreditsTestDesc": "特別感謝所有測試預先發布版本、驗證問題修正並為各次遊戲更新提出改進建議的社群成員與 Beta 測試者。"
+      "CreditsTestDesc": "特別感謝所有測試預先發佈版本、驗證問題修正並為各次遊戲更新提出改進建議的社群成員與 Beta 測試者。"
     },
     "Context": {
       "Undo": "復原",
@@ -4241,26 +4241,26 @@
       "Btn": {
         "YimOfficial": "YimMenu 官方 GitHub 儲存庫",
         "YimLegacy": "YimMenu (舊版) GitHub 儲存庫",
-        "YimV2": "YimMenuV2 (增強版) GitHub 儲存庫",
+        "YimV2": "YimMenuV2 (強化版) GitHub 儲存庫",
         "FSL": "FSL 的 UnknownCheats 討論串"
       },
       "Tooltip": {
         "YimOfficial": "開啟官方 YimMenu GitHub 儲存庫",
         "YimLegacy": "開啟 YimMenu (舊版) GitHub 儲存庫",
-        "YimV2": "開啟 YimMenuV2 (增強版) GitHub 儲存庫",
+        "YimV2": "開啟 YimMenuV2 (強化版) GitHub 儲存庫",
         "FSL": "開啟 UnknownCheats 上的 FSL 討論串，以下載並取得支援"
       }
     },
     "Download": {
       "Status": {
-        "Initial": "請選擇一個通道以檢查更新。",
+        "Initial": "請選擇一個頻道以檢查更新。",
         "Checking": "正在檢查更新...",
         "UpToDate": "YimMenu 已是最新版本。",
         "NewVersion": "發現新版本！",
         "Error": "發生錯誤，請重試。",
         "Downloading": "正在下載",
         "Success": "下載成功並通過驗證！",
-        "Failed": "下載失敗，請檢查日誌。",
+        "Failed": "下載失敗，請檢查記錄檔。",
         "SuccessUnverified": "下載成功（未驗證）！"
       },
       "Btn": {
@@ -4278,14 +4278,14 @@
         "SuccessTitle": "下載完成",
         "SuccessMsg": "DLL 已成功下載並通過驗證！",
         "FailedTitle": "下載失敗",
-        "FailedMsg": "驗證失敗，請檢查日誌。",
+        "FailedMsg": "驗證失敗，請檢查記錄檔。",
         "UpdateTitle": "{0} 更新",
         "SuccessMsgUnverified": "DLL 下載成功，但無法驗證（未提供遠端雜湊值）。"
       },
       "Help": {
         "Title": "DLL 與 FSL 說明",
-        "DllSteps": "1. 點擊 [下載]\n2. 等待下載完成\n3. 檔案位於 '%LOCALAPPDATA%/YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
-        "FslSteps": "1. 下載 FSL（「風險提示」頁面中提供連結）\n2. 開啟你的 GTA V 安裝目錄\n3. 將 WINMM.dll 放入該資料夾\n   （檔案名稱必須完全為 'WINMM.dll'）\n4. 在 Rockstar Games Launcher 中停用 BattlEye\n5. 完成！"
+        "DllSteps": "1. 點選 [下載]\n2. 等待下載完成\n3. 檔案位於 '%LOCALAPPDATA%/YMU/dll' 資料夾中\n\n如果檔案被刪除，請在防毒軟體中將其設為例外\n或暫時關閉防毒軟體。",
+        "FslSteps": "1. 下載 FSL（「風險提示」頁面中提供連結）\n2. 開啟你的 GTA V 安裝資料夾\n3. 將 WINMM.dll 放入該資料夾\n   （檔案名稱必須完全為 'WINMM.dll'）\n4. 在 Rockstar Games Launcher 中停用 BattlEye\n5. 完成！"
       },
       "Tooltip": {
         "Help": "顯示 DLL 與 FSL 安裝說明",
@@ -4310,7 +4310,7 @@
       "Btn": {
         "StartGta": "啟動 GTA V",
         "InjectBase": "注入 YimMenu",
-        "NoDll": "未找到 DLL",
+        "NoDll": "找不到 DLL",
         "InjectFile": "注入 {0}"
       },
       "Notify": {
@@ -4323,25 +4323,25 @@
       },
       "Help": {
         "Title": "注入說明",
-        "StartGtaSteps": "1. 選擇你的啟動器\n2. 點擊 [啟動 GTA V]\n3. 閱讀下一步",
+        "StartGtaSteps": "1. 選擇你的啟動器\n2. 點選 [啟動 GTA V]\n3. 閱讀下一步",
         "TabInject": "注入 DLL",
-        "InjectSteps": "1. 啟動 GTA V（上一步）\n2. 等待遊戲進入開始畫面/選單\n3. 點擊 [注入 YimMenu]\n4. 等待 YimMenu 載入完成\n5. 完成！"
+        "InjectSteps": "1. 啟動 GTA V（上一步）\n2. 等待遊戲進入開始畫面/選單\n3. 點選 [注入 YimMenu]\n4. 等待 YimMenu 載入完成\n5. 完成！"
       },
       "Tooltip": {
-        "Help": "顯示注入過程的說明資訊",
+        "Help": "顯示注入流程的說明",
         "Launcher": "選擇你用來啟動 GTA V 的啟動器",
         "Dll": "選擇要注入的 DLL",
         "NoDll": "請先在下載頁面下載 {0} DLL。"
       },
       "Error": {
-        "NoDllSelected": "錯誤：未選擇或未找到用於注入的 DLL。",
+        "NoDllSelected": "錯誤：未選取或找不到要注入的 DLL。",
         "ProcessLost": "注入前 GTA V 處理程序已結束。",
-        "InjectionFailed": "注入失敗，詳情請查看日誌。",
+        "InjectionFailed": "注入失敗，詳情請查看記錄檔。",
         "NoRockstarPath": "找不到 Rockstar Games 安裝路徑。",
-        "NoExeFound": "未在 '{0}' 找到可執行檔",
-        "LaunchFailed": "啟動遊戲時發生錯誤，詳情請查看日誌。",
+        "NoExeFound": "在 '{0}' 找不到可執行檔",
+        "LaunchFailed": "啟動遊戲時發生錯誤，詳情請查看記錄檔。",
         "AccessDenied": "缺少注入 GTA V 的權限。\n請嘗試以系統管理員身分重新啟動 YMU。",
-        "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在啟動器中停用 BattlEye（見「風險提示」）。\n並確認 Legacy/Enhanced 開關與遊戲一致。",
+        "AccessDeniedAdmin": "即使擁有系統管理員權限，注入仍被拒絕。\n這通常是由 BattlEye 或錯誤的遊戲版本造成的。\n請在啟動器中停用 BattlEye（見「風險提示」），\n並確認 Legacy/Enhanced 開關與遊戲一致。",
         "CustomPathInvalid": "自訂 GTA V 路徑未設定或已不存在。\n請在設定頁面重新設定。",
         "VerificationFailedTitle": "注入未確認",
         "VerificationFailed": "已觸發 DLL 注入，但無法在 GTA V 的記憶體中驗證該模組。\n\n這通常是因為 BattlEye 正在運作、防毒軟體封鎖，或遊戲閃退。",
@@ -4398,9 +4398,9 @@
         "ListEnabled": "已啟用",
         "Tooltip": {
           "AutoReload": "儲存 Lua 腳本檔案時自動套用變更",
-          "Enable": "啟用選中的腳本",
-          "Disable": "停用選中的腳本",
-          "Refresh": "重新整理腳本列表",
+          "Enable": "啟用選取的腳本",
+          "Disable": "停用選取的腳本",
+          "Refresh": "重新整理腳本清單",
           "DisableAll": "一次停用所有腳本（安全模式）",
           "EnableAll": "重新啟用所有已停用的腳本"
         },
@@ -4411,9 +4411,9 @@
         }
       },
       "Other": {
-        "DebugConsole": "啟用外部除錯控制台",
+        "DebugConsole": "啟用外部除錯主控台",
         "Tooltip": {
-          "Debug": "顯示 YimMenu 的外部控制台視窗以查看詳細日誌與除錯資訊"
+          "Debug": "顯示 YimMenu 的外部主控台視窗，以查看詳細記錄與除錯資訊"
         }
       },
       "Btn": {
@@ -4426,9 +4426,9 @@
         "CheckUpdates": "檢查 YMU 更新",
         "UpToDate": "YMU 已是最新",
         "OpenYimV2Folder": "開啟 YimMenuV2 資料夾",
-        "OpenLog": "開啟 YimMenu 日誌",
+        "OpenLog": "開啟 YimMenu 記錄檔",
         "ResetCaches": "清除指標快取",
-        "OpenV2Log": "開啟 YimMenuV2 日誌"
+        "OpenV2Log": "開啟 YimMenuV2 記錄檔"
       },
       "Tooltip": {
         "OpenScripts": "開啟 Lua 腳本所在的資料夾",
@@ -4441,7 +4441,7 @@
         "UpdateLang": "檢查翻譯更新",
         "OpenYimV2Folder": "開啟 YimMenuV2 資料夾 (%APPDATA%/YimMenuV2)",
         "OpenLog": "在文字編輯器中開啟目前版本的 cout.log",
-        "ResetCaches": "刪除快取的二進位偏移量。遊戲更新後若選單啟動時崩潰，建議使用。"
+        "ResetCaches": "刪除快取的二進位偏移量。遊戲更新後若選單啟動時閃退，建議使用。"
       },
       "Update": {
         "Title": "YMU 更新",
@@ -4451,23 +4451,23 @@
         "Prompt": "你想在瀏覽器中開啟下載頁面嗎？",
         "CheckTitle": "檢查 YMU 更新",
         "ErrorTitle": "更新錯誤",
-        "Ahead": "你執行的版本比最新發布版還要新。"
+        "Ahead": "你執行的版本比最新釋出版本還要新。"
       },
       "Notify": {
         "RestartRequired": "請重新啟動 YMU 以套用新語言。",
-        "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新的語言列表。",
+        "LangUpdated": "翻譯檔案已成功下載。\n重新啟動 YMU 以在設定中查看更新後的語言清單。",
         "LangTitle": "語言已變更",
         "LangUpToDate": "翻譯已是最新版本。",
         "FolderMissing": "資料夾尚不存在：\n{0}",
         "V2FileMissing": "YimMenuV2 還沒有 settings.json。\n先注入並執行一次，然後重試。",
-        "NoGtaDirFound": "找不到 GTA V 目錄。請先瀏覽並選取你的 GTA V 安裝資料夾。",
+        "NoGtaDirFound": "找不到 GTA V 資料夾。請先瀏覽並選取你的 GTA V 安裝資料夾。",
         "BattlEyeDisabledTitle": "BattlEye 已停用",
-        "BattlEyeDisabledMsg": "已在 GTA V 目錄下的 commandline.txt 新增 -nobattleye。",
+        "BattlEyeDisabledMsg": "已在 GTA V 資料夾中的 commandline.txt 新增 -nobattleye。",
         "BattlEyeRestoredTitle": "BattlEye 已還原",
         "BattlEyeRestoredMsg": "已從 commandline.txt 中移除 -nobattleye。",
         "CachesClearedTitle": "快取已清除",
         "CachesClearedMsg": "已成功清除 {0} 個快取檔案。",
-        "NoCachesMsg": "未找到可清除的快取檔案。",
+        "NoCachesMsg": "找不到可清除的快取檔案。",
         "LuaSafeModeEnabled": "{0} 個腳本已停用（安全模式）。",
         "LuaSafeModeDisabled": "{0} 個腳本已重新啟用。",
         "SettingWriteFailed": "無法將設定儲存到 settings.json。",
@@ -4480,22 +4480,22 @@
         "Clear": "清除",
         "CustomDll": "自訂選單 DLL",
         "DefaultDll": "使用已下載的 DLL",
-        "ErrorNoGta": "此資料夾中未找到 GTA V 可執行檔。",
+        "ErrorNoGta": "此資料夾中找不到 GTA V 可執行檔。",
         "ErrorNotDll": "請選擇一個 .dll 檔案。",
         "ErrorNotFound": "路徑不存在。",
         "GtaDir": "GTA V 安裝資料夾",
         "ErrorWriteCommandline": "無法修改 commandline.txt。請檢查檔案權限。",
         "NoBattlEye": "停用 BattlEye（commandline.txt）",
         "Tooltip": {
-          "NoBattlEye": "在 GTA V 目錄下的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲",
+          "NoBattlEye": "在 GTA V 資料夾中的 commandline.txt 中新增或移除 -nobattleye，以便在不執行 BattlEye 的情況下啟動遊戲",
           "Fsl": "在「風險提示」頁面查看重要的 FSL 說明及下載連結",
-          "FslDeprecated": "偵測到已過時的 version.dll！此舊檔案會導致遊戲崩潰。請將其刪除，並從 FSL 討論串下載並安裝最新的 WINMM.dll。"
+          "FslDeprecated": "偵測到已過時的 version.dll！此舊檔案會導致遊戲閃退。請將其刪除，並從 FSL 討論串下載並安裝最新的 WINMM.dll。"
         },
         "FslDetected": "FSL (WINMM.dll)：已偵測到",
-        "FslDeprecated": "FSL (version.dll)：已過時（存在崩潰風險）",
-        "FslMissing": "FSL (WINMM.dll)：未找到（可選：本機存檔）",
+        "FslDeprecated": "FSL (version.dll)：已過時（有閃退風險）",
+        "FslMissing": "FSL (WINMM.dll)：找不到（選用：本機存檔）",
         "FslHelp": "FSL 說明",
-        "OpenLogFailed": "無法開啟日誌檔：\n{0}",
+        "OpenLogFailed": "無法開啟記錄檔：\n{0}",
         "ErrorAccess": "無法存取資料夾：{0}"
       },
       "Notice": {
@@ -4507,7 +4507,7 @@
     },
     "About": {
       "Title": "關於 YMU",
-      "Subtitle": "YimMenu 智慧啟動器：時刻更新，時刻就緒。",
+      "Subtitle": "YimMenu 智慧啟動器：隨時更新，隨時就緒。",
       "Description": "適用於 YimMenu 與 YimMenuV2 的智慧啟動器、更新工具與注入器。",
       "TabGeneral": "一般",
       "TabLicenses": "開源授權",
@@ -4524,17 +4524,17 @@
       "FeatureDualEdition": "<b>雙版本支援：</b>在 GTA V Legacy（YimMenu）與 Enhanced（YimMenuV2）之間無縫切換，並保留各自獨立的設定。",
       "FeatureAutoUpdates": "<b>自動化 DLL 管理：</b>啟動時自動檢查更新、一鍵下載，並進行 SHA-256 完整性驗證。",
       "FeatureSafeInjection": "<b>原生注入引擎：</b>安全的 Win32 DLL 注入，支援 BattlEye 偵測與記憶體驗證。",
-      "FeatureLuaManagement": "<b>Lua 腳本管理器：</b>直接尋找腳本、批次安全模式操作，以及快速存取腳本資料夾。",
+      "FeatureLuaManagement": "<b>Lua 腳本管理工具：</b>直接尋找腳本、批次安全模式操作，以及快速存取腳本資料夾。",
       "FeatureAccessibility": "<b>現代 UI/UX：</b>自適應深色/淺色主題、完整的 RTL 版面支援，以及 {0} 種在地化語言。",
       "LicensesNotice": "YimMenuUpdater 是基於自由及開源函式庫建構的原始碼公開軟體。我們衷心感謝以下專案：",
-      "CreditsLeadTitle": "主開發者與架構設計",
-      "CreditsLeadDesc": "YimMenuUpdater (YMU) 的建立者與維護者。",
+      "CreditsLeadTitle": "主要開發者與架構設計",
+      "CreditsLeadDesc": "YimMenuUpdater (YMU) 的創作者與維護者。",
       "CreditsModTitle": "模組選單開發",
       "CreditsModDesc": "開源 YimMenu (Legacy) 與 YimMenuV2 (Enhanced Edition) 模組選單的開發與維護。",
       "CreditsSaveTitle": "本機存檔",
       "CreditsSaveDesc": "為本機 GTA Online 存檔重新導向工具做出貢獻的 UnknownCheats 社群成員。",
       "CreditsTestTitle": "社群與 Beta 測試者",
-      "CreditsTestDesc": "特別感謝所有測試預先發布版本、驗證問題修正並為各次遊戲更新提出改進建議的社群成員與 Beta 測試者。"
+      "CreditsTestDesc": "特別感謝所有測試預先釋出版本、驗證問題修正並為各次遊戲更新提出改進建議的社群成員與 Beta 測試者。"
     },
     "Context": {
       "Undo": "復原",
