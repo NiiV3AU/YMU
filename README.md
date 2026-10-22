@@ -149,14 +149,6 @@ For reference, `uv sync` pulls in [PySide6](https://pypi.org/project/PySide6/) a
 > **Not using uv?** Dependencies are declared in `pyproject.toml`, so plain pip works as well:
 > `python -m venv .venv && .venv\Scripts\activate`, then install the runtime dependencies and `pip install nuitka` to build.
 
-### Running Tests
-
-The test suite runs entirely in an isolated `%TEMP%` sandbox (configured via `tests/_harness.py` and `YMU_SANDBOX_DIR`), ensuring your personal `%APPDATA%\YMU` and `%LOCALAPPDATA%\YMU` files are never touched or modified by tests:
-
-```bash
-uv run pytest
-```
-
 ### Run from source
 
 ```bash
