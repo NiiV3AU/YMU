@@ -316,7 +316,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Real-time download progress bar and status indicators.
 - Clean, dark-themed desktop interface.
 
-[Unreleased]: https://github.com/NiiV3AU/YMU/compare/v1.1.11...HEAD
+[Unreleased]: https://github.com/NiiV3AU/YMU/compare/v1.2.0...HEAD
 [1.2.0]: https://github.com/NiiV3AU/YMU/compare/v1.1.11...v1.2.0
 [1.1.11]: https://github.com/NiiV3AU/YMU/compare/v1.1.10...v1.1.11
 [1.1.10]: https://github.com/NiiV3AU/YMU/compare/v1.1.9...v1.1.10
